@@ -1,0 +1,29 @@
+LinkedIn Clone
+1. Client Pages
+•	Client Profiles: Clients can showcase their business, post job listings, and engage with followers. Clients can have Vendors and the vendors are displayed for the client if assigned in the database.
+•	Follow Clients: Users can follow Clients to stay updated on their activities, job openings, and corporate culture.
+2. Profile Creation and Management 
+Professional Profile: Users can create a detailed profile including their professional experience, skills, education, certifications, recommendations, and a personalized headline. Profiles can invite, add and share invites.
+3. Job Search, Alerts and Notification.
+•	Job Listings: PingJob provides a comprehensive job board where users can search and apply for jobs based on location, industry, job type & experience.
+•	Job Alerts: Users can set up job alerts to get notifications about new job opportunities that match their profile.
+•	Easy Apply: Users can apply to jobs directly with their PingJob profile, simplifying the application process. Logged in users can upload Doc, Docx and PDF files (resumes)
+4.Resume Rank: Resumes assigned to a job needs to be parsed against the Job description and pass a rank based on Skill, location years of experience and other parameters.
+5. Networking and Connections
+Connection Requests: Users can send connection requests to others on their network, expanding their professional contacts.
+6. PingJob Messaging
+•	Direct Messaging: Users can send direct messages to their connections or other professionals, fostering communication and networking.
+•	Mail: For premium users, PingJob offers InMail, a feature that lets users send messages to people outside their network.
+•	Group Chats: Users can create or join group chats for professional discussions or collaboration.
+7. Groups and Communities
+•	Professional Groups: PingJob offers groups based on industries, job roles, interests, or specific topics where users can join discussions, ask questions, and share knowledge.
+•	Group Chat: PingJob groups also allow for direct group discussions in chat format.
+8. Recruiter Tools
+•	PingJob Recruiter: A tool for businesses and recruiters to find and engage potential job candidates with advanced search filters, candidate tracking, and InMail capabilities.
+9. Advanced Search Filters
+•	Refined Search: PingJob allows advanced search filters for jobs, people, Clients, and content, enabling users to find exactly what they are looking for in a highly specific manner.
+10. Dashboard (4 types)  Platform Admin, Job Seeker, Recruiter and Client.
+•	Job Seeker - Free, can upload resume, create and maintain profile, invite using social media platforms, Facebook, Twitter, LinkedIn and Instagram.
+•	Recruiter - Paid subscriber, can post up to 5 jobs and all the features for basic qualifying and selecting resumes for the job.
+•	Client - Paid subscriber, can assign jobs/resumes to Recruiters and do all the functions for the Client.
+•	Platform Admin - Has all the authorizations. View total users and jobs. Deactivate users - all payment functions.
