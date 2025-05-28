@@ -89,7 +89,13 @@ export const companies = pgTable("companies", {
   description: text("description"),
   logoUrl: varchar("logo_url"),
   followers: integer("followers").default(0),
+  country: varchar("country"),
+  state: varchar("state"),
+  city: varchar("city"),
+  zipCode: varchar("zip_code"),
+  status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Jobs
@@ -101,6 +107,10 @@ export const jobs = pgTable("jobs", {
   description: text("description").notNull(),
   requirements: text("requirements"),
   location: varchar("location"),
+  country: varchar("country"),
+  state: varchar("state"),
+  city: varchar("city"),
+  zipCode: varchar("zip_code"),
   jobType: varchar("job_type", { enum: ["full_time", "part_time", "contract", "remote"] }).notNull(),
   experienceLevel: varchar("experience_level", { enum: ["entry", "mid", "senior", "executive"] }).notNull(),
   salary: varchar("salary"),
@@ -165,6 +175,18 @@ export const groupMemberships = pgTable("group_memberships", {
   joinedAt: timestamp("joined_at").defaultNow(),
 });
 
+// Vendors (for client-vendor relationships)
+export const vendors = pgTable("vendors", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => companies.id).notNull(),
+  vendorId: integer("vendor_id").references(() => companies.id).notNull(),
+  status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
+  addedBy: varchar("added_by").references(() => users.id).notNull(),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const userRelations = relations(users, ({ many, one }) => ({
   experiences: many(experiences),
@@ -209,6 +231,8 @@ export const companyRelations = relations(companies, ({ one, many }) => ({
     references: [users.id],
   }),
   jobs: many(jobs),
+  clientVendors: many(vendors, { relationName: "client" }),
+  vendorClients: many(vendors, { relationName: "vendor" }),
 }));
 
 export const jobRelations = relations(jobs, ({ one, many }) => ({
@@ -279,6 +303,27 @@ export const groupMembershipRelations = relations(groupMemberships, ({ one }) =>
   }),
 }));
 
+export const vendorRelations = relations(vendors, ({ one }) => ({
+  client: one(companies, {
+    fields: [vendors.clientId],
+    references: [companies.id],
+    relationName: "client",
+  }),
+  vendor: one(companies, {
+    fields: [vendors.vendorId],
+    references: [companies.id],
+    relationName: "vendor",
+  }),
+  addedByUser: one(users, {
+    fields: [vendors.addedBy],
+    references: [users.id],
+  }),
+  approvedByUser: one(users, {
+    fields: [vendors.approvedBy],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -342,6 +387,14 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
   createdAt: true,
 });
 
+export const insertVendorSchema = createInsertSchema(vendors).omit({
+  id: true,
+  status: true,
+  approvedBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -363,3 +416,5 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Group = typeof groups.$inferSelect;
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
+export type Vendor = typeof vendors.$inferSelect;
+export type InsertVendor = z.infer<typeof insertVendorSchema>;
