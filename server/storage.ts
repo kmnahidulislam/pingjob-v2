@@ -10,6 +10,7 @@ import {
   messages,
   groups,
   groupMemberships,
+  vendors,
   type User,
   type UpsertUser,
   type Experience,
@@ -30,6 +31,8 @@ import {
   type InsertMessage,
   type Group,
   type InsertGroup,
+  type Vendor,
+  type InsertVendor,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -101,6 +104,12 @@ export interface IStorage {
   getUserGroups(userId: string): Promise<any[]>;
   createGroup(group: InsertGroup): Promise<Group>;
   joinGroup(groupId: number, userId: string): Promise<void>;
+  
+  // Vendor operations
+  getClientVendors(clientId: number): Promise<any[]>;
+  addVendor(vendor: InsertVendor): Promise<Vendor>;
+  updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor>;
+  getPendingVendors(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -604,6 +613,70 @@ export class DatabaseStorage implements IStorage {
       .update(groups)
       .set({ memberCount: sql`${groups.memberCount} + 1` })
       .where(eq(groups.id, groupId));
+  }
+
+  // Vendor operations
+  async getClientVendors(clientId: number): Promise<any[]> {
+    return await db
+      .select({
+        id: vendors.id,
+        vendor: {
+          id: companies.id,
+          name: companies.name,
+          industry: companies.industry,
+          location: companies.city,
+        },
+        status: vendors.status,
+        createdAt: vendors.createdAt,
+      })
+      .from(vendors)
+      .leftJoin(companies, eq(vendors.vendorId, companies.id))
+      .where(eq(vendors.clientId, clientId))
+      .orderBy(desc(vendors.createdAt));
+  }
+
+  async addVendor(vendor: InsertVendor): Promise<Vendor> {
+    const [result] = await db.insert(vendors).values(vendor).returning();
+    return result;
+  }
+
+  async updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor> {
+    const [result] = await db
+      .update(vendors)
+      .set({ 
+        status: status as "pending" | "approved" | "rejected",
+        approvedBy,
+        updatedAt: new Date() 
+      })
+      .where(eq(vendors.id, id))
+      .returning();
+    return result;
+  }
+
+  async getPendingVendors(): Promise<any[]> {
+    return await db
+      .select({
+        id: vendors.id,
+        client: {
+          id: companies.id,
+          name: companies.name,
+        },
+        vendor: {
+          id: companies.id,
+          name: companies.name,
+        },
+        addedBy: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        },
+        createdAt: vendors.createdAt,
+      })
+      .from(vendors)
+      .leftJoin(companies, eq(vendors.clientId, companies.id))
+      .leftJoin(users, eq(vendors.addedBy, users.id))
+      .where(eq(vendors.status, "pending"))
+      .orderBy(desc(vendors.createdAt));
   }
 }
 

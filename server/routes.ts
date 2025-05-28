@@ -14,6 +14,7 @@ import {
   insertConnectionSchema,
   insertMessageSchema,
   insertGroupSchema,
+  insertVendorSchema,
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
@@ -525,6 +526,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error joining group:", error);
       res.status(500).json({ message: "Failed to join group" });
+    }
+  });
+
+  // Vendor Management Routes
+  app.get('/api/clients/:id/vendors', isAuthenticated, async (req, res) => {
+    try {
+      const clientId = parseInt(req.params.id);
+      const vendors = await storage.getClientVendors(clientId);
+      res.json(vendors);
+    } catch (error) {
+      console.error("Error fetching client vendors:", error);
+      res.status(500).json({ message: "Failed to fetch vendors" });
+    }
+  });
+
+  app.post('/api/vendors', isAuthenticated, async (req: any, res) => {
+    try {
+      const validatedData = insertVendorSchema.parse(req.body);
+      const vendor = await storage.addVendor({
+        ...validatedData,
+        addedBy: req.user.claims.sub,
+      });
+      res.status(201).json(vendor);
+    } catch (error) {
+      console.error("Error adding vendor:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid vendor data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to add vendor" });
+    }
+  });
+
+  // Admin Routes - Platform Admin can approve vendors and edit jobs
+  app.get('/api/admin/vendors/pending', isAuthenticated, async (req, res) => {
+    try {
+      const pendingVendors = await storage.getPendingVendors();
+      res.json(pendingVendors);
+    } catch (error) {
+      console.error("Error fetching pending vendors:", error);
+      res.status(500).json({ message: "Failed to fetch pending vendors" });
+    }
+  });
+
+  app.patch('/api/admin/vendors/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const vendorId = parseInt(req.params.id);
+      const { status } = req.body;
+      const vendor = await storage.updateVendorStatus(vendorId, status, req.user.claims.sub);
+      res.json(vendor);
+    } catch (error) {
+      console.error("Error updating vendor status:", error);
+      res.status(500).json({ message: "Failed to update vendor status" });
+    }
+  });
+
+  app.patch('/api/admin/jobs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      const validatedData = insertJobSchema.partial().parse(req.body);
+      const job = await storage.updateJob(jobId, validatedData);
+      res.json(job);
+    } catch (error) {
+      console.error("Error updating job:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid job data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update job" });
+    }
+  });
+
+  app.patch('/api/admin/companies/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      const { status } = req.body;
+      const company = await storage.updateCompany(companyId, { status });
+      res.json(company);
+    } catch (error) {
+      console.error("Error updating company status:", error);
+      res.status(500).json({ message: "Failed to update company status" });
     }
   });
 
