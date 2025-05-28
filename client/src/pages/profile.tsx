@@ -22,7 +22,8 @@ import {
   MessageCircle,
   UserPlus,
   Check,
-  Mail
+  Mail,
+  Briefcase
 } from "lucide-react";
 
 export default function Profile() {
