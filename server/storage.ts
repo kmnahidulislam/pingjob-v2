@@ -488,7 +488,10 @@ export class DatabaseStorage implements IStorage {
   async updateConnectionStatus(id: number, status: string): Promise<Connection> {
     const [result] = await db
       .update(connections)
-      .set({ status: status as any, updatedAt: new Date() })
+      .set({ 
+        status: status as "pending" | "accepted" | "declined", 
+        updatedAt: new Date() 
+      })
       .where(eq(connections.id, id))
       .returning();
     return result;
