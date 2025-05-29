@@ -15,7 +15,8 @@ import {
   MapPin,
   Bookmark,
   Building,
-  DollarSign
+  DollarSign,
+  Edit
 } from "lucide-react";
 import type { JobWithCompany } from "@/lib/types";
 
@@ -244,6 +245,26 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               >
                 View Details
               </Button>
+              
+              {/* Admin Edit Button */}
+              {user?.email === 'krupas@vedsoft.com' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Navigate to edit job page or open edit modal
+                    toast({
+                      title: "Edit Job",
+                      description: "Job editing functionality will be implemented here",
+                    });
+                  }}
+                  className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              )}
+              
               <Button
                 onClick={handleEasyApply}
                 className="bg-linkedin-blue text-white hover:bg-linkedin-dark"
