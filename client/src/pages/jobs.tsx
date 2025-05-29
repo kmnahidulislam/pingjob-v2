@@ -58,6 +58,7 @@ const jobFormSchema = insertJobSchema.extend({
   state: z.string().min(1, "State is required"),
   zipCode: z.string().optional(),
   country: z.string().min(1, "Country is required"),
+  skills: z.string().optional(), // Keep as string in form, convert to array on submit
 });
 
 export default function Jobs() {
@@ -133,8 +134,14 @@ export default function Jobs() {
   });
 
   const createJobMutation = useMutation({
-    mutationFn: (jobData: z.infer<typeof jobFormSchema>) =>
-      apiRequest('POST', '/api/jobs', jobData),
+    mutationFn: (jobData: z.infer<typeof jobFormSchema>) => {
+      // Convert comma-separated skills string to array
+      const processedJobData = {
+        ...jobData,
+        skills: jobData.skills ? jobData.skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0) : []
+      };
+      return apiRequest('POST', '/api/jobs', processedJobData);
+    },
     onSuccess: () => {
       toast({
         title: "Job created successfully",
