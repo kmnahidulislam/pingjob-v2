@@ -355,6 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = insertJobApplicationSchema.parse({
         ...req.body,
+        jobId: parseInt(req.body.jobId),
         applicantId: userId,
         resumeUrl,
       });
@@ -363,6 +364,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(application);
     } catch (error) {
       console.error("Error creating application:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid application data", errors: error.errors });
+      }
       res.status(500).json({ message: "Failed to create application" });
     }
   });
