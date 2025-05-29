@@ -243,6 +243,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get pending companies (admin only)
+  app.get('/api/companies/pending', isAuthenticated, async (req: any, res) => {
+    try {
+      const userType = req.user.claims.sub;
+      const user = await storage.getUser(userType);
+      
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const pendingCompanies = await storage.getPendingCompanies();
+      res.json(pendingCompanies);
+    } catch (error) {
+      console.error("Error fetching pending companies:", error);
+      res.status(500).json({ message: "Failed to fetch pending companies" });
+    }
+  });
+
+  // Approve company (admin only)
+  app.put('/api/companies/:id/approve', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const companyId = parseInt(req.params.id);
+      const company = await storage.updateCompanyStatus(companyId, 'approved', userId);
+      res.json(company);
+    } catch (error) {
+      console.error("Error approving company:", error);
+      res.status(500).json({ message: "Failed to approve company" });
+    }
+  });
+
+  // Reject company (admin only)
+  app.put('/api/companies/:id/reject', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.userType !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const companyId = parseInt(req.params.id);
+      const company = await storage.updateCompanyStatus(companyId, 'rejected', userId);
+      res.json(company);
+    } catch (error) {
+      console.error("Error rejecting company:", error);
+      res.status(500).json({ message: "Failed to reject company" });
+    }
+  });
+
   app.put('/api/companies/:id', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

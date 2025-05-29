@@ -6,10 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import JobCard from "@/components/job-card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
+import { insertCompanySchema } from "@shared/schema";
+import { z } from "zod";
 import {
   Building,
   Search,
@@ -24,10 +32,24 @@ import {
   Plus,
   Filter,
   Phone,
-  Star
+  Star,
+  Check,
+  X,
+  Edit
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Company } from "@/lib/types";
+
+const companyFormSchema = insertCompanySchema.extend({
+  name: z.string().min(1, "Company name is required"),
+  industry: z.string().min(1, "Industry is required"),
+  description: z.string().min(1, "Description is required"),
+  website: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  phone: z.string().optional(),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  country: z.string().min(1, "Country is required"),
+});
 
 export default function Companies() {
   const { user } = useAuth();
@@ -36,6 +58,7 @@ export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showPendingApprovals, setShowPendingApprovals] = useState(false);
 
   const { data: companies, isLoading } = useQuery({
     queryKey: ['/api/companies'],
@@ -43,6 +66,92 @@ export default function Companies() {
       const response = await fetch('/api/companies');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
+    }
+  });
+
+  // Fetch pending companies for admin approval
+  const { data: pendingCompanies } = useQuery({
+    queryKey: ['/api/companies/pending'],
+    enabled: user?.userType === 'admin',
+    queryFn: async () => {
+      const response = await fetch('/api/companies/pending');
+      if (!response.ok) throw new Error('Failed to fetch pending companies');
+      return response.json();
+    }
+  });
+
+  const companyForm = useForm<z.infer<typeof companyFormSchema>>({
+    resolver: zodResolver(companyFormSchema),
+    defaultValues: {
+      name: "",
+      industry: "",
+      description: "",
+      website: "",
+      phone: "",
+      city: "",
+      state: "",
+      country: "",
+      size: "1-10",
+    },
+  });
+
+  const createCompanyMutation = useMutation({
+    mutationFn: (companyData: z.infer<typeof companyFormSchema>) =>
+      apiRequest('POST', '/api/companies', companyData),
+    onSuccess: () => {
+      toast({
+        title: "Company submitted for approval",
+        description: "Your company will be reviewed by our team and approved shortly"
+      });
+      setShowCreateForm(false);
+      companyForm.reset();
+      queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error creating company",
+        description: error.message || "Failed to create company",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const approveCompanyMutation = useMutation({
+    mutationFn: (companyId: number) =>
+      apiRequest('PUT', `/api/companies/${companyId}/approve`, {}),
+    onSuccess: () => {
+      toast({
+        title: "Company approved",
+        description: "The company has been approved and is now visible to all users"
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies/pending'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error approving company",
+        description: error.message || "Failed to approve company",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const rejectCompanyMutation = useMutation({
+    mutationFn: (companyId: number) =>
+      apiRequest('PUT', `/api/companies/${companyId}/reject`, {}),
+    onSuccess: () => {
+      toast({
+        title: "Company rejected",
+        description: "The company has been rejected"
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies/pending'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error rejecting company",
+        description: error.message || "Failed to reject company",
+        variant: "destructive"
+      });
     }
   });
 

@@ -69,6 +69,8 @@ export interface IStorage {
   createCompany(company: InsertCompany): Promise<Company>;
   updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company>;
   getCompanies(limit?: number): Promise<Company[]>;
+  getPendingCompanies(): Promise<Company[]>;
+  updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company>;
   
   // Job operations
   getJob(id: number): Promise<Job | undefined>;
@@ -263,8 +265,30 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(companies)
+      .where(eq(companies.status, 'approved'))
       .orderBy(desc(companies.followers))
       .limit(limit);
+  }
+
+  async getPendingCompanies(): Promise<Company[]> {
+    return await db
+      .select()
+      .from(companies)
+      .where(eq(companies.status, 'pending'))
+      .orderBy(desc(companies.createdAt));
+  }
+
+  async updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company> {
+    const [result] = await db
+      .update(companies)
+      .set({ 
+        status, 
+        approvedBy,
+        updatedAt: new Date() 
+      })
+      .where(eq(companies.id, id))
+      .returning();
+    return result;
   }
 
   // Job operations
