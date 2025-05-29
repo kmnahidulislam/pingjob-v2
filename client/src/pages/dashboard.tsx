@@ -52,10 +52,7 @@ export default function Dashboard() {
   // Approve/Reject company mutation
   const companyStatusMutation = useMutation({
     mutationFn: async ({ companyId, status }: { companyId: number; status: string }) => {
-      return await apiRequest(`/api/companies/${companyId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status, approvedBy: user?.id }),
-      });
+      return await apiRequest('PATCH', `/api/companies/${companyId}/status`, { status, approvedBy: user?.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/companies/pending'] });
@@ -77,10 +74,7 @@ export default function Dashboard() {
   // Add vendor mutation
   const addVendorMutation = useMutation({
     mutationFn: async (vendorData: any) => {
-      return await apiRequest('/api/vendors', {
-        method: 'POST',
-        body: JSON.stringify(vendorData),
-      });
+      return await apiRequest('POST', '/api/vendors', vendorData);
     },
     onSuccess: () => {
       setVendorDialogOpen(false);

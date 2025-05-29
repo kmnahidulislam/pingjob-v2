@@ -178,14 +178,17 @@ export const groupMemberships = pgTable("group_memberships", {
   joinedAt: timestamp("joined_at").defaultNow(),
 });
 
-// Vendors (for client-vendor relationships)
+// Vendors (service providers for companies)
 export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
-  clientId: integer("client_id").references(() => companies.id).notNull(),
-  vendorId: integer("vendor_id").references(() => companies.id).notNull(),
-  status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
-  addedBy: varchar("added_by").references(() => users.id).notNull(),
-  approvedBy: varchar("approved_by").references(() => users.id),
+  companyId: integer("company_id").references(() => companies.id).notNull(),
+  name: varchar("name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  services: varchar("services").notNull(),
+  description: text("description"),
+  status: varchar("status", { enum: ["pending", "active", "inactive"] }).default("active"),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -307,22 +310,12 @@ export const groupMembershipRelations = relations(groupMemberships, ({ one }) =>
 }));
 
 export const vendorRelations = relations(vendors, ({ one }) => ({
-  client: one(companies, {
-    fields: [vendors.clientId],
+  company: one(companies, {
+    fields: [vendors.companyId],
     references: [companies.id],
-    relationName: "client",
   }),
-  vendor: one(companies, {
-    fields: [vendors.vendorId],
-    references: [companies.id],
-    relationName: "vendor",
-  }),
-  addedByUser: one(users, {
-    fields: [vendors.addedBy],
-    references: [users.id],
-  }),
-  approvedByUser: one(users, {
-    fields: [vendors.approvedBy],
+  createdByUser: one(users, {
+    fields: [vendors.createdBy],
     references: [users.id],
   }),
 }));
