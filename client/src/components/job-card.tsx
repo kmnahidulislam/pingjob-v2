@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
+import JobEditModal from "@/components/modals/job-edit-modal";
 import {
   Clock,
   Users,
@@ -32,6 +33,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const bookmarkMutation = useMutation({
@@ -251,13 +253,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    // Navigate to edit job page or open edit modal
-                    toast({
-                      title: "Edit Job",
-                      description: "Job editing functionality will be implemented here",
-                    });
-                  }}
+                  onClick={() => setIsEditModalOpen(true)}
                   className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
                 >
                   <Edit className="h-4 w-4 mr-1" />
@@ -281,6 +277,12 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
         job={job}
         isOpen={isApplicationModalOpen}
         onClose={() => setIsApplicationModalOpen(false)}
+      />
+      
+      <JobEditModal
+        job={job}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
       />
     </>
   );

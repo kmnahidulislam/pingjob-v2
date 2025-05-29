@@ -459,6 +459,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/jobs/:id', isAuthenticated, async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      const jobData = insertJobSchema.parse(req.body);
+      
+      const updatedJob = await storage.updateJob(jobId, jobData);
+      res.json(updatedJob);
+    } catch (error) {
+      console.error('Error updating job:', error);
+      res.status(500).json({ error: 'Failed to update job' });
+    }
+  });
+
   app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
