@@ -827,6 +827,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Location routes
+  app.get('/api/countries', async (req, res) => {
+    try {
+      const countries = await storage.getCountries();
+      res.json(countries);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      res.status(500).json({ message: "Failed to fetch countries" });
+    }
+  });
+
+  app.get('/api/states/:countryId', async (req, res) => {
+    try {
+      const { countryId } = req.params;
+      const states = await storage.getStatesByCountry(parseInt(countryId));
+      res.json(states);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      res.status(500).json({ message: "Failed to fetch states" });
+    }
+  });
+
+  app.get('/api/cities/:stateId', async (req, res) => {
+    try {
+      const { stateId } = req.params;
+      const cities = await storage.getCitiesByState(parseInt(stateId));
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

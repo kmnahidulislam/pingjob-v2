@@ -127,6 +127,40 @@ export default function Jobs() {
     }
   });
 
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [selectedState, setSelectedState] = useState<any>(null);
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountry?.id],
+    queryFn: async () => {
+      if (!selectedCountry?.id) return [];
+      const response = await fetch(`/api/states/${selectedCountry.id}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountry?.id
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedState?.id],
+    queryFn: async () => {
+      if (!selectedState?.id) return [];
+      const response = await fetch(`/api/cities/${selectedState.id}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedState?.id
+  });
+
   const { data: applications } = useQuery({
     queryKey: ['/api/applications'],
     enabled: !!user && user.userType === 'job_seeker'
@@ -569,16 +603,37 @@ export default function Jobs() {
                             )}
                           />
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-3 gap-4">
                             <FormField
                               control={jobForm.control}
-                              name="city"
+                              name="country"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>City</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g. San Francisco" {...field} />
-                                  </FormControl>
+                                  <FormLabel>Country</FormLabel>
+                                  <Select 
+                                    onValueChange={(value) => {
+                                      const country = countries?.find((c: any) => c.name === value);
+                                      setSelectedCountry(country);
+                                      setSelectedState(null);
+                                      field.onChange(value);
+                                      jobForm.setValue("state", "");
+                                      jobForm.setValue("city", "");
+                                    }} 
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select country" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {countries?.map((country: any) => (
+                                        <SelectItem key={country.id} value={country.name}>
+                                          {country.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -590,9 +645,58 @@ export default function Jobs() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>State</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g. California" {...field} />
-                                  </FormControl>
+                                  <Select 
+                                    onValueChange={(value) => {
+                                      const state = states?.find((s: any) => s.name === value);
+                                      setSelectedState(state);
+                                      field.onChange(value);
+                                      jobForm.setValue("city", "");
+                                    }} 
+                                    defaultValue={field.value}
+                                    disabled={!selectedCountry}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select state" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {states?.map((state: any) => (
+                                        <SelectItem key={state.id} value={state.name}>
+                                          {state.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="city"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>City</FormLabel>
+                                  <Select 
+                                    onValueChange={field.onChange} 
+                                    defaultValue={field.value}
+                                    disabled={!selectedState}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select city" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {cities?.map((city: any) => (
+                                        <SelectItem key={city.id} value={city.name}>
+                                          {city.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                   <FormMessage />
                                 </FormItem>
                               )}

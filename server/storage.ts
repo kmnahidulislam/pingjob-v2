@@ -12,6 +12,9 @@ import {
   groupMemberships,
   vendors,
   categories,
+  countries,
+  states,
+  cities,
   type User,
   type UpsertUser,
   type Experience,
@@ -36,6 +39,9 @@ import {
   type InsertVendor,
   type Category,
   type InsertCategory,
+  type Country,
+  type State,
+  type City,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -120,6 +126,11 @@ export interface IStorage {
   getCategories(): Promise<Category[]>;
   getCategory(id: number): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
+  
+  // Location operations
+  getCountries(): Promise<Country[]>;
+  getStatesByCountry(countryId: number): Promise<State[]>;
+  getCitiesByState(stateId: number): Promise<City[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -763,6 +774,19 @@ export class DatabaseStorage implements IStorage {
       .values(categoryData)
       .returning();
     return category;
+  }
+
+  // Location operations
+  async getCountries(): Promise<Country[]> {
+    return await db.select().from(countries).orderBy(countries.name);
+  }
+
+  async getStatesByCountry(countryId: number): Promise<State[]> {
+    return await db.select().from(states).where(eq(states.countryId, countryId)).orderBy(states.name);
+  }
+
+  async getCitiesByState(stateId: number): Promise<City[]> {
+    return await db.select().from(cities).where(eq(cities.stateId, stateId)).orderBy(cities.name);
   }
 }
 
