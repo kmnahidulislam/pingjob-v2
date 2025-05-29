@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import {
   Clock,
@@ -28,6 +29,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -237,6 +239,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setLocation(`/jobs/${job.id}`)}
                 className="border-linkedin-blue text-linkedin-blue hover:bg-linkedin-blue hover:text-white"
               >
                 View Details
