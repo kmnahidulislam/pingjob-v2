@@ -231,6 +231,10 @@ export const userRelations = relations(users, ({ many, one }) => ({
   experiences: many(experiences),
   education: many(education),
   skills: many(skills),
+  category: one(categories, {
+    fields: [users.categoryId],
+    references: [categories.id],
+  }),
   company: one(companies, {
     fields: [users.id],
     references: [companies.userId],
@@ -282,6 +286,10 @@ export const jobRelations = relations(jobs, ({ one, many }) => ({
   recruiter: one(users, {
     fields: [jobs.recruiterId],
     references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [jobs.categoryId],
+    references: [categories.id],
   }),
   applications: many(jobApplications),
 }));
@@ -372,6 +380,11 @@ export const cityRelations = relations(cities, ({ one }) => ({
   }),
 }));
 
+export const categoryRelations = relations(categories, ({ many }) => ({
+  users: many(users),
+  jobs: many(jobs),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -456,6 +469,11 @@ export const insertCitySchema = createInsertSchema(cities).omit({
   createdAt: true,
 });
 
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -485,3 +503,5 @@ export type State = typeof states.$inferSelect;
 export type InsertState = z.infer<typeof insertStateSchema>;
 export type City = typeof cities.$inferSelect;
 export type InsertCity = z.infer<typeof insertCitySchema>;
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
