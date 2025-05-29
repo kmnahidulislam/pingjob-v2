@@ -220,6 +220,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/companies/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
       const company = await storage.getCompany(id);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });

@@ -96,6 +96,7 @@ export const companies = pgTable("companies", {
   location: varchar("location"),
   phone: varchar("phone"),
   status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
+  approvedBy: varchar("approved_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -12,6 +12,7 @@ import Jobs from "@/pages/jobs";
 import Network from "@/pages/network";
 import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
+import Dashboard from "@/pages/dashboard";
 import Navigation from "@/components/navigation";
 
 function Router() {

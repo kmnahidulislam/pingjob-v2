@@ -21,7 +21,8 @@ import {
   Bell,
   Settings,
   LogOut,
-  User
+  User,
+  BarChart3
 } from "lucide-react";
 
 export default function Navigation() {
@@ -29,12 +30,15 @@ export default function Navigation() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
     { name: "Network", href: "/network", icon: Users },
     { name: "Jobs", href: "/jobs", icon: Briefcase },
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
+    ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
   ];
 
   const isActive = (href: string) => {
