@@ -313,7 +313,7 @@ export class DatabaseStorage implements IStorage {
     if (filters.location) {
       conditions.push(ilike(jobs.location, `%${filters.location}%`));
     }
-    if (filters.companyId) {
+    if (filters.companyId !== undefined) {
       conditions.push(eq(jobs.companyId, filters.companyId));
     }
     
@@ -405,7 +405,7 @@ export class DatabaseStorage implements IStorage {
     if (filters.location) {
       conditions.push(ilike(jobs.location, `%${filters.location}%`));
     }
-    if (filters.companyId) {
+    if (filters.companyId !== undefined) {
       conditions.push(eq(jobs.companyId, filters.companyId));
     }
 

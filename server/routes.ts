@@ -413,6 +413,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
+      console.log('Jobs API filters:', filters);
+      
       if (req.query.search) {
         const jobs = await storage.searchJobs(req.query.search as string, filters);
         res.json(jobs);
