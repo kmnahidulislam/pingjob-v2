@@ -51,6 +51,82 @@ const companyFormSchema = insertCompanySchema.extend({
   country: z.string().min(1, "Country is required"),
 });
 
+// Component to display company details (open positions and vendors)
+function CompanyDetails({ companyId }: { companyId: number }) {
+  const { data: companyDetails, isLoading } = useQuery({
+    queryKey: ['/api/companies', companyId, 'details'],
+    queryFn: () => apiRequest('GET', `/api/companies/${companyId}/details`),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-sm text-gray-500 mb-4">
+        Loading company details...
+      </div>
+    );
+  }
+
+  const openJobs = companyDetails?.openJobs || [];
+  const vendors = companyDetails?.vendors || [];
+
+  return (
+    <div className="space-y-3 mb-4">
+      {/* Open Positions */}
+      <div>
+        <div className="flex items-center text-sm text-gray-600 mb-2">
+          <Briefcase className="h-4 w-4 mr-1" />
+          <span className="font-medium">Open Positions ({openJobs.length})</span>
+        </div>
+        {openJobs.length > 0 ? (
+          <div className="space-y-1">
+            {openJobs.slice(0, 3).map((job: any) => (
+              <div key={job.id} className="text-xs bg-gray-50 p-2 rounded">
+                <div className="font-medium text-gray-900">{job.title}</div>
+                <div className="text-gray-500">{job.location} • {job.type}</div>
+              </div>
+            ))}
+            {openJobs.length > 3 && (
+              <div className="text-xs text-linkedin-blue">
+                +{openJobs.length - 3} more positions
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-xs text-gray-500">No open positions</div>
+        )}
+      </div>
+
+      {/* Vendors */}
+      <div>
+        <div className="flex items-center text-sm text-gray-600 mb-2">
+          <Building className="h-4 w-4 mr-1" />
+          <span className="font-medium">Vendors ({vendors.length})</span>
+        </div>
+        {vendors.length > 0 ? (
+          <div className="space-y-1">
+            {vendors.slice(0, 2).map((vendor: any) => (
+              <div key={vendor.id} className="text-xs bg-blue-50 p-2 rounded">
+                <div className="font-medium text-gray-900">{vendor.name}</div>
+                <div className="text-gray-500">{vendor.services}</div>
+                <div className="text-xs text-blue-600 mt-1">
+                  Status: {vendor.status}
+                </div>
+              </div>
+            ))}
+            {vendors.length > 2 && (
+              <div className="text-xs text-linkedin-blue">
+                +{vendors.length - 2} more vendors
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-xs text-gray-500">No vendors listed</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Companies() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -570,19 +646,8 @@ export default function Companies() {
                       </p>
                     )}
 
-                    {/* Company Stats */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <div className="flex items-center space-x-4">
-                        <span className="flex items-center">
-                          <Eye className="h-4 w-4 mr-1" />
-                          1,245 views
-                        </span>
-                        <span className="flex items-center">
-                          <Briefcase className="h-4 w-4 mr-1" />
-                          12 jobs
-                        </span>
-                      </div>
-                    </div>
+                    {/* Company Details: Open Positions and Vendors */}
+                    <CompanyDetails companyId={company.id} />
 
                     {/* Action Buttons */}
                     <div className="flex space-x-2">
