@@ -313,6 +313,9 @@ export class DatabaseStorage implements IStorage {
     if (filters.location) {
       conditions.push(ilike(jobs.location, `%${filters.location}%`));
     }
+    if (filters.companyId) {
+      conditions.push(eq(jobs.companyId, filters.companyId));
+    }
     
     return await db
       .select({
@@ -401,6 +404,9 @@ export class DatabaseStorage implements IStorage {
     }
     if (filters.location) {
       conditions.push(ilike(jobs.location, `%${filters.location}%`));
+    }
+    if (filters.companyId) {
+      conditions.push(eq(jobs.companyId, filters.companyId));
     }
 
     return await db

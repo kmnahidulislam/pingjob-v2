@@ -409,6 +409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         jobType: req.query.jobType as string,
         experienceLevel: req.query.experienceLevel as string,
         location: req.query.location as string,
+        companyId: req.query.companyId ? parseInt(req.query.companyId as string) : undefined,
       };
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
