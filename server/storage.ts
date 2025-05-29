@@ -700,22 +700,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Vendor operations
-  async getClientVendors(clientId: number): Promise<any[]> {
+  async getClientVendors(companyId: number): Promise<any[]> {
     return await db
-      .select({
-        id: vendors.id,
-        vendor: {
-          id: companies.id,
-          name: companies.name,
-          industry: companies.industry,
-          location: companies.city,
-        },
-        status: vendors.status,
-        createdAt: vendors.createdAt,
-      })
+      .select()
       .from(vendors)
-      .leftJoin(companies, eq(vendors.vendorId, companies.id))
-      .where(eq(vendors.clientId, clientId))
+      .where(eq(vendors.companyId, companyId))
       .orderBy(desc(vendors.createdAt));
   }
 
@@ -724,12 +713,11 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor> {
+  async updateVendorStatus(id: number, status: string): Promise<Vendor> {
     const [result] = await db
       .update(vendors)
       .set({ 
-        status: status as "pending" | "approved" | "rejected",
-        approvedBy,
+        status: status as "pending" | "active" | "inactive",
         updatedAt: new Date() 
       })
       .where(eq(vendors.id, id))
@@ -739,26 +727,8 @@ export class DatabaseStorage implements IStorage {
 
   async getPendingVendors(): Promise<any[]> {
     return await db
-      .select({
-        id: vendors.id,
-        client: {
-          id: companies.id,
-          name: companies.name,
-        },
-        vendor: {
-          id: companies.id,
-          name: companies.name,
-        },
-        addedBy: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-        },
-        createdAt: vendors.createdAt,
-      })
+      .select()
       .from(vendors)
-      .leftJoin(companies, eq(vendors.clientId, companies.id))
-      .leftJoin(users, eq(vendors.addedBy, users.id))
       .where(eq(vendors.status, "pending"))
       .orderBy(desc(vendors.createdAt));
   }

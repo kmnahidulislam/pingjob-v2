@@ -385,8 +385,6 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
 
 export const insertVendorSchema = createInsertSchema(vendors).omit({
   id: true,
-  status: true,
-  approvedBy: true,
   createdAt: true,
   updatedAt: true,
 });
