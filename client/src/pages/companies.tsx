@@ -70,9 +70,6 @@ function CompanyDetails({ companyId }: { companyId: number }) {
     );
   }
 
-  // Debug logging
-  console.log('Company Details Data:', companyDetails);
-  
   const openJobs = companyDetails?.openJobs || [];
   const vendors = companyDetails?.vendors || [];
 
