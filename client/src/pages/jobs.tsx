@@ -105,6 +105,55 @@ export default function Jobs() {
     enabled: !!user && user.userType === 'job_seeker'
   });
 
+  const { data: companies } = useQuery({
+    queryKey: ['/api/companies'],
+    enabled: user?.userType === 'admin',
+    queryFn: async () => {
+      const response = await fetch('/api/companies');
+      if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    }
+  });
+
+  const jobForm = useForm<z.infer<typeof jobFormSchema>>({
+    resolver: zodResolver(jobFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      location: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+      salary: "",
+      jobType: "full_time",
+      experienceLevel: "mid",
+      skills: "",
+    },
+  });
+
+  const createJobMutation = useMutation({
+    mutationFn: (jobData: z.infer<typeof jobFormSchema>) =>
+      apiRequest('POST', '/api/jobs', jobData),
+    onSuccess: () => {
+      toast({
+        title: "Job created successfully",
+        description: "The job posting has been added to the platform"
+      });
+      setIsAddJobOpen(false);
+      jobForm.reset();
+      setSelectedCompany(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error creating job",
+        description: error.message || "Failed to create job posting",
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setFilters(prev => ({ ...prev, search: searchQuery }));
@@ -250,6 +299,301 @@ export default function Jobs() {
                 <Button type="submit" className="bg-linkedin-blue hover:bg-linkedin-dark">
                   Search Jobs
                 </Button>
+                {user?.userType === 'admin' && (
+                  <Dialog open={isAddJobOpen} onOpenChange={setIsAddJobOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Job
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Add New Job</DialogTitle>
+                      </DialogHeader>
+                      <Form {...jobForm}>
+                        <form onSubmit={jobForm.handleSubmit((data) => {
+                          if (!selectedCompany) {
+                            toast({
+                              title: "Company required",
+                              description: "Please select a company for this job",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          createJobMutation.mutate({
+                            ...data,
+                            companyId: selectedCompany.id
+                          });
+                        })} className="space-y-4">
+                          {/* Company Selection with Autocomplete */}
+                          <FormField
+                            control={jobForm.control}
+                            name="companyId"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Company</FormLabel>
+                                <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={`w-full justify-between ${!selectedCompany && "text-muted-foreground"}`}
+                                      >
+                                        {selectedCompany ? selectedCompany.name : "Select company..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-full p-0">
+                                    <Command>
+                                      <CommandInput placeholder="Search companies..." />
+                                      <CommandEmpty>No company found.</CommandEmpty>
+                                      <CommandGroup>
+                                        {companies?.map((company: any) => (
+                                          <CommandItem
+                                            key={company.id}
+                                            value={company.name}
+                                            onSelect={() => {
+                                              setSelectedCompany(company);
+                                              setCompanySearchOpen(false);
+                                            }}
+                                          >
+                                            <Check
+                                              className={`mr-2 h-4 w-4 ${
+                                                selectedCompany?.id === company.id ? "opacity-100" : "opacity-0"
+                                              }`}
+                                            />
+                                            <div className="flex items-center space-x-2">
+                                              <Building className="h-4 w-4" />
+                                              <span>{company.name}</span>
+                                              {company.city && (
+                                                <span className="text-sm text-gray-500">• {company.city}</span>
+                                              )}
+                                            </div>
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={jobForm.control}
+                              name="title"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Job Title</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. Senior Software Engineer" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="jobType"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Job Type</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select job type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="full_time">Full-time</SelectItem>
+                                      <SelectItem value="part_time">Part-time</SelectItem>
+                                      <SelectItem value="contract">Contract</SelectItem>
+                                      <SelectItem value="remote">Remote</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            control={jobForm.control}
+                            name="description"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Job Description</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Describe the role, responsibilities, and requirements..."
+                                    className="min-h-[100px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={jobForm.control}
+                              name="city"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>City</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. San Francisco" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="state"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>State</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. California" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4">
+                            <FormField
+                              control={jobForm.control}
+                              name="zipCode"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Zip Code</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. 94105" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="country"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Country</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. United States" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="salary"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Salary</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. $120,000 - $150,000" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={jobForm.control}
+                              name="experienceLevel"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Experience Level</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select experience level" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="entry">Entry Level</SelectItem>
+                                      <SelectItem value="mid">Mid Level</SelectItem>
+                                      <SelectItem value="senior">Senior Level</SelectItem>
+                                      <SelectItem value="executive">Executive</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={jobForm.control}
+                              name="skills"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Required Skills</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g. React, Node.js, Python" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            control={jobForm.control}
+                            name="location"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Full Location</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. San Francisco, CA, United States" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="flex justify-end space-x-2 pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setIsAddJobOpen(false);
+                                jobForm.reset();
+                                setSelectedCompany(null);
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              disabled={createJobMutation.isPending}
+                              className="bg-linkedin-blue hover:bg-linkedin-dark"
+                            >
+                              {createJobMutation.isPending ? "Creating..." : "Create Job"}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </form>
               
               {/* Active Filters */}

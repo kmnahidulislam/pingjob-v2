@@ -112,7 +112,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             )}
             <div className="flex items-center text-xs text-gray-500">
               <MapPin className="h-3 w-3 mr-1" />
-              <span>{job.location}</span>
+              <span>
+                {[job.city, job.state, job.zipCode, job.country]
+                  .filter(Boolean)
+                  .join(', ') || job.location}
+              </span>
             </div>
             <Badge variant="secondary" className="text-xs">
               {job.jobType.replace('_', ' ')}
@@ -148,7 +152,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 )}
                 <div className="flex items-center text-sm text-gray-500 mt-1">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>{job.location}</span>
+                  <span>
+                    {[job.city, job.state, job.zipCode, job.country]
+                      .filter(Boolean)
+                      .join(', ') || job.location}
+                  </span>
                   <span className="mx-2">•</span>
                   <Badge variant="outline" className="text-xs">
                     {job.jobType.replace('_', ' ')}
