@@ -287,8 +287,36 @@ export class DatabaseStorage implements IStorage {
     }
     
     return await db
-      .select()
+      .select({
+        id: jobs.id,
+        companyId: jobs.companyId,
+        recruiterId: jobs.recruiterId,
+        title: jobs.title,
+        description: jobs.description,
+        requirements: jobs.requirements,
+        location: jobs.location,
+        country: jobs.country,
+        state: jobs.state,
+        city: jobs.city,
+        zipCode: jobs.zipCode,
+        jobType: jobs.jobType,
+        experienceLevel: jobs.experienceLevel,
+        salary: jobs.salary,
+        benefits: jobs.benefits,
+        skills: jobs.skills,
+        isActive: jobs.isActive,
+        applicationCount: jobs.applicationCount,
+        createdAt: jobs.createdAt,
+        updatedAt: jobs.updatedAt,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          industry: companies.industry,
+          logoUrl: companies.logoUrl,
+        }
+      })
       .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
       .where(and(...conditions))
       .orderBy(desc(jobs.createdAt))
       .limit(limit);
@@ -348,8 +376,36 @@ export class DatabaseStorage implements IStorage {
     }
 
     return await db
-      .select()
+      .select({
+        id: jobs.id,
+        companyId: jobs.companyId,
+        recruiterId: jobs.recruiterId,
+        title: jobs.title,
+        description: jobs.description,
+        requirements: jobs.requirements,
+        location: jobs.location,
+        country: jobs.country,
+        state: jobs.state,
+        city: jobs.city,
+        zipCode: jobs.zipCode,
+        jobType: jobs.jobType,
+        experienceLevel: jobs.experienceLevel,
+        salary: jobs.salary,
+        benefits: jobs.benefits,
+        skills: jobs.skills,
+        isActive: jobs.isActive,
+        applicationCount: jobs.applicationCount,
+        createdAt: jobs.createdAt,
+        updatedAt: jobs.updatedAt,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          industry: companies.industry,
+          logoUrl: companies.logoUrl,
+        }
+      })
       .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
       .where(and(...conditions))
       .orderBy(desc(jobs.createdAt))
       .limit(50);
