@@ -365,16 +365,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get open jobs and vendors for a company (public endpoint)
-  app.get('/api/companies/:id/details', isAuthenticated, async (req: any, res) => {
+  app.get('/api/companies/:id/details', async (req: any, res) => {
     try {
       const companyId = parseInt(req.params.id);
       if (isNaN(companyId)) {
         return res.status(400).json({ message: "Invalid company ID" });
       }
 
-      // Get open jobs for the company
+      // Get active jobs for the company
       const jobs = await storage.getJobsByCompany(companyId);
-      const openJobs = jobs.filter((job: any) => job.status === 'open');
+      const openJobs = jobs.filter((job: any) => job.isActive === true);
 
       // Get vendors for the company
       const vendors = await storage.getClientVendors(companyId);

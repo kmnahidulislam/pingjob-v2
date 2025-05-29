@@ -55,7 +55,11 @@ const companyFormSchema = insertCompanySchema.extend({
 function CompanyDetails({ companyId }: { companyId: number }) {
   const { data: companyDetails, isLoading } = useQuery({
     queryKey: ['/api/companies', companyId, 'details'],
-    queryFn: () => apiRequest('GET', `/api/companies/${companyId}/details`),
+    queryFn: async () => {
+      const response = await fetch(`/api/companies/${companyId}/details`);
+      if (!response.ok) throw new Error('Failed to fetch company details');
+      return response.json();
+    },
   });
 
   if (isLoading) {
@@ -66,6 +70,9 @@ function CompanyDetails({ companyId }: { companyId: number }) {
     );
   }
 
+  // Debug logging
+  console.log('Company Details Data:', companyDetails);
+  
   const openJobs = companyDetails?.openJobs || [];
   const vendors = companyDetails?.vendors || [];
 
