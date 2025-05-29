@@ -43,6 +43,7 @@ function Router() {
             <Route path="/network" component={Network} />
             <Route path="/messaging" component={Messaging} />
             <Route path="/companies" component={Companies} />
+            <Route path="/dashboard" component={Dashboard} />
           </>
         )}
         <Route component={NotFound} />

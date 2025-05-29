@@ -249,10 +249,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get pending companies (admin only)
   app.get('/api/companies/pending', isAuthenticated, async (req: any, res) => {
     try {
-      const userType = req.user.claims.sub;
-      const user = await storage.getUser(userType);
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
       
-      if (user?.userType !== 'admin') {
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
         return res.status(403).json({ message: "Access denied" });
       }
       
@@ -264,41 +265,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Approve company (admin only)
-  app.put('/api/companies/:id/approve', isAuthenticated, async (req: any, res) => {
+  // Update company status (admin only)
+  app.patch('/api/companies/:id/status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userEmail = req.user.claims.email;
       
-      if (user?.userType !== 'admin') {
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
         return res.status(403).json({ message: "Access denied" });
       }
       
       const companyId = parseInt(req.params.id);
-      const company = await storage.updateCompanyStatus(companyId, 'approved', userId);
+      const { status, approvedBy } = req.body;
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      const company = await storage.updateCompanyStatus(companyId, status, approvedBy || userId);
       res.json(company);
     } catch (error) {
-      console.error("Error approving company:", error);
-      res.status(500).json({ message: "Failed to approve company" });
+      console.error("Error updating company status:", error);
+      res.status(500).json({ message: "Failed to update company status" });
     }
   });
 
-  // Reject company (admin only)
-  app.put('/api/companies/:id/reject', isAuthenticated, async (req: any, res) => {
+  // Admin stats endpoint
+  app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userEmail = req.user.claims.email;
       
-      if (user?.userType !== 'admin') {
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
         return res.status(403).json({ message: "Access denied" });
       }
+
+      // Get basic stats
+      const jobs = await storage.getJobs({}, 1000);
+      const activeJobs = jobs.filter((job: any) => job.status !== 'closed').length;
       
-      const companyId = parseInt(req.params.id);
-      const company = await storage.updateCompanyStatus(companyId, 'rejected', userId);
-      res.json(company);
+      res.json({
+        activeJobs,
+        totalUsers: 0,
+        revenue: 0,
+        activeSessions: 0
+      });
     } catch (error) {
-      console.error("Error rejecting company:", error);
-      res.status(500).json({ message: "Failed to reject company" });
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Vendor management routes
+  app.post('/api/vendors', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
+      
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const vendorData = {
+        ...req.body,
+        createdBy: userId,
+      };
+
+      const vendor = await storage.addVendor(vendorData);
+      res.json(vendor);
+    } catch (error) {
+      console.error("Error adding vendor:", error);
+      res.status(500).json({ message: "Failed to add vendor" });
     }
   });
 

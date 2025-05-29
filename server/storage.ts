@@ -279,13 +279,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company> {
+    const updateData: any = { 
+      status: status as "pending" | "approved" | "rejected",
+      updatedAt: new Date() 
+    };
+    if (approvedBy) {
+      updateData.approvedBy = approvedBy;
+    }
+    
     const [result] = await db
       .update(companies)
-      .set({ 
-        status, 
-        approvedBy,
-        updatedAt: new Date() 
-      })
+      .set(updateData)
       .where(eq(companies.id, id))
       .returning();
     return result;
