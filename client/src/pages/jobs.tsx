@@ -703,7 +703,7 @@ export default function Jobs() {
                             />
                           </div>
 
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <FormField
                               control={jobForm.control}
                               name="zipCode"
@@ -712,20 +712,6 @@ export default function Jobs() {
                                   <FormLabel>Zip Code</FormLabel>
                                   <FormControl>
                                     <Input placeholder="e.g. 94105" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={jobForm.control}
-                              name="country"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Country</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="e.g. United States" {...field} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
