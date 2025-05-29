@@ -215,7 +215,7 @@ export default function Home() {
                   recentJobs.slice(0, 3).map((job: any) => (
                     <div key={job.id} className="border-l-4 border-linkedin-blue pl-4">
                       <h4 className="font-medium text-sm">{job.title}</h4>
-                      <p className="text-xs text-gray-600">{job.company} • {job.location}</p>
+                      <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'} • {job.location}</p>
                       <p className="text-xs text-linkedin-blue">
                         {new Date(job.createdAt).toLocaleDateString()}
                       </p>
