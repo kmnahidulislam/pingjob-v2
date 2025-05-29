@@ -217,6 +217,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get pending companies (admin only) - Must come before /:id route
+  app.get('/api/companies/pending', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email;
+      
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const pendingCompanies = await storage.getPendingCompanies();
+      res.json(pendingCompanies);
+    } catch (error) {
+      console.error("Error fetching pending companies:", error);
+      res.status(500).json({ message: "Failed to fetch pending companies" });
+    }
+  });
+
   app.get('/api/companies/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -243,25 +262,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating company:", error);
       res.status(500).json({ message: "Failed to create company" });
-    }
-  });
-
-  // Get pending companies (admin only)
-  app.get('/api/companies/pending', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const userEmail = req.user.claims.email;
-      
-      // Check if user is admin
-      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
-      const pendingCompanies = await storage.getPendingCompanies();
-      res.json(pendingCompanies);
-    } catch (error) {
-      console.error("Error fetching pending companies:", error);
-      res.status(500).json({ message: "Failed to fetch pending companies" });
     }
   });
 
