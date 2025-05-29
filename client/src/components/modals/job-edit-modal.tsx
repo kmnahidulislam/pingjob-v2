@@ -3,38 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertJobSchema } from "@shared/schema";
-import { z } from "zod";
 import type { JobWithCompany } from "@/lib/types";
-
-const jobEditSchema = insertJobSchema.pick({
-  title: true,
-  description: true,
-  location: true,
-  city: true,
-  state: true,
-  zipCode: true,
-  country: true,
-  jobType: true,
-  experienceLevel: true,
-  salary: true,
-}).extend({
-  title: z.string().min(1, "Job title is required"),
-  description: z.string().min(1, "Job description is required"),
-  location: z.string().min(1, "Location is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-  skills: z.string().optional(),
-});
 
 interface JobEditModalProps {
   job: JobWithCompany | null;
@@ -45,29 +19,25 @@ interface JobEditModalProps {
 export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  const form = useForm<z.infer<typeof jobEditSchema>>({
-    resolver: zodResolver(jobEditSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "",
-      jobType: "full_time",
-      experienceLevel: "entry_level",
-      salary: "",
-      skills: "",
-      isActive: true,
-    },
+  
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    location: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+    jobType: "full_time",
+    experienceLevel: "entry",
+    salary: "",
+    skills: "",
   });
 
   // Update form when job changes
   useEffect(() => {
     if (job) {
-      form.reset({
+      setFormData({
         title: job.title || "",
         description: job.description || "",
         location: job.location || "",
@@ -76,16 +46,15 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         zipCode: job.zipCode || "",
         country: job.country || "",
         jobType: job.jobType || "full_time",
-        experienceLevel: job.experienceLevel || "entry_level",
+        experienceLevel: job.experienceLevel || "entry",
         salary: job.salary || "",
         skills: Array.isArray(job.skills) ? job.skills.join(", ") : (job.skills || ""),
-        isActive: job.isActive ?? true,
       });
     }
-  }, [job, form]);
+  }, [job]);
 
   const updateJobMutation = useMutation({
-    mutationFn: (jobData: z.infer<typeof jobEditSchema>) => {
+    mutationFn: (jobData: typeof formData) => {
       const processedJobData = {
         ...jobData,
         skills: jobData.skills ? jobData.skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0) : []
@@ -109,8 +78,13 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
     }
   });
 
-  const handleSubmit = (data: z.infer<typeof jobEditSchema>) => {
-    updateJobMutation.mutate(data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateJobMutation.mutate(formData);
+  };
+
+  const handleInputChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   if (!job) return null;
@@ -122,200 +96,145 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
           <DialogTitle>Edit Job Posting</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {/* Job Title */}
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Job Title *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter job title" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Job Title */}
+          <div>
+            <Label htmlFor="title">Job Title *</Label>
+            <Input
+              id="title"
+              placeholder="Enter job title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
             />
+          </div>
 
-            {/* Job Type and Experience Level */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="jobType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Job Type *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select job type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="full_time">Full Time</SelectItem>
-                        <SelectItem value="part_time">Part Time</SelectItem>
-                        <SelectItem value="contract">Contract</SelectItem>
-                        <SelectItem value="internship">Internship</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Job Type and Experience Level */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="jobType">Job Type *</Label>
+              <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select job type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full_time">Full Time</SelectItem>
+                  <SelectItem value="part_time">Part Time</SelectItem>
+                  <SelectItem value="contract">Contract</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <FormField
-                control={form.control}
-                name="experienceLevel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Experience Level *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select experience level" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="entry_level">Entry Level</SelectItem>
-                        <SelectItem value="mid_level">Mid Level</SelectItem>
-                        <SelectItem value="senior_level">Senior Level</SelectItem>
-                        <SelectItem value="executive">Executive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div>
+              <Label htmlFor="experienceLevel">Experience Level *</Label>
+              <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select experience level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="entry">Entry Level</SelectItem>
+                  <SelectItem value="mid">Mid Level</SelectItem>
+                  <SelectItem value="senior">Senior Level</SelectItem>
+                  <SelectItem value="executive">Executive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="city">City *</Label>
+              <Input
+                id="city"
+                placeholder="Enter city"
+                value={formData.city}
+                onChange={(e) => handleInputChange('city', e.target.value)}
               />
             </div>
 
-            {/* Location */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter city" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div>
+              <Label htmlFor="state">State *</Label>
+              <Input
+                id="state"
+                placeholder="Enter state"
+                value={formData.state}
+                onChange={(e) => handleInputChange('state', e.target.value)}
               />
+            </div>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter state" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="zipCode">Zip Code</Label>
+              <Input
+                id="zipCode"
+                placeholder="Enter zip code"
+                value={formData.zipCode}
+                onChange={(e) => handleInputChange('zipCode', e.target.value)}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Zip Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter zip code" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div>
+              <Label htmlFor="country">Country *</Label>
+              <Input
+                id="country"
+                placeholder="Enter country"
+                value={formData.country}
+                onChange={(e) => handleInputChange('country', e.target.value)}
               />
+            </div>
+          </div>
 
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Country *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter country" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          {/* Salary and Skills */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="salary">Salary</Label>
+              <Input
+                id="salary"
+                placeholder="e.g., $50,000 - $70,000"
+                value={formData.salary}
+                onChange={(e) => handleInputChange('salary', e.target.value)}
               />
             </div>
 
-            {/* Salary and Skills */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="salary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Salary</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., $50,000 - $70,000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="skills"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Skills</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., React, Node.js, TypeScript" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div>
+              <Label htmlFor="skills">Skills</Label>
+              <Input
+                id="skills"
+                placeholder="e.g., React, Node.js, TypeScript"
+                value={formData.skills}
+                onChange={(e) => handleInputChange('skills', e.target.value)}
               />
             </div>
+          </div>
 
-            {/* Job Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Job Description *</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Enter detailed job description"
-                      className="min-h-[120px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          {/* Job Description */}
+          <div>
+            <Label htmlFor="description">Job Description *</Label>
+            <Textarea
+              id="description"
+              placeholder="Enter detailed job description"
+              className="min-h-[120px]"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
             />
+          </div>
 
-            {/* Form Actions */}
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={updateJobMutation.isPending}
-                className="bg-linkedin-blue hover:bg-linkedin-dark"
-              >
-                {updateJobMutation.isPending ? "Updating..." : "Update Job"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={updateJobMutation.isPending}
+              className="bg-linkedin-blue hover:bg-linkedin-dark"
+            >
+              {updateJobMutation.isPending ? "Updating..." : "Update Job"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
