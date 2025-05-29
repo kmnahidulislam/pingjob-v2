@@ -118,16 +118,19 @@ export default function Dashboard() {
 
   // Company Vendors Component
   function CompanyVendors({ companyId }: { companyId: number }) {
-    const { data: vendors = [], isLoading } = useQuery({
+    const { data: vendors, isLoading } = useQuery({
       queryKey: ['/api/companies', companyId, 'vendors'],
-      queryFn: () => apiRequest('GET', `/api/companies/${companyId}/vendors`),
+      queryFn: async () => {
+        const response = await apiRequest('GET', `/api/companies/${companyId}/vendors`);
+        return response;
+      },
     });
 
     if (isLoading) {
       return <div className="text-sm text-gray-500 mt-2">Loading vendors...</div>;
     }
 
-    if (vendors.length === 0) {
+    if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
       return <div className="text-sm text-gray-500 mt-2">No vendors added yet</div>;
     }
 
