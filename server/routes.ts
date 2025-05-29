@@ -294,12 +294,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      console.log("Creating job with data:", req.body);
+      console.log("User ID:", userId);
+      
       const validatedData = insertJobSchema.parse({ ...req.body, recruiterId: userId });
+      console.log("Validated data:", validatedData);
+      
       const job = await storage.createJob(validatedData);
       res.json(job);
     } catch (error) {
       console.error("Error creating job:", error);
-      res.status(500).json({ message: "Failed to create job" });
+      console.error("Error details:", error.message);
+      if (error.errors) {
+        console.error("Validation errors:", error.errors);
+      }
+      res.status(500).json({ 
+        message: "Failed to create job", 
+        error: error.message,
+        details: error.errors || []
+      });
     }
   });
 

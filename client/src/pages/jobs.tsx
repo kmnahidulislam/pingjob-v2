@@ -153,9 +153,10 @@ export default function Jobs() {
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
     },
     onError: (error: any) => {
+      console.error("Job creation error:", error);
       toast({
         title: "Error creating job",
-        description: error.message || "Failed to create job posting",
+        description: error.message || error.error || "Failed to create job posting",
         variant: "destructive"
       });
     }
@@ -320,6 +321,9 @@ export default function Jobs() {
                       </DialogHeader>
                       <Form {...jobForm}>
                         <form onSubmit={jobForm.handleSubmit((data) => {
+                          console.log("Form data:", data);
+                          console.log("Selected company:", selectedCompany);
+                          
                           if (!selectedCompany) {
                             toast({
                               title: "Company required",
@@ -328,10 +332,14 @@ export default function Jobs() {
                             });
                             return;
                           }
-                          createJobMutation.mutate({
+                          
+                          const jobData = {
                             ...data,
                             companyId: selectedCompany.id
-                          });
+                          };
+                          
+                          console.log("Submitting job data:", jobData);
+                          createJobMutation.mutate(jobData);
                         })} className="space-y-4">
                           {/* Company Selection with Autocomplete */}
                           <FormField
