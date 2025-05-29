@@ -33,6 +33,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   userType: varchar("user_type", { enum: ["job_seeker", "recruiter", "client", "admin"] }).notNull().default("job_seeker"),
+  categoryId: integer("category_id").references(() => categories.id),
   headline: text("headline"),
   summary: text("summary"),
   location: varchar("location"),
@@ -106,6 +107,7 @@ export const jobs = pgTable("jobs", {
   id: serial("id").primaryKey(),
   companyId: integer("company_id").references(() => companies.id),
   recruiterId: varchar("recruiter_id").references(() => users.id),
+  categoryId: integer("category_id").references(() => categories.id),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   requirements: text("requirements"),
@@ -213,6 +215,14 @@ export const cities = pgTable("cities", {
   id: serial("id").primaryKey(),
   stateId: integer("state_id").notNull().references(() => states.id),
   name: varchar("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Categories for jobs and profiles
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull().unique(),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
