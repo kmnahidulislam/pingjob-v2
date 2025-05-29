@@ -116,6 +116,44 @@ export default function Dashboard() {
     });
   };
 
+  // Company Vendors Component
+  function CompanyVendors({ companyId }: { companyId: number }) {
+    const { data: vendors = [], isLoading } = useQuery({
+      queryKey: ['/api/companies', companyId, 'vendors'],
+      queryFn: () => apiRequest('GET', `/api/companies/${companyId}/vendors`),
+    });
+
+    if (isLoading) {
+      return <div className="text-sm text-gray-500 mt-2">Loading vendors...</div>;
+    }
+
+    if (vendors.length === 0) {
+      return <div className="text-sm text-gray-500 mt-2">No vendors added yet</div>;
+    }
+
+    return (
+      <div className="mt-3">
+        <h4 className="text-sm font-medium text-gray-700 mb-2">Vendors ({vendors.length})</h4>
+        <div className="space-y-1">
+          {vendors.map((vendor: any) => (
+            <div key={vendor.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+              <div className="flex-1">
+                <span className="font-medium">{vendor.name}</span>
+                <span className="text-gray-500 ml-2">• {vendor.services}</span>
+              </div>
+              <Badge 
+                variant={vendor.status === 'active' ? 'default' : 'secondary'}
+                className="text-xs"
+              >
+                {vendor.status}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -266,6 +304,7 @@ export default function Dashboard() {
                             <span>{company.followers} followers</span>
                             <span>{company.location}</span>
                           </div>
+                          <CompanyVendors companyId={company.id} />
                         </div>
                         <div className="flex items-center gap-2">
                           <Dialog>

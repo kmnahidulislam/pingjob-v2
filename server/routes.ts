@@ -341,6 +341,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get vendors for a company
+  app.get('/api/companies/:id/vendors', isAuthenticated, async (req: any, res) => {
+    try {
+      const userEmail = req.user.claims.email;
+      
+      // Check if user is admin
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const companyId = parseInt(req.params.id);
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+
+      const vendors = await storage.getClientVendors(companyId);
+      res.json(vendors);
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+      res.status(500).json({ message: "Failed to fetch vendors" });
+    }
+  });
+
   app.put('/api/companies/:id', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
