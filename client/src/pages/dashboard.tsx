@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Building, Check, X, Plus, Users, Briefcase, TrendingUp } from "lucide-react";
@@ -18,6 +21,8 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  const [selectedVendorCompany, setSelectedVendorCompany] = useState<any>(null);
+  const [vendorComboOpen, setVendorComboOpen] = useState(false);
   const [vendorDialogOpen, setVendorDialogOpen] = useState(false);
 
   // Check if user is admin
@@ -105,9 +110,18 @@ export default function Dashboard() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    if (!selectedVendorCompany) {
+      toast({
+        title: "Error",
+        description: "Please select a vendor company.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     addVendorMutation.mutate({
       companyId: selectedCompany,
-      name: formData.get('name'),
+      name: selectedVendorCompany.name,
       email: formData.get('email'),
       phone: formData.get('phone'),
       services: formData.get('services'),
@@ -331,16 +345,54 @@ export default function Dashboard() {
                               <form onSubmit={handleAddVendor}>
                                 <div className="grid gap-4 py-4">
                                   <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">
-                                      Name
+                                    <Label htmlFor="vendorCompany" className="text-right">
+                                      Vendor Company
                                     </Label>
-                                    <Input
-                                      id="name"
-                                      name="name"
-                                      placeholder="Vendor name"
-                                      className="col-span-3"
-                                      required
-                                    />
+                                    <div className="col-span-3">
+                                      <Popover open={vendorComboOpen} onOpenChange={setVendorComboOpen}>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={vendorComboOpen}
+                                            className="w-full justify-between"
+                                          >
+                                            {selectedVendorCompany
+                                              ? selectedVendorCompany.name
+                                              : "Select vendor company..."}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                          <Command>
+                                            <CommandInput placeholder="Search companies..." />
+                                            <CommandEmpty>No company found.</CommandEmpty>
+                                            <CommandGroup>
+                                              {companies.map((comp: any) => (
+                                                <CommandItem
+                                                  key={comp.id}
+                                                  value={comp.name}
+                                                  onSelect={() => {
+                                                    setSelectedVendorCompany(comp);
+                                                    setVendorComboOpen(false);
+                                                  }}
+                                                >
+                                                  <CheckIcon
+                                                    className={`mr-2 h-4 w-4 ${
+                                                      selectedVendorCompany?.id === comp.id ? "opacity-100" : "opacity-0"
+                                                    }`}
+                                                  />
+                                                  <div>
+                                                    <div className="font-medium">{comp.name}</div>
+                                                    <div className="text-sm text-gray-500">{comp.industry}</div>
+                                                  </div>
+                                                </CommandItem>
+                                              ))}
+                                            </CommandGroup>
+                                          </Command>
+                                        </PopoverContent>
+                                      </Popover>
+                                    </div>
                                   </div>
                                   <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="email" className="text-right">
