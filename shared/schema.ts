@@ -93,6 +93,8 @@ export const companies = pgTable("companies", {
   state: varchar("state"),
   city: varchar("city"),
   zipCode: varchar("zip_code"),
+  location: varchar("location"),
+  phone: varchar("phone"),
   status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

@@ -23,6 +23,7 @@ import {
   Share,
   Plus,
   Filter,
+  Phone,
   Star
 } from "lucide-react";
 import { Link } from "wouter";
@@ -268,6 +269,17 @@ export default function Companies() {
                             </a>
                           </div>
                         )}
+                        {selectedCompany.phone && (
+                          <div className="flex items-center">
+                            <Phone className="h-4 w-4 mr-1" />
+                            <a 
+                              href={`tel:${selectedCompany.phone}`}
+                              className="text-linkedin-blue hover:underline"
+                            >
+                              {selectedCompany.phone}
+                            </a>
+                          </div>
+                        )}
                       </div>
 
                       {/* Company Address */}
@@ -407,14 +419,25 @@ export default function Companies() {
                           </div>
 
                           {/* Company Address */}
-                          {(company.city || company.state || company.country) && (
+                          {(company.city || company.state || company.country || company.location) && (
                             <div className="flex items-center text-sm text-gray-500 mt-2">
                               <MapPin className="h-4 w-4 mr-1" />
                               <span className="truncate">
-                                {[company.city, company.state, company.zipCode, company.country]
-                                  .filter(Boolean)
-                                  .join(', ')}
+                                {company.location || 
+                                 [company.city, company.state, company.zipCode, company.country]
+                                   .filter(Boolean)
+                                   .join(', ')}
                               </span>
+                            </div>
+                          )}
+
+                          {/* Company Phone */}
+                          {company.phone && (
+                            <div className="flex items-center text-sm text-gray-500 mt-2">
+                              <Phone className="h-4 w-4 mr-1" />
+                              <a href={`tel:${company.phone}`} className="text-linkedin-blue hover:underline">
+                                {company.phone}
+                              </a>
                             </div>
                           )}
                         </div>
