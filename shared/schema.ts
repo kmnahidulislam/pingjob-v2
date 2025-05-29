@@ -193,6 +193,29 @@ export const vendors = pgTable("vendors", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Location tables with hierarchical relationships
+export const countries = pgTable("countries", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  code: varchar("code", { length: 3 }).notNull().unique(), // ISO country code
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const states = pgTable("states", {
+  id: serial("id").primaryKey(),
+  countryId: integer("country_id").notNull().references(() => countries.id),
+  name: varchar("name").notNull(),
+  code: varchar("code", { length: 10 }), // State/province code
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const cities = pgTable("cities", {
+  id: serial("id").primaryKey(),
+  stateId: integer("state_id").notNull().references(() => states.id),
+  name: varchar("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const userRelations = relations(users, ({ many, one }) => ({
   experiences: many(experiences),
@@ -320,6 +343,25 @@ export const vendorRelations = relations(vendors, ({ one }) => ({
   }),
 }));
 
+export const countryRelations = relations(countries, ({ many }) => ({
+  states: many(states),
+}));
+
+export const stateRelations = relations(states, ({ one, many }) => ({
+  country: one(countries, {
+    fields: [states.countryId],
+    references: [countries.id],
+  }),
+  cities: many(cities),
+}));
+
+export const cityRelations = relations(cities, ({ one }) => ({
+  state: one(states, {
+    fields: [cities.stateId],
+    references: [states.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -389,6 +431,21 @@ export const insertVendorSchema = createInsertSchema(vendors).omit({
   updatedAt: true,
 });
 
+export const insertCountrySchema = createInsertSchema(countries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertStateSchema = createInsertSchema(states).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCitySchema = createInsertSchema(cities).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -412,3 +469,9 @@ export type Group = typeof groups.$inferSelect;
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
 export type Vendor = typeof vendors.$inferSelect;
 export type InsertVendor = z.infer<typeof insertVendorSchema>;
+export type Country = typeof countries.$inferSelect;
+export type InsertCountry = z.infer<typeof insertCountrySchema>;
+export type State = typeof states.$inferSelect;
+export type InsertState = z.infer<typeof insertStateSchema>;
+export type City = typeof cities.$inferSelect;
+export type InsertCity = z.infer<typeof insertCitySchema>;
