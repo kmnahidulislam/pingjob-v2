@@ -269,6 +269,18 @@ export default function Companies() {
                           </div>
                         )}
                       </div>
+
+                      {/* Company Address */}
+                      {(selectedCompany.city || selectedCompany.state || selectedCompany.country) && (
+                        <div className="flex items-center space-x-1 text-sm text-gray-500 mt-3">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span>
+                            {[selectedCompany.city, selectedCompany.state, selectedCompany.zipCode, selectedCompany.country]
+                              .filter(Boolean)
+                              .join(', ')}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex space-x-2">
@@ -393,6 +405,18 @@ export default function Companies() {
                               </div>
                             )}
                           </div>
+
+                          {/* Company Address */}
+                          {(company.city || company.state || company.country) && (
+                            <div className="flex items-center text-sm text-gray-500 mt-2">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <span className="truncate">
+                                {[company.city, company.state, company.zipCode, company.country]
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       

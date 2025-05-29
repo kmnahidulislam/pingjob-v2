@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -11,8 +14,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import JobCard from "@/components/job-card";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { apiRequest } from "@/lib/queryClient";
+import { insertJobSchema } from "@shared/schema";
+import { z } from "zod";
 import {
   Search,
   Filter,
@@ -21,15 +42,34 @@ import {
   Users,
   Building,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  Plus,
+  Check,
+  ChevronsUpDown
 } from "lucide-react";
 import type { SearchFilters } from "@/lib/types";
 
+const jobFormSchema = insertJobSchema.extend({
+  companyId: z.number().min(1, "Company is required"),
+  title: z.string().min(1, "Job title is required"),
+  description: z.string().min(1, "Job description is required"),
+  location: z.string().min(1, "Location is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().optional(),
+  country: z.string().min(1, "Country is required"),
+});
+
 export default function Jobs() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<SearchFilters>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [isAddJobOpen, setIsAddJobOpen] = useState(false);
+  const [companySearchOpen, setCompanySearchOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
   // Get search query from URL if present
   useEffect(() => {
