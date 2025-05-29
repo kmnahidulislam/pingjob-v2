@@ -380,6 +380,7 @@ export default function Jobs() {
                                             value={company.name}
                                             onSelect={() => {
                                               setSelectedCompany(company);
+                                              field.onChange(company.id);
                                               setCompanySearchOpen(false);
                                             }}
                                           >
