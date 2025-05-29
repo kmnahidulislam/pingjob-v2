@@ -323,6 +323,7 @@ export default function Jobs() {
                         <form onSubmit={jobForm.handleSubmit((data) => {
                           console.log("Form data:", data);
                           console.log("Selected company:", selectedCompany);
+                          console.log("Form errors:", jobForm.formState.errors);
                           
                           if (!selectedCompany) {
                             toast({
@@ -340,6 +341,13 @@ export default function Jobs() {
                           
                           console.log("Submitting job data:", jobData);
                           createJobMutation.mutate(jobData);
+                        }, (errors) => {
+                          console.log("Form validation errors:", errors);
+                          toast({
+                            title: "Form validation error",
+                            description: "Please check all required fields",
+                            variant: "destructive"
+                          });
                         })} className="space-y-4">
                           {/* Company Selection with Autocomplete */}
                           <FormField
@@ -600,6 +608,7 @@ export default function Jobs() {
                               type="submit"
                               disabled={createJobMutation.isPending}
                               className="bg-linkedin-blue hover:bg-linkedin-dark"
+                              onClick={() => console.log("Submit button clicked")}
                             >
                               {createJobMutation.isPending ? "Creating..." : "Create Job"}
                             </Button>
