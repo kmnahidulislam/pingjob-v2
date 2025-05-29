@@ -118,6 +118,15 @@ export default function Jobs() {
     enabled: !!user
   });
 
+  const { data: categories } = useQuery({
+    queryKey: ['/api/categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    }
+  });
+
   const { data: applications } = useQuery({
     queryKey: ['/api/applications'],
     enabled: !!user && user.userType === 'job_seeker'
@@ -530,6 +539,31 @@ export default function Jobs() {
                                     {...field}
                                   />
                                 </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={jobForm.control}
+                            name="categoryId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Category</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a category" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {categories?.map((category: any) => (
+                                      <SelectItem key={category.id} value={category.id.toString()}>
+                                        {category.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 <FormMessage />
                               </FormItem>
                             )}
