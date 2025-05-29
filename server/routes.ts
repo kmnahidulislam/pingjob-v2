@@ -402,6 +402,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Individual job route
+  app.get('/api/jobs/:id', async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      const job = await storage.getJob(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ error: 'Job not found' });
+      }
+      
+      res.json(job);
+    } catch (error) {
+      console.error('Error fetching job:', error);
+      res.status(500).json({ error: 'Failed to fetch job' });
+    }
+  });
+
   // Job routes
   app.get('/api/jobs', async (req, res) => {
     try {
