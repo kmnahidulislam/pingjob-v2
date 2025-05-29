@@ -39,6 +39,7 @@ function Router() {
           <>
             <Route path="/" component={Home} />
             <Route path="/profile/:id?" component={Profile} />
+            <Route path="/jobs/:id" component={Jobs} />
             <Route path="/jobs" component={Jobs} />
             <Route path="/network" component={Network} />
             <Route path="/messaging" component={Messaging} />

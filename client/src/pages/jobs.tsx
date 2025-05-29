@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,12 +66,16 @@ export default function Jobs() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [match, params] = useRoute("/jobs/:id");
   const [filters, setFilters] = useState<SearchFilters>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+
+  // If we have a job ID, show job details instead of job list
+  const jobId = params?.id;
 
   // Get search query from URL if present
   useEffect(() => {
@@ -81,6 +86,17 @@ export default function Jobs() {
       setFilters(prev => ({ ...prev, search }));
     }
   }, []);
+
+  // Fetch individual job if jobId is provided
+  const { data: job, isLoading: jobLoading } = useQuery({
+    queryKey: ['/api/jobs', jobId],
+    queryFn: async () => {
+      const response = await fetch(`/api/jobs/${jobId}`);
+      if (!response.ok) throw new Error('Failed to fetch job');
+      return response.json();
+    },
+    enabled: !!jobId
+  });
 
   const { data: jobs, isLoading, refetch } = useQuery({
     queryKey: ['/api/jobs', filters],
@@ -93,7 +109,8 @@ export default function Jobs() {
       const response = await fetch(`/api/jobs?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch jobs');
       return response.json();
-    }
+    },
+    enabled: !jobId
   });
 
   const { data: savedJobs } = useQuery({
