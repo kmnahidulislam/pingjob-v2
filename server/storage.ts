@@ -11,6 +11,7 @@ import {
   groups,
   groupMemberships,
   vendors,
+  categories,
   type User,
   type UpsertUser,
   type Experience,
@@ -33,6 +34,8 @@ import {
   type InsertGroup,
   type Vendor,
   type InsertVendor,
+  type Category,
+  type InsertCategory,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -112,6 +115,11 @@ export interface IStorage {
   addVendor(vendor: InsertVendor): Promise<Vendor>;
   updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor>;
   getPendingVendors(): Promise<any[]>;
+  
+  // Category operations
+  getCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -737,6 +745,24 @@ export class DatabaseStorage implements IStorage {
       .from(vendors)
       .where(eq(vendors.status, "pending"))
       .orderBy(desc(vendors.createdAt));
+  }
+
+  // Category operations
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(categories.name);
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category;
+  }
+
+  async createCategory(categoryData: InsertCategory): Promise<Category> {
+    const [category] = await db
+      .insert(categories)
+      .values(categoryData)
+      .returning();
+    return category;
   }
 }
 
