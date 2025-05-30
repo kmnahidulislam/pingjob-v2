@@ -60,6 +60,9 @@ const jobFormSchema = insertJobSchema.extend({
   zipCode: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   skills: z.string().optional(), // Keep as string in form, convert to array on submit
+  categoryId: z.union([z.string(), z.number()]).transform((val) => {
+    return typeof val === 'string' ? parseInt(val, 10) : val;
+  }).pipe(z.number().min(1, "Category is required")),
 });
 
 export default function Jobs() {
