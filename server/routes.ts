@@ -525,7 +525,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Creating job with data:", req.body);
       console.log("User ID:", userId);
       
-      const validatedData = insertJobSchema.parse({ ...req.body, recruiterId: userId });
+      // Auto-generate location from city, state, country
+      const jobData = { ...req.body, recruiterId: userId };
+      if (jobData.city && jobData.state && jobData.country) {
+        jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
+      }
+      
+      const validatedData = insertJobSchema.parse(jobData);
       console.log("Validated data:", validatedData);
       
       const job = await storage.createJob(validatedData);

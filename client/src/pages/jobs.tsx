@@ -50,11 +50,12 @@ import {
 } from "lucide-react";
 import type { SearchFilters } from "@/lib/types";
 
-const jobFormSchema = insertJobSchema.extend({
+const jobFormSchema = insertJobSchema.omit({
+  location: true, // Remove location field, will be auto-generated from city, state, country
+}).extend({
   companyId: z.number().min(1, "Company is required"),
   title: z.string().min(1, "Job title is required"),
   description: z.string().min(1, "Job description is required"),
-  location: z.string().min(1, "Location is required"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().optional(),
@@ -776,19 +777,7 @@ export default function Jobs() {
                             />
                           </div>
 
-                          <FormField
-                            control={jobForm.control}
-                            name="location"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Full Location</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g. San Francisco, CA, United States" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+
 
                           <div className="flex justify-end space-x-2 pt-4">
                             <Button
