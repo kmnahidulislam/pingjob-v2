@@ -12,6 +12,7 @@ import Jobs from "@/pages/jobs";
 import Network from "@/pages/network";
 import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
+import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import Navigation from "@/components/navigation";
 
@@ -44,6 +45,7 @@ function Router() {
             <Route path="/network" component={Network} />
             <Route path="/messaging" component={Messaging} />
             <Route path="/companies" component={Companies} />
+            <Route path="/company/create" component={CompanyCreate} />
             <Route path="/dashboard" component={Dashboard} />
           </>
         )}
