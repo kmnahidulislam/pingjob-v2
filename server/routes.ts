@@ -18,6 +18,7 @@ import {
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -314,7 +315,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const logoUrl = `/uploads/${filename}`;
 
       // Rename file to have proper extension
-      const fs = require('fs');
       const oldPath = req.file.path;
       const newPath = path.join('uploads', filename);
       
