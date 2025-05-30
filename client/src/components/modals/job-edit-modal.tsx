@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { JobWithCompany } from "@/lib/types";
@@ -20,6 +20,11 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['/api/categories'],
+  });
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -32,6 +37,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
     experienceLevel: "entry",
     salary: "",
     skills: "",
+    categoryId: "",
   });
 
   // Update form when job changes
@@ -49,6 +55,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         experienceLevel: job.experienceLevel || "entry",
         salary: job.salary || "",
         skills: Array.isArray(job.skills) ? job.skills.join(", ") : (job.skills || ""),
+        categoryId: job.categoryId?.toString() || "",
       });
     }
   }, [job]);
@@ -57,6 +64,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
     mutationFn: (jobData: typeof formData) => {
       const processedJobData = {
         ...jobData,
+        categoryId: parseInt(jobData.categoryId),
         skills: jobData.skills ? jobData.skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0) : []
       };
       return apiRequest('PUT', `/api/jobs/${job?.id}`, processedJobData);
@@ -106,6 +114,23 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <Label htmlFor="categoryId">Job Category *</Label>
+            <Select value={formData.categoryId} onValueChange={(value) => handleInputChange('categoryId', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select job category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category: any) => (
+                  <SelectItem key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Job Type and Experience Level */}
