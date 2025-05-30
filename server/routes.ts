@@ -36,6 +36,23 @@ const upload = multer({
   }
 });
 
+// Configure multer for image uploads (company logos, profile pictures)
+const imageUpload = multer({
+  dest: 'uploads/',
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['.jpg', '.jpeg', '.png', '.gif'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPG, JPEG, PNG, and GIF images are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 2 * 1024 * 1024, // 2MB limit for images
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Public routes (before auth middleware)
   
@@ -857,6 +874,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching cities:", error);
       res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
+  // Image upload endpoint for company logos
+  app.post('/api/upload/company-logo', isAuthenticated, imageUpload.single('logo'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const logoUrl = `/uploads/${req.file.filename}`;
+      res.json({ logoUrl });
+    } catch (error) {
+      console.error("Error uploading company logo:", error);
+      res.status(500).json({ message: "Failed to upload logo" });
     }
   });
 
