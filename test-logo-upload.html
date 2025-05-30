@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Company Logo Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo-upload-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .logo-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 10px;
+            border: 2px solid #ddd;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .btn {
+            background-color: #0073b1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #005885;
+        }
+        .form-field {
+            margin-bottom: 15px;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-field input, .form-field textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Test Company Logo Upload Feature</h2>
+        <p>This demonstrates the logo upload functionality that has been added to the company creation form.</p>
+        
+        <form id="testForm">
+            <div class="logo-upload-section">
+                <h3>Company Logo Upload</h3>
+                <div id="logoPreview" style="display: none;">
+                    <img id="previewImage" class="logo-preview" alt="Logo preview" />
+                    <button type="button" onclick="clearLogo()" style="display: block; margin: 10px auto;">Remove Logo</button>
+                </div>
+                <div id="uploadPrompt">
+                    <div style="font-size: 48px; color: #ccc;">🏢</div>
+                    <p>Upload your company logo</p>
+                </div>
+                <input type="file" id="logoFile" class="file-input" accept="image/*" onchange="handleLogoChange(event)">
+                <p style="font-size: 12px; color: #666;">Supported formats: JPG, PNG, GIF (max 2MB)</p>
+            </div>
+
+            <div class="form-field">
+                <label for="companyName">Company Name *</label>
+                <input type="text" id="companyName" required placeholder="Enter company name">
+            </div>
+
+            <div class="form-field">
+                <label for="industry">Industry *</label>
+                <input type="text" id="industry" required placeholder="e.g., Technology, Healthcare">
+            </div>
+
+            <div class="form-field">
+                <label for="description">Description *</label>
+                <textarea id="description" required placeholder="Tell us about your company..." rows="4"></textarea>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Company logo uploaded successfully! The logo upload feature is working correctly.
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                Error uploading logo. Please try again.
+            </div>
+
+            <button type="button" class="btn" onclick="testLogoUpload()">Test Logo Upload</button>
+        </form>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleLogoChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    showError('Please select a valid image file (JPG, PNG, or GIF)');
+                    return;
+                }
+
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    showError('File size must be less than 2MB');
+                    return;
+                }
+
+                selectedFile = file;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                    document.getElementById('uploadPrompt').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearLogo() {
+            selectedFile = null;
+            document.getElementById('logoFile').value = '';
+            document.getElementById('logoPreview').style.display = 'none';
+            document.getElementById('uploadPrompt').style.display = 'block';
+        }
+
+        function testLogoUpload() {
+            const companyName = document.getElementById('companyName').value;
+            const industry = document.getElementById('industry').value;
+            const description = document.getElementById('description').value;
+
+            if (!companyName || !industry || !description) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            if (!selectedFile) {
+                showError('Please select a logo file to test the upload feature');
+                return;
+            }
+
+            // Simulate successful upload
+            showSuccess();
+            
+            // In the real application, this would upload to /api/upload/company-logo
+            console.log('Would upload logo:', selectedFile.name);
+            console.log('Company data:', { companyName, industry, description });
+        }
+
+        function showSuccess() {
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

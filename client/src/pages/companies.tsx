@@ -413,8 +413,8 @@ export default function Companies() {
 
               <Separator />
 
-              {/* Create Company (for clients) */}
-              {user?.userType === 'client' && !userCompany && (
+              {/* Create Company (for clients and admins) */}
+              {(user?.userType === 'client' || user?.userType === 'admin') && !userCompany && (
                 <Button
                   onClick={() => setShowCreateForm(true)}
                   className="w-full bg-linkedin-blue hover:bg-linkedin-dark"
