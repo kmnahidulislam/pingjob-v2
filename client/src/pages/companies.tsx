@@ -215,6 +215,7 @@ export default function Companies() {
       queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
     },
     onError: (error: any) => {
+      console.error("Company creation error:", error);
       toast({
         title: "Error creating company",
         description: error.message || "Failed to create company",
@@ -414,7 +415,7 @@ export default function Companies() {
               <Separator />
 
               {/* Create Company (for clients and admins) */}
-              {(user?.userType === 'client' || user?.userType === 'admin') && !userCompany && (
+              {(user?.userType === 'client' || user?.userType === 'admin') && (
                 <Button
                   onClick={() => setShowCreateForm(true)}
                   className="w-full bg-linkedin-blue hover:bg-linkedin-dark"
@@ -758,7 +759,11 @@ export default function Companies() {
             <DialogTitle>Create Company Page</DialogTitle>
           </DialogHeader>
           <Form {...companyForm}>
-            <form onSubmit={companyForm.handleSubmit((data) => createCompanyMutation.mutate(data))} className="space-y-4">
+            <form onSubmit={companyForm.handleSubmit((data) => {
+              console.log("Form submitted with data:", data);
+              console.log("Form errors:", companyForm.formState.errors);
+              createCompanyMutation.mutate(data);
+            })} className="space-y-4">
               {/* Logo Upload Section */}
               <div className="space-y-3">
                 <FormLabel>Company Logo</FormLabel>
