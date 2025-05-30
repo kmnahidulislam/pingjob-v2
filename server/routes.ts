@@ -54,6 +54,9 @@ const imageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve static files from uploads directory
+  app.use('/uploads', express.static('uploads'));
+  
   // Public routes (before auth middleware)
   
   // Get open jobs and vendors for a company (public endpoint)
@@ -294,6 +297,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching company:", error);
       res.status(500).json({ message: "Failed to fetch company" });
+    }
+  });
+
+  // Company logo upload route
+  app.post('/api/upload/company-logo', isAuthenticated, imageUpload.single('logo'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Generate unique filename with timestamp
+      const timestamp = Date.now();
+      const ext = path.extname(req.file.originalname);
+      const filename = `company-logo-${timestamp}${ext}`;
+      const logoUrl = `/uploads/${filename}`;
+
+      // Rename file to have proper extension
+      const fs = require('fs');
+      const oldPath = req.file.path;
+      const newPath = path.join('uploads', filename);
+      
+      fs.renameSync(oldPath, newPath);
+
+      res.json({ logoUrl });
+    } catch (error) {
+      console.error("Error uploading company logo:", error);
+      res.status(500).json({ message: "Failed to upload logo" });
     }
   });
 
