@@ -759,11 +759,16 @@ export default function Companies() {
             <DialogTitle>Create Company Page</DialogTitle>
           </DialogHeader>
           <Form {...companyForm}>
-            <form onSubmit={companyForm.handleSubmit((data) => {
-              console.log("Form submitted with data:", data);
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              console.log("Form submit event triggered");
               console.log("Form errors:", companyForm.formState.errors);
-              createCompanyMutation.mutate(data);
-            })} className="space-y-4">
+              console.log("Form values:", companyForm.getValues());
+              companyForm.handleSubmit((data) => {
+                console.log("Form validated and submitted with data:", data);
+                createCompanyMutation.mutate(data);
+              })(e);
+            }} className="space-y-4">
               {/* Logo Upload Section */}
               <div className="space-y-3">
                 <FormLabel>Company Logo</FormLabel>
