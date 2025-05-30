@@ -963,6 +963,11 @@ export default function Companies() {
                   type="submit"
                   disabled={createCompanyMutation.isPending}
                   className="bg-linkedin-blue hover:bg-linkedin-dark"
+                  onClick={(e) => {
+                    console.log("Submit button clicked");
+                    console.log("Form valid:", companyForm.formState.isValid);
+                    console.log("Form errors:", companyForm.formState.errors);
+                  }}
                 >
                   {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
                 </Button>
