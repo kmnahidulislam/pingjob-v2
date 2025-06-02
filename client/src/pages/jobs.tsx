@@ -52,6 +52,7 @@ import type { SearchFilters } from "@/lib/types";
 
 const jobFormSchema = insertJobSchema.omit({
   location: true, // Remove location field, will be auto-generated from city, state, country
+  employmentType: true, // Remove employmentType from frontend validation
 }).extend({
   companyId: z.number().min(1, "Company is required"),
   title: z.string().min(1, "Job title is required"),
