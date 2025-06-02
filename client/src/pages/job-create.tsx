@@ -15,7 +15,7 @@ import { insertJobSchema } from "@shared/schema";
 import { z } from "zod";
 import { Briefcase, MapPin, DollarSign } from "lucide-react";
 
-const jobFormSchema = insertJobSchema.extend({
+const jobFormSchema = insertJobSchema.omit({ employmentType: true }).extend({
   title: z.string().min(1, "Job title is required"),
   description: z.string().min(50, "Description must be at least 50 characters"),
   requirements: z.string().min(20, "Requirements must be at least 20 characters"),
@@ -58,8 +58,8 @@ export default function JobCreate() {
       description: "",
       requirements: "",
       location: "",
-      type: "full-time",
-      level: "mid-level",
+      jobType: "full_time",
+      experienceLevel: "mid",
       salaryMin: undefined,
       salaryMax: undefined,
       companyId: undefined,
@@ -220,7 +220,7 @@ export default function JobCreate() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={jobForm.control}
-                    name="type"
+                    name="jobType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Job Type</FormLabel>
@@ -231,11 +231,10 @@ export default function JobCreate() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="full-time">Full-time</SelectItem>
-                            <SelectItem value="part-time">Part-time</SelectItem>
+                            <SelectItem value="full_time">Full-time</SelectItem>
+                            <SelectItem value="part_time">Part-time</SelectItem>
                             <SelectItem value="contract">Contract</SelectItem>
-                            <SelectItem value="internship">Internship</SelectItem>
-                            <SelectItem value="freelance">Freelance</SelectItem>
+                            <SelectItem value="remote">Remote</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -245,7 +244,7 @@ export default function JobCreate() {
 
                   <FormField
                     control={jobForm.control}
-                    name="level"
+                    name="experienceLevel"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Experience Level</FormLabel>
@@ -256,9 +255,9 @@ export default function JobCreate() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="entry-level">Entry Level</SelectItem>
-                            <SelectItem value="mid-level">Mid Level</SelectItem>
-                            <SelectItem value="senior-level">Senior Level</SelectItem>
+                            <SelectItem value="entry">Entry Level</SelectItem>
+                            <SelectItem value="mid">Mid Level</SelectItem>
+                            <SelectItem value="senior">Senior Level</SelectItem>
                             <SelectItem value="executive">Executive</SelectItem>
                           </SelectContent>
                         </Select>

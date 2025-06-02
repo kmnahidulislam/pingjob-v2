@@ -555,19 +555,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobData = { 
         ...req.body, 
         recruiterId: userId,
-        employmentType: req.body.jobType // Map jobType to employmentType for database
+        employmentType: req.body.jobType || "full_time" // Map jobType to employmentType for database
       };
       if (jobData.city && jobData.state && jobData.country) {
         jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
       }
       
-      // Create a simplified validation schema that doesn't require employmentType from the frontend
-      const createJobSchema = insertJobSchema.omit({ employmentType: true }).extend({
-        jobType: z.string(),
-        employmentType: z.string().optional()
-      });
-      
-      const validatedData = createJobSchema.parse(jobData);
+      const validatedData = insertJobSchema.parse(jobData);
       console.log("Validated data:", validatedData);
       
       const job = await storage.createJob(validatedData);
