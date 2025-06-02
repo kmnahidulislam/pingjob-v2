@@ -551,8 +551,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Creating job with data:", req.body);
       console.log("User ID:", userId);
       
-      // Auto-generate location from city, state, country
-      const jobData = { ...req.body, recruiterId: userId };
+      // Auto-generate location from city, state, country and map jobType to employmentType
+      const jobData = { 
+        ...req.body, 
+        recruiterId: userId,
+        employmentType: req.body.jobType // Map jobType to employmentType for database
+      };
       if (jobData.city && jobData.state && jobData.country) {
         jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
       }

@@ -116,7 +116,7 @@ export const jobs = pgTable("jobs", {
   state: varchar("state"),
   city: varchar("city"),
   zipCode: varchar("zip_code"),
-  jobType: varchar("job_type", { enum: ["full_time", "part_time", "contract", "remote"] }).notNull(),
+  employmentType: varchar("employment_type", { enum: ["full_time", "part_time", "contract", "remote"] }).notNull(),
   experienceLevel: varchar("experience_level", { enum: ["entry", "mid", "senior", "executive"] }).notNull(),
   salary: varchar("salary"),
   benefits: text("benefits"),
