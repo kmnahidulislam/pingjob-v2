@@ -428,6 +428,30 @@ export default function Companies() {
                   Create Company Page
                 </Button>
               )}
+              
+              {/* Admin Controls */}
+              {user?.userType === 'admin' && (
+                <div className="space-y-2">
+                  <Button
+                    onClick={() => setShowPendingApprovals(!showPendingApprovals)}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Pending Approvals ({pendingCompanies?.length || 0})
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Link href="/job-create">
+                      <Briefcase className="h-4 w-4 mr-2" />
+                      Post New Job
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -583,6 +607,59 @@ export default function Companies() {
                     Close Details
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Pending Company Approvals (Admin Only) */}
+          {user?.userType === 'admin' && showPendingApprovals && pendingCompanies && pendingCompanies.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Check className="h-5 w-5 mr-2" />
+                  Pending Company Approvals ({pendingCompanies.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {pendingCompanies.map((company: any) => (
+                  <div key={company.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-4 flex-1">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={company.logoUrl || undefined} />
+                          <AvatarFallback className="bg-gray-400 text-white">
+                            <Building className="h-6 w-6" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-semibold text-lg">{company.name}</h4>
+                          <p className="text-gray-600">{company.industry}</p>
+                          <p className="text-sm text-gray-500 mt-1">{company.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          onClick={() => approveCompanyMutation.mutate(company.id)}
+                          disabled={approveCompanyMutation.isPending}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Approve
+                        </Button>
+                        <Button
+                          onClick={() => rejectCompanyMutation.mutate(company.id)}
+                          disabled={rejectCompanyMutation.isPending}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}

@@ -778,7 +778,11 @@ export class DatabaseStorage implements IStorage {
 
   // Location operations
   async getCountries(): Promise<Country[]> {
-    return await db.select().from(countries).orderBy(countries.name);
+    return await db.select({
+      id: countries.id,
+      name: countries.name,
+      code: countries.code
+    }).from(countries).orderBy(countries.name);
   }
 
   async getStatesByCountry(countryId: number): Promise<State[]> {
