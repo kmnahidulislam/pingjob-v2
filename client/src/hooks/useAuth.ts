@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 export function useAuth() {
   // Temporarily bypass authentication for testing
   const mockUser = {
-    id: "temp-admin",
-    email: "krupas@vedsoft.com",
+    id: "admin-krupa",
+    email: "krupashankar@gmail.com",
     firstName: "Krupa",
     lastName: "Shankar",
     profileImageUrl: null,

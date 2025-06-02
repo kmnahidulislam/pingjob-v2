@@ -302,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Company logo upload route
-  app.post('/api/upload/company-logo', isAuthenticated, imageUpload.single('logo'), async (req: any, res) => {
+  app.post('/api/upload/company-logo', imageUpload.single('logo'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
