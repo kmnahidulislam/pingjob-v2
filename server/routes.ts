@@ -561,7 +561,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
       }
       
-      const validatedData = insertJobSchema.parse(jobData);
+      // Create a simplified validation schema that doesn't require employmentType from the frontend
+      const createJobSchema = insertJobSchema.omit({ employmentType: true }).extend({
+        jobType: z.string(),
+        employmentType: z.string().optional()
+      });
+      
+      const validatedData = createJobSchema.parse(jobData);
       console.log("Validated data:", validatedData);
       
       const job = await storage.createJob(validatedData);
