@@ -430,17 +430,7 @@ export default function Dashboard() {
                                       required
                                     />
                                   </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="description" className="text-right">
-                                      Description
-                                    </Label>
-                                    <Textarea
-                                      id="description"
-                                      name="description"
-                                      placeholder="Brief description of vendor services"
-                                      className="col-span-3"
-                                    />
-                                  </div>
+
                                 </div>
                                 <DialogFooter>
                                   <Button type="submit" disabled={addVendorMutation.isPending}>

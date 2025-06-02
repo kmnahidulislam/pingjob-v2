@@ -189,7 +189,6 @@ export const vendors = pgTable("vendors", {
   email: varchar("email").notNull(),
   phone: varchar("phone"),
   services: varchar("services").notNull(),
-  description: text("description"),
   status: varchar("status", { enum: ["pending", "active", "inactive"] }).default("active"),
   createdBy: varchar("created_by").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
