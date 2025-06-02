@@ -135,6 +135,12 @@ export default function Navigation() {
                     View Profile
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/company/create" className="cursor-pointer">
+                    <Building className="h-4 w-4 mr-2" />
+                    Create Company
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
