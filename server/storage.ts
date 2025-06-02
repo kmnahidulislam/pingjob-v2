@@ -727,7 +727,18 @@ export class DatabaseStorage implements IStorage {
   // Vendor operations
   async getClientVendors(companyId: number): Promise<any[]> {
     return await db
-      .select()
+      .select({
+        id: vendors.id,
+        companyId: vendors.companyId,
+        name: vendors.name,
+        email: vendors.email,
+        phone: vendors.phone,
+        services: vendors.services,
+        status: vendors.status,
+        createdBy: vendors.createdBy,
+        createdAt: vendors.createdAt,
+        updatedAt: vendors.updatedAt
+      })
       .from(vendors)
       .where(eq(vendors.companyId, companyId))
       .orderBy(desc(vendors.createdAt));
