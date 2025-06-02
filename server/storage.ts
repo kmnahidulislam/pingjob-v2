@@ -726,22 +726,17 @@ export class DatabaseStorage implements IStorage {
 
   // Vendor operations
   async getClientVendors(companyId: number): Promise<any[]> {
-    return await db
-      .select({
-        id: vendors.id,
-        companyId: vendors.companyId,
-        name: vendors.name,
-        email: vendors.email,
-        phone: vendors.phone,
-        services: vendors.services,
-        status: vendors.status,
-        createdBy: vendors.createdBy,
-        createdAt: vendors.createdAt,
-        updatedAt: vendors.updatedAt
-      })
-      .from(vendors)
-      .where(eq(vendors.companyId, companyId))
-      .orderBy(desc(vendors.createdAt));
+    try {
+      const result = await db
+        .select()
+        .from(vendors)
+        .where(eq(vendors.companyId, companyId))
+        .orderBy(desc(vendors.createdAt));
+      return result;
+    } catch (error) {
+      console.error("Error in getClientVendors:", error);
+      return [];
+    }
   }
 
   async addVendor(vendor: InsertVendor): Promise<Vendor> {
