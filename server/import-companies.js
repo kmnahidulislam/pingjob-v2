@@ -44,12 +44,8 @@ async function importCompanies() {
       console.log(`Parsed ${records.length} companies from CSV`);
       
       try {
-        // Clear existing companies first
-        await db.delete(companies);
-        console.log('Cleared existing companies');
-        
-        // Insert companies in batches of 1000
-        const batchSize = 1000;
+        // Insert companies in batches of 500 (smaller batches for reliability)
+        const batchSize = 500;
         for (let i = 0; i < records.length; i += batchSize) {
           const batch = records.slice(i, i + batchSize);
           await db.insert(companies).values(batch);
