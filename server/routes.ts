@@ -265,6 +265,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all companies
+  app.get('/api/companies', async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const companies = await storage.getCompanies(limit);
+      res.json(companies);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
   // Get pending companies (admin only) - Must come before /:id route
   app.get('/api/companies/pending', async (req: any, res) => {
     try {
