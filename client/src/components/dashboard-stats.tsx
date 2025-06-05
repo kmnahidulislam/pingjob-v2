@@ -34,6 +34,16 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     enabled: userType === 'recruiter'
   });
 
+  const { data: allJobs } = useQuery({
+    queryKey: ['/api/jobs'],
+    enabled: userType === 'recruiter' || userType === 'client' || userType === 'admin'
+  });
+
+  const { data: allCompanies } = useQuery({
+    queryKey: ['/api/companies'],
+    enabled: userType === 'admin' || userType === 'client'
+  });
+
   const { data: company } = useQuery({
     queryKey: ['/api/user/company'],
     enabled: userType === 'client'
@@ -84,7 +94,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Briefcase className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">5</div>
+          <div className="text-2xl font-bold">{allJobs?.length || 0}</div>
           <p className="text-xs text-muted-foreground">Currently posted</p>
         </CardContent>
       </Card>
