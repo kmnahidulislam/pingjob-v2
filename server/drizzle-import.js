@@ -1,5 +1,5 @@
-import { db } from './db.js';
-import { jobs, companies } from '../shared/schema.js';
+import { db } from './db';
+import { jobs, companies } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -73,9 +73,10 @@ async function drizzleImport() {
             requirements: requirements.substring(0, 1000),
             location: location.substring(0, 100),
             country: 'United States',
-            employmentType: 'full-time',
+            jobType: 'full-time',
+            experienceLevel: 'mid-level',
             isActive: true,
-            status: 'open',
+            applicationCount: 0,
             createdAt: new Date(),
             updatedAt: new Date()
           });
