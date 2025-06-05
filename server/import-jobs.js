@@ -65,7 +65,7 @@ async function importJobs() {
           recruiterId: record.recruiter_id?.trim() || 'admin-krupa',
           categoryId: record.category_id ? parseInt(record.category_id) : null,
           salary: salary,
-          employmentType: 'contract',
+          jobType: 'contract',
           description: record.description?.trim() || '',
           skills: record.skills?.trim() ? [record.skills.trim()] : [],
           requirements: record.requirements?.trim() || null,
@@ -146,7 +146,7 @@ async function processBatch(client, batch) {
         job.state,
         job.city,
         job.zipCode,
-        job.employmentType,
+        job.jobType,
         job.experienceLevel,
         job.salary,
         job.skills,
@@ -157,7 +157,7 @@ async function processBatch(client, batch) {
     const query = `
       INSERT INTO jobs (
         company_id, recruiter_id, category_id, title, description, requirements, 
-        location, country, state, city, zip_code, employment_type, 
+        location, country, state, city, zip_code, job_type, 
         experience_level, salary, skills, is_active
       ) VALUES ${placeholders.join(', ')}
     `;
@@ -181,7 +181,7 @@ async function insertSingleJob(client, job) {
   const query = `
     INSERT INTO jobs (
       company_id, recruiter_id, category_id, title, description, requirements, 
-      location, country, state, city, zip_code, employment_type, 
+      location, country, state, city, zip_code, job_type, 
       experience_level, salary, skills, is_active
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
   `;
@@ -198,7 +198,7 @@ async function insertSingleJob(client, job) {
     job.state,
     job.city,
     job.zipCode,
-    job.employmentType,
+    job.jobType,
     job.experienceLevel,
     job.salary,
     job.skills,
