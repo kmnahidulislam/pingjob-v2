@@ -149,7 +149,7 @@ export default function Companies() {
   const { data: companies, isLoading } = useQuery({
     queryKey: ['/api/companies'],
     queryFn: async () => {
-      const response = await fetch('/api/companies');
+      const response = await fetch('/api/companies?limit=1000');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }

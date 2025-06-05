@@ -268,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all companies
   app.get('/api/companies', async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 1000;
       const companies = await storage.getCompanies(limit);
       res.json(companies);
     } catch (error) {
