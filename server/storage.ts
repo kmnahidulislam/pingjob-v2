@@ -321,55 +321,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJobs(filters: any = {}, limit = 50): Promise<Job[]> {
-    const conditions = [eq(jobs.isActive, true)];
-    
-    if (filters.jobType) {
-      conditions.push(eq(jobs.jobType, filters.jobType));
+    try {
+      let query = db
+        .select()
+        .from(jobs)
+        .where(eq(jobs.isActive, true));
+      
+      if (filters.jobType) {
+        query = query.where(eq(jobs.jobType, filters.jobType));
+      }
+      if (filters.experienceLevel) {
+        query = query.where(eq(jobs.experienceLevel, filters.experienceLevel));
+      }
+      if (filters.location) {
+        query = query.where(ilike(jobs.location, `%${filters.location}%`));
+      }
+      if (filters.companyId !== undefined) {
+        query = query.where(eq(jobs.companyId, filters.companyId));
+      }
+      
+      const result = await query
+        .orderBy(desc(jobs.createdAt))
+        .limit(limit);
+        
+      console.log(`getJobs query returned ${result.length} jobs`);
+      return result;
+    } catch (error) {
+      console.error('Error in getJobs:', error);
+      return [];
     }
-    if (filters.experienceLevel) {
-      conditions.push(eq(jobs.experienceLevel, filters.experienceLevel));
-    }
-    if (filters.location) {
-      conditions.push(ilike(jobs.location, `%${filters.location}%`));
-    }
-    if (filters.companyId !== undefined) {
-      conditions.push(eq(jobs.companyId, filters.companyId));
-    }
-    
-    return await db
-      .select({
-        id: jobs.id,
-        companyId: jobs.companyId,
-        recruiterId: jobs.recruiterId,
-        title: jobs.title,
-        description: jobs.description,
-        requirements: jobs.requirements,
-        location: jobs.location,
-        country: jobs.country,
-        state: jobs.state,
-        city: jobs.city,
-        zipCode: jobs.zipCode,
-        jobType: jobs.jobType,
-        experienceLevel: jobs.experienceLevel,
-        salary: jobs.salary,
-        benefits: jobs.benefits,
-        skills: jobs.skills,
-        isActive: jobs.isActive,
-        applicationCount: jobs.applicationCount,
-        createdAt: jobs.createdAt,
-        updatedAt: jobs.updatedAt,
-        company: {
-          id: companies.id,
-          name: companies.name,
-          industry: companies.industry,
-          logoUrl: companies.logoUrl,
-        }
-      })
-      .from(jobs)
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .where(and(...conditions))
-      .orderBy(desc(jobs.createdAt))
-      .limit(limit);
   }
 
   async getJobsByCompany(companyId: number): Promise<Job[]> {
