@@ -2,6 +2,7 @@ import { createReadStream } from 'fs';
 import { parse } from 'csv-parse';
 import { db } from './db.ts';
 import { companies } from '../shared/schema.ts';
+import { sql } from 'drizzle-orm';
 
 async function importCompanies() {
   console.log('Starting company import...');
@@ -44,11 +45,28 @@ async function importCompanies() {
       console.log(`Parsed ${records.length} companies from CSV`);
       
       try {
-        // Insert companies in batches of 500 (smaller batches for reliability)
+        // Insert companies in batches using upsert to handle duplicates
         const batchSize = 500;
         for (let i = 0; i < records.length; i += batchSize) {
           const batch = records.slice(i, i + batchSize);
-          await db.insert(companies).values(batch);
+          await db.insert(companies).values(batch).onConflictDoUpdate({
+            target: companies.id,
+            set: {
+              name: sql`excluded.name`,
+              industry: sql`excluded.industry`,
+              size: sql`excluded.size`,
+              website: sql`excluded.website`,
+              logoUrl: sql`excluded.logo_url`,
+              country: sql`excluded.country`,
+              state: sql`excluded.state`,
+              city: sql`excluded.city`,
+              zipCode: sql`excluded.zip_code`,
+              location: sql`excluded.location`,
+              phone: sql`excluded.phone`,
+              status: sql`excluded.status`,
+              approvedBy: sql`excluded.approved_by`
+            }
+          });
           console.log(`Imported batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(records.length/batchSize)}`);
         }
         
