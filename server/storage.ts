@@ -43,7 +43,7 @@ import {
   type State,
   type City,
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -320,32 +320,80 @@ export class DatabaseStorage implements IStorage {
     return job;
   }
 
-  async getJobs(filters: any = {}, limit = 50): Promise<Job[]> {
+  async getJobs(filters: any = {}, limit = 50): Promise<any[]> {
     try {
-      let query = db
-        .select()
-        .from(jobs)
-        .where(eq(jobs.isActive, true));
+      let whereClause = 'WHERE j.is_active = true';
+      const params: any[] = [];
+      let paramIndex = 1;
       
       if (filters.jobType) {
-        query = query.where(eq(jobs.jobType, filters.jobType));
+        whereClause += ` AND j.job_type = $${paramIndex}`;
+        params.push(filters.jobType);
+        paramIndex++;
       }
       if (filters.experienceLevel) {
-        query = query.where(eq(jobs.experienceLevel, filters.experienceLevel));
+        whereClause += ` AND j.experience_level = $${paramIndex}`;
+        params.push(filters.experienceLevel);
+        paramIndex++;
       }
       if (filters.location) {
-        query = query.where(ilike(jobs.location, `%${filters.location}%`));
+        whereClause += ` AND j.location ILIKE $${paramIndex}`;
+        params.push(`%${filters.location}%`);
+        paramIndex++;
       }
       if (filters.companyId !== undefined) {
-        query = query.where(eq(jobs.companyId, filters.companyId));
+        whereClause += ` AND j.company_id = $${paramIndex}`;
+        params.push(filters.companyId);
+        paramIndex++;
       }
       
-      const result = await query
-        .orderBy(desc(jobs.createdAt))
-        .limit(limit);
-        
-      console.log(`getJobs query returned ${result.length} jobs`);
-      return result;
+      const query = `
+        SELECT 
+          j.id,
+          j.company_id as "companyId",
+          j.recruiter_id as "recruiterId",
+          j.category_id as "categoryId",
+          j.title,
+          j.description,
+          j.requirements,
+          j.location,
+          j.country,
+          j.state,
+          j.city,
+          j.zip_code as "zipCode",
+          j.job_type as "jobType",
+          j.experience_level as "experienceLevel",
+          j.salary,
+          j.benefits,
+          j.skills,
+          j.is_active as "isActive",
+          j.application_count as "applicationCount",
+          j.created_at as "createdAt",
+          j.updated_at as "updatedAt",
+          jsonb_build_object(
+            'id', c.id,
+            'name', c.name,
+            'industry', c.industry,
+            'logoUrl', c.logo_url
+          ) as company
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        ${whereClause}
+        ORDER BY j.created_at DESC
+        LIMIT $${paramIndex}
+      `;
+      
+      params.push(limit);
+      
+      // Use direct pool query to bypass Drizzle ORM issues
+      const { Pool } = await import('@neondatabase/serverless');
+      const directPool = new Pool({ connectionString: process.env.DATABASE_URL });
+      const client = await directPool.connect();
+      const result = await client.query(query, params);
+      client.release();
+      
+      console.log(`getJobs query returned ${result.rows.length} jobs`);
+      return result.rows;
     } catch (error) {
       console.error('Error in getJobs:', error);
       return [];
