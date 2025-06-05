@@ -14,7 +14,7 @@ async function importCompanies() {
   });
 
   // Read and parse CSV file
-  createReadStream('../attached_assets/companies_port.csv')
+  createReadStream('./attached_assets/companies_port.csv')
     .pipe(parser)
     .on('data', (data) => {
       // Map CSV columns to database schema
