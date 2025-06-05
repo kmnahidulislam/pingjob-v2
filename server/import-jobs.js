@@ -19,6 +19,11 @@ async function importJobs() {
   try {
     console.log('Starting jobs import...');
     
+    // Get existing company IDs to validate foreign key constraints
+    const companyResult = await client.query('SELECT id FROM companies');
+    const validCompanyIds = new Set(companyResult.rows.map(row => row.id));
+    console.log(`Found ${validCompanyIds.size} valid company IDs`);
+    
     // Read and parse CSV
     const csvData = fs.readFileSync('./attached_assets/jobs replit_1749150263370.csv', 'utf8');
     
@@ -78,9 +83,14 @@ async function importJobs() {
           isActive: record.is_active === 'TRUE' || record.is_active === true
         };
         
-        // Skip records with missing required fields
+        // Skip records with missing required fields or invalid company IDs
         if (!jobData.title || !jobData.companyId) {
           console.log(`Skipping record ${totalProcessed + 1}: Missing title or company_id`);
+          continue;
+        }
+        
+        if (!validCompanyIds.has(jobData.companyId)) {
+          console.log(`Skipping record ${totalProcessed + 1}: Invalid company_id ${jobData.companyId}`);
           continue;
         }
         
