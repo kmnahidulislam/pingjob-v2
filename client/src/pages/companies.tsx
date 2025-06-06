@@ -39,6 +39,234 @@ import {
   Edit
 } from "lucide-react";
 import { Link } from "wouter";
+
+// Search Results Components
+function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFollowCompany }: {
+  companies: any[];
+  searchQuery: string;
+  onSelectCompany: (company: any) => void;
+  onFollowCompany: (companyId: number) => void;
+}) {
+  if (companies.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <Building className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-semibold mb-2">No companies found</h3>
+        <p className="text-gray-600">Try adjusting your search terms or filters</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4">
+      {companies.map((company) => (
+        <Card key={company.id} className="hover:shadow-md transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage 
+                  src={company.logoUrl && company.logoUrl !== "NULL" ? company.logoUrl : undefined} 
+                  alt={company.name} 
+                />
+                <AvatarFallback className="text-lg font-semibold">
+                  {company.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-linkedin-blue hover:text-linkedin-dark cursor-pointer">
+                      {company.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">{company.industry}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {company.city}, {company.state || company.country}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4" />
+                        {company.size} employees
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSelectCompany(company)}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onFollowCompany(company.id)}
+                    >
+                      <Heart className="h-4 w-4 mr-1" />
+                      Follow
+                    </Button>
+                  </div>
+                </div>
+                
+                {company.description && (
+                  <p className="text-gray-600 text-sm mt-3 line-clamp-2">
+                    {company.description}
+                  </p>
+                )}
+                
+                <div className="flex items-center justify-between mt-4">
+                  <Badge variant="secondary" className="text-xs">
+                    {company.followers} followers
+                  </Badge>
+                  {company.zipCode && company.zipCode !== "NULL" && (
+                    <span className="text-xs text-gray-500">
+                      {company.zipCode}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function SearchResultsJobs({ searchQuery }: { searchQuery: string }) {
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['/api/search', searchQuery],
+    enabled: !!searchQuery,
+  });
+
+  const jobs = searchResults?.jobs || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-linkedin-blue"></div>
+      </div>
+    );
+  }
+
+  if (jobs.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <Briefcase className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-semibold mb-2">No jobs found</h3>
+        <p className="text-gray-600">Try searching for different skills or job titles</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">
+          {jobs.length} job{jobs.length !== 1 ? 's' : ''} found
+        </h3>
+        <Button asChild variant="outline">
+          <Link href="/jobs">View all jobs</Link>
+        </Button>
+      </div>
+      
+      <div className="grid gap-4">
+        {jobs.map((job: any) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollowCompany }: {
+  searchQuery: string;
+  companies: any[];
+  onSelectCompany: (company: any) => void;
+  onFollowCompany: (companyId: number) => void;
+}) {
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['/api/search', searchQuery],
+    enabled: !!searchQuery,
+  });
+
+  const jobs = searchResults?.jobs || [];
+  const totalResults = companies.length + jobs.length;
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          {/* Results Summary */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Search results for "{searchQuery}"
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                Found {totalResults} results ({companies.length} companies, {jobs.length} jobs)
+              </p>
+            </div>
+            {isLoading && (
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-linkedin-blue"></div>
+            )}
+          </div>
+          
+          {/* Search Results Tabs */}
+          <Tabs defaultValue="companies" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="companies" className="flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                Companies ({companies.length})
+              </TabsTrigger>
+              <TabsTrigger value="jobs" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                Jobs ({jobs.length})
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="companies" className="mt-6">
+              <SearchResultsCompanies 
+                companies={companies} 
+                searchQuery={searchQuery}
+                onSelectCompany={onSelectCompany}
+                onFollowCompany={onFollowCompany}
+              />
+            </TabsContent>
+            
+            <TabsContent value="jobs" className="mt-6">
+              <SearchResultsJobs searchQuery={searchQuery} />
+            </TabsContent>
+          </Tabs>
+          
+          {/* No Results State */}
+          {totalResults === 0 && !isLoading && (
+            <div className="text-center py-12">
+              <Search className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No results found</h3>
+              <p className="text-gray-600 mb-6">
+                We couldn't find any companies or jobs matching "{searchQuery}"
+              </p>
+              <div className="space-y-2 text-sm text-gray-500">
+                <p>Try searching for:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Different keywords or job titles</li>
+                  <li>Company names or locations</li>
+                  <li>Skills or technologies</li>
+                  <li>ZIP codes or cities</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 import type { Company } from "@/lib/types";
 
 const companyFormSchema = insertCompanySchema.omit({
@@ -566,26 +794,15 @@ export default function Companies() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Search Header */}
-          <Card>
-            <CardContent className="p-6">
-              <form onSubmit={handleSearch} className="flex gap-4">
-                <div className="flex-1 relative">
-                  <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Search companies, industries..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Button type="submit" className="bg-linkedin-blue hover:bg-linkedin-dark">
-                  Search
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          {/* Enhanced Search Results Header */}
+          {searchQuery && (
+            <SearchResultsDisplay 
+              searchQuery={searchQuery}
+              companies={filteredCompanies}
+              onSelectCompany={setSelectedCompany}
+              onFollowCompany={handleFollowCompany}
+            />
+          )}
 
           {/* Company Details Modal/Sidebar */}
           {selectedCompany && (
