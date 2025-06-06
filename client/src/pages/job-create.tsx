@@ -134,71 +134,49 @@ export default function JobCreate() {
             <Form {...jobForm}>
               <form onSubmit={jobForm.handleSubmit(handleSubmit)} className="space-y-6">
                 
-                {/* Company Selection */}
+                {/* Company Selection - Simple Input */}
                 <FormField
                   control={jobForm.control}
                   name="companyId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company *</FormLabel>
-                      <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className="w-full justify-between"
-                              disabled={companiesLoading}
-                            >
-                              {selectedCompany
-                                ? selectedCompany.name
-                                : companiesLoading
-                                ? "Loading companies..."
-                                : "Search and select company..."}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            <CommandInput 
-                              placeholder="Search companies..." 
-                              value={companySearch}
-                              onValueChange={setCompanySearch}
-                            />
-                            <CommandEmpty>
-                              {companySearch.length >= 2 
-                                ? "No company found." 
-                                : "Type at least 2 characters to search..."
-                              }
-                            </CommandEmpty>
-                            <CommandGroup className="max-h-64 overflow-auto">
-                              {availableCompanies?.map((company: any) => (
-                                <CommandItem
+                      <div className="space-y-2">
+                        <Input
+                          placeholder="Type company name to search..."
+                          value={companySearch}
+                          onChange={(e) => setCompanySearch(e.target.value)}
+                        />
+                        {companySearch.length >= 2 && (
+                          <div className="max-h-48 overflow-auto border rounded-md bg-white">
+                            {companiesLoading ? (
+                              <div className="p-3 text-sm text-gray-500">Searching...</div>
+                            ) : availableCompanies?.length > 0 ? (
+                              availableCompanies.map((company: any) => (
+                                <div
                                   key={company.id}
-                                  value={company.name}
-                                  onSelect={() => {
+                                  className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                  onClick={() => {
                                     setSelectedCompany(company);
                                     field.onChange(company.id);
-                                    setCompanySearchOpen(false);
-                                    setCompanySearch("");
+                                    setCompanySearch(company.name);
                                   }}
                                 >
-                                  <Check
-                                    className={`mr-2 h-4 w-4 ${
-                                      selectedCompany?.id === company.id ? "opacity-100" : "opacity-0"
-                                    }`}
-                                  />
-                                  <div>
-                                    <div className="font-medium">{company.name}</div>
-                                    <div className="text-sm text-gray-500">{company.industry}</div>
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
+                                  <div className="font-medium">{company.name}</div>
+                                  <div className="text-sm text-gray-500">{company.industry}</div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-3 text-sm text-gray-500">No companies found</div>
+                            )}
+                          </div>
+                        )}
+                        {selectedCompany && (
+                          <div className="text-sm text-green-600">
+                            Selected: {selectedCompany.name}
+                          </div>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
