@@ -816,9 +816,13 @@ export class DatabaseStorage implements IStorage {
   // Vendor operations
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
-      console.log(`DEBUG: getClientVendors called with companyId=${companyId}`);
+      console.log(`DEBUG: getClientVendors called with companyId=${companyId}, type: ${typeof companyId}`);
       
-      // Simple raw SQL query
+      // First check if any vendors exist for this company
+      const allVendorsResult = await pool.query('SELECT * FROM vendors WHERE company_id = $1', [companyId]);
+      console.log(`DEBUG: All vendors for company ${companyId}:`, allVendorsResult.rows);
+      
+      // Now check approved vendors
       const queryText = 'SELECT * FROM vendors WHERE company_id = $1 AND status = $2 ORDER BY created_at DESC';
       const queryValues = [companyId, 'approved'];
       
@@ -830,7 +834,6 @@ export class DatabaseStorage implements IStorage {
       return result.rows;
     } catch (error) {
       console.error("Error in getClientVendors:", error);
-      console.error("Error details:", error);
       return [];
     }
   }
