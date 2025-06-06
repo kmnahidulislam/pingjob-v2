@@ -291,17 +291,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG ROUTE: searchCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else if (limit > 0) {
-        // For high limits (like 50000), get all companies, otherwise limited
-        const actualLimit = limit >= 50000 ? 50000 : Math.min(limit, 50);
-        console.log(`DEBUG ROUTE: limit=${limit}, actualLimit=${actualLimit}, condition: ${limit >= 50000}`);
+        // Limit maximum companies to prevent performance issues
+        const actualLimit = Math.min(limit, 100); // Never load more than 100 companies at once
+        console.log(`DEBUG ROUTE: limit=${limit}, actualLimit=${actualLimit}, capped to prevent performance issues`);
         console.log(`DEBUG ROUTE: Calling getCompanies with limit=${actualLimit}`);
         const companies = await storage.getCompanies(actualLimit);
         console.log(`DEBUG ROUTE: getCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else {
-        // No query and no limit - return empty
-        console.log(`DEBUG ROUTE: Returning empty array (no query, no limit)`);
-        res.json([]);
+        // No query and no limit - return small sample
+        console.log(`DEBUG ROUTE: Returning small sample of companies`);
+        const companies = await storage.getCompanies(50);
+        res.json(companies);
       }
     } catch (error) {
       console.error("Error fetching companies:", error);

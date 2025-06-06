@@ -169,7 +169,10 @@ export default function JobCreate() {
                                     setSelectedCompany(company);
                                     field.onChange(company.id);
                                     setCompanySearch(company.name);
-                                    setDebouncedSearch(""); // Clear search to hide dropdown
+                                    // Clear search state immediately to hide dropdown
+                                    setTimeout(() => {
+                                      setDebouncedSearch("");
+                                    }, 100);
                                   }}
                                 >
                                   <div className="font-medium">{company.name}</div>
