@@ -11,6 +11,9 @@ import type {
   Group 
 } from "@shared/schema";
 
+// Re-export Company type for use in other files
+export type { Company } from "@shared/schema";
+
 export interface UserProfile extends User {
   experiences?: Experience[];
   education?: Education[];

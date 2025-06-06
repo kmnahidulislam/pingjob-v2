@@ -48,6 +48,23 @@ export default function Messaging() {
 
   const sendMessageMutation = useMutation({
     mutationFn: (data: { receiverId: string; content: string }) =>
+      apiRequest('/api/messages', 'POST', data),
+    onSuccess: () => {
+      setMessageInput("");
+      queryClient.invalidateQueries({ queryKey: [`/api/messages/${selectedConversation}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to send message",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const startConversationMutation = useMutation({
+    mutationFn: (data: { receiverId: string; content: string }) =>
       apiRequest('POST', '/api/messages', data),
     onSuccess: () => {
       setMessageInput("");

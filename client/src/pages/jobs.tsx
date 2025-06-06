@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertJobSchema, type InsertJob } from "@shared/schema";
+import { insertJobSchema, type InsertJob, type Company } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -21,7 +21,7 @@ export default function Jobs() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companySearch, setCompanySearch] = useState("");
   
   const [filters, setFilters] = useState({
@@ -79,7 +79,7 @@ export default function Jobs() {
   });
 
   // Fetch companies for job creation
-  const { data: companies = [], isLoading: companiesLoading } = useQuery({
+  const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
     queryKey: ['/api/companies', { search: companySearch }],
     enabled: companySearch.length >= 2 || companySearch === ""
   });
