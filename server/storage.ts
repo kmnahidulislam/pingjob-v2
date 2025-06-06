@@ -490,6 +490,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchJobs(query: string, filters: any = {}): Promise<Job[]> {
+    console.log("DEBUG searchJobs: query =", query, "filters =", filters);
+    
     const conditions = [
       eq(jobs.isActive, true),
       or(
