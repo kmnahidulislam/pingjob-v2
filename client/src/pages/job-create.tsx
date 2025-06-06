@@ -44,15 +44,18 @@ export default function JobCreate() {
     return () => clearTimeout(timer);
   }, [companySearch]);
 
-  // Load companies with optimized search
+  // Load companies only when searching
   const { data: companiesData, isLoading: companiesLoading } = useQuery({
     queryKey: ['/api/companies', { search: debouncedSearch }],
     queryFn: async () => {
-      const searchParam = debouncedSearch ? `?q=${encodeURIComponent(debouncedSearch)}&limit=100` : '?limit=100';
-      const response = await fetch(`/api/companies${searchParam}`);
+      if (!debouncedSearch || debouncedSearch.length < 2) {
+        return []; // Return empty array if no search term
+      }
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=100`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
+    enabled: debouncedSearch && debouncedSearch.length >= 2,
     staleTime: 300000, // Cache for 5 minutes
   });
 

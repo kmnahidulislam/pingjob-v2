@@ -44,11 +44,11 @@ export default function Dashboard() {
     queryKey: ['/api/companies/pending'],
   });
 
-  // Fetch approved companies
+  // Fetch sample of approved companies for dashboard display
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
-    queryKey: ['/api/companies', { limit: 50000 }],
+    queryKey: ['/api/companies', { limit: 100 }],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=50000');
+      const response = await fetch('/api/companies?limit=100');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }
