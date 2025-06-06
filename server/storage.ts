@@ -816,6 +816,7 @@ export class DatabaseStorage implements IStorage {
   // Vendor operations
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
+      console.log(`DEBUG: getClientVendors called with companyId=${companyId}`);
       const result = await db
         .select()
         .from(vendors)
@@ -824,6 +825,7 @@ export class DatabaseStorage implements IStorage {
           eq(vendors.status, "approved")
         ))
         .orderBy(desc(vendors.createdAt));
+      console.log(`DEBUG: getClientVendors found ${result.length} vendors for company ${companyId}`);
       return result;
     } catch (error) {
       console.error("Error in getClientVendors:", error);
