@@ -817,6 +817,11 @@ export class DatabaseStorage implements IStorage {
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
       console.log(`DEBUG: getClientVendors called with companyId=${companyId}`);
+      
+      // Execute raw SQL to verify data exists
+      const rawResult = await pool.query(`SELECT * FROM vendors WHERE company_id = $1 AND status = 'approved'`, [companyId]);
+      console.log(`DEBUG: Raw SQL found ${rawResult.rows.length} vendors for company ${companyId}:`, rawResult.rows);
+      
       const result = await db
         .select()
         .from(vendors)
@@ -825,7 +830,7 @@ export class DatabaseStorage implements IStorage {
           eq(vendors.status, "approved")
         ))
         .orderBy(desc(vendors.createdAt));
-      console.log(`DEBUG: getClientVendors found ${result.length} vendors for company ${companyId}`);
+      console.log(`DEBUG: Drizzle query found ${result.length} vendors for company ${companyId}:`, result);
       return result;
     } catch (error) {
       console.error("Error in getClientVendors:", error);

@@ -190,8 +190,10 @@ export const vendors = pgTable("vendors", {
   phone: varchar("phone"),
   services: text("services"),
   status: varchar("status").default("pending"),
+  createdBy: varchar("created_by"),
   approvedBy: varchar("approved_by"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Location tables with hierarchical relationships
