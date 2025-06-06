@@ -512,7 +512,7 @@ export default function Jobs() {
                               <Badge variant="secondary" className="text-xs">
                                 {job.category?.name || 'Technology'}
                               </Badge>
-                              {job.skills && job.skills.split(',').slice(0, 3).map((skill: string, index: number) => (
+                              {job.skills && Array.isArray(job.skills) && job.skills.slice(0, 3).map((skill: string, index: number) => (
                                 <Badge key={index} variant="outline" className="text-xs">
                                   {skill.trim()}
                                 </Badge>
