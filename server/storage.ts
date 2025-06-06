@@ -301,6 +301,17 @@ export class DatabaseStorage implements IStorage {
   async searchCompanies(query: string, limit = 50000): Promise<Company[]> {
     console.log(`DEBUG: searchCompanies called with query="${query}", limit=${limit}`);
     
+    // Search across multiple fields: name, city, state, zipCode, industry, description
+    const searchCondition = or(
+      sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.city}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.state}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.zipCode}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.industry}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.description}) LIKE LOWER(${'%' + query + '%'})`,
+      sql`LOWER(${companies.location}) LIKE LOWER(${'%' + query + '%'})`
+    );
+    
     let results: Company[];
     if (limit === 50000) {
       // For unlimited searches, return all matching approved companies
@@ -310,7 +321,7 @@ export class DatabaseStorage implements IStorage {
         .where(
           and(
             eq(companies.status, 'approved'),
-            sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+            searchCondition
           )
         )
         .orderBy(desc(companies.followers));
@@ -321,7 +332,7 @@ export class DatabaseStorage implements IStorage {
         .where(
           and(
             eq(companies.status, 'approved'),
-            sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+            searchCondition
           )
         )
         .orderBy(desc(companies.followers))
@@ -329,10 +340,6 @@ export class DatabaseStorage implements IStorage {
     }
     
     console.log(`DEBUG: searchCompanies returned ${results.length} results for "${query}"`);
-    if (query.toLowerCase().includes('natwest')) {
-      console.log('DEBUG: NatWest search results:', results.map(c => ({ id: c.id, name: c.name })));
-    }
-    
     return results;
   }
 

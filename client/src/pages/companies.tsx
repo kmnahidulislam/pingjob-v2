@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JobCard from "@/components/job-card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -584,27 +585,49 @@ export default function Companies() {
                     </div>
                   )}
 
-                  {/* Company Jobs */}
-                  {companyJobs && companyJobs.length > 0 && (
-                    <div className="mt-6">
-                      <h3 className="font-semibold text-lg mb-4 flex items-center">
-                        <Briefcase className="h-5 w-5 mr-2" />
-                        Open Positions ({companyJobs.length})
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {companyJobs.slice(0, 4).map((job: any) => (
-                          <JobCard key={job.id} job={job} compact showCompany={false} />
-                        ))}
-                      </div>
-                      {companyJobs.length > 4 && (
-                        <Button asChild variant="outline" className="mt-4">
-                          <Link href={`/jobs?company=${selectedCompany.id}`}>
-                            View All {companyJobs.length} Jobs
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  {/* Company Details Tabs */}
+                  <div className="mt-6">
+                    <Tabs defaultValue="jobs" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="jobs" className="flex items-center">
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          Jobs ({companyJobs?.length || 0})
+                        </TabsTrigger>
+                        <TabsTrigger value="vendors" className="flex items-center">
+                          <Building className="h-4 w-4 mr-2" />
+                          Vendors
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="jobs" className="mt-4">
+                        {companyJobs && companyJobs.length > 0 ? (
+                          <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {companyJobs.slice(0, 4).map((job: any) => (
+                                <JobCard key={job.id} job={job} compact showCompany={false} />
+                              ))}
+                            </div>
+                            {companyJobs.length > 4 && (
+                              <Button asChild variant="outline" className="mt-4">
+                                <Link href={`/jobs?company=${selectedCompany.id}`}>
+                                  View All {companyJobs.length} Jobs
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                            <p>No open positions at this time</p>
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="vendors" className="mt-4">
+                        <CompanyVendors companyId={selectedCompany.id} />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
 
                   <Button
                     onClick={() => setSelectedCompany(null)}
