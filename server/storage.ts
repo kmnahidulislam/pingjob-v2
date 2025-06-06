@@ -78,6 +78,7 @@ export interface IStorage {
   createCompany(company: InsertCompany): Promise<Company>;
   updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company>;
   getCompanies(limit?: number): Promise<Company[]>;
+  searchCompanies(query: string, limit?: number): Promise<Company[]>;
   getPendingCompanies(): Promise<Company[]>;
   updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company>;
   
@@ -280,10 +281,21 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getCompanies(limit = 20): Promise<Company[]> {
+  async getCompanies(limit = 100): Promise<Company[]> {
     return await db
       .select()
       .from(companies)
+      .orderBy(desc(companies.followers))
+      .limit(limit);
+  }
+
+  async searchCompanies(query: string, limit = 50): Promise<Company[]> {
+    return await db
+      .select()
+      .from(companies)
+      .where(
+        sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+      )
       .orderBy(desc(companies.followers))
       .limit(limit);
   }

@@ -446,7 +446,6 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
 export const insertVendorSchema = createInsertSchema(vendors).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
 });
 
 export const insertCountrySchema = createInsertSchema(countries).omit({

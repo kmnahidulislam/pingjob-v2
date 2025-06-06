@@ -253,23 +253,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Company routes
+  // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
-      const companies = await storage.getCompanies(limit);
-      res.json(companies);
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      res.status(500).json({ message: "Failed to fetch companies" });
-    }
-  });
-
-  // Get all companies
-  app.get('/api/companies', async (req, res) => {
-    try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 1000;
-      const companies = await storage.getCompanies(limit);
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      const query = req.query.q as string;
+      
+      let companies;
+      if (query) {
+        companies = await storage.searchCompanies(query, limit);
+      } else {
+        companies = await storage.getCompanies(limit);
+      }
+      
       res.json(companies);
     } catch (error) {
       console.error("Error fetching companies:", error);
