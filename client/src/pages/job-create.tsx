@@ -50,9 +50,12 @@ export default function JobCreate() {
     queryFn: async () => {
       if (debouncedSearch && debouncedSearch.length >= 2) {
         // Search mode - load matching companies
+        console.log('Searching for companies with query:', debouncedSearch);
         const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=1000`);
         if (!response.ok) throw new Error('Failed to fetch companies');
-        return response.json();
+        const results = await response.json();
+        console.log('Search results:', results);
+        return results;
       } else {
         // Initial load - show popular/recent companies
         const response = await fetch('/api/companies?limit=500');
@@ -65,6 +68,12 @@ export default function JobCreate() {
   });
 
   const companies = companiesData || [];
+  
+  // Debug logging
+  console.log('Debug - companySearch:', companySearch);
+  console.log('Debug - debouncedSearch:', debouncedSearch);
+  console.log('Debug - companies:', companies);
+  console.log('Debug - companiesLoading:', companiesLoading);
 
 
 
