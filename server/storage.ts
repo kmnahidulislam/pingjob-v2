@@ -299,9 +299,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchCompanies(query: string, limit = 50000): Promise<Company[]> {
+    console.log(`DEBUG: searchCompanies called with query="${query}", limit=${limit}`);
+    
+    let results: Company[];
     if (limit === 50000) {
       // For unlimited searches, return all matching approved companies
-      return await db
+      results = await db
         .select()
         .from(companies)
         .where(
@@ -311,18 +314,26 @@ export class DatabaseStorage implements IStorage {
           )
         )
         .orderBy(desc(companies.followers));
-    }
-    return await db
-      .select()
-      .from(companies)
-      .where(
-        and(
-          eq(companies.status, 'approved'),
-          sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+    } else {
+      results = await db
+        .select()
+        .from(companies)
+        .where(
+          and(
+            eq(companies.status, 'approved'),
+            sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+          )
         )
-      )
-      .orderBy(desc(companies.followers))
-      .limit(limit);
+        .orderBy(desc(companies.followers))
+        .limit(limit);
+    }
+    
+    console.log(`DEBUG: searchCompanies returned ${results.length} results for "${query}"`);
+    if (query.toLowerCase().includes('natwest')) {
+      console.log('DEBUG: NatWest search results:', results.map(c => ({ id: c.id, name: c.name })));
+    }
+    
+    return results;
   }
 
   async getPendingCompanies(): Promise<Company[]> {

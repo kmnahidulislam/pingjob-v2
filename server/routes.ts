@@ -281,17 +281,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const query = req.query.q as string;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 0;
       
+      console.log(`DEBUG ROUTE: /api/companies called with query="${query}", limit=${limit}`);
+      
       if (query && query.length >= 2) {
         // Search with dynamic limit - higher for job creation
         const searchLimit = limit > 100 ? Math.min(limit, 1000) : 100;
+        console.log(`DEBUG ROUTE: Calling searchCompanies with query="${query}", searchLimit=${searchLimit}`);
         const companies = await storage.searchCompanies(query, searchLimit);
+        console.log(`DEBUG ROUTE: searchCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else if (limit > 0) {
         // Load limited companies for initial display
+        console.log(`DEBUG ROUTE: Calling getCompanies with limit=${Math.min(limit, 50)}`);
         const companies = await storage.getCompanies(Math.min(limit, 50));
         res.json(companies);
       } else {
         // No query and no limit - return empty
+        console.log(`DEBUG ROUTE: Returning empty array (no query, no limit)`);
         res.json([]);
       }
     } catch (error) {
