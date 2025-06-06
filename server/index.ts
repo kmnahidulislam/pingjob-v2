@@ -2,6 +2,16 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// FORCE REMOVE ALL LOCAL DATABASE ENVIRONMENT VARIABLES
+delete process.env.DATABASE_URL;
+delete process.env.PGDATABASE;
+delete process.env.PGHOST;
+delete process.env.PGUSER;
+delete process.env.PGPASSWORD;
+delete process.env.PGPORT;
+
+console.log("FORCED REMOVAL OF LOCAL DATABASE VARIABLES");
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

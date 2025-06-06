@@ -387,7 +387,8 @@ export class DatabaseStorage implements IStorage {
       
       // Use direct pool query to bypass Drizzle ORM issues
       const { Pool } = await import('@neondatabase/serverless');
-      const directPool = new Pool({ connectionString: process.env.DATABASE_URL });
+      const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+      const directPool = new Pool({ connectionString: NEON_DATABASE_URL });
       const client = await directPool.connect();
       const result = await client.query(query, params);
       client.release();
