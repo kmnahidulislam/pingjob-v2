@@ -50,11 +50,17 @@ export default function Navigation() {
   const { data: searchResults, isLoading: searchLoading } = useQuery({
     queryKey: ['/api/search', searchQuery],
     queryFn: async () => {
-      const response = await fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
       if (!response.ok) throw new Error('Search failed');
       return response.json();
     },
     enabled: searchQuery.trim().length > 2,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const isActive = (href: string) => {
