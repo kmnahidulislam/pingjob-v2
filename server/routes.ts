@@ -264,6 +264,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Company routes - Get all companies for job creation
+  app.get('/api/companies/all', async (req, res) => {
+    try {
+      const companies = await storage.getCompanies(50000); // Get all approved companies
+      res.json(companies);
+    } catch (error) {
+      console.error("Error fetching all companies:", error);
+      res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
   // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
