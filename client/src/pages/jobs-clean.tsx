@@ -26,8 +26,8 @@ export default function Jobs() {
   
   const [filters, setFilters] = useState({
     search: "",
-    jobType: "",
-    experienceLevel: "",
+    jobType: "all",
+    experienceLevel: "all",
     location: "",
     industry: ""
   });
@@ -95,8 +95,8 @@ export default function Jobs() {
   const clearFilters = () => {
     setFilters({
       search: "",
-      jobType: "",
-      experienceLevel: "",
+      jobType: "all",
+      experienceLevel: "all",
       location: "",
       industry: ""
     });
@@ -131,7 +131,7 @@ export default function Jobs() {
                       <SelectValue placeholder="Any type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any type</SelectItem>
+                      <SelectItem value="all">Any type</SelectItem>
                       <SelectItem value="full_time">Full Time</SelectItem>
                       <SelectItem value="part_time">Part Time</SelectItem>
                       <SelectItem value="contract">Contract</SelectItem>
@@ -153,7 +153,7 @@ export default function Jobs() {
                       <SelectValue placeholder="Any level" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any level</SelectItem>
+                      <SelectItem value="all">Any level</SelectItem>
                       <SelectItem value="entry">Entry Level</SelectItem>
                       <SelectItem value="mid">Mid Level</SelectItem>
                       <SelectItem value="senior">Senior Level</SelectItem>
