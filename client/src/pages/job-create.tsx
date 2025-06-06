@@ -58,15 +58,37 @@ export default function JobCreate() {
   // Filter companies based on search input
   const companies = useMemo(() => {
     if (!allCompanies) return [];
-    if (!companySearch || companySearch.length < 2) {
+    if (!companySearch || companySearch.length < 1) {
       return allCompanies.slice(0, 100); // Show first 100 when no search
     }
     
-    const searchLower = companySearch.toLowerCase();
-    return allCompanies.filter((company: any) => 
-      company.name.toLowerCase().includes(searchLower) ||
-      (company.industry && company.industry.toLowerCase().includes(searchLower))
-    );
+    const searchLower = companySearch.toLowerCase().trim();
+    const filtered = allCompanies.filter((company: any) => {
+      const companyName = (company.name || '').toLowerCase();
+      const companyIndustry = (company.industry || '').toLowerCase();
+      const companyLocation = (company.location || '').toLowerCase();
+      
+      return companyName.includes(searchLower) ||
+             companyIndustry.includes(searchLower) ||
+             companyLocation.includes(searchLower);
+    });
+    
+    // Sort results to prioritize exact matches and name starts
+    return filtered.sort((a, b) => {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      
+      // Exact match first
+      if (aName === searchLower) return -1;
+      if (bName === searchLower) return 1;
+      
+      // Starts with search term
+      if (aName.startsWith(searchLower) && !bName.startsWith(searchLower)) return -1;
+      if (bName.startsWith(searchLower) && !aName.startsWith(searchLower)) return 1;
+      
+      // Alphabetical order
+      return aName.localeCompare(bName);
+    });
   }, [allCompanies, companySearch]);
 
   const companiesLoading = allCompaniesLoading;
