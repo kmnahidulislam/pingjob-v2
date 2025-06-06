@@ -50,7 +50,7 @@ export default function Navigation() {
   const { data: searchResults, isLoading: searchLoading } = useQuery({
     queryKey: ['/api/search', searchQuery],
     queryFn: async () => {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) throw new Error('Search failed');
       return response.json();
     },
