@@ -431,25 +431,11 @@ export default function Jobs() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Search Header */}
-          <Card>
-            <CardContent className="p-6">
-              <form onSubmit={handleSearch} className="flex gap-4">
-                <div className="flex-1 relative">
-                  <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Search jobs, companies, keywords..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Button type="submit" className="bg-linkedin-blue hover:bg-linkedin-dark">
-                  Search Jobs
-                </Button>
-                {user?.userType === 'admin' && (
-                  <Dialog open={isAddJobOpen} onOpenChange={setIsAddJobOpen}>
+          {/* Admin Actions */}
+          {user?.userType === 'admin' && (
+            <Card>
+              <CardContent className="p-6">
+                <Dialog open={isAddJobOpen} onOpenChange={setIsAddJobOpen}>
                     <DialogTrigger asChild>
                       <Button className="bg-green-600 hover:bg-green-700 text-white">
                         <Plus className="h-4 w-4 mr-2" />
@@ -833,12 +819,16 @@ export default function Jobs() {
                       </Form>
                     </DialogContent>
                   </Dialog>
-                )}
-              </form>
-              
-              {/* Active Filters */}
-              {Object.values(filters).some(Boolean) && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                </CardContent>
+              </Card>
+            )
+          )}
+
+          {/* Active Filters */}
+          {Object.values(filters).some(Boolean) && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex flex-wrap gap-2">
                   {filters.search && (
                     <Badge variant="secondary">
                       Search: {filters.search}
@@ -865,9 +855,9 @@ export default function Jobs() {
                     </Badge>
                   )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Job Results Header */}
           <div className="flex items-center justify-between">
