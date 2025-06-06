@@ -819,7 +819,10 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .select()
         .from(vendors)
-        .where(eq(vendors.companyId, companyId))
+        .where(and(
+          eq(vendors.companyId, companyId),
+          eq(vendors.status, "approved")
+        ))
         .orderBy(desc(vendors.createdAt));
       return result;
     } catch (error) {
@@ -829,7 +832,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addVendor(vendor: InsertVendor): Promise<Vendor> {
-    const [result] = await db.insert(vendors).values(vendor).returning();
+    const [result] = await db.insert(vendors).values({
+      ...vendor,
+      status: "pending" // All new vendors require admin approval
+    }).returning();
     return result;
   }
 
