@@ -172,10 +172,10 @@ export default function Jobs() {
   });
 
   const { data: companies } = useQuery({
-    queryKey: ['/api/companies'],
+    queryKey: ['/api/companies', { limit: 50000 }],
     enabled: user?.userType === 'admin',
     queryFn: async () => {
-      const response = await fetch('/api/companies');
+      const response = await fetch('/api/companies?limit=50000');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }

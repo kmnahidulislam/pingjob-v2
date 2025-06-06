@@ -46,7 +46,12 @@ export default function Dashboard() {
 
   // Fetch approved companies
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
-    queryKey: ['/api/companies'],
+    queryKey: ['/api/companies', { limit: 50000 }],
+    queryFn: async () => {
+      const response = await fetch('/api/companies?limit=50000');
+      if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    }
   });
 
   // Fetch dashboard stats
