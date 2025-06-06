@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,20 +44,32 @@ export default function JobCreate() {
     return () => clearTimeout(timer);
   }, [companySearch]);
 
-  // Search companies with higher limit for job creation
-  const { data: companies, isLoading: companiesLoading } = useQuery({
-    queryKey: ['/api/companies', { q: debouncedSearch }],
+  // Load all companies for job creation dropdown
+  const { data: allCompanies, isLoading: allCompaniesLoading } = useQuery({
+    queryKey: ['/api/companies/all'],
     queryFn: async () => {
-      if (!debouncedSearch || debouncedSearch.length < 2) {
-        return [];
-      }
-      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=500`);
-      if (!response.ok) throw new Error('Failed to fetch companies');
+      const response = await fetch('/api/companies/all');
+      if (!response.ok) throw new Error('Failed to fetch all companies');
       return response.json();
     },
-    enabled: debouncedSearch.length >= 2,
-    staleTime: 60000,
+    staleTime: 300000, // Cache for 5 minutes
   });
+
+  // Filter companies based on search input
+  const companies = useMemo(() => {
+    if (!allCompanies) return [];
+    if (!companySearch || companySearch.length < 2) {
+      return allCompanies.slice(0, 100); // Show first 100 when no search
+    }
+    
+    const searchLower = companySearch.toLowerCase();
+    return allCompanies.filter((company: any) => 
+      company.name.toLowerCase().includes(searchLower) ||
+      (company.industry && company.industry.toLowerCase().includes(searchLower))
+    );
+  }, [allCompanies, companySearch]);
+
+  const companiesLoading = allCompaniesLoading;
 
   // Fetch categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
