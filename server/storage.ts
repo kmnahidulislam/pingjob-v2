@@ -873,15 +873,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor> {
-    const [result] = await db
-      .update(vendors)
-      .set({ 
-        status,
-        approvedBy
-      })
-      .where(eq(vendors.id, id))
-      .returning();
-    return result;
+    try {
+      console.log(`DEBUG: Updating vendor ${id} status to ${status} by ${approvedBy}`);
+      
+      // Use raw SQL to avoid Drizzle schema mapping issues
+      const result = await pool.query(`
+        UPDATE vendors 
+        SET status = $1, approved_by = $2
+        WHERE id = $3
+        RETURNING *
+      `, [status, approvedBy || null, id]);
+      
+      if (result.rows.length === 0) {
+        throw new Error(`Vendor with id ${id} not found`);
+      }
+      
+      console.log(`DEBUG: Updated vendor successfully:`, result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error updating vendor status:", error);
+      throw error;
+    }
   }
 
   async getPendingVendors(): Promise<any[]> {
