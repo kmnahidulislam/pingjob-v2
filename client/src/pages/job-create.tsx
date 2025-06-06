@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,23 +32,31 @@ export default function JobCreate() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [companySearch, setCompanySearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Search companies only when user types
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(companySearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [companySearch]);
+
+  // Search companies only with debounced input
   const { data: companies, isLoading: companiesLoading } = useQuery({
-    queryKey: ['/api/companies', { q: companySearch }],
+    queryKey: ['/api/companies', { q: debouncedSearch }],
     queryFn: async () => {
-      if (!companySearch || companySearch.length < 2) {
-        return []; // Return empty array for no search
+      if (!debouncedSearch || debouncedSearch.length < 2) {
+        return [];
       }
-      const response = await fetch(`/api/companies?q=${encodeURIComponent(companySearch)}`);
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
-    enabled: companySearch.length >= 2,
-    staleTime: 30000,
+    enabled: debouncedSearch.length >= 2,
+    staleTime: 60000,
   });
 
   // Fetch categories
@@ -151,8 +159,8 @@ export default function JobCreate() {
                           <div className="max-h-48 overflow-auto border rounded-md bg-white">
                             {companiesLoading ? (
                               <div className="p-3 text-sm text-gray-500">Searching...</div>
-                            ) : availableCompanies?.length > 0 ? (
-                              availableCompanies.map((company: any) => (
+                            ) : companies?.length > 0 ? (
+                              companies.map((company: any) => (
                                 <div
                                   key={company.id}
                                   className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
