@@ -818,6 +818,14 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: getClientVendors called with companyId=${companyId}, type: ${typeof companyId}`);
       
+      // Test database connection and check total vendor count
+      const totalVendorsResult = await pool.query('SELECT COUNT(*) as total FROM vendors');
+      console.log(`DEBUG: Total vendors in database:`, totalVendorsResult.rows[0]);
+      
+      // Check all vendors to verify data
+      const allVendorsCheck = await pool.query('SELECT id, company_id, name, status FROM vendors');
+      console.log(`DEBUG: All vendors in database:`, allVendorsCheck.rows);
+      
       // First check if any vendors exist for this company
       const allVendorsResult = await pool.query('SELECT * FROM vendors WHERE company_id = $1', [companyId]);
       console.log(`DEBUG: All vendors for company ${companyId}:`, allVendorsResult.rows);
