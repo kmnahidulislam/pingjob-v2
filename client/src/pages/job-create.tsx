@@ -13,7 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
 import { insertJobSchema } from "@shared/schema";
 import { z } from "zod";
-import { Briefcase, MapPin, DollarSign } from "lucide-react";
+import { Briefcase, MapPin, DollarSign, Check, ChevronsUpDown } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const jobFormSchema = insertJobSchema.omit({ employmentType: true }).extend({
   title: z.string().min(1, "Job title is required"),
@@ -30,6 +32,8 @@ export default function JobCreate() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [companySearchOpen, setCompanySearchOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
 
   // Fetch all companies without limit
   const { data: companies, isLoading: companiesLoading } = useQuery({
@@ -107,9 +111,8 @@ export default function JobCreate() {
     );
   }
 
-  const userCompanies = companies?.filter((company: any) => 
-    company.userId === user.id || user.email === 'krupas@vedsoft.com'
-  ) || [];
+  // Allow access to all companies for job creation
+  const availableCompanies = companies || [];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -132,23 +135,54 @@ export default function JobCreate() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company *</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))} 
-                        disabled={companiesLoading}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select company" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {userCompanies.map((company: any) => (
-                            <SelectItem key={company.id} value={company.id.toString()}>
-                              {company.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-full justify-between"
+                              disabled={companiesLoading}
+                            >
+                              {selectedCompany
+                                ? selectedCompany.name
+                                : companiesLoading
+                                ? "Loading companies..."
+                                : "Search and select company..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput placeholder="Search companies..." />
+                            <CommandEmpty>No company found.</CommandEmpty>
+                            <CommandGroup className="max-h-64 overflow-auto">
+                              {availableCompanies?.map((company: any) => (
+                                <CommandItem
+                                  key={company.id}
+                                  value={company.name}
+                                  onSelect={() => {
+                                    setSelectedCompany(company);
+                                    field.onChange(company.id);
+                                    setCompanySearchOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={`mr-2 h-4 w-4 ${
+                                      selectedCompany?.id === company.id ? "opacity-100" : "opacity-0"
+                                    }`}
+                                  />
+                                  <div>
+                                    <div className="font-medium">{company.name}</div>
+                                    <div className="text-sm text-gray-500">{company.industry}</div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}
