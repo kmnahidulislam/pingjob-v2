@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -365,6 +365,10 @@ function CompanyDetails({ companyId }: { companyId: number }) {
 }
 
 function CompanyVendors({ companyId }: { companyId: number }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  
   const { data: companyDetails, isLoading } = useQuery({
     queryKey: ['/api/companies', companyId, 'details'],
     queryFn: async () => {
@@ -373,6 +377,113 @@ function CompanyVendors({ companyId }: { companyId: number }) {
       return response.json();
     },
   });
+
+  const vendorForm = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      services: "",
+      companyId: companyId
+    }
+  });
+
+  const addVendorMutation = useMutation({
+    mutationFn: (vendorData: any) => apiRequest('POST', '/api/vendors', vendorData),
+    onSuccess: () => {
+      toast({
+        title: "Vendor added successfully",
+        description: "The vendor has been added and is pending approval"
+      });
+      setIsAddVendorOpen(false);
+      vendorForm.reset();
+      queryClient.invalidateQueries({ queryKey: ['/api/companies', companyId, 'details'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error adding vendor",
+        description: error.message || "Failed to add vendor",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const renderAddVendorDialog = () => (
+    <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add New Vendor</DialogTitle>
+          <DialogDescription>
+            Add a new vendor to this company. The vendor will be pending approval until reviewed.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...vendorForm}>
+          <form onSubmit={vendorForm.handleSubmit((data) => addVendorMutation.mutate(data))} className="space-y-4">
+            <FormField
+              control={vendorForm.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Vendor Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter vendor name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={vendorForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="vendor@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={vendorForm.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Phone</FormLabel>
+                  <FormControl>
+                    <Input placeholder="(555) 123-4567" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={vendorForm.control}
+              name="services"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Services Provided</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Describe the services offered" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsAddVendorOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addVendorMutation.isPending} className="bg-linkedin-blue hover:bg-linkedin-dark">
+                {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
 
   if (isLoading) {
     return (
@@ -387,16 +498,33 @@ function CompanyVendors({ companyId }: { companyId: number }) {
 
   if (vendors.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <Building className="h-12 w-12 mx-auto mb-3 opacity-30" />
-        <p>No vendors registered for this company</p>
-        <p className="text-sm mt-2">Vendors provide services and support to this organization</p>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Vendors</h3>
+          <Button onClick={() => setIsAddVendorOpen(true)} className="bg-linkedin-blue hover:bg-linkedin-dark">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Vendor
+          </Button>
+        </div>
+        <div className="text-center py-8 text-gray-500">
+          <Building className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <p>No vendors registered for this company</p>
+          <p className="text-sm mt-2">Vendors provide services and support to this organization</p>
+        </div>
+        {renderAddVendorDialog()}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Vendors ({vendors.length})</h3>
+        <Button onClick={() => setIsAddVendorOpen(true)} className="bg-linkedin-blue hover:bg-linkedin-dark">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Vendor
+        </Button>
+      </div>
       <div className="grid gap-4">
         {vendors.map((vendor: any) => (
           <Card key={vendor.id} className="p-4">
@@ -466,6 +594,7 @@ function CompanyVendors({ companyId }: { companyId: number }) {
           </Card>
         ))}
       </div>
+      {renderAddVendorDialog()}
     </div>
   );
 }
