@@ -55,7 +55,7 @@ export default function JobCreate() {
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
-    enabled: debouncedSearch && debouncedSearch.length >= 2,
+    enabled: Boolean(debouncedSearch && debouncedSearch.length >= 2),
     staleTime: 300000, // Cache for 5 minutes
   });
 
