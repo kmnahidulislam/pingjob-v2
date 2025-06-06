@@ -100,6 +100,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global search endpoint
+  app.get('/api/search', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query || query.trim().length < 3) {
+        return res.json({ companies: [], jobs: [] });
+      }
+
+      // Search companies and jobs in parallel
+      const [companies, jobs] = await Promise.all([
+        storage.searchCompanies(query, 10),
+        storage.searchJobs(query, {}, 10)
+      ]);
+
+      res.json({
+        companies: companies || [],
+        jobs: jobs || []
+      });
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
   // Profile routes
   app.get('/api/profile/:id', async (req, res) => {
     try {

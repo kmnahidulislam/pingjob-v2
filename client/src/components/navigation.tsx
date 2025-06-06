@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home,
   Users,
@@ -29,6 +32,8 @@ export default function Navigation() {
   const { user } = useAuth();
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchFocus, setSearchFocus] = useState(false);
 
   const isAdmin = true; // Temporarily enable admin features for testing
 
@@ -41,6 +46,17 @@ export default function Navigation() {
     ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
   ];
 
+  // Global search for both companies and jobs
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['/api/search', searchQuery],
+    queryFn: async () => {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: searchQuery.trim().length > 2,
+  });
+
   const isActive = (href: string) => {
     if (href === "/" && location === "/") return true;
     if (href !== "/" && location.startsWith(href)) return true;
@@ -50,10 +66,38 @@ export default function Navigation() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to jobs page with search query
-      window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+      setShowSearchResults(false);
+      // Navigate based on search results or default to jobs
+      if (searchResults?.companies?.length > 0) {
+        window.location.href = `/companies?search=${encodeURIComponent(searchQuery)}`;
+      } else {
+        window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+      }
     }
   };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setShowSearchResults(value.trim().length > 2);
+  };
+
+  const closeSearchResults = () => {
+    setShowSearchResults(false);
+    setSearchFocus(false);
+  };
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (!searchFocus) {
+        closeSearchResults();
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [searchFocus]);
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -88,17 +132,122 @@ export default function Navigation() {
 
           {/* Search and User Actions */}
           <div className="flex items-center space-x-4">
-            {/* Search */}
-            <form onSubmit={handleSearch} className="relative hidden md:block">
-              <Input
-                type="text"
-                placeholder="Search jobs, people, companies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
-              />
-              <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-            </form>
+            {/* Global Search */}
+            <div className="relative hidden md:block">
+              <form onSubmit={handleSearch}>
+                <Input
+                  type="text"
+                  placeholder="Search companies, jobs, locations..."
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => setSearchFocus(true)}
+                  onBlur={() => setTimeout(() => setSearchFocus(false), 150)}
+                  className="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
+                />
+                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+              </form>
+
+              {/* Search Results Dropdown */}
+              {showSearchResults && searchQuery.trim().length > 2 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
+                  {searchLoading ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-linkedin-blue mx-auto mb-2"></div>
+                      Searching...
+                    </div>
+                  ) : searchResults ? (
+                    <div className="py-2">
+                      {/* Companies Section */}
+                      {searchResults.companies && searchResults.companies.length > 0 && (
+                        <div className="mb-4">
+                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 border-b">
+                            Companies ({searchResults.companies.length})
+                          </div>
+                          {searchResults.companies.slice(0, 5).map((company: any) => (
+                            <Link 
+                              key={company.id} 
+                              href={`/companies?search=${encodeURIComponent(searchQuery)}`}
+                              onClick={closeSearchResults}
+                            >
+                              <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <div className="flex items-center space-x-3">
+                                  <Building className="h-5 w-5 text-gray-400" />
+                                  <div>
+                                    <div className="font-medium text-gray-900">{company.name}</div>
+                                    <div className="text-sm text-gray-500">
+                                      {company.industry} • {company.city}, {company.state}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                          {searchResults.companies.length > 5 && (
+                            <Link 
+                              href={`/companies?search=${encodeURIComponent(searchQuery)}`}
+                              onClick={closeSearchResults}
+                            >
+                              <div className="px-4 py-2 text-sm text-linkedin-blue hover:bg-gray-50 cursor-pointer">
+                                View all {searchResults.companies.length} companies →
+                              </div>
+                            </Link>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Jobs Section */}
+                      {searchResults.jobs && searchResults.jobs.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 border-b">
+                            Jobs ({searchResults.jobs.length})
+                          </div>
+                          {searchResults.jobs.slice(0, 5).map((job: any) => (
+                            <Link 
+                              key={job.id} 
+                              href={`/jobs?search=${encodeURIComponent(searchQuery)}`}
+                              onClick={closeSearchResults}
+                            >
+                              <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                <div className="flex items-center space-x-3">
+                                  <Briefcase className="h-5 w-5 text-gray-400" />
+                                  <div>
+                                    <div className="font-medium text-gray-900">{job.title}</div>
+                                    <div className="text-sm text-gray-500">
+                                      {job.companyName} • {job.city}, {job.state}
+                                      {job.salary && <span> • {job.salary}</span>}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                          {searchResults.jobs.length > 5 && (
+                            <Link 
+                              href={`/jobs?search=${encodeURIComponent(searchQuery)}`}
+                              onClick={closeSearchResults}
+                            >
+                              <div className="px-4 py-2 text-sm text-linkedin-blue hover:bg-gray-50 cursor-pointer">
+                                View all {searchResults.jobs.length} jobs →
+                              </div>
+                            </Link>
+                          )}
+                        </div>
+                      )}
+
+                      {/* No Results */}
+                      {(!searchResults.companies || searchResults.companies.length === 0) && 
+                       (!searchResults.jobs || searchResults.jobs.length === 0) && (
+                        <div className="px-4 py-6 text-center text-gray-500">
+                          <Search className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                          <p>No results found for "{searchQuery}"</p>
+                          <p className="text-sm mt-1">Try different keywords or check spelling</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
 
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
