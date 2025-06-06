@@ -63,15 +63,27 @@ export default function JobCreate() {
     }
     
     const searchLower = companySearch.toLowerCase().trim();
+    console.log('Searching for:', searchLower);
+    console.log('Total companies loaded:', allCompanies.length);
+    
     const filtered = allCompanies.filter((company: any) => {
       const companyName = (company.name || '').toLowerCase();
       const companyIndustry = (company.industry || '').toLowerCase();
       const companyLocation = (company.location || '').toLowerCase();
       
-      return companyName.includes(searchLower) ||
-             companyIndustry.includes(searchLower) ||
-             companyLocation.includes(searchLower);
+      const matches = companyName.includes(searchLower) ||
+                     companyIndustry.includes(searchLower) ||
+                     companyLocation.includes(searchLower);
+      
+      // Debug specific search
+      if (searchLower === 'natwest' && companyName.includes('natwest')) {
+        console.log('Found NatWest company:', company);
+      }
+      
+      return matches;
     });
+    
+    console.log('Filtered results:', filtered.length);
     
     // Sort results to prioritize exact matches and name starts
     return filtered.sort((a, b) => {
