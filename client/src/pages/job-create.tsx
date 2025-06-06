@@ -36,19 +36,19 @@ export default function JobCreate() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [companySearch, setCompanySearch] = useState("");
 
-  // Search companies efficiently with server-side filtering
+  // Search companies only when user types
   const { data: companies, isLoading: companiesLoading } = useQuery({
     queryKey: ['/api/companies', { q: companySearch }],
     queryFn: async () => {
-      const url = companySearch 
-        ? `/api/companies?q=${encodeURIComponent(companySearch)}`
-        : '/api/companies?limit=100'; // Only load 100 when no search
-      const response = await fetch(url);
+      if (!companySearch || companySearch.length < 2) {
+        return []; // Return empty array for no search
+      }
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(companySearch)}`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
-    enabled: companySearch.length >= 2 || companySearch === "",
-    staleTime: 30000, // Cache for 30 seconds
+    enabled: companySearch.length >= 2,
+    staleTime: 30000,
   });
 
   // Fetch categories

@@ -256,13 +256,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50000;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
       const query = req.query.q as string;
       
       let companies;
-      if (query) {
-        companies = await storage.searchCompanies(query, 50000); // No limit for search
+      if (query && query.length >= 2) {
+        // Search with reasonable limit for performance
+        companies = await storage.searchCompanies(query, 500);
       } else {
+        // Default to small set for initial load
         companies = await storage.getCompanies(limit);
       }
       
