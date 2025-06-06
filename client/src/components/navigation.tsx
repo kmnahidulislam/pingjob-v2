@@ -48,11 +48,13 @@ export default function Navigation() {
 
   // Global search for both companies and jobs
   const { data: searchResults, isLoading: searchLoading } = useQuery({
-    queryKey: ['/api/search', searchQuery],
+    queryKey: ['/api/search', searchQuery, Date.now()],
     queryFn: async () => {
-      const response = await fetch(`/api/search?query=${encodeURIComponent(searchQuery)}`, {
+      const timestamp = Date.now();
+      const response = await fetch(`/api/search?query=${encodeURIComponent(searchQuery)}&t=${timestamp}`, {
         headers: {
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
       });
       if (!response.ok) throw new Error('Search failed');
@@ -61,6 +63,8 @@ export default function Navigation() {
     enabled: searchQuery.trim().length > 2,
     staleTime: 0,
     gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 
   const isActive = (href: string) => {
