@@ -260,8 +260,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 0;
       
       if (query && query.length >= 2) {
-        // Search with strict limit for performance
-        const companies = await storage.searchCompanies(query, 100);
+        // Search with dynamic limit - higher for job creation
+        const searchLimit = limit > 100 ? Math.min(limit, 1000) : 100;
+        const companies = await storage.searchCompanies(query, searchLimit);
         res.json(companies);
       } else if (limit > 0) {
         // Load limited companies for initial display

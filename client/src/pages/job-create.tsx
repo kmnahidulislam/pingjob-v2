@@ -44,14 +44,14 @@ export default function JobCreate() {
     return () => clearTimeout(timer);
   }, [companySearch]);
 
-  // Search companies only with debounced input
+  // Search companies with higher limit for job creation
   const { data: companies, isLoading: companiesLoading } = useQuery({
     queryKey: ['/api/companies', { q: debouncedSearch }],
     queryFn: async () => {
       if (!debouncedSearch || debouncedSearch.length < 2) {
         return [];
       }
-      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}`);
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=500`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
