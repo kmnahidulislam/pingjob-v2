@@ -821,7 +821,6 @@ export default function Jobs() {
                   </Dialog>
                 </CardContent>
               </Card>
-            )
           )}
 
           {/* Active Filters */}
