@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
+import Applications from "@/pages/applications";
 import Network from "@/pages/network";
 import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
@@ -44,6 +45,7 @@ function Router() {
             <Route path="/jobs/:id" component={Jobs} />
             <Route path="/jobs" component={Jobs} />
             <Route path="/job-create" component={JobCreate} />
+            <Route path="/applications" component={Applications} />
             <Route path="/network" component={Network} />
             <Route path="/messaging" component={Messaging} />
             <Route path="/companies" component={Companies} />

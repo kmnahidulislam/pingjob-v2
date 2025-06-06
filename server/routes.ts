@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/applications/:id/status', isAuthenticated, async (req, res) => {
+  app.patch('/api/applications/:id/status', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const { status } = req.body;
@@ -711,6 +711,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating application status:", error);
       res.status(500).json({ message: "Failed to update application status" });
+    }
+  });
+
+  app.delete('/api/applications/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteJobApplication(id);
+      res.json({ message: "Application withdrawn successfully" });
+    } catch (error) {
+      console.error("Error withdrawing application:", error);
+      res.status(500).json({ message: "Failed to withdraw application" });
     }
   });
 

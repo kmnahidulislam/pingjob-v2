@@ -25,7 +25,8 @@ import {
   Settings,
   LogOut,
   User,
-  BarChart3
+  BarChart3,
+  FileText
 } from "lucide-react";
 
 export default function Navigation() {
@@ -39,6 +40,7 @@ export default function Navigation() {
     { name: "Home", href: "/", icon: Home },
     { name: "Network", href: "/network", icon: Users },
     { name: "Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Applications", href: "/applications", icon: FileText },
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
     ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),

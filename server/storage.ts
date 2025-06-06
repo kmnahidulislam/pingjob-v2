@@ -630,6 +630,23 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async deleteJobApplication(id: number): Promise<void> {
+    // Get the job ID first for updating application count
+    const application = await this.getJobApplication(id);
+    if (application) {
+      await db.delete(jobApplications).where(eq(jobApplications.id, id));
+      
+      // Decrement application count
+      await db
+        .update(jobs)
+        .set({ 
+          applicationCount: sql`GREATEST(${jobs.applicationCount} - 1, 0)`,
+          updatedAt: new Date()
+        })
+        .where(eq(jobs.id, application.jobId));
+    }
+  }
+
   // Connection operations
   async getUserConnections(userId: string): Promise<any[]> {
     return await db
