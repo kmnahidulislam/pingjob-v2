@@ -136,6 +136,112 @@ function CompanyDetails({ companyId }: { companyId: number }) {
   );
 }
 
+function CompanyVendors({ companyId }: { companyId: number }) {
+  const { data: companyDetails, isLoading } = useQuery({
+    queryKey: ['/api/companies', companyId, 'details'],
+    queryFn: async () => {
+      const response = await fetch(`/api/companies/${companyId}/details`);
+      if (!response.ok) throw new Error('Failed to fetch company details');
+      return response.json();
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Building className="h-12 w-12 mx-auto mb-3 opacity-30 animate-pulse" />
+        <p>Loading vendors...</p>
+      </div>
+    );
+  }
+
+  const vendors = companyDetails?.vendors || [];
+
+  if (vendors.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Building className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <p>No vendors registered for this company</p>
+        <p className="text-sm mt-2">Vendors provide services and support to this organization</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4">
+        {vendors.map((vendor: any) => (
+          <Card key={vendor.id} className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-3 flex-1">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <Building className="h-6 w-6" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-lg text-gray-900">{vendor.name}</h4>
+                  <p className="text-gray-600 font-medium">{vendor.services}</p>
+                  
+                  {vendor.description && (
+                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                      {vendor.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+                    {vendor.contactEmail && (
+                      <div className="flex items-center">
+                        <span>📧 {vendor.contactEmail}</span>
+                      </div>
+                    )}
+                    {vendor.contactPhone && (
+                      <div className="flex items-center">
+                        <span>📞 {vendor.contactPhone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col items-end space-y-2">
+                <Badge 
+                  variant={vendor.status === 'approved' ? 'default' : 
+                          vendor.status === 'pending' ? 'secondary' : 'destructive'}
+                  className={vendor.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
+                >
+                  {vendor.status}
+                </Badge>
+                
+                {vendor.website && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={vendor.website} target="_blank" rel="noopener noreferrer">
+                      <Globe className="h-4 w-4 mr-1" />
+                      Visit
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {vendor.specializations && vendor.specializations.length > 0 && (
+              <div className="mt-3 pt-3 border-t">
+                <div className="flex flex-wrap gap-2">
+                  {vendor.specializations.map((spec: string, index: number) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {spec}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Companies() {
   const { user } = useAuth();
   const { toast } = useToast();
