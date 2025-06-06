@@ -494,7 +494,11 @@ export class DatabaseStorage implements IStorage {
       eq(jobs.isActive, true),
       or(
         ilike(jobs.title, `%${query}%`),
-        ilike(jobs.description, `%${query}%`)
+        ilike(jobs.description, `%${query}%`),
+        ilike(jobs.city, `%${query}%`),
+        ilike(jobs.state, `%${query}%`),
+        ilike(jobs.country, `%${query}%`),
+        ilike(jobs.zipCode, `%${query}%`)
       )
     ];
 

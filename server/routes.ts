@@ -103,7 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Global search endpoint
   app.get('/api/search', async (req, res) => {
     try {
-      const query = req.query.q as string;
+      const query = (req.query.q || req.query.query) as string;
       if (!query || query.trim().length < 3) {
         return res.json({ companies: [], jobs: [] });
       }
