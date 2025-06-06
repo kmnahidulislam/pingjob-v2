@@ -31,11 +31,11 @@ export default function JobCreate() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch user's companies
+  // Fetch all companies without limit
   const { data: companies, isLoading: companiesLoading } = useQuery({
-    queryKey: ['/api/companies'],
+    queryKey: ['/api/companies', { limit: 50000 }],
     queryFn: async () => {
-      const response = await fetch('/api/companies');
+      const response = await fetch('/api/companies?limit=50000');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }

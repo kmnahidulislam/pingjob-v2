@@ -281,7 +281,14 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getCompanies(limit = 100): Promise<Company[]> {
+  async getCompanies(limit = 50000): Promise<Company[]> {
+    if (limit === 50000) {
+      // For unlimited requests, return all companies
+      return await db
+        .select()
+        .from(companies)
+        .orderBy(desc(companies.followers));
+    }
     return await db
       .select()
       .from(companies)
@@ -289,7 +296,17 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  async searchCompanies(query: string, limit = 50): Promise<Company[]> {
+  async searchCompanies(query: string, limit = 50000): Promise<Company[]> {
+    if (limit === 50000) {
+      // For unlimited searches, return all matching companies
+      return await db
+        .select()
+        .from(companies)
+        .where(
+          sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+        )
+        .orderBy(desc(companies.followers));
+    }
     return await db
       .select()
       .from(companies)

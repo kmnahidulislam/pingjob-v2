@@ -147,9 +147,9 @@ export default function Companies() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const { data: companies, isLoading } = useQuery({
-    queryKey: ['/api/companies'],
+    queryKey: ['/api/companies', { limit: 50000 }],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=1000');
+      const response = await fetch('/api/companies?limit=50000');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }
