@@ -246,19 +246,21 @@ export default function Companies() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showPendingApprovals, setShowPendingApprovals] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
-  // Search companies or show initial set
+  // Get search query from URL params for global search
+  const searchParams = new URLSearchParams(window.location.search);
+  const searchQuery = searchParams.get('search') || '';
+
+  // Load companies based on search query from global search
   const { data: companies, isLoading } = useQuery({
     queryKey: ['/api/companies', { q: searchQuery }],
     queryFn: async () => {
       if (!searchQuery || searchQuery.length < 2) {
-        // Load first 50 companies as initial display
         const response = await fetch('/api/companies?limit=50');
         if (!response.ok) throw new Error('Failed to fetch companies');
         return response.json();
@@ -415,11 +417,7 @@ export default function Companies() {
     }
   });
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Search functionality would be implemented here
-    console.log('Searching for:', searchQuery);
-  };
+
 
   const handleFollowCompany = (companyId: number) => {
     if (!user) {
@@ -445,11 +443,7 @@ export default function Companies() {
     }
   };
 
-  const filteredCompanies = companies?.filter((company: Company) =>
-    company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.industry?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredCompanies = companies || [];
 
   const formatFollowerCount = (count: number) => {
     if (count >= 1000000) {

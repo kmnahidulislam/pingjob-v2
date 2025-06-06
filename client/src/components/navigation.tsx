@@ -67,12 +67,8 @@ export default function Navigation() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setShowSearchResults(false);
-      // Navigate based on search results or default to jobs
-      if (searchResults?.companies?.length > 0) {
-        window.location.href = `/companies?search=${encodeURIComponent(searchQuery)}`;
-      } else {
-        window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
-      }
+      // Navigate to companies page with search query - the page will handle both companies and jobs
+      window.location.href = `/companies?search=${encodeURIComponent(searchQuery)}`;
     }
   };
 

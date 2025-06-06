@@ -73,7 +73,6 @@ export default function Jobs() {
   const queryClient = useQueryClient();
   const [match, params] = useRoute("/jobs/:id");
   const [filters, setFilters] = useState<SearchFilters>({});
-  const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
@@ -84,15 +83,16 @@ export default function Jobs() {
   // If we have a job ID, show job details instead of job list
   const jobId = params?.id;
 
-  // Get search query from URL if present
+  // Get search query from URL params for global search
+  const searchParams = new URLSearchParams(window.location.search);
+  const searchQuery = searchParams.get('search') || '';
+
+  // Update filters when search query changes
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const search = urlParams.get('search');
-    if (search) {
-      setSearchQuery(search);
-      setFilters(prev => ({ ...prev, search }));
+    if (searchQuery) {
+      setFilters(prev => ({ ...prev, search: searchQuery }));
     }
-  }, []);
+  }, [searchQuery]);
 
   // Debounce company search input
   useEffect(() => {
