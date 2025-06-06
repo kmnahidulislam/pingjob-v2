@@ -32,9 +32,49 @@ export default function Jobs() {
     industry: ""
   });
 
+  // Read search parameter from URL on page load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setFilters(prev => ({
+        ...prev,
+        search: searchParam
+      }));
+    }
+  }, []);
+
   // Fetch jobs
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ['/api/jobs', filters],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams();
+      
+      // Add search parameter if present
+      if (filters.search && filters.search.trim()) {
+        searchParams.append('search', filters.search);
+      }
+      
+      // Add other filters if they're not default values
+      if (filters.jobType && filters.jobType !== 'all') {
+        searchParams.append('jobType', filters.jobType);
+      }
+      if (filters.experienceLevel && filters.experienceLevel !== 'all') {
+        searchParams.append('experienceLevel', filters.experienceLevel);
+      }
+      if (filters.location && filters.location.trim()) {
+        searchParams.append('location', filters.location);
+      }
+      
+      const url = `/api/jobs${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
+      const response = await fetch(url, { credentials: 'include' });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      
+      return response.json();
+    },
     enabled: true
   });
 
