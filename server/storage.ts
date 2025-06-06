@@ -847,11 +847,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addVendor(vendor: InsertVendor): Promise<Vendor> {
-    const [result] = await db.insert(vendors).values({
-      ...vendor,
-      status: "pending" // All new vendors require admin approval
-    }).returning();
-    return result;
+    try {
+      console.log(`DEBUG: Adding vendor with raw SQL:`, vendor);
+      
+      // Use raw SQL to avoid Drizzle schema mapping issues
+      const result = await pool.query(`
+        INSERT INTO vendors (company_id, name, email, phone, services, status, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        RETURNING *
+      `, [
+        vendor.companyId,
+        vendor.name,
+        vendor.email,
+        vendor.phone || null,
+        vendor.services,
+        "pending" // All new vendors require admin approval
+      ]);
+      
+      console.log(`DEBUG: Added vendor successfully:`, result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error in addVendor:", error);
+      throw error;
+    }
   }
 
   async updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor> {
