@@ -78,6 +78,8 @@ export default function Jobs() {
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [companySearch, setCompanySearch] = useState("");
+  const [debouncedCompanySearch, setDebouncedCompanySearch] = useState("");
 
   // If we have a job ID, show job details instead of job list
   const jobId = params?.id;
@@ -91,6 +93,14 @@ export default function Jobs() {
       setFilters(prev => ({ ...prev, search }));
     }
   }, []);
+
+  // Debounce company search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCompanySearch(companySearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [companySearch]);
 
   // Fetch individual job if jobId is provided
   const { data: job, isLoading: jobLoading } = useQuery({
@@ -171,15 +181,27 @@ export default function Jobs() {
     enabled: !!user && user.userType === 'job_seeker'
   });
 
-  const { data: companies } = useQuery({
-    queryKey: ['/api/companies', { limit: 100 }],
-    enabled: user?.userType === 'admin',
+  // Load companies with search functionality
+  const { data: companiesData, isLoading: companiesLoading } = useQuery({
+    queryKey: ['/api/companies', { search: debouncedCompanySearch }],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=100');
-      if (!response.ok) throw new Error('Failed to fetch companies');
-      return response.json();
-    }
+      if (debouncedCompanySearch && debouncedCompanySearch.length >= 2) {
+        // Search mode - load matching companies
+        const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedCompanySearch)}&limit=1000`);
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        return response.json();
+      } else {
+        // Initial load - show popular/recent companies
+        const response = await fetch('/api/companies?limit=500');
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        return response.json();
+      }
+    },
+    enabled: true,
+    staleTime: 300000, // Cache for 5 minutes
   });
+
+  const companies = companiesData || [];
 
   const jobForm = useForm<z.infer<typeof jobFormSchema>>({
     resolver: zodResolver(jobFormSchema),
@@ -467,59 +489,64 @@ export default function Jobs() {
                             variant: "destructive"
                           });
                         })} className="space-y-4">
-                          {/* Company Selection with Autocomplete */}
+                          {/* Company Selection - Search Input */}
                           <FormField
                             control={jobForm.control}
                             name="companyId"
                             render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>Company</FormLabel>
-                                <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant="outline"
-                                        role="combobox"
-                                        className={`w-full justify-between ${!selectedCompany && "text-muted-foreground"}`}
-                                      >
-                                        {selectedCompany ? selectedCompany.name : "Select company..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-full p-0">
-                                    <Command>
-                                      <CommandInput placeholder="Search companies..." />
-                                      <CommandEmpty>No company found.</CommandEmpty>
-                                      <CommandGroup>
-                                        {companies?.map((company: any) => (
-                                          <CommandItem
-                                            key={company.id}
-                                            value={company.name}
-                                            onSelect={() => {
-                                              setSelectedCompany(company);
-                                              field.onChange(company.id);
-                                              setCompanySearchOpen(false);
-                                            }}
-                                          >
-                                            <Check
-                                              className={`mr-2 h-4 w-4 ${
-                                                selectedCompany?.id === company.id ? "opacity-100" : "opacity-0"
-                                              }`}
-                                            />
-                                            <div className="flex items-center space-x-2">
-                                              <Building className="h-4 w-4" />
-                                              <span>{company.name}</span>
-                                              {company.city && (
-                                                <span className="text-sm text-gray-500">• {company.city}</span>
-                                              )}
+                              <FormItem>
+                                <FormLabel>Company *</FormLabel>
+                                <div className="space-y-2">
+                                  <Input
+                                    placeholder="Type company name to search all 50,000+ companies..."
+                                    value={companySearch}
+                                    onChange={(e) => setCompanySearch(e.target.value)}
+                                  />
+                                  {!companySearch && (
+                                    <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                                      💡 Tip: Start typing to search from our complete database of 50,000+ companies. First 500 popular companies shown below.
+                                    </div>
+                                  )}
+                                  {(companySearch.length >= 2 || (!companySearch && companies?.length > 0)) && (
+                                    <div className="max-h-48 overflow-auto border rounded-md bg-white">
+                                      {companiesLoading ? (
+                                        <div className="p-3 text-sm text-gray-500">
+                                          {companySearch ? 'Searching...' : 'Loading companies...'}
+                                        </div>
+                                      ) : companies?.length > 0 ? (
+                                        <>
+                                          {!companySearch && (
+                                            <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
+                                              Popular companies (showing 500 of 50,000+)
                                             </div>
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </Command>
-                                  </PopoverContent>
-                                </Popover>
+                                          )}
+                                          {companies.map((company: any) => (
+                                            <div
+                                              key={company.id}
+                                              className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                              onClick={() => {
+                                                setSelectedCompany(company);
+                                                field.onChange(company.id);
+                                                setCompanySearch(company.name);
+                                                setDebouncedCompanySearch("");
+                                              }}
+                                            >
+                                              <div className="font-medium">{company.name}</div>
+                                              <div className="text-sm text-gray-500">{company.industry}</div>
+                                            </div>
+                                          ))}
+                                        </>
+                                      ) : (
+                                        <div className="p-3 text-sm text-gray-500">No companies found</div>
+                                      )}
+                                    </div>
+                                  )}
+                                  {selectedCompany && (
+                                    <div className="text-sm text-green-600">
+                                      Selected: {selectedCompany.name}
+                                    </div>
+                                  )}
+                                </div>
                                 <FormMessage />
                               </FormItem>
                             )}
