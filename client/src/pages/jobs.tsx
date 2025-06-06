@@ -263,7 +263,8 @@ export default function Jobs() {
 
   const clearFilters = () => {
     setFilters({});
-    setSearchQuery("");
+    // Clear search by navigating to jobs page without search params
+    window.location.href = '/jobs';
   };
 
   const appliedJobIds = applications?.map((app: any) => app.job?.id) || [];
