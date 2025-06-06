@@ -34,15 +34,21 @@ export default function JobCreate() {
   const queryClient = useQueryClient();
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [companySearch, setCompanySearch] = useState("");
 
-  // Fetch all companies without limit
+  // Search companies efficiently with server-side filtering
   const { data: companies, isLoading: companiesLoading } = useQuery({
-    queryKey: ['/api/companies', { limit: 50000 }],
+    queryKey: ['/api/companies', { q: companySearch }],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=50000');
+      const url = companySearch 
+        ? `/api/companies?q=${encodeURIComponent(companySearch)}`
+        : '/api/companies?limit=100'; // Only load 100 when no search
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
-    }
+    },
+    enabled: companySearch.length >= 2 || companySearch === "",
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   // Fetch categories
@@ -155,8 +161,17 @@ export default function JobCreate() {
                         </PopoverTrigger>
                         <PopoverContent className="w-full p-0">
                           <Command>
-                            <CommandInput placeholder="Search companies..." />
-                            <CommandEmpty>No company found.</CommandEmpty>
+                            <CommandInput 
+                              placeholder="Search companies..." 
+                              value={companySearch}
+                              onValueChange={setCompanySearch}
+                            />
+                            <CommandEmpty>
+                              {companySearch.length >= 2 
+                                ? "No company found." 
+                                : "Type at least 2 characters to search..."
+                              }
+                            </CommandEmpty>
                             <CommandGroup className="max-h-64 overflow-auto">
                               {availableCompanies?.map((company: any) => (
                                 <CommandItem
@@ -166,6 +181,7 @@ export default function JobCreate() {
                                     setSelectedCompany(company);
                                     field.onChange(company.id);
                                     setCompanySearchOpen(false);
+                                    setCompanySearch("");
                                   }}
                                 >
                                   <Check
