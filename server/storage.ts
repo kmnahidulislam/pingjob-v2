@@ -818,20 +818,16 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: getClientVendors called with companyId=${companyId}`);
       
-      // Execute raw SQL to verify data exists
-      const rawResult = await pool.query(`SELECT * FROM vendors WHERE company_id = $1 AND status = 'approved'`, [companyId]);
-      console.log(`DEBUG: Raw SQL found ${rawResult.rows.length} vendors for company ${companyId}:`, rawResult.rows);
+      // Use raw SQL query to avoid Drizzle schema mapping issues
+      const result = await pool.query(`
+        SELECT id, company_id as "companyId", name, email, phone, services, status, created_by as "createdBy", created_at as "createdAt", updated_at as "updatedAt"
+        FROM vendors 
+        WHERE company_id = $1 AND status = 'approved'
+        ORDER BY created_at DESC
+      `, [companyId]);
       
-      const result = await db
-        .select()
-        .from(vendors)
-        .where(and(
-          eq(vendors.companyId, companyId),
-          eq(vendors.status, "approved")
-        ))
-        .orderBy(desc(vendors.createdAt));
-      console.log(`DEBUG: Drizzle query found ${result.length} vendors for company ${companyId}:`, result);
-      return result;
+      console.log(`DEBUG: Found ${result.rows.length} approved vendors for company ${companyId}:`, result.rows);
+      return result.rows;
     } catch (error) {
       console.error("Error in getClientVendors:", error);
       return [];
