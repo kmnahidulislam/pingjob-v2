@@ -209,8 +209,8 @@ export default function Navigation() {
                                   <div>
                                     <div className="font-medium text-gray-900">{job.title}</div>
                                     <div className="text-sm text-gray-500">
-                                      {job.companyName} • {job.city}, {job.state}
-                                      {job.salary && <span> • {job.salary}</span>}
+                                      {job.company?.name} • {job.city}, {job.state}
+                                      {job.salary && <span> • ${job.salary}k</span>}
                                     </div>
                                   </div>
                                 </div>
