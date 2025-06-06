@@ -49,7 +49,7 @@ export default function JobCreate() {
     queryKey: ['/api/companies', { search: debouncedSearch }],
     queryFn: async () => {
       const searchParam = debouncedSearch ? `?q=${encodeURIComponent(debouncedSearch)}&limit=100` : '?limit=100';
-      const response = await fetch(`/api/companies/search${searchParam}`);
+      const response = await fetch(`/api/companies${searchParam}`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
