@@ -284,7 +284,6 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(companies)
-      .where(eq(companies.status, 'approved'))
       .orderBy(desc(companies.followers))
       .limit(limit);
   }
@@ -773,12 +772,12 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async updateVendorStatus(id: number, status: string): Promise<Vendor> {
+  async updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor> {
     const [result] = await db
       .update(vendors)
       .set({ 
-        status: status as "pending" | "active" | "inactive",
-        updatedAt: new Date() 
+        status,
+        approvedBy
       })
       .where(eq(vendors.id, id))
       .returning();

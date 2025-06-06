@@ -188,11 +188,10 @@ export const vendors = pgTable("vendors", {
   name: varchar("name").notNull(),
   email: varchar("email").notNull(),
   phone: varchar("phone"),
-  services: varchar("services").notNull(),
-  status: varchar("status", { enum: ["pending", "active", "inactive"] }).default("active"),
-  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  services: text("services"),
+  status: varchar("status").default("pending"),
+  approvedBy: varchar("approved_by"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Location tables with hierarchical relationships
@@ -354,10 +353,6 @@ export const vendorRelations = relations(vendors, ({ one }) => ({
   company: one(companies, {
     fields: [vendors.companyId],
     references: [companies.id],
-  }),
-  createdByUser: one(users, {
-    fields: [vendors.createdBy],
-    references: [users.id],
   }),
 }));
 
