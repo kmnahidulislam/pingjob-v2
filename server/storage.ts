@@ -283,27 +283,32 @@ export class DatabaseStorage implements IStorage {
 
   async getCompanies(limit = 50000): Promise<Company[]> {
     if (limit === 50000) {
-      // For unlimited requests, return all companies
+      // For unlimited requests, return all approved companies
       return await db
         .select()
         .from(companies)
+        .where(eq(companies.status, 'approved'))
         .orderBy(desc(companies.followers));
     }
     return await db
       .select()
       .from(companies)
+      .where(eq(companies.status, 'approved'))
       .orderBy(desc(companies.followers))
       .limit(limit);
   }
 
   async searchCompanies(query: string, limit = 50000): Promise<Company[]> {
     if (limit === 50000) {
-      // For unlimited searches, return all matching companies
+      // For unlimited searches, return all matching approved companies
       return await db
         .select()
         .from(companies)
         .where(
-          sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+          and(
+            eq(companies.status, 'approved'),
+            sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+          )
         )
         .orderBy(desc(companies.followers));
     }
@@ -311,7 +316,10 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(companies)
       .where(
-        sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+        and(
+          eq(companies.status, 'approved'),
+          sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`
+        )
       )
       .orderBy(desc(companies.followers))
       .limit(limit);
