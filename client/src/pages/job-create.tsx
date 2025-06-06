@@ -44,66 +44,21 @@ export default function JobCreate() {
     return () => clearTimeout(timer);
   }, [companySearch]);
 
-  // Load all companies for job creation dropdown
-  const { data: allCompanies, isLoading: allCompaniesLoading } = useQuery({
-    queryKey: ['/api/companies/all'],
+  // Load companies with optimized search
+  const { data: companiesData, isLoading: companiesLoading } = useQuery({
+    queryKey: ['/api/companies', { search: debouncedSearch }],
     queryFn: async () => {
-      const response = await fetch('/api/companies/all');
-      if (!response.ok) throw new Error('Failed to fetch all companies');
+      const searchParam = debouncedSearch ? `?q=${encodeURIComponent(debouncedSearch)}&limit=100` : '?limit=100';
+      const response = await fetch(`/api/companies/search${searchParam}`);
+      if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     },
     staleTime: 300000, // Cache for 5 minutes
   });
 
-  // Filter companies based on search input
-  const companies = useMemo(() => {
-    if (!allCompanies) return [];
-    if (!companySearch || companySearch.length < 1) {
-      return allCompanies.slice(0, 100); // Show first 100 when no search
-    }
-    
-    const searchLower = companySearch.toLowerCase().trim();
-    console.log('Searching for:', searchLower);
-    console.log('Total companies loaded:', allCompanies.length);
-    
-    const filtered = allCompanies.filter((company: any) => {
-      const companyName = (company.name || '').toLowerCase();
-      const companyIndustry = (company.industry || '').toLowerCase();
-      const companyLocation = (company.location || '').toLowerCase();
-      
-      const matches = companyName.includes(searchLower) ||
-                     companyIndustry.includes(searchLower) ||
-                     companyLocation.includes(searchLower);
-      
-      // Debug specific search
-      if (searchLower === 'natwest' && companyName.includes('natwest')) {
-        console.log('Found NatWest company:', company);
-      }
-      
-      return matches;
-    });
-    
-    console.log('Filtered results:', filtered.length);
-    
-    // Sort results to prioritize exact matches and name starts
-    return filtered.sort((a, b) => {
-      const aName = (a.name || '').toLowerCase();
-      const bName = (b.name || '').toLowerCase();
-      
-      // Exact match first
-      if (aName === searchLower) return -1;
-      if (bName === searchLower) return 1;
-      
-      // Starts with search term
-      if (aName.startsWith(searchLower) && !bName.startsWith(searchLower)) return -1;
-      if (bName.startsWith(searchLower) && !aName.startsWith(searchLower)) return 1;
-      
-      // Alphabetical order
-      return aName.localeCompare(bName);
-    });
-  }, [allCompanies, companySearch]);
+  const companies = companiesData || [];
 
-  const companiesLoading = allCompaniesLoading;
+
 
   // Fetch categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
