@@ -852,8 +852,8 @@ export class DatabaseStorage implements IStorage {
       
       // Use raw SQL to avoid Drizzle schema mapping issues
       const result = await pool.query(`
-        INSERT INTO vendors (company_id, name, email, phone, services, status, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+        INSERT INTO vendors (company_id, name, email, phone, services, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
       `, [
         vendor.companyId,
