@@ -44,18 +44,23 @@ export default function JobCreate() {
     return () => clearTimeout(timer);
   }, [companySearch]);
 
-  // Load companies only when searching
+  // Load companies with intelligent loading strategy
   const { data: companiesData, isLoading: companiesLoading } = useQuery({
     queryKey: ['/api/companies', { search: debouncedSearch }],
     queryFn: async () => {
-      if (!debouncedSearch || debouncedSearch.length < 2) {
-        return []; // Return empty array if no search term
+      if (debouncedSearch && debouncedSearch.length >= 2) {
+        // Search mode - load matching companies
+        const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=1000`);
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        return response.json();
+      } else {
+        // Initial load - show popular/recent companies
+        const response = await fetch('/api/companies?limit=500');
+        if (!response.ok) throw new Error('Failed to fetch companies');
+        return response.json();
       }
-      const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=100`);
-      if (!response.ok) throw new Error('Failed to fetch companies');
-      return response.json();
     },
-    enabled: Boolean(debouncedSearch && debouncedSearch.length >= 2),
+    enabled: true,
     staleTime: 300000, // Cache for 5 minutes
   });
 
@@ -155,33 +160,47 @@ export default function JobCreate() {
                       <FormLabel>Company *</FormLabel>
                       <div className="space-y-2">
                         <Input
-                          placeholder="Type company name to search..."
+                          placeholder="Type company name to search all 50,000+ companies..."
                           value={companySearch}
                           onChange={(e) => setCompanySearch(e.target.value)}
                         />
-                        {companySearch.length >= 2 && (
+                        {!companySearch && (
+                          <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                            💡 Tip: Start typing to search from our complete database of 50,000+ companies. First 500 popular companies shown below.
+                          </div>
+                        )}
+                        {(companySearch.length >= 2 || (!companySearch && companies?.length > 0)) && (
                           <div className="max-h-48 overflow-auto border rounded-md bg-white">
                             {companiesLoading ? (
-                              <div className="p-3 text-sm text-gray-500">Searching...</div>
+                              <div className="p-3 text-sm text-gray-500">
+                                {companySearch ? 'Searching...' : 'Loading companies...'}
+                              </div>
                             ) : companies?.length > 0 ? (
-                              companies.map((company: any) => (
-                                <div
-                                  key={company.id}
-                                  className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                                  onClick={() => {
-                                    setSelectedCompany(company);
-                                    field.onChange(company.id);
-                                    setCompanySearch(company.name);
-                                    // Clear search state immediately to hide dropdown
-                                    setTimeout(() => {
-                                      setDebouncedSearch("");
-                                    }, 100);
-                                  }}
-                                >
-                                  <div className="font-medium">{company.name}</div>
-                                  <div className="text-sm text-gray-500">{company.industry}</div>
-                                </div>
-                              ))
+                              <>
+                                {!companySearch && (
+                                  <div className="p-2 text-xs text-gray-500 border-b bg-gray-50">
+                                    Popular companies (showing 500 of 50,000+)
+                                  </div>
+                                )}
+                                {companies.map((company: any) => (
+                                  <div
+                                    key={company.id}
+                                    className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                                    onClick={() => {
+                                      setSelectedCompany(company);
+                                      field.onChange(company.id);
+                                      setCompanySearch(company.name);
+                                      // Clear search state immediately to hide dropdown
+                                      setTimeout(() => {
+                                        setDebouncedSearch("");
+                                      }, 100);
+                                    }}
+                                  >
+                                    <div className="font-medium">{company.name}</div>
+                                    <div className="text-sm text-gray-500">{company.industry}</div>
+                                  </div>
+                                ))}
+                              </>
                             ) : (
                               <div className="p-3 text-sm text-gray-500">No companies found</div>
                             )}
