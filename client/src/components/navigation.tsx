@@ -53,8 +53,14 @@ export default function Navigation() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to jobs page with search query
-      window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+      // Check current page to determine default search behavior
+      if (location.includes('/companies')) {
+        // If on companies page, search companies
+        window.location.href = `/companies?search=${encodeURIComponent(searchQuery)}`;
+      } else {
+        // Default to jobs search for all other pages
+        window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+      }
     }
   };
 
@@ -101,7 +107,7 @@ export default function Navigation() {
               <form onSubmit={handleSearch}>
                 <Input
                   type="text"
-                  placeholder="Search companies, jobs, locations..."
+                  placeholder={location.includes('/companies') ? "Search companies..." : "Search jobs, companies, locations..."}
                   value={searchQuery}
                   onChange={handleSearchInputChange}
                   className="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
