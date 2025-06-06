@@ -256,22 +256,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
       const query = req.query.q as string;
       
-      let companies;
-      if (query && query.length >= 2) {
-        // Search with reasonable limit for performance
-        companies = await storage.searchCompanies(query, 500);
-      } else {
-        // Default to small set for initial load
-        companies = await storage.getCompanies(limit);
+      // Only search if query provided - no default loading
+      if (!query || query.length < 2) {
+        return res.json([]);
       }
       
+      // Search with strict limit for performance
+      const companies = await storage.searchCompanies(query, 100);
       res.json(companies);
     } catch (error) {
-      console.error("Error fetching companies:", error);
-      res.status(500).json({ message: "Failed to fetch companies" });
+      console.error("Error searching companies:", error);
+      res.status(500).json({ message: "Failed to search companies" });
     }
   });
 

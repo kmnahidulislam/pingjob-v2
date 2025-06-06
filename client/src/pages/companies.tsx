@@ -146,13 +146,18 @@ export default function Companies() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  // Only search companies when there's a search query
   const { data: companies, isLoading } = useQuery({
-    queryKey: ['/api/companies', { limit: 50000 }],
+    queryKey: ['/api/companies', { q: searchQuery }],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=50000');
+      if (!searchQuery || searchQuery.length < 2) {
+        return [];
+      }
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
-    }
+    },
+    enabled: searchQuery.length >= 2 || searchQuery === ""
   });
 
   // Fetch pending companies for admin approval
