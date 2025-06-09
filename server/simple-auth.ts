@@ -55,7 +55,7 @@ export function setupSimpleAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: new PostgresSessionStore({
-      conString: NEON_DATABASE_URL,
+      conString: "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
       createTableIfMissing: false,
       tableName: "sessions",
     }),
