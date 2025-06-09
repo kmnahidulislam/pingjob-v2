@@ -25,6 +25,33 @@ import {
 } from "lucide-react";
 
 export default function Landing() {
+  const [email, setEmail] = useState("krupas@vedsoft.com");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      await directLogin(email);
+      // Refresh the auth state
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      toast({
+        title: "Login successful",
+        description: "Welcome back!",
+      });
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Please check your email address",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const userTypes = [
     {
       type: 'job_seeker',
@@ -123,27 +150,24 @@ export default function Landing() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="relative hidden md:block">
-                <input 
-                  type="text" 
-                  placeholder="Search jobs, people, companies..." 
-                  className="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
+              <form onSubmit={handleLogin} className="flex items-center space-x-2">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-64"
+                  disabled={isLoading}
                 />
-                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-              </div>
-              <Button 
-                onClick={() => window.location.href = '/api/login'}
-                className="bg-linkedin-blue text-white hover:bg-linkedin-dark"
-              >
-                Sign In
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = '/api/login'}
-                className="border-linkedin-blue text-linkedin-blue hover:bg-linkedin-blue hover:text-white"
-              >
-                Join Now
-              </Button>
+                <Button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-linkedin-blue text-white hover:bg-linkedin-dark"
+                >
+                  {isLoading ? "Signing In..." : "Sign In"}
+                  <LogIn className="ml-2 h-4 w-4" />
+                </Button>
+              </form>
             </div>
           </div>
         </div>

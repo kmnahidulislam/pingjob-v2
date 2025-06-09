@@ -91,17 +91,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { email } = req.body;
       
       if (email === 'krupas@vedsoft.com') {
-        // Create or get the user
-        const userData = {
-          id: 'admin-krupa',
-          email: 'krupas@vedsoft.com',
-          firstName: 'Krupa',
-          lastName: 'S',
-          profileImageUrl: null,
-          userType: 'admin' as const
-        };
+        // Find existing user by email first
+        const existingUsers = await db.select().from(users).where(eq(users.email, email)).limit(1);
         
-        const user = await storage.upsertUser(userData);
+        let user;
+        if (existingUsers.length > 0) {
+          user = existingUsers[0];
+        } else {
+          // Create new user if none exists
+          const userData = {
+            id: 'admin-krupa',
+            email: 'krupas@vedsoft.com',
+            firstName: 'Krupa',
+            lastName: 'S',
+            profileImageUrl: null,
+            userType: 'admin' as const
+          };
+          
+          user = await storage.upsertUser(userData);
+        }
         
         // Set session data to mimic authenticated user
         req.session.user = {
@@ -130,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Modified auth middleware for direct login
   const customAuth = async (req: any, res: any, next: any) => {
     // Check for session-based auth first (direct login)
-    if (req.session.user && req.session.user.claims) {
+    if (req.session && req.session.user && req.session.user.claims) {
       req.user = req.session.user;
       const now = Math.floor(Date.now() / 1000);
       if (now <= req.user.claims.exp) {
@@ -138,8 +146,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
     
-    // Fall back to Replit auth
-    return isAuthenticated(req, res, next);
+    // Check for Replit OAuth auth
+    if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+      return next();
+    }
+    
+    return res.status(401).json({ message: "Unauthorized" });
   };
 
   // Auth routes
