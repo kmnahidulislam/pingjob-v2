@@ -43,15 +43,7 @@ import {
   type State,
   type City,
 } from "@shared/schema";
-// FORCE EXCLUSIVE NEON.TECH CONNECTION
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '@shared/schema';
-
-// Create FORCED Neon.tech pool - ignore all other connections
-const NEON_URL = "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
-const pool = new Pool({ connectionString: NEON_URL });
-const db = drizzle(pool, { schema });
+import { isolatedPool as pool, isolatedDb as db } from './neon-only-db';
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {

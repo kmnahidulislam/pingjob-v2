@@ -1,18 +1,15 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// HARDCODED CLEAN NEON.TECH CONNECTION - IGNORE ALL ENVIRONMENT VARIABLES
+const CLEAN_NEON_URL = "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
 
-// Force use only Neon.tech database, never Replit database
-const NEON_DATABASE_URL = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
-
-console.log("EXCLUSIVELY USING NEON.TECH DATABASE:", NEON_DATABASE_URL.substring(0, 50) + "...");
+console.log("CLEAN NEON.TECH CONNECTION:", CLEAN_NEON_URL.substring(0, 50) + "...");
 
 export const pool = new Pool({ 
-  connectionString: NEON_DATABASE_URL,
+  connectionString: CLEAN_NEON_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
