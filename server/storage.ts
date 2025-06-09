@@ -139,26 +139,29 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    // Use raw SQL to bypass schema caching issues
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    return result.rows[0] as User | undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    // Use raw SQL to bypass schema caching issues
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0] as User | undefined;
   }
 
   async createUser(userData: UpsertUser): Promise<User> {
     // Generate a unique ID for new users
     const userId = userData.id || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const [user] = await db
-      .insert(users)
-      .values({
-        ...userData,
-        id: userId,
-      })
-      .returning();
-    return user;
+    
+    // Use raw SQL to bypass schema caching issues
+    const result = await pool.query(`
+      INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at, password)
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6)
+      RETURNING *
+    `, [userId, userData.email, userData.firstName, userData.lastName, userData.userType || 'job_seeker', userData.password]);
+    
+    return result.rows[0] as User;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
