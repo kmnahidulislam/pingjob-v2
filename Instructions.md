@@ -1,71 +1,95 @@
-# Email/Password Authentication Implementation Plan
+# Database Schema Authentication Fix Plan
 
-## Research Summary
+## Root Cause Analysis - CRITICAL DISCOVERY
 
-### Current State Analysis
+**Database Connection Mismatch:**
+The application uses TWO different database URLs causing the schema mismatch:
 
-**Database Schema Status:**
-- ✅ Database has correct schema with `password` column in `users` table
-- ✅ All required columns exist: id, email, password, first_name, last_name, user_type
-- ✅ Neon PostgreSQL database is properly connected and accessible
+1. **Environment Variable**: `postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require`
+2. **Hardcoded in db.ts**: `postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require`
 
-**Authentication Files Present:**
-- `server/auth.ts` - Main authentication setup using Drizzle ORM
-- `server/simple-working-auth.ts` - Alternative implementation with direct SQL
-- `server/working-auth.ts` - Session-based authentication
-- `server/override-auth.ts` - Override implementation
-- `server/direct-auth.ts` - Direct database connection approach
-- `client/src/hooks/use-auth.tsx` - React Query-based authentication hook
-- `client/src/pages/auth-page.tsx` - Login/registration UI
+**Schema Verification Results:**
+- ✅ Actual database (via SQL tool) HAS password column and correct schema
+- ❌ Application pool connects to DIFFERENT database instance WITHOUT password column
+- ✅ Drizzle schema definition is correct in `shared/schema.ts`
+- ❌ No migrations directory exists - schema never pushed to application database
 
-**Current Issues Identified:**
+**Current Authentication Status:**
+- Multiple conflicting auth files removed
+- `server/auth.ts` uses direct SQL but wrong database pool
+- Frontend authentication hook and UI are properly configured
+- Session management setup is correct
 
-1. **Schema Mismatch Problem**: The primary issue is that Drizzle ORM is generating SQL that references a "password" column, but the database connection pool used by the application cannot find this column, despite it existing when queried directly.
+### Database Schema Analysis
 
-2. **Multiple Authentication Implementations**: There are 5+ different authentication files causing conflicts and confusion about which system is active.
-
-3. **Route Registration Order**: Authentication routes must be registered before Vite middleware to prevent HTML responses instead of JSON.
-
-4. **Database Pool Isolation**: The application's database pool appears to be connecting to a different schema or database instance than direct SQL queries.
-
-### Root Cause Analysis
-
-The core issue is **database connection pool inconsistency**. While direct SQL queries through the execute_sql_tool can access the users table with the password column, the application's Drizzle ORM connection cannot find the same column. This suggests:
-
-- Schema synchronization issues between Drizzle and actual database
-- Connection pool pointing to different database instances
-- Cached schema information in Drizzle conflicting with actual database structure
-
-## Implementation Plan
-
-### Phase 1: Clean Up Conflicting Files (CRITICAL)
-
-**Remove Conflicting Authentication Files:**
-- Delete `server/working-auth.ts`
-- Delete `server/simple-working-auth.ts` 
-- Delete `server/override-auth.ts`
-- Delete `server/direct-auth.ts`
-- Keep only `server/auth.ts` as the single source of truth
-
-**Consolidate Route Registration:**
-- Ensure `server/routes.ts` only imports and calls `setupAuth` from `server/auth.ts`
-- Remove any duplicate authentication route definitions
-
-### Phase 2: Fix Database Connection Issues (HIGH PRIORITY)
-
-**Option A: Force Schema Sync (Recommended)**
-```bash
-# Push Drizzle schema to database to ensure consistency
-npm run db:push --force
+**Correct Schema (from SQL tool database):**
+```sql
+users table columns:
+- id: varchar, PRIMARY KEY
+- email: varchar, UNIQUE, NOT NULL  
+- password: varchar, NOT NULL ✅
+- first_name: varchar
+- last_name: varchar
+- user_type: varchar, DEFAULT 'job_seeker'
+- (+ other profile fields)
 ```
 
-**Option B: Direct SQL Bypass**
-- Modify `server/storage.ts` to use raw SQL queries instead of Drizzle ORM for user operations
-- This bypasses the schema mismatch issue while maintaining functionality
+**Application Database Schema:**
+- Missing password column entirely
+- Using different connection pool
+- No schema synchronization performed
 
-**Option C: Database Pool Reset**
-- Clear any cached connections in the database pool
-- Reinitialize the Drizzle connection with explicit schema mapping
+## IMMEDIATE FIX PLAN
+
+### Step 1: Fix Database Connection (5 minutes)
+**Problem**: Application connects to wrong database instance
+**Solution**: Update `server/db.ts` to use correct DATABASE_URL environment variable
+
+```typescript
+// Current (WRONG):
+const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+
+// Fix (CORRECT):
+const NEON_DATABASE_URL = process.env.DATABASE_URL;
+```
+
+### Step 2: Push Schema to Application Database (10 minutes)
+**Problem**: Application database missing schema
+**Solution**: Use Drizzle to sync schema to correct database
+
+```bash
+npm run db:push
+```
+
+### Step 3: Test Authentication System (5 minutes)
+Once connected to correct database, test:
+- User registration 
+- User login
+- Session management
+- Protected routes
+
+### Step 4: Alternative - Direct Schema Creation (if push fails)
+If Drizzle push fails, manually create schema in application database:
+
+```sql
+-- Ensure users table exists with password column
+CREATE TABLE IF NOT EXISTS users (
+  id varchar PRIMARY KEY,
+  email varchar UNIQUE NOT NULL,
+  password varchar NOT NULL,
+  first_name varchar,
+  last_name varchar,
+  user_type varchar DEFAULT 'job_seeker',
+  profile_image_url varchar,
+  category_id integer,
+  headline text,
+  summary text,
+  location varchar,
+  industry varchar,
+  created_at timestamp DEFAULT now(),
+  updated_at timestamp DEFAULT now()
+);
+```
 
 ### Phase 3: Implement Working Authentication System
 
