@@ -563,56 +563,65 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserJobApplications(userId: string): Promise<any[]> {
-    console.log("getUserJobApplications called with userId:", userId);
-    
-    const result = await pool.query(`
-      SELECT 
-        ja.id,
-        ja.job_id as "jobId",
-        ja.applicant_id as "applicantId", 
-        ja.status,
-        ja.applied_at as "appliedAt",
-        ja.cover_letter as "coverLetter",
-        ja.resume_url as "resumeUrl",
-        j.id as "job_id_from_jobs",
-        j.title as "job_title", 
-        j.location as "job_location",
-        j.employment_type as "job_employmentType",
-        j.salary as "job_salary",
-        c.name as "company_name",
-        c.logo_url as "company_logoUrl"
-      FROM job_applications ja
-      LEFT JOIN jobs j ON ja.job_id = j.id
-      LEFT JOIN companies c ON j.company_id = c.id  
-      WHERE ja.applicant_id = $1
-      ORDER BY ja.applied_at DESC
-    `, [userId]);
+    try {
+      console.log("getUserJobApplications called with userId:", userId);
+      
+      // First test basic query
+      const testResult = await pool.query(`SELECT COUNT(*) FROM job_applications WHERE applicant_id = $1`, [userId]);
+      console.log("Test count query result:", testResult.rows[0]);
+      
+      const result = await pool.query(`
+        SELECT 
+          ja.id,
+          ja.job_id,
+          ja.applicant_id, 
+          ja.status,
+          ja.applied_at,
+          ja.cover_letter,
+          ja.resume_url,
+          j.id as job_id_from_jobs,
+          j.title as job_title, 
+          j.location as job_location,
+          j.employment_type as job_employment_type,
+          j.salary as job_salary,
+          c.name as company_name,
+          c.logo_url as company_logo_url
+        FROM job_applications ja
+        LEFT JOIN jobs j ON ja.job_id = j.id
+        LEFT JOIN companies c ON j.company_id = c.id  
+        WHERE ja.applicant_id = $1
+        ORDER BY ja.applied_at DESC
+      `, [userId]);
 
-    console.log("Query returned rows:", result.rows.length);
-    if (result.rows.length > 0) {
-      console.log("First row:", result.rows[0]);
-    }
+      console.log("Query returned rows:", result.rows.length);
+      if (result.rows.length > 0) {
+        console.log("First row:", result.rows[0]);
+      }
 
-    return result.rows.map(row => ({
-      id: row.id,
-      jobId: row.jobId,
-      applicantId: row.applicantId,
-      status: row.status,
-      appliedAt: row.appliedAt,
-      coverLetter: row.coverLetter,
-      resumeUrl: row.resumeUrl,
-      job: {
-        id: row.job_id_from_jobs,
-        title: row.job_title,
-        location: row.job_location,
-        employmentType: row.job_employmentType,
-        salary: row.job_salary,
-        company: {
-          name: row.company_name,
-          logoUrl: row.company_logoUrl,
+      return result.rows.map(row => ({
+        id: row.id,
+        jobId: row.job_id,
+        applicantId: row.applicant_id,
+        status: row.status,
+        appliedAt: row.applied_at,
+        coverLetter: row.cover_letter,
+        resumeUrl: row.resume_url,
+        job: {
+          id: row.job_id_from_jobs,
+          title: row.job_title,
+          location: row.job_location,
+          employmentType: row.job_employment_type,
+          salary: row.job_salary,
+          company: {
+            name: row.company_name,
+            logoUrl: row.company_logo_url,
+          },
         },
-      },
-    }));
+      }));
+    } catch (error) {
+      console.error("Error in getUserJobApplications:", error);
+      throw error;
+    }
   }
 
   async getJobApplications(jobId: number): Promise<any[]> {
