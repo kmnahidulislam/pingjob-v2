@@ -5,7 +5,7 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-const NEON_DATABASE_URL = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+const NEON_DATABASE_URL = process.env.DATABASE_URL;
 
 console.log("Connecting to database:", NEON_DATABASE_URL.substring(0, 50) + "...");
 
