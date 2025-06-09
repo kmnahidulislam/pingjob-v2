@@ -21,9 +21,16 @@ export const cleanDb = drizzle(cleanPool, { schema });
 // Initialize schema if needed
 export async function initializeCleanDatabase() {
   try {
-    // Create users table if it doesn't exist
+    // Drop all existing data and create clean tables
+    await cleanPool.query(`DROP TABLE IF EXISTS job_applications CASCADE;`);
+    await cleanPool.query(`DROP TABLE IF EXISTS jobs CASCADE;`);
+    await cleanPool.query(`DROP TABLE IF EXISTS companies CASCADE;`);
+    await cleanPool.query(`DROP TABLE IF EXISTS users CASCADE;`);
+    await cleanPool.query(`DROP TABLE IF EXISTS connections CASCADE;`);
+    
+    // Create clean users table
     await cleanPool.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE users (
         id VARCHAR PRIMARY KEY,
         email VARCHAR UNIQUE NOT NULL,
         password VARCHAR NOT NULL,
@@ -41,7 +48,7 @@ export async function initializeCleanDatabase() {
       );
     `);
     
-    console.log("CLEAN NEON DATABASE READY");
+    console.log("CLEAN NEON DATABASE INITIALIZED - ALL OLD DATA REMOVED");
     return true;
   } catch (error) {
     console.error("CLEAN DATABASE SETUP FAILED:", error);

@@ -1041,4 +1041,7 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
+// Initialize database first
+initializeCleanDatabase();
+
 export const storage = new DatabaseStorage();
