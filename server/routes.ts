@@ -125,30 +125,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Modified auth middleware for direct login
-  const customAuth = async (req: any, res: any, next: any) => {
-    // Check for session-based auth first (direct login)
-    if (req.session && req.session.user && req.session.user.claims) {
-      req.user = req.session.user;
-      const now = Math.floor(Date.now() / 1000);
-      if (now <= req.user.claims.exp) {
-        return next();
-      }
-    }
-    
-    // Check for Replit OAuth auth
-    if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-      return next();
-    }
-    
-    return res.status(401).json({ message: "Unauthorized" });
-  };
+  // Use simple authentication middleware
+  const customAuth = isAuthenticated;
 
   // Auth routes
   app.get('/api/auth/user', customAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const user = await storage.getUser(req.user.id);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -196,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/profile', customAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const updateData = req.body;
       const user = await storage.updateUserProfile(userId, updateData);
       res.json(user);
@@ -209,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Experience routes
   app.get('/api/experiences', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const experiences = await storage.getUserExperiences(userId);
       res.json(experiences);
     } catch (error) {
@@ -220,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/experiences', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertExperienceSchema.parse({ ...req.body, userId });
       const experience = await storage.addExperience(validatedData);
       res.json(experience);
@@ -255,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Education routes
   app.get('/api/education', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const education = await storage.getUserEducation(userId);
       res.json(education);
     } catch (error) {
@@ -266,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/education', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertEducationSchema.parse({ ...req.body, userId });
       const education = await storage.addEducation(validatedData);
       res.json(education);
@@ -301,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Skills routes
   app.get('/api/skills', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const skills = await storage.getUserSkills(userId);
       res.json(skills);
     } catch (error) {
@@ -312,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/skills', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertSkillSchema.parse({ ...req.body, userId });
       const skill = await storage.addSkill(validatedData);
       res.json(skill);
@@ -518,7 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin stats endpoint
   app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userEmail = req.user.claims.email;
+      const userEmail = req.user.email;
       
       // Check if user is admin
       if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
@@ -740,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/applications', isAuthenticated, upload.single('resume'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const resumeUrl = req.file ? `/uploads/${req.file.filename}` : null;
       
       const validatedData = insertJobApplicationSchema.parse({
@@ -787,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Connection routes
   app.get('/api/connections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const connections = await storage.getUserConnections(userId);
       res.json(connections);
     } catch (error) {
@@ -798,7 +781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/connection-requests', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const requests = await storage.getConnectionRequests(userId);
       res.json(requests);
     } catch (error) {
@@ -809,7 +792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/connections', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertConnectionSchema.parse({
         ...req.body,
         requesterId: userId,
@@ -837,7 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Message routes
   app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const conversations = await storage.getConversations(userId);
       res.json(conversations);
     } catch (error) {
@@ -848,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/messages/:userId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const otherUserId = req.params.userId;
       const messages = await storage.getUserMessages(userId, otherUserId);
       res.json(messages);
@@ -860,7 +843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/messages', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertMessageSchema.parse({
         ...req.body,
         senderId: userId,
@@ -898,7 +881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/groups', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const groups = await storage.getUserGroups(userId);
       res.json(groups);
     } catch (error) {
@@ -909,7 +892,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/groups', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = insertGroupSchema.parse({
         ...req.body,
         createdBy: userId,
@@ -924,7 +907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/groups/:id/join', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const groupId = parseInt(req.params.id);
       await storage.joinGroup(groupId, userId);
       res.json({ message: "Successfully joined group" });
@@ -951,7 +934,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertVendorSchema.parse(req.body);
       const vendor = await storage.addVendor({
         ...validatedData,
-        addedBy: req.user.claims.sub,
+        addedBy: req.user.id,
       });
       res.status(201).json(vendor);
     } catch (error) {
@@ -978,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const vendorId = parseInt(req.params.id);
       const { status } = req.body;
-      const vendor = await storage.updateVendorStatus(vendorId, status, req.user.claims.sub);
+      const vendor = await storage.updateVendorStatus(vendorId, status, req.user.id);
       res.json(vendor);
     } catch (error) {
       console.error("Error updating vendor status:", error);
