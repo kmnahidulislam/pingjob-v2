@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeCleanDatabase } from "./clean-neon";
 
 // FORCE COMPLETE DATABASE RESET - NEON.TECH ONLY
 delete process.env.PGDATABASE;
@@ -28,6 +29,9 @@ delete process.env.REPL_IDENTITY_KEY;
 delete process.env.ISSUER_URL;
 
 console.log("FORCED REMOVAL OF ALL REPLIT AUTH AND DATABASE VARIABLES");
+
+// Initialize clean Neon.tech database before starting server
+await initializeCleanDatabase();
 
 const app = express();
 app.use(express.json());

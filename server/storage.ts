@@ -43,7 +43,7 @@ import {
   type State,
   type City,
 } from "@shared/schema";
-import { isolatedPool as pool, isolatedDb as db } from './neon-only-db';
+import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
