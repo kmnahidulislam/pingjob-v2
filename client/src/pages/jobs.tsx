@@ -504,9 +504,15 @@ export default function Jobs() {
                               </div>
                             </div>
                             
-                            <p className="text-gray-700 text-sm line-clamp-2 mb-3">
-                              {job.description}
-                            </p>
+                            <div className="text-gray-700 text-sm mb-3">
+                              <p className="mb-2">{job.description}</p>
+                              {job.requirements && (
+                                <div>
+                                  <strong className="text-gray-900">Requirements:</strong>
+                                  <p className="mt-1">{job.requirements}</p>
+                                </div>
+                              )}
+                            </div>
                             
                             <div className="flex flex-wrap gap-2">
                               <Badge variant="secondary" className="text-xs">

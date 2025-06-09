@@ -566,13 +566,22 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select({
         id: jobApplications.id,
+        jobId: jobApplications.jobId,
+        applicantId: jobApplications.applicantId,
         status: jobApplications.status,
         appliedAt: jobApplications.appliedAt,
+        coverLetter: jobApplications.coverLetter,
+        resumeUrl: jobApplications.resumeUrl,
         job: {
           id: jobs.id,
           title: jobs.title,
-          company: companies.name,
           location: jobs.location,
+          employmentType: jobs.employmentType,
+          salary: jobs.salary,
+          company: {
+            name: companies.name,
+            logoUrl: companies.logoUrl,
+          },
         },
       })
       .from(jobApplications)
