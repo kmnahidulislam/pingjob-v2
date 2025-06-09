@@ -26,27 +26,30 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+const sql = neon(NEON_DATABASE_URL);
+
 async function getUserByEmail(email: string) {
-  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-  return result.rows[0];
+  const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+  return result[0];
 }
 
 async function getUserById(id: string) {
-  const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-  return result.rows[0];
+  const result = await sql`SELECT * FROM users WHERE id = ${id}`;
+  return result[0];
 }
 
 async function createUser(userData: any) {
   const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   try {
-    const result = await pool.query(`
+    const result = await sql`
       INSERT INTO users (id, email, password, first_name, last_name, user_type, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      VALUES (${userId}, ${userData.email}, ${userData.password}, ${userData.firstName}, ${userData.lastName}, ${userData.userType || 'job_seeker'}, NOW(), NOW())
       RETURNING *
-    `, [userId, userData.email, userData.password, userData.firstName, userData.lastName, userData.userType || 'job_seeker']);
+    `;
     
-    return result.rows[0];
+    return result[0];
   } catch (error) {
     console.error('Database error creating user:', error);
     throw error;
