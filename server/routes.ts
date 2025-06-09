@@ -85,14 +85,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Setup working authentication that bypasses connection issues
+  // Setup working authentication as the ONLY authentication system
   setupWorkingAuth(app);
-  
-  // Remove any conflicting authentication systems
-  app.use((req, res, next) => {
-    // Ensure no other auth systems interfere
-    next();
-  });
 
   // Authentication middleware for session-based auth
   const isAuthenticated = (req: any, res: any, next: any) => {

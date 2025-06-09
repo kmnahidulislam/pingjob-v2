@@ -48,13 +48,19 @@ export function setupWorkingAuth(app: Express) {
     try {
       const { email, password } = req.body;
       
+      console.log("Login attempt for email:", email);
       const user = await storage.getUserByEmail(email);
+      console.log("User found:", user ? "Yes" : "No");
       
       if (!user || !user.password) {
+        console.log("User not found or no password");
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
+      console.log("Comparing passwords...");
       const isValidPassword = await comparePasswords(password, user.password);
+      console.log("Password valid:", isValidPassword);
+      
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
