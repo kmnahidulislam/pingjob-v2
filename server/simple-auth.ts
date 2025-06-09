@@ -26,8 +26,14 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-const pool = new Pool({ connectionString: NEON_DATABASE_URL });
+// Force direct connection to bypass Neon serverless caching
+const DIRECT_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa.us-east-2.aws.neon.tech/neondb?sslmode=require";
+const pool = new Pool({ 
+  connectionString: DIRECT_DATABASE_URL,
+  max: 1,
+  idleTimeoutMillis: 0,
+  connectionTimeoutMillis: 0
+});
 
 async function getUserByEmail(email: string) {
   const client = await pool.connect();
