@@ -161,10 +161,10 @@ export class DatabaseStorage implements IStorage {
     
     // Use raw SQL to bypass schema caching issues
     const result = await pool.query(`
-      INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at, password)
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6)
+      INSERT INTO users (id, email, password, first_name, last_name, user_type, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
-    `, [userId, userData.email, userData.firstName, userData.lastName, userData.userType || 'job_seeker', userData.password]);
+    `, [userId, userData.email, userData.password, userData.firstName, userData.lastName, userData.userType || 'job_seeker']);
     
     return result.rows[0] as User;
   }

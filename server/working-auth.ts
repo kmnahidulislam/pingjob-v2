@@ -2,6 +2,8 @@ import { Express } from "express";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
 
 const scryptAsync = promisify(scrypt);
 
@@ -18,24 +20,23 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-// In-memory user storage for demonstration
-const authUsers = new Map();
-
 export function setupWorkingAuth(app: Express) {
-  // Create demo user for testing
-  (async () => {
-    const hashedPassword = await hashPassword("password123");
-    authUsers.set("demo@example.com", {
-      id: "demo_user_123",
-      email: "demo@example.com",
-      password: hashedPassword,
-      firstName: "Demo",
-      lastName: "User",
-      userType: "job_seeker",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-  })();
+  // Session configuration
+  const MemoryStore = createMemoryStore(session);
+
+  app.use(session({
+    secret: 'working-auth-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: new MemoryStore({
+      checkPeriod: 86400000,
+    }),
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    }
+  }));
 
   app.get('/api/user', (req: any, res) => {
     if (req.session?.user) {
