@@ -94,40 +94,42 @@ export function setupAuth(app: Express) {
     try {
       const { email, password, firstName, lastName, userType } = req.body;
       
-      // Check if user exists in database
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
+      // Check if user exists
+      const checkResult = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+      
+      if (checkResult.rows.length > 0) {
         return res.status(400).json({ message: "Email already exists" });
       }
       
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Create user in database
-      const user = await storage.createUser({
-        id: userId,
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        userType: userType || 'job_seeker'
-      });
+      // Insert new user
+      const insertResult = await pool.query(`
+        INSERT INTO users (id, email, password, first_name, last_name, user_type)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, email, first_name, last_name, user_type
+      `, [userId, email, hashedPassword, firstName, lastName, userType || 'job_seeker']);
       
-      // Set session
+      const user = insertResult.rows[0];
+      
       req.session.user = {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userType: user.userType
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
       };
       
       return res.status(201).json({
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userType: user.userType
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
       });
     } catch (error) {
       console.error("Registration error:", error);
