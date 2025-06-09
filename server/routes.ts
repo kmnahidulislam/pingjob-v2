@@ -3,6 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupSimpleAuth, isAuthenticated } from "./simple-auth";
+import { overrideAuthentication } from "./override-auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,

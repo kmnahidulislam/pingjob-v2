@@ -10,7 +10,16 @@ delete process.env.PGUSER;
 delete process.env.PGPASSWORD;
 delete process.env.PGPORT;
 
-console.log("FORCED REMOVAL OF LOCAL DATABASE VARIABLES");
+// FORCE REMOVE ALL REPLIT AUTHENTICATION ENVIRONMENT VARIABLES
+delete process.env.REPL_ID;
+delete process.env.REPLIT_DOMAINS;
+delete process.env.REPL_OWNER_ID;
+delete process.env.REPLIT_USER;
+delete process.env.REPL_IDENTITY;
+delete process.env.REPL_IDENTITY_KEY;
+delete process.env.ISSUER_URL;
+
+console.log("FORCED REMOVAL OF ALL REPLIT AUTH AND DATABASE VARIABLES");
 
 const app = express();
 app.use(express.json());
