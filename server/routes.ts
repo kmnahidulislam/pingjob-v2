@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupWorkingAuth } from "./working-auth";
+import { setupAuth } from "./auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -85,8 +85,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Setup working authentication as the ONLY authentication system
-  setupWorkingAuth(app);
+  // Setup clean authentication system
+  setupAuth(app);
 
   // Authentication middleware for session-based auth
   const isAuthenticated = (req: any, res: any, next: any) => {
