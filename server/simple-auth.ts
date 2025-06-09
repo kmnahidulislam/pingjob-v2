@@ -2,7 +2,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { neon } from "@neondatabase/serverless";
+import { Pool } from 'pg';
 import connectPg from "connect-pg-simple";
 
 declare module "express-session" {
@@ -27,32 +27,45 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-const sql = neon(NEON_DATABASE_URL);
+const pool = new Pool({ connectionString: NEON_DATABASE_URL });
 
 async function getUserByEmail(email: string) {
-  const result = await sql`SELECT * FROM users WHERE email = ${email}`;
-  return result[0];
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
 }
 
 async function getUserById(id: string) {
-  const result = await sql`SELECT * FROM users WHERE id = ${id}`;
-  return result[0];
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM users WHERE id = $1', [id]);
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
 }
 
 async function createUser(userData: any) {
   const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
+  const client = await pool.connect();
   try {
-    const result = await sql`
+    const result = await client.query(`
       INSERT INTO users (id, email, password, first_name, last_name, user_type, created_at, updated_at)
-      VALUES (${userId}, ${userData.email}, ${userData.password}, ${userData.firstName}, ${userData.lastName}, ${userData.userType || 'job_seeker'}, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
       RETURNING *
-    `;
+    `, [userId, userData.email, userData.password, userData.firstName, userData.lastName, userData.userType || 'job_seeker']);
     
-    return result[0];
+    return result.rows[0];
   } catch (error) {
     console.error('Database error creating user:', error);
     throw error;
+  } finally {
+    client.release();
   }
 }
 
