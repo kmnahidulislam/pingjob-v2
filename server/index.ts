@@ -25,6 +25,26 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add session management for override authentication
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
+
+const MemoryStore = createMemoryStore(session);
+
+app.use(session({
+  secret: 'override-auth-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  store: new MemoryStore({
+    checkPeriod: 86400000,
+  }),
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+  }
+}));
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
