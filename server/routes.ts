@@ -2,7 +2,6 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupSimpleAuth, isAuthenticated } from "./simple-auth";
 import { setupWorkingAuth } from "./working-auth";
 import { z } from "zod";
 import { 
@@ -95,7 +94,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
-  // Use simple authentication middleware
+  // Authentication middleware for session-based auth
+  const isAuthenticated = (req: any, res: any, next: any) => {
+    if (req.session?.user) {
+      req.user = req.session.user; // Set user on request object
+      return next();
+    }
+    res.status(401).json({ message: "Authentication required" });
+  };
+
   const customAuth = isAuthenticated;
 
 
