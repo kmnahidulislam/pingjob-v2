@@ -50,8 +50,6 @@ async function createUser(userData: any) {
 export function setupSimpleAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   
-  const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-  
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
     resave: false,
