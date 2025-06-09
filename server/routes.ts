@@ -661,7 +661,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Use admin user for testing when not authenticated
       const userId = "admin-krupa";
+      console.log("Fetching applications for user:", userId);
       const applications = await storage.getUserJobApplications(userId);
+      console.log("Applications found:", applications.length);
       res.json(applications);
     } catch (error) {
       console.error("Error fetching applications:", error);

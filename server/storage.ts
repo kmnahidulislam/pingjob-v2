@@ -563,32 +563,56 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserJobApplications(userId: string): Promise<any[]> {
-    return await db
-      .select({
-        id: jobApplications.id,
-        jobId: jobApplications.jobId,
-        applicantId: jobApplications.applicantId,
-        status: jobApplications.status,
-        appliedAt: jobApplications.appliedAt,
-        coverLetter: jobApplications.coverLetter,
-        resumeUrl: jobApplications.resumeUrl,
-        job: {
-          id: jobs.id,
-          title: jobs.title,
-          location: jobs.location,
-          employmentType: jobs.employmentType,
-          salary: jobs.salary,
-          company: {
-            name: companies.name,
-            logoUrl: companies.logoUrl,
-          },
+    console.log("getUserJobApplications called with userId:", userId);
+    
+    const result = await pool.query(`
+      SELECT 
+        ja.id,
+        ja.job_id as "jobId",
+        ja.applicant_id as "applicantId", 
+        ja.status,
+        ja.applied_at as "appliedAt",
+        ja.cover_letter as "coverLetter",
+        ja.resume_url as "resumeUrl",
+        j.id as "job_id_from_jobs",
+        j.title as "job_title", 
+        j.location as "job_location",
+        j.employment_type as "job_employmentType",
+        j.salary as "job_salary",
+        c.name as "company_name",
+        c.logo_url as "company_logoUrl"
+      FROM job_applications ja
+      LEFT JOIN jobs j ON ja.job_id = j.id
+      LEFT JOIN companies c ON j.company_id = c.id  
+      WHERE ja.applicant_id = $1
+      ORDER BY ja.applied_at DESC
+    `, [userId]);
+
+    console.log("Query returned rows:", result.rows.length);
+    if (result.rows.length > 0) {
+      console.log("First row:", result.rows[0]);
+    }
+
+    return result.rows.map(row => ({
+      id: row.id,
+      jobId: row.jobId,
+      applicantId: row.applicantId,
+      status: row.status,
+      appliedAt: row.appliedAt,
+      coverLetter: row.coverLetter,
+      resumeUrl: row.resumeUrl,
+      job: {
+        id: row.job_id_from_jobs,
+        title: row.job_title,
+        location: row.job_location,
+        employmentType: row.job_employmentType,
+        salary: row.job_salary,
+        company: {
+          name: row.company_name,
+          logoUrl: row.company_logoUrl,
         },
-      })
-      .from(jobApplications)
-      .leftJoin(jobs, eq(jobApplications.jobId, jobs.id))
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .where(eq(jobApplications.applicantId, userId))
-      .orderBy(desc(jobApplications.appliedAt));
+      },
+    }));
   }
 
   async getJobApplications(jobId: number): Promise<any[]> {
