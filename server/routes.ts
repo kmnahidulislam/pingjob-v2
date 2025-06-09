@@ -88,6 +88,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup clean authentication system
   setupAuth(app);
 
+  // Test database connection endpoint
+  app.get('/api/test-db-connection', async (req, res) => {
+    try {
+      const result = await storage.getUserByEmail('test@example.com');
+      res.json({ 
+        status: 'success', 
+        userFound: !!result,
+        userEmail: result?.email || 'not found'
+      });
+    } catch (error) {
+      res.status(500).json({ status: 'error', error: error.message });
+    }
+  });
+
   // Authentication middleware for session-based auth
   const isAuthenticated = (req: any, res: any, next: any) => {
     if (req.session?.user) {
