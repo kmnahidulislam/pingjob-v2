@@ -32,12 +32,15 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   
+  // Use the Neon database URL directly
+  const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+  
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
     resave: false,
     saveUninitialized: false,
     store: new PostgresSessionStore({
-      conString: process.env.DATABASE_URL,
+      conString: NEON_DATABASE_URL,
       createTableIfMissing: true,
     }),
     cookie: {
@@ -89,7 +92,10 @@ export function setupAuth(app: Express) {
       }
 
       const hashedPassword = await hashPassword(password);
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
       const user = await storage.createUser({
+        id: userId,
         email,
         password: hashedPassword,
         firstName,

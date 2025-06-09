@@ -3,9 +3,10 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
-import Landing from "@/pages/landing";
+import AuthPage from "@/pages/auth-page";
 import Home from "@/pages/home";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
@@ -19,40 +20,21 @@ import Dashboard from "@/pages/dashboard";
 import Navigation from "@/components/navigation";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-linkedin-blue mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-bg-light">
-      {isAuthenticated && <Navigation />}
       <Switch>
-        {!isAuthenticated ? (
-          <Route path="/" component={Landing} />
-        ) : (
-          <>
-            <Route path="/" component={Home} />
-            <Route path="/profile/:id?" component={Profile} />
-            <Route path="/jobs/:id" component={Jobs} />
-            <Route path="/jobs" component={Jobs} />
-            <Route path="/job-create" component={JobCreate} />
-            <Route path="/applications" component={Applications} />
-            <Route path="/network" component={Network} />
-            <Route path="/messaging" component={Messaging} />
-            <Route path="/companies" component={Companies} />
-            <Route path="/company/create" component={CompanyCreate} />
-            <Route path="/dashboard" component={Dashboard} />
-          </>
-        )}
+        <Route path="/auth" component={AuthPage} />
+        <ProtectedRoute path="/" component={Home} />
+        <ProtectedRoute path="/profile/:id?" component={Profile} />
+        <ProtectedRoute path="/jobs/:id" component={Jobs} />
+        <ProtectedRoute path="/jobs" component={Jobs} />
+        <ProtectedRoute path="/job-create" component={JobCreate} />
+        <ProtectedRoute path="/applications" component={Applications} />
+        <ProtectedRoute path="/network" component={Network} />
+        <ProtectedRoute path="/messaging" component={Messaging} />
+        <ProtectedRoute path="/companies" component={Companies} />
+        <ProtectedRoute path="/company/create" component={CompanyCreate} />
+        <ProtectedRoute path="/dashboard" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
     </div>
@@ -62,10 +44,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
