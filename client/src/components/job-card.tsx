@@ -17,7 +17,8 @@ import {
   Bookmark,
   Building,
   DollarSign,
-  Edit
+  Edit,
+  Trash2
 } from "lucide-react";
 import type { JobWithCompany } from "@/lib/types";
 
@@ -51,6 +52,24 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       toast({
         title: "Error",
         description: error.message || "Failed to bookmark job",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteJobMutation = useMutation({
+    mutationFn: () => apiRequest('DELETE', `/api/jobs/${job.id}`),
+    onSuccess: () => {
+      toast({
+        title: "Job deleted",
+        description: "Job posting has been removed successfully"
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete job",
         variant: "destructive"
       });
     }
@@ -248,17 +267,33 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 View Details
               </Button>
               
-              {/* Admin Edit Button */}
-              {user?.email === 'krupas@vedsoft.com' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
+              {/* Admin Actions */}
+              {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
+                <div className="flex space-x-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this job posting?')) {
+                        deleteJobMutation.mutate();
+                      }
+                    }}
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                    disabled={deleteJobMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
               )}
               
               <Button
