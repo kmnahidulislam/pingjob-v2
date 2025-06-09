@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupSimpleAuth, isAuthenticated } from "./simple-auth";
-import { overrideAuthentication } from "./override-auth";
+import { setupDirectAuth } from "./direct-auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -86,8 +86,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Override authentication to force email/password system
-  overrideAuthentication(app);
+  // Setup direct authentication that bypasses connection issues
+  setupDirectAuth(app);
 
   // Use simple authentication middleware
   const customAuth = isAuthenticated;
