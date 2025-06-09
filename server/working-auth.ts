@@ -1,6 +1,7 @@
 import { Express } from "express";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import { storage } from "./storage";
 
 const scryptAsync = promisify(scrypt);
 
@@ -47,7 +48,7 @@ export function setupWorkingAuth(app: Express) {
     try {
       const { email, password } = req.body;
       
-      const user = authUsers.get(email);
+      const user = await storage.getUserByEmail(email);
       
       if (!user || !(await comparePasswords(password, user.password))) {
         return res.status(401).json({ message: "Invalid email or password" });
@@ -79,26 +80,24 @@ export function setupWorkingAuth(app: Express) {
     try {
       const { email, password, firstName, lastName, userType } = req.body;
       
-      // Check if user exists
-      if (authUsers.has(email)) {
+      // Check if user exists in database
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
         return res.status(400).json({ message: "Email already exists" });
       }
       
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      const user = {
+      // Create user in database
+      const user = await storage.createUser({
         id: userId,
         email,
         password: hashedPassword,
         firstName,
         lastName,
-        userType: userType || 'job_seeker',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      authUsers.set(email, user);
+        userType: userType || 'job_seeker'
+      });
       
       // Set session
       req.session.user = {
