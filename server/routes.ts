@@ -85,31 +85,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Direct login route for specific email
+  // Auth middleware
+  await setupAuth(app);
+
+  // Direct login route for specific email (after session setup)
   app.post('/api/direct-login', async (req: any, res) => {
     try {
       const { email } = req.body;
       
       if (email === 'krupas@vedsoft.com') {
-        // Find existing user by email first
-        const existingUsers = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        
-        let user;
-        if (existingUsers.length > 0) {
-          user = existingUsers[0];
-        } else {
-          // Create new user if none exists
-          const userData = {
-            id: 'admin-krupa',
-            email: 'krupas@vedsoft.com',
-            firstName: 'Krupa',
-            lastName: 'S',
-            profileImageUrl: null,
-            userType: 'admin' as const
-          };
-          
-          user = await storage.upsertUser(userData);
-        }
+        // Use the existing user ID from the database
+        const user = {
+          id: '43231828',
+          email: 'krupas@vedsoft.com',
+          firstName: 'Krupa',
+          lastName: 'Shankar',
+          profileImageUrl: null,
+          userType: 'admin'
+        };
         
         // Set session data to mimic authenticated user
         req.session.user = {
@@ -131,9 +124,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Login failed" });
     }
   });
-
-  // Auth middleware
-  await setupAuth(app);
 
   // Modified auth middleware for direct login
   const customAuth = async (req: any, res: any, next: any) => {
