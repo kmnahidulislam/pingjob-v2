@@ -88,42 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupSimpleAuth(app);
 
-  // Direct login route for specific email (after session setup)
-  app.post('/api/direct-login', async (req: any, res) => {
-    try {
-      const { email } = req.body;
-      
-      if (email === 'krupas@vedsoft.com') {
-        // Use the existing user ID from the database
-        const user = {
-          id: '43231828',
-          email: 'krupas@vedsoft.com',
-          firstName: 'Krupa',
-          lastName: 'Shankar',
-          profileImageUrl: null,
-          userType: 'admin'
-        };
-        
-        // Set session data to mimic authenticated user
-        req.session.user = {
-          claims: {
-            sub: user.id,
-            email: user.email,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
-          }
-        };
-        
-        res.json({ success: true, user });
-      } else {
-        res.status(401).json({ message: "Unauthorized email address" });
-      }
-    } catch (error) {
-      console.error("Direct login error:", error);
-      res.status(500).json({ message: "Login failed" });
-    }
-  });
+
 
   // Use simple authentication middleware
   const customAuth = isAuthenticated;
