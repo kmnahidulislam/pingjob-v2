@@ -55,6 +55,9 @@ const imageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication FIRST before any other routes
+  setupAuth(app);
+  
   // Serve static files from uploads directory
   app.use('/uploads', express.static('uploads'));
   
@@ -84,9 +87,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch company details" });
     }
   });
-
-  // Setup clean authentication system
-  setupAuth(app);
 
   // Test database connection endpoint
   app.get('/api/test-db-connection', async (req, res) => {
