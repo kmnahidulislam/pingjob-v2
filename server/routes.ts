@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
+import { setupSimpleAuth, isAuthenticated } from "./simple-auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth middleware
-  await setupAuth(app);
+  setupSimpleAuth(app);
 
   // Direct login route for specific email (after session setup)
   app.post('/api/direct-login', async (req: any, res) => {
