@@ -41,7 +41,8 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: new PostgresSessionStore({
       conString: NEON_DATABASE_URL,
-      createTableIfMissing: true,
+      createTableIfMissing: false, // Table already exists
+      tableName: "sessions",
     }),
     cookie: {
       httpOnly: true,
