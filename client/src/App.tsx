@@ -19,22 +19,55 @@ import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import Navigation from "@/components/navigation";
 
+function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <main className="pt-16">
+        {children}
+      </main>
+    </div>
+  );
+}
+
 function Router() {
   return (
-    <div className="min-h-screen bg-bg-light">
+    <div className="min-h-screen bg-gray-50">
       <Switch>
         <Route path="/auth" component={AuthPage} />
-        <ProtectedRoute path="/" component={Home} />
-        <ProtectedRoute path="/profile/:id?" component={Profile} />
-        <ProtectedRoute path="/jobs/:id" component={Jobs} />
-        <ProtectedRoute path="/jobs" component={Jobs} />
-        <ProtectedRoute path="/job-create" component={JobCreate} />
-        <ProtectedRoute path="/applications" component={Applications} />
-        <ProtectedRoute path="/network" component={Network} />
-        <ProtectedRoute path="/messaging" component={Messaging} />
-        <ProtectedRoute path="/companies" component={Companies} />
-        <ProtectedRoute path="/company/create" component={CompanyCreate} />
-        <ProtectedRoute path="/dashboard" component={Dashboard} />
+        <ProtectedRoute path="/" component={() => (
+          <ProtectedLayout><Home /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/profile/:id?" component={() => (
+          <ProtectedLayout><Profile /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/jobs/:id" component={() => (
+          <ProtectedLayout><Jobs /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/jobs" component={() => (
+          <ProtectedLayout><Jobs /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/job-create" component={() => (
+          <ProtectedLayout><JobCreate /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/applications" component={() => (
+          <ProtectedLayout><Applications /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/network" component={() => (
+          <ProtectedLayout><Network /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/messaging" component={() => (
+          <ProtectedLayout><Messaging /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/companies" component={() => (
+          <ProtectedLayout><Companies /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/company/create" component={() => (
+          <ProtectedLayout><CompanyCreate /></ProtectedLayout>
+        )} />
+        <ProtectedRoute path="/dashboard" component={() => (
+          <ProtectedLayout><Dashboard /></ProtectedLayout>
+        )} />
         <Route component={NotFound} />
       </Switch>
     </div>
