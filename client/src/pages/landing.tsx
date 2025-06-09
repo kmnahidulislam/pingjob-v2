@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { directLogin } from "@/hooks/useAuth";
+import { directLogin } from "@/hooks/use-auth";
 import { queryClient } from "@/lib/queryClient";
 import { 
   Home, 
