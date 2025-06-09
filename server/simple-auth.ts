@@ -2,7 +2,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { pool } from "./db";
+import { neon } from "@neondatabase/serverless";
 import connectPg from "connect-pg-simple";
 
 declare module "express-session" {
@@ -38,13 +38,19 @@ async function getUserById(id: string) {
 
 async function createUser(userData: any) {
   const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  const result = await pool.query(`
-    INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at, password)
-    VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), $6)
-    RETURNING *
-  `, [userId, userData.email, userData.firstName, userData.lastName, userData.userType || 'job_seeker', userData.password]);
   
-  return result.rows[0];
+  try {
+    const result = await pool.query(`
+      INSERT INTO users (id, email, password, first_name, last_name, user_type, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING *
+    `, [userId, userData.email, userData.password, userData.firstName, userData.lastName, userData.userType || 'job_seeker']);
+    
+    return result.rows[0];
+  } catch (error) {
+    console.error('Database error creating user:', error);
+    throw error;
+  }
 }
 
 export function setupSimpleAuth(app: Express) {
