@@ -159,20 +159,14 @@ export class DatabaseStorage implements IStorage {
     // Generate a unique ID for new users
     const userId = userData.id || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Use Drizzle ORM to ensure correct schema mapping
-    const [user] = await db
-      .insert(users)
-      .values({
-        id: userId,
-        email: userData.email,
-        password: userData.password,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        userType: userData.userType || 'job_seeker',
-      })
-      .returning();
+    // Use raw SQL to bypass schema issues
+    const result = await pool.query(`
+      INSERT INTO users (id, email, password, first_name, last_name, user_type)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, email, password, first_name, last_name, user_type, profile_image_url, category_id, headline, summary, location, industry, created_at, updated_at
+    `, [userId, userData.email, userData.password, userData.firstName, userData.lastName, userData.userType || 'job_seeker']);
     
-    return user as User;
+    return result.rows[0] as User;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {

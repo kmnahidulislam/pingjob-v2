@@ -1,10 +1,9 @@
 import { Express } from "express";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { pool } from "./db";
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
-import { User } from "../shared/schema";
 
 const scryptAsync = promisify(scrypt);
 
@@ -50,9 +49,18 @@ export function setupAuth(app: Express) {
     try {
       const { email, password } = req.body;
       
-      const user = await storage.getUserByEmail(email);
+      const result = await pool.query(
+        'SELECT id, email, password, first_name, last_name, user_type FROM users WHERE email = $1',
+        [email]
+      );
       
-      if (!user || !user.password) {
+      if (result.rows.length === 0) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
+      const user = result.rows[0];
+      
+      if (!user.password) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
@@ -61,21 +69,20 @@ export function setupAuth(app: Express) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      // Successful login
       req.session.user = {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userType: user.userType
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
       };
       
       return res.status(200).json({
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userType: user.userType
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
       });
     } catch (error) {
       console.error("Login error:", error);
