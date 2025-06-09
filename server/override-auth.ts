@@ -31,6 +31,9 @@ export function overrideAuthentication(app: Express) {
   // Force override /api/user endpoint
   app.use('/api/user', (req: any, res, next) => {
     if (req.method === 'GET') {
+      if (req.session?.user) {
+        return res.status(200).json(req.session.user);
+      }
       return res.status(401).json({ message: "Please use email/password authentication" });
     }
     next();

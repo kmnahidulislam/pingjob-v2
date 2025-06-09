@@ -86,10 +86,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware
-  setupSimpleAuth(app);
-
-
+  // Override authentication to force email/password system
+  overrideAuthentication(app);
 
   // Use simple authentication middleware
   const customAuth = isAuthenticated;
