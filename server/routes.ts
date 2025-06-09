@@ -93,16 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Use simple authentication middleware
   const customAuth = isAuthenticated;
 
-  // Auth routes
-  app.get('/api/auth/user', customAuth, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.id);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+
 
   // Global search endpoint
   app.get('/api/search', async (req, res) => {
