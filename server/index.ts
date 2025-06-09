@@ -2,8 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-// FORCE REMOVE ALL LOCAL DATABASE ENVIRONMENT VARIABLES
-delete process.env.DATABASE_URL;
+// FORCE REMOVE REPLIT DATABASE VARIABLES BUT KEEP NEON DATABASE_URL
 delete process.env.PGDATABASE;
 delete process.env.PGHOST;
 delete process.env.PGUSER;
