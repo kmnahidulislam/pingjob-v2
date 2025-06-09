@@ -2,12 +2,21 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-// FORCE REMOVE REPLIT DATABASE VARIABLES BUT KEEP NEON DATABASE_URL
+// FORCE COMPLETE DATABASE RESET - NEON.TECH ONLY
 delete process.env.PGDATABASE;
 delete process.env.PGHOST;
 delete process.env.PGUSER;
 delete process.env.PGPASSWORD;
 delete process.env.PGPORT;
+delete process.env.PGSSLMODE;
+delete process.env.PGURL;
+delete process.env.REPLIT_DB_URL;
+delete process.env.DB_URL;
+
+// FORCE SET ONLY NEON.TECH CONNECTION
+process.env.DATABASE_URL = "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
+
+console.log("FORCED NEON.TECH DATABASE CONNECTION:", process.env.DATABASE_URL.substring(0, 50) + "...");
 
 // FORCE REMOVE ALL REPLIT AUTHENTICATION ENVIRONMENT VARIABLES
 delete process.env.REPL_ID;

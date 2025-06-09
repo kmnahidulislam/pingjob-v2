@@ -1,12 +1,55 @@
-# Database Schema Authentication Fix Plan
+# Neon.tech Database Connection Fix Plan
 
-## Root Cause Analysis - CRITICAL DISCOVERY
+## ROOT CAUSE ANALYSIS - MULTIPLE DATABASE CONNECTIONS
 
-**Database Connection Mismatch:**
-The application uses TWO different database URLs causing the schema mismatch:
+**Critical Issue: Multiple Database Pools Active**
+The application creates database connections in multiple files, some still connecting to Replit database:
 
-1. **Environment Variable**: `postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require`
-2. **Hardcoded in db.ts**: `postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require`
+1. **Main App Connection** (`server/db.ts`): ✅ Now uses Neon.tech 
+2. **Storage Layer** (`server/storage.ts`): ❌ Creates separate direct pool to different database
+3. **Import Scripts**: ❌ Multiple hardcoded connections to old databases
+4. **Auth System** (`server/auth.ts`): ✅ Uses main pool from db.ts
+5. **Legacy Files**: ❌ Various import files with hardcoded connections
+
+**Evidence of Mixed Database Usage:**
+- Logs show "admin-krupa" user from imported CSV data in existing database
+- PostgreSQL environment variables (PGHOST, PGUSER, PGPASSWORD) override DATABASE_URL
+- Application queries show existing job applications and company data
+- New user registration creates users but existing data suggests different database instance
+
+## IMMEDIATE FIX PLAN
+
+### Step 1: Force Complete Database Environment Reset
+**Issue**: PostgreSQL environment variables override Neon.tech connection
+**Solution**: Enhanced environment variable cleanup in server/index.ts
+
+```typescript
+// FORCE COMPLETE DATABASE RESET - NEON.TECH ONLY
+delete process.env.PGDATABASE;
+delete process.env.PGHOST; 
+delete process.env.PGUSER;
+delete process.env.PGPASSWORD;
+delete process.env.PGPORT;
+delete process.env.PGSSLMODE;
+delete process.env.PGURL;
+delete process.env.REPLIT_DB_URL;
+delete process.env.DB_URL;
+
+// Set ONLY Neon.tech connection
+process.env.DATABASE_URL = "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
+```
+
+### Step 2: Verify Clean Neon Database State
+**Problem**: Current database has imported data from CSV files (admin-krupa, companies, jobs)
+**Solution**: Check if Neon database should be clean or if data was imported there
+
+### Step 3: Consolidate All Database Connections  
+**Issue**: Multiple files create separate database pools
+**Solution**: Ensure all code uses central db.ts pool exclusively
+
+### Step 4: Remove Legacy Import Scripts
+**Issue**: Multiple import scripts with hardcoded old database connections
+**Files to clean**: server/complete-company-import.js, server/simple-auth.ts, etc.
 
 **Schema Verification Results:**
 - ✅ Actual database (via SQL tool) HAS password column and correct schema
