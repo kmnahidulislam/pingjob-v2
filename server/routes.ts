@@ -85,11 +85,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Direct login route for specific email
+  app.post('/api/direct-login', async (req: any, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (email === 'krupas@vedsoft.com') {
+        // Create or get the user
+        const userData = {
+          id: 'admin-krupa',
+          email: 'krupas@vedsoft.com',
+          firstName: 'Krupa',
+          lastName: 'S',
+          profileImageUrl: null,
+          userType: 'admin' as const
+        };
+        
+        const user = await storage.upsertUser(userData);
+        
+        // Set session data to mimic authenticated user
+        req.session.user = {
+          claims: {
+            sub: user.id,
+            email: user.email,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24 hours
+          }
+        };
+        
+        res.json({ success: true, user });
+      } else {
+        res.status(401).json({ message: "Unauthorized email address" });
+      }
+    } catch (error) {
+      console.error("Direct login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
 
+  // Modified auth middleware for direct login
+  const customAuth = async (req: any, res: any, next: any) => {
+    // Check for session-based auth first (direct login)
+    if (req.session.user && req.session.user.claims) {
+      req.user = req.session.user;
+      const now = Math.floor(Date.now() / 1000);
+      if (now <= req.user.claims.exp) {
+        return next();
+      }
+    }
+    
+    // Fall back to Replit auth
+    return isAuthenticated(req, res, next);
+  };
+
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', customAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -138,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/profile', customAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const updateData = req.body;

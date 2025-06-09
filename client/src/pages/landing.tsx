@@ -1,6 +1,12 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { directLogin } from "@/hooks/useAuth";
+import { queryClient } from "@/lib/queryClient";
 import { 
   Home, 
   Users, 
@@ -14,7 +20,8 @@ import {
   Heart,
   Share,
   Clock,
-  PlusCircle
+  PlusCircle,
+  LogIn
 } from "lucide-react";
 
 export default function Landing() {

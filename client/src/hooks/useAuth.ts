@@ -1,19 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export function useAuth() {
-  // Temporarily bypass authentication for testing
-  const mockUser = {
-    id: "admin-krupa",
-    email: "krupashankar@gmail.com",
-    firstName: "Krupa",
-    lastName: "Shankar",
-    profileImageUrl: null,
-    userType: "admin"
-  };
+  const { data: user, isLoading, error } = useQuery({
+    queryKey: ['/api/auth/user'],
+    retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   return {
-    user: mockUser,
-    isLoading: false,
-    isAuthenticated: true,
+    user,
+    isLoading,
+    isAuthenticated: !!user && !error,
   };
+}
+
+export async function directLogin(email: string) {
+  const response = await apiRequest('POST', '/api/direct-login', { email });
+  return response.json();
 }
