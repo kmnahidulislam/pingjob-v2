@@ -2,14 +2,10 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-// Use environment DATABASE_URL for reliable connection
-const DATABASE_URL = process.env.DATABASE_URL;
+// Use your updated Neon.tech credentials
+const DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
 
-if (!DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
-}
-
-console.log("Using DATABASE_URL for connection:", DATABASE_URL.substring(0, 50) + "...");
+console.log("Using updated Neon credentials:", DATABASE_URL.substring(0, 50) + "...");
 
 const CLEAN_CONNECTION = {
   connectionString: DATABASE_URL,

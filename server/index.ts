@@ -14,10 +14,10 @@ delete process.env.PGURL;
 delete process.env.REPLIT_DB_URL;
 delete process.env.DB_URL;
 
-// Use the updated DATABASE_URL from environment
-console.log("Using environment DATABASE_URL for connection");
+// Force use of new DATABASE_URL credentials
+process.env.DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
 
-console.log("FORCED NEON.TECH DATABASE CONNECTION:", process.env.DATABASE_URL.substring(0, 50) + "...");
+console.log("UPDATED NEON.TECH DATABASE CONNECTION:", process.env.DATABASE_URL.substring(0, 50) + "...");
 
 // FORCE REMOVE ALL REPLIT AUTHENTICATION ENVIRONMENT VARIABLES
 delete process.env.REPL_ID;
