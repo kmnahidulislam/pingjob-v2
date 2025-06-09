@@ -50,7 +50,12 @@ export function setupWorkingAuth(app: Express) {
       
       const user = await storage.getUserByEmail(email);
       
-      if (!user || !(await comparePasswords(password, user.password))) {
+      if (!user || !user.password) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      const isValidPassword = await comparePasswords(password, user.password);
+      if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
