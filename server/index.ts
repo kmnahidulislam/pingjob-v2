@@ -14,8 +14,8 @@ delete process.env.PGURL;
 delete process.env.REPLIT_DB_URL;
 delete process.env.DB_URL;
 
-// FORCE SET ONLY NEON.TECH CONNECTION
-process.env.DATABASE_URL = "postgresql://neondb_owner:npg_Ipr7OmRBx3cb@ep-long-sun-a6hkn6ul.us-west-2.aws.neon.tech/neondb?sslmode=require";
+// Use the updated DATABASE_URL from environment
+console.log("Using environment DATABASE_URL for connection");
 
 console.log("FORCED NEON.TECH DATABASE CONNECTION:", process.env.DATABASE_URL.substring(0, 50) + "...");
 

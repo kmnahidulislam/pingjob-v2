@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { pool } from "./db";
+import { cleanPool as pool } from "./clean-neon";
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
 
