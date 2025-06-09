@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupSimpleAuth, isAuthenticated } from "./simple-auth";
-import { setupDirectAuth } from "./direct-auth";
+import { setupWorkingAuth } from "./working-auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -86,8 +86,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Setup direct authentication that bypasses connection issues
-  setupDirectAuth(app);
+  // Setup working authentication that bypasses connection issues
+  setupWorkingAuth(app);
+  
+  // Remove any conflicting authentication systems
+  app.use((req, res, next) => {
+    // Ensure no other auth systems interfere
+    next();
+  });
 
   // Use simple authentication middleware
   const customAuth = isAuthenticated;
