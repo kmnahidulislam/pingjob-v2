@@ -110,17 +110,17 @@ export function setupAuth(app: Express) {
       req.session.user = {
         id: user.id,
         email: user.email,
-        firstName: user.firstName || user.first_name,
-        lastName: user.lastName || user.last_name,
-        userType: user.userType || user.user_type
+        firstName: user.firstName,
+        lastName: user.lastName,
+        userType: user.userType
       };
       
       return res.status(201).json({
         id: user.id,
         email: user.email,
-        firstName: user.firstName || user.first_name,
-        lastName: user.lastName || user.last_name,
-        userType: user.userType || user.user_type
+        firstName: user.firstName,
+        lastName: user.lastName,
+        userType: user.userType
       });
     } catch (error) {
       console.error("Registration error:", error);
