@@ -146,7 +146,12 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     // Use raw SQL to bypass schema caching issues
+    console.log("Searching for user with email:", email);
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    console.log("Query result rows:", result.rows.length);
+    if (result.rows.length > 0) {
+      console.log("Found user:", { id: result.rows[0].id, email: result.rows[0].email });
+    }
     return result.rows[0] as User | undefined;
   }
 

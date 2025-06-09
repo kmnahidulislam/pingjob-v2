@@ -49,8 +49,17 @@ export function setupWorkingAuth(app: Express) {
       const { email, password } = req.body;
       
       console.log("Login attempt for email:", email);
-      const user = await storage.getUserByEmail(email);
-      console.log("User found:", user ? "Yes" : "No");
+      let user;
+      try {
+        user = await storage.getUserByEmail(email);
+        console.log("User found:", user ? "Yes" : "No");
+        if (user) {
+          console.log("User details:", { id: user.id, email: user.email, hasPassword: !!user.password });
+        }
+      } catch (error) {
+        console.error("Database error during user lookup:", error);
+        return res.status(500).json({ message: "Database connection failed" });
+      }
       
       if (!user || !user.password) {
         console.log("User not found or no password");
