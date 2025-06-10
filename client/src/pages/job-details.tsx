@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import JobApplicationModal from "@/components/modals/job-application-modal";
+import JobEditModal from "@/components/modals/job-edit-modal";
 import {
   Building,
   MapPin,
@@ -19,7 +20,8 @@ import {
   CheckCircle,
   ArrowLeft,
   Bookmark,
-  Share2
+  Share2,
+  Edit
 } from "lucide-react";
 import { Link } from "wouter";
 import type { JobWithCompany } from "@/lib/types";
@@ -29,6 +31,7 @@ export default function JobDetails() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { data: job, isLoading, error } = useQuery<JobWithCompany>({
@@ -146,7 +149,7 @@ export default function JobDetails() {
   }
 
   const skillsArray = Array.isArray(job.skills) ? job.skills : 
-    (job.skills ? job.skills.split(',').map((s: string) => s.trim()) : []);
+    (job.skills && typeof job.skills === 'string' ? job.skills.split(',').map((s: string) => s.trim()) : []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -193,6 +196,19 @@ export default function JobDetails() {
               </div>
               
               <div className="flex space-x-2">
+                {/* Admin Edit Button */}
+                {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit Job
+                  </Button>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
@@ -328,6 +344,15 @@ export default function JobDetails() {
           job={job}
           isOpen={isApplicationModalOpen}
           onClose={() => setIsApplicationModalOpen(false)}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {job && (
+        <JobEditModal
+          job={job}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
         />
       )}
     </div>
