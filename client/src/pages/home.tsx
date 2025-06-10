@@ -194,7 +194,7 @@ export default function Home() {
                     <span className="text-sm">Your profile was viewed 12 times this week</span>
                   </div>
                   
-                  {jobApplications && jobApplications.length > 0 && (
+                  {Array.isArray(jobApplications) && jobApplications.length > 0 && (
                     <div className="flex items-center space-x-3">
                       <Briefcase className="h-5 w-5 text-linkedin-blue" />
                       <span className="text-sm">
