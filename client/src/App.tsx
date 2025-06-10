@@ -46,7 +46,7 @@ function Router() {
   }
 
   if (!user) {
-    console.log('No user, showing auth routes');
+    console.log('No user, showing auth page');
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
@@ -58,6 +58,7 @@ function Router() {
   }
 
   console.log('User authenticated, showing protected routes');
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <ProtectedLayout>
