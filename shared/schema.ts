@@ -145,7 +145,7 @@ export const jobApplications = pgTable("job_applications", {
 // Connections
 export const connections = pgTable("connections", {
   id: serial("id").primaryKey(),
-  requesterId: varchar("requester_id").references(() => users.id).notNull(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
   receiverId: varchar("receiver_id").references(() => users.id).notNull(),
   status: varchar("status", { enum: ["pending", "accepted", "declined"] }).default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -241,7 +241,7 @@ export const userRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [companies.userId],
   }),
-  sentConnections: many(connections, { relationName: "requester" }),
+  sentConnections: many(connections, { relationName: "sender" }),
   receivedConnections: many(connections, { relationName: "receiver" }),
   sentMessages: many(messages, { relationName: "sender" }),
   receivedMessages: many(messages, { relationName: "receiver" }),
@@ -308,10 +308,10 @@ export const jobApplicationRelations = relations(jobApplications, ({ one }) => (
 }));
 
 export const connectionRelations = relations(connections, ({ one }) => ({
-  requester: one(users, {
-    fields: [connections.requesterId],
+  sender: one(users, {
+    fields: [connections.senderId],
     references: [users.id],
-    relationName: "requester",
+    relationName: "sender",
   }),
   receiver: one(users, {
     fields: [connections.receiverId],

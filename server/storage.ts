@@ -751,13 +751,13 @@ export class DatabaseStorage implements IStorage {
       })
       .from(connections)
       .leftJoin(users, or(
-        eq(connections.requesterId, users.id),
+        eq(connections.senderId, users.id),
         eq(connections.receiverId, users.id)
       ))
       .where(
         and(
           or(
-            eq(connections.requesterId, userId),
+            eq(connections.senderId, userId),
             eq(connections.receiverId, userId)
           ),
           eq(connections.status, "accepted")
@@ -781,7 +781,7 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .from(connections)
-      .leftJoin(users, eq(connections.requesterId, users.id))
+      .leftJoin(users, eq(connections.senderId, users.id))
       .where(
         and(
           eq(connections.receiverId, userId),
