@@ -571,13 +571,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
-
+      console.log('Jobs API called with filters:', filters, 'limit:', limit);
       
       if (req.query.search) {
+        console.log('Searching jobs with query:', req.query.search);
         const jobs = await storage.searchJobs(req.query.search as string, filters);
+        console.log('Search returned', jobs.length, 'jobs');
         res.json(jobs);
       } else {
+        console.log('Getting all jobs with filters');
         const jobs = await storage.getJobs(filters, limit);
+        console.log('getJobs returned', jobs.length, 'jobs');
         res.json(jobs);
       }
     } catch (error) {
