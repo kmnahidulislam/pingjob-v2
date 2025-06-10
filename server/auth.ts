@@ -142,39 +142,45 @@ export function setupAuth(app: Express) {
   });
 
   app.post('/api/logout', (req: any, res) => {
-    console.log('Logout attempt - session before destroy:', !!req.session?.user);
-    console.log('Logout attempt - session ID:', req.sessionID);
+    console.log('=== LOGOUT ATTEMPT START ===');
+    console.log('Session before destroy:', !!req.session?.user);
+    console.log('Session ID:', req.sessionID);
+    console.log('Session user details:', req.session?.user?.email);
     
-    // Clear session user data immediately
-    if (req.session) {
+    // Immediately clear user from session
+    if (req.session && req.session.user) {
+      console.log('Clearing session user data...');
       req.session.user = null;
       delete req.session.user;
+      console.log('Session user cleared, destroying session...');
       
       req.session.destroy((err: any) => {
         if (err) {
-          console.error("Logout error:", err);
+          console.error("Session destroy error:", err);
           return res.status(500).json({ message: "Logout failed" });
         }
+        
         console.log('Session destroyed successfully');
         
-        // Clear all possible session cookies
+        // Clear session cookie with exact same options as creation
         res.clearCookie('connect.sid', { 
-          path: '/', 
+          path: '/',
           httpOnly: true,
           secure: false
         });
-        res.clearCookie('sessionId', { path: '/' });
         
+        console.log('=== LOGOUT COMPLETED ===');
         res.json({ message: "Logged out successfully" });
       });
     } else {
-      console.log('No session found during logout');
+      console.log('No session or user found, clearing cookies anyway');
       res.clearCookie('connect.sid', { 
-        path: '/', 
+        path: '/',
         httpOnly: true,
         secure: false
       });
-      res.clearCookie('sessionId', { path: '/' });
+      
+      console.log('=== LOGOUT COMPLETED (NO SESSION) ===');
       res.json({ message: "Already logged out" });
     }
   });
