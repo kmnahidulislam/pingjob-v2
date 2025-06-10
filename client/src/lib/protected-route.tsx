@@ -3,6 +3,17 @@ import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
 import Navigation from "@/components/navigation";
 
+function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      <main className="pt-16">
+        {children}
+      </main>
+    </div>
+  );
+}
+
 export function ProtectedRoute({
   path,
   component: Component,
@@ -32,8 +43,9 @@ export function ProtectedRoute({
 
   return (
     <Route path={path}>
-      <Navigation />
-      <Component />
+      <ProtectedLayout>
+        <Component />
+      </ProtectedLayout>
     </Route>
   );
 }
