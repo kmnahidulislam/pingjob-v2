@@ -51,16 +51,31 @@ export default function Home() {
     enabled: !!user && user.userType === 'job_seeker'
   });
 
+  const { data: experiences } = useQuery({
+    queryKey: [`/api/experience/${user?.id}`],
+    enabled: !!user?.id
+  });
+
+  const { data: education } = useQuery({
+    queryKey: [`/api/education/${user?.id}`],
+    enabled: !!user?.id
+  });
+
+  const { data: skills } = useQuery({
+    queryKey: [`/api/skills/${user?.id}`],
+    enabled: !!user?.id
+  });
+
   const calculateProfileCompletion = () => {
     if (!profile) return 0;
     let completion = 20; // Base score for having a profile
     
-    if (profile.headline) completion += 15;
-    if (profile.summary) completion += 15;
-    if (profile.location) completion += 10;
-    if (profile.experiences?.length > 0) completion += 20;
-    if (profile.education?.length > 0) completion += 10;
-    if (profile.skills?.length > 0) completion += 10;
+    if ((profile as any).headline) completion += 15;
+    if ((profile as any).summary) completion += 15;
+    if ((profile as any).location) completion += 10;
+    if (experiences && Array.isArray(experiences) && experiences.length > 0) completion += 20;
+    if (education && Array.isArray(education) && education.length > 0) completion += 10;
+    if (skills && Array.isArray(skills) && skills.length > 0) completion += 10;
     
     return Math.min(completion, 100);
   };
@@ -87,7 +102,7 @@ export default function Home() {
                   <h3 className="font-semibold text-lg">
                     {user.firstName} {user.lastName}
                   </h3>
-                  <p className="text-gray-600 text-sm">{profile?.headline || 'Add a headline'}</p>
+                  <p className="text-gray-600 text-sm">{(profile as any)?.headline || 'Add a headline'}</p>
                 </div>
               </div>
               
@@ -108,7 +123,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Users className="h-4 w-4 mr-2" />
-                  <span>{connections?.length || 0} connections</span>
+                  <span>{Array.isArray(connections) ? connections.length : 0} connections</span>
                 </div>
               </div>
               
@@ -160,7 +175,7 @@ export default function Home() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {connectionRequests && connectionRequests.length > 0 && (
+              {Array.isArray(connectionRequests) && connectionRequests.length > 0 && (
                 <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                   <Users className="h-5 w-5 text-linkedin-blue" />
                   <span className="text-sm">
