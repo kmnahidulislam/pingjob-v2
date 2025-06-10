@@ -412,8 +412,57 @@ export class DatabaseStorage implements IStorage {
 
   // Job operations
   async getJob(id: number): Promise<Job | undefined> {
-    const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
-    return job;
+    try {
+      const query = `
+        SELECT 
+          j.id,
+          j.company_id as "companyId",
+          j.recruiter_id as "recruiterId",
+          j.category_id as "categoryId",
+          j.title,
+          j.description,
+          j.requirements,
+          j.location,
+          j.country,
+          j.state,
+          j.city,
+          j.zip_code as "zipCode",
+          j.job_type as "jobType",
+          j.experience_level as "experienceLevel",
+          j.salary,
+          j.benefits,
+          j.skills,
+          j.is_active as "isActive",
+          j.application_count as "applicationCount",
+          j.created_at as "createdAt",
+          j.updated_at as "updatedAt",
+          jsonb_build_object(
+            'id', c.id,
+            'name', c.name,
+            'industry', c.industry,
+            'logoUrl', c.logo_url,
+            'description', c.description
+          ) as company
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE j.id = $1
+      `;
+      
+      const { Pool } = await import('pg');
+      const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+      const directPool = new Pool({ 
+        connectionString: NEON_DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      const client = await directPool.connect();
+      const result = await client.query(query, [id]);
+      client.release();
+      
+      return result.rows[0] || undefined;
+    } catch (error) {
+      console.error('Error in getJob:', error);
+      return undefined;
+    }
   }
 
   async getJobs(filters: any = {}, limit = 50): Promise<any[]> {
