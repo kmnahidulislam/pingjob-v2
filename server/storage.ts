@@ -691,7 +691,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createJobApplication(application: InsertJobApplication): Promise<JobApplication> {
+    console.log('Creating job application with data:', application);
+    
     const [result] = await db.insert(jobApplications).values(application).returning();
+    console.log('Job application created successfully:', result);
     
     // Increment application count
     await db

@@ -422,7 +422,7 @@ export const insertJobSchema = createInsertSchema(jobs).omit({
 export const insertJobApplicationSchema = createInsertSchema(jobApplications).omit({
   id: true,
   status: true,
-  rank: true,
+  // rank: true, // Temporarily removed since rank column doesn't exist in DB
   appliedAt: true,
   updatedAt: true,
 });
