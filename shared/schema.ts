@@ -139,7 +139,7 @@ export const jobApplications = pgTable("job_applications", {
   status: varchar("status", { enum: ["pending", "reviewed", "interview", "rejected", "hired"] }).default("pending"),
   // rank: decimal("rank", { precision: 3, scale: 2 }), // Temporarily commented out due to DB schema mismatch
   appliedAt: timestamp("applied_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  // updatedAt: timestamp("updated_at").defaultNow(), // Temporarily commented out due to DB schema mismatch
 });
 
 // Connections
@@ -424,7 +424,7 @@ export const insertJobApplicationSchema = createInsertSchema(jobApplications).om
   status: true,
   // rank: true, // Temporarily removed since rank column doesn't exist in DB
   appliedAt: true,
-  updatedAt: true,
+  // updatedAt: true, // Temporarily removed since updatedAt column doesn't exist in DB
 });
 
 export const insertConnectionSchema = createInsertSchema(connections).omit({

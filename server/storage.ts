@@ -700,8 +700,8 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(jobs)
       .set({ 
-        applicationCount: sql`${jobs.applicationCount} + 1`,
-        updatedAt: new Date()
+        applicationCount: sql`${jobs.applicationCount} + 1`
+        // updatedAt: new Date() // Removed - column doesn't exist in current DB schema
       })
       .where(eq(jobs.id, application.jobId));
     
@@ -712,8 +712,8 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db
       .update(jobApplications)
       .set({ 
-        status: status as "pending" | "reviewed" | "interview" | "rejected" | "hired", 
-        updatedAt: new Date() 
+        status: status as "pending" | "reviewed" | "interview" | "rejected" | "hired"
+        // updatedAt: new Date() // Removed - column doesn't exist in current DB schema
       })
       .where(eq(jobApplications.id, id))
       .returning();
