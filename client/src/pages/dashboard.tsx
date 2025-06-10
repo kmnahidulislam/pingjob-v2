@@ -5,39 +5,366 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Building, Check, X, Plus, Users, Briefcase, TrendingUp } from "lucide-react";
+import { 
+  Building, 
+  Check, 
+  X, 
+  Plus, 
+  Users, 
+  Briefcase, 
+  TrendingUp, 
+  User, 
+  FileText, 
+  Calendar,
+  MapPin,
+  Clock,
+  Target,
+  Award,
+  BookOpen,
+  Eye,
+  Send,
+  Heart,
+  Star
+} from "lucide-react";
+import { Link } from "wouter";
 
-export default function Dashboard() {
+// Job Seeker Dashboard Component
+function JobSeekerDashboard() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Fetch user profile data
+  const { data: profile } = useQuery({
+    queryKey: [`/api/profile/${user?.id}`],
+  });
+
+  // Fetch user applications
+  const { data: applications = [] } = useQuery({
+    queryKey: ['/api/applications'],
+  });
+
+  // Fetch recommended jobs
+  const { data: recommendedJobs = [] } = useQuery({
+    queryKey: ['/api/jobs', { limit: 6 }],
+  });
+
+  // Fetch user skills
+  const { data: skills = [] } = useQuery({
+    queryKey: [`/api/skills/${user?.id}`],
+  });
+
+  // Fetch user experience
+  const { data: experience = [] } = useQuery({
+    queryKey: [`/api/experience/${user?.id}`],
+  });
+
+  // Fetch user education
+  const { data: education = [] } = useQuery({
+    queryKey: [`/api/education/${user?.id}`],
+  });
+
+  // Calculate profile completion percentage
+  const calculateProfileCompletion = () => {
+    let completed = 0;
+    const total = 7;
+
+    if (profile?.firstName && profile?.lastName) completed++;
+    if (profile?.email) completed++;
+    if (profile?.phone) completed++;
+    if (profile?.location) completed++;
+    if (skills.length > 0) completed++;
+    if (experience.length > 0) completed++;
+    if (education.length > 0) completed++;
+
+    return Math.round((completed / total) * 100);
+  };
+
+  const profileCompletion = calculateProfileCompletion();
+
+  // Get application statistics
+  const getApplicationStats = () => {
+    const total = applications.length;
+    const applied = applications.filter((app: any) => app.status === 'applied' || app.status === 'pending').length;
+    const interviews = applications.filter((app: any) => app.status === 'interview').length;
+    const offers = applications.filter((app: any) => app.status === 'offered').length;
+
+    return { total, applied, interviews, offers };
+  };
+
+  const stats = getApplicationStats();
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Welcome Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Welcome back, {profile?.firstName || user?.firstName}!
+        </h1>
+        <p className="text-gray-600">
+          Here's your job search progress and recommendations.
+        </p>
+      </div>
+
+      {/* Profile Completion Card */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Complete Your Profile
+          </CardTitle>
+          <CardDescription>
+            A complete profile gets 5x more views from recruiters
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium">Profile Completion</span>
+            <span className="text-sm text-gray-600">{profileCompletion}%</span>
+          </div>
+          <Progress value={profileCompletion} className="mb-4" />
+          {profileCompletion < 100 && (
+            <div className="flex gap-2">
+              <Link href="/profile">
+                <Button size="sm">Complete Profile</Button>
+              </Link>
+              <span className="text-sm text-gray-600 self-center">
+                Add missing information to stand out to employers
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
+              </div>
+              <Send className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Under Review</p>
+                <p className="text-2xl font-bold">{stats.applied}</p>
+              </div>
+              <Clock className="h-8 w-8 text-yellow-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Interviews</p>
+                <p className="text-2xl font-bold">{stats.interviews}</p>
+              </div>
+              <Users className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Job Offers</p>
+                <p className="text-2xl font-bold">{stats.offers}</p>
+              </div>
+              <Award className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Job Recommendations */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Recommended Jobs
+              </CardTitle>
+              <CardDescription>
+                Jobs matching your skills and experience
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recommendedJobs.slice(0, 4).map((job: any) => (
+                  <div key={job.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg">{job.title}</h3>
+                      <Badge variant="secondary">{job.employmentType}</Badge>
+                    </div>
+                    <p className="text-gray-600 mb-2">{job.company?.name || 'Company Name'}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {job.location}
+                      </span>
+                      {job.salary && (
+                        <span className="flex items-center gap-1">
+                          <TrendingUp className="h-4 w-4" />
+                          {job.salary}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                      {job.description?.substring(0, 120)}...
+                    </p>
+                    <div className="flex gap-2">
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Details
+                        </Button>
+                      </Link>
+                      <Button size="sm">
+                        <Send className="h-4 w-4 mr-1" />
+                        Quick Apply
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Link href="/jobs">
+                  <Button variant="outline">View All Jobs</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Recent Activity & Quick Actions */}
+        <div className="space-y-6">
+          {/* Recent Applications */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Recent Applications
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {applications.slice(0, 3).map((app: any) => (
+                  <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">{app.jobTitle}</p>
+                      <p className="text-xs text-gray-600">{app.companyName}</p>
+                    </div>
+                    <Badge 
+                      variant={
+                        app.status === 'applied' || app.status === 'pending' ? 'secondary' :
+                        app.status === 'interview' ? 'default' :
+                        app.status === 'offered' ? 'default' : 'destructive'
+                      }
+                    >
+                      {app.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Link href="/applications">
+                  <Button variant="outline" size="sm">View All Applications</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/jobs">
+                <Button variant="outline" className="w-full justify-start">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Browse Jobs
+                </Button>
+              </Link>
+              <Link href="/profile">
+                <Button variant="outline" className="w-full justify-start">
+                  <User className="h-4 w-4 mr-2" />
+                  Update Profile
+                </Button>
+              </Link>
+              <Link href="/companies">
+                <Button variant="outline" className="w-full justify-start">
+                  <Building className="h-4 w-4 mr-2" />
+                  Explore Companies
+                </Button>
+              </Link>
+              <Link href="/connections">
+                <Button variant="outline" className="w-full justify-start">
+                  <Users className="h-4 w-4 mr-2" />
+                  My Network
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Skills Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Your Skills
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {skills.slice(0, 6).map((skill: any) => (
+                  <Badge key={skill.id} variant="outline">
+                    {skill.name}
+                  </Badge>
+                ))}
+                {skills.length > 6 && (
+                  <Badge variant="secondary">+{skills.length - 6} more</Badge>
+                )}
+              </div>
+              {skills.length === 0 && (
+                <p className="text-sm text-gray-600">
+                  Add skills to your profile to get better job recommendations
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Admin Dashboard Component (existing functionality)
+function AdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
   const [selectedVendorCompany, setSelectedVendorCompany] = useState<any>(null);
   const [vendorComboOpen, setVendorComboOpen] = useState(false);
   const [vendorDialogOpen, setVendorDialogOpen] = useState(false);
-
-  // Check if user is admin
-  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
-
-  if (!isAdmin) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
-          <p className="text-gray-600 mt-2">You don't have permission to access this page.</p>
-        </div>
-      </div>
-    );
-  }
 
   // Fetch pending companies
   const { data: pendingCompanies = [], isLoading: loadingPending } = useQuery({
@@ -473,4 +800,19 @@ export default function Dashboard() {
       </Tabs>
     </div>
   );
+}
+
+// Main Dashboard Component - Routes based on user role
+export default function Dashboard() {
+  const { user } = useAuth();
+
+  // Check if user is admin
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+
+  // Route to appropriate dashboard based on user role
+  if (isAdmin) {
+    return <AdminDashboard />;
+  } else {
+    return <JobSeekerDashboard />;
+  }
 }
