@@ -140,7 +140,13 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
 function SearchResultsJobs({ searchQuery }: { searchQuery: string }) {
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ['/api/search', searchQuery],
-    enabled: !!searchQuery,
+    queryFn: async () => {
+      if (!searchQuery || searchQuery.length < 2) return { companies: [], jobs: [], total: 0 };
+      const response = await fetch(`/api/search/${encodeURIComponent(searchQuery)}`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: !!searchQuery && searchQuery.length >= 2,
   });
 
   const jobs = searchResults?.jobs || [];
@@ -191,11 +197,18 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
 }) {
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ['/api/search', searchQuery],
-    enabled: !!searchQuery,
+    queryFn: async () => {
+      if (!searchQuery || searchQuery.length < 2) return { companies: [], jobs: [], total: 0 };
+      const response = await fetch(`/api/search/${encodeURIComponent(searchQuery)}`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: !!searchQuery && searchQuery.length >= 2,
   });
 
   const jobs = searchResults?.jobs || [];
-  const totalResults = companies.length + jobs.length;
+  const searchCompanies = searchResults?.companies || [];
+  const totalResults = searchCompanies.length + jobs.length;
 
   return (
     <Card>

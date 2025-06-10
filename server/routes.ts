@@ -896,6 +896,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global Search API - Search both companies and jobs
+  app.get('/api/search/:query', async (req, res) => {
+    try {
+      const query = req.params.query;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      if (!query || query.length < 2) {
+        return res.json({ companies: [], jobs: [] });
+      }
+
+      // Search companies and jobs in parallel
+      const [companies, jobs] = await Promise.all([
+        storage.searchCompanies(query, limit),
+        storage.searchJobs(query, { limit })
+      ]);
+
+      res.json({
+        companies: companies || [],
+        jobs: jobs || [],
+        total: (companies?.length || 0) + (jobs?.length || 0)
+      });
+    } catch (error) {
+      console.error("Error in global search:", error);
+      res.status(500).json({ 
+        message: "Failed to perform search",
+        companies: [],
+        jobs: []
+      });
+    }
+  });
+
   // Vendor Management Routes
   app.get('/api/clients/:id/vendors', isAuthenticated, async (req, res) => {
     try {
