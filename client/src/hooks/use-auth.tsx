@@ -102,14 +102,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     onSuccess: () => {
+      // Clear all cached data
+      queryClient.clear();
       queryClient.setQueryData(["/api/user"], null);
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
-      // Force navigation to auth page after logout
-      window.location.href = "/auth";
+      
+      // Force page reload to ensure complete state reset
+      setTimeout(() => {
+        window.location.href = "/auth";
+      }, 100);
     },
     onError: (error: Error) => {
       toast({

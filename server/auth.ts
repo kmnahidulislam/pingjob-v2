@@ -138,12 +138,24 @@ export function setupAuth(app: Express) {
   });
 
   app.post('/api/logout', (req: any, res) => {
-    req.session.destroy((err: any) => {
-      if (err) {
-        console.error("Logout error:", err);
-        return res.status(500).json({ message: "Logout failed" });
-      }
-      res.json({ message: "Logged out successfully" });
-    });
+    console.log('Logout attempt - session before destroy:', !!req.session?.user);
+    
+    if (req.session) {
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error("Logout error:", err);
+          return res.status(500).json({ message: "Logout failed" });
+        }
+        console.log('Session destroyed successfully');
+        res.clearCookie('connect.sid', { path: '/' });
+        res.clearCookie('sessionId', { path: '/' });
+        res.json({ message: "Logged out successfully" });
+      });
+    } else {
+      console.log('No session found during logout');
+      res.clearCookie('connect.sid', { path: '/' });
+      res.clearCookie('sessionId', { path: '/' });
+      res.json({ message: "Already logged out" });
+    }
   });
 }
