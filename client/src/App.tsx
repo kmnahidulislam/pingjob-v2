@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -44,103 +44,79 @@ function Router() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Switch>
-        <Route path="/auth">
-          {user ? <Redirect to="/" /> : <AuthPage />}
-        </Route>
-        
-        <Route path="/">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Home />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/profile/:id?">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Profile />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/jobs/:id">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Jobs />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/jobs">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Jobs />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/job-create">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <JobCreate />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/applications">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Applications />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/network">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Network />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/messaging">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Messaging />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/companies">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Companies />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/company/create">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <CompanyCreate />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route path="/dashboard">
-          {!user ? <Redirect to="/auth" /> : (
-            <ProtectedLayout>
-              <Dashboard />
-            </ProtectedLayout>
-          )}
-        </Route>
-        
-        <Route component={NotFound} />
-      </Switch>
-    </div>
+    <Switch>
+      <Route path="/auth">
+        {user ? <Redirect to="/" /> : <AuthPage />}
+      </Route>
+      
+      <Route path="/jobs/:id">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Jobs /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/job-create">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><JobCreate /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/jobs">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Jobs /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/company/create">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><CompanyCreate /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/companies">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Companies /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/profile/:id?">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Profile /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/applications">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Applications /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/network">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Network /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/messaging">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Messaging /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/dashboard">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Dashboard /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route path="/">
+        {!user ? <Redirect to="/auth" /> : (
+          <ProtectedLayout><Home /></ProtectedLayout>
+        )}
+      </Route>
+      
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
