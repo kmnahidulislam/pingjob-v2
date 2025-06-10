@@ -39,6 +39,10 @@ export function setupAuth(app: Express) {
   }));
 
   app.get('/api/user', (req: any, res) => {
+    console.log('GET /api/user - Session exists:', !!req.session);
+    console.log('GET /api/user - Session user:', !!req.session?.user);
+    console.log('GET /api/user - Session ID:', req.sessionID);
+    
     if (req.session?.user) {
       return res.status(200).json(req.session.user);
     }
@@ -139,21 +143,37 @@ export function setupAuth(app: Express) {
 
   app.post('/api/logout', (req: any, res) => {
     console.log('Logout attempt - session before destroy:', !!req.session?.user);
+    console.log('Logout attempt - session ID:', req.sessionID);
     
+    // Clear session user data immediately
     if (req.session) {
+      req.session.user = null;
+      delete req.session.user;
+      
       req.session.destroy((err: any) => {
         if (err) {
           console.error("Logout error:", err);
           return res.status(500).json({ message: "Logout failed" });
         }
         console.log('Session destroyed successfully');
-        res.clearCookie('connect.sid', { path: '/' });
+        
+        // Clear all possible session cookies
+        res.clearCookie('connect.sid', { 
+          path: '/', 
+          httpOnly: true,
+          secure: false
+        });
         res.clearCookie('sessionId', { path: '/' });
+        
         res.json({ message: "Logged out successfully" });
       });
     } else {
       console.log('No session found during logout');
-      res.clearCookie('connect.sid', { path: '/' });
+      res.clearCookie('connect.sid', { 
+        path: '/', 
+        httpOnly: true,
+        secure: false
+      });
       res.clearCookie('sessionId', { path: '/' });
       res.json({ message: "Already logged out" });
     }

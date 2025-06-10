@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -38,12 +39,16 @@ function Router() {
 
   console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
 
-  // Handle API routes by redirecting to home immediately
-  if (location.startsWith('/api/')) {
-    console.log('API route detected, redirecting to home');
-    navigate('/');
-    return null;
-  }
+  // Handle navigation using useEffect to prevent setState during render
+  useEffect(() => {
+    if (location.startsWith('/api/')) {
+      console.log('API route detected, redirecting to home');
+      navigate('/');
+    } else if (user && location === '/auth') {
+      console.log('Authenticated user on auth page, redirecting to home');
+      navigate('/');
+    }
+  }, [location, user, navigate]);
 
   if (isLoading) {
     return (
@@ -67,9 +72,8 @@ function Router() {
 
   console.log('User authenticated, showing protected routes for location:', location);
   
-  // Ensure authenticated users who visit /auth are redirected to home
+  // Don't render protected routes if we're still on /auth page (redirect is happening)
   if (location === '/auth') {
-    navigate('/');
     return null;
   }
   
