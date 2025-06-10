@@ -566,7 +566,7 @@ export default function Jobs() {
       {selectedJob && (
         <JobApplicationModal
           job={selectedJob}
-          open={!!selectedJob}
+          isOpen={!!selectedJob}
           onClose={() => setSelectedJob(null)}
         />
       )}

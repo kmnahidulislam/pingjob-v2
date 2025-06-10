@@ -137,7 +137,7 @@ export const jobApplications = pgTable("job_applications", {
   resumeUrl: varchar("resume_url"),
   coverLetter: text("cover_letter"),
   status: varchar("status", { enum: ["pending", "reviewed", "interview", "rejected", "hired"] }).default("pending"),
-  rank: decimal("rank", { precision: 3, scale: 2 }),
+  // rank: decimal("rank", { precision: 3, scale: 2 }), // Temporarily commented out due to DB schema mismatch
   appliedAt: timestamp("applied_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

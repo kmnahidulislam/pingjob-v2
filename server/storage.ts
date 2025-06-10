@@ -674,7 +674,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: jobApplications.id,
         status: jobApplications.status,
-        rank: jobApplications.rank,
+        // rank: jobApplications.rank, // Temporarily removed due to schema mismatch
         appliedAt: jobApplications.appliedAt,
         applicant: {
           id: users.id,
