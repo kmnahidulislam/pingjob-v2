@@ -16,13 +16,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertJobSchema, type InsertJob, type Company } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
+import JobApplicationModal from "@/components/modals/job-application-modal";
 
 export default function Jobs() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companySearch, setCompanySearch] = useState("");
+  const [selectedJob, setSelectedJob] = useState<any>(null);
   
   const [filters, setFilters] = useState({
     search: "",
@@ -531,9 +535,22 @@ export default function Jobs() {
                           <span className="text-xs text-gray-500">
                             Posted {new Date(job.createdAt).toLocaleDateString()}
                           </span>
-                          <Button size="sm" className="bg-linkedin-blue hover:bg-linkedin-dark">
-                            Apply Now
-                          </Button>
+                          <div className="flex flex-col space-y-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => navigate(`/jobs/${job.id}`)}
+                            >
+                              View Details
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="bg-linkedin-blue hover:bg-linkedin-dark"
+                              onClick={() => setSelectedJob(job)}
+                            >
+                              Apply Now
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -544,6 +561,15 @@ export default function Jobs() {
           </div>
         </div>
       </div>
+      
+      {/* Job Application Modal */}
+      {selectedJob && (
+        <JobApplicationModal
+          job={selectedJob}
+          open={!!selectedJob}
+          onClose={() => setSelectedJob(null)}
+        />
+      )}
     </div>
   );
 }
