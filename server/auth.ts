@@ -141,7 +141,7 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post('/api/logout', (req: any, res) => {
+  const logoutHandler = (req: any, res: any) => {
     console.log('=== LOGOUT ATTEMPT START ===');
     console.log('Session before destroy:', !!req.session?.user);
     console.log('Session ID:', req.sessionID);
@@ -183,5 +183,9 @@ export function setupAuth(app: Express) {
       console.log('=== LOGOUT COMPLETED (NO SESSION) ===');
       res.json({ message: "Already logged out" });
     }
-  });
+  };
+
+  // Handle both GET and POST requests for logout
+  app.post('/api/logout', logoutHandler);
+  app.get('/api/logout', logoutHandler);
 }
