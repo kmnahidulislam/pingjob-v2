@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
-import Home from "@/pages/home";
+import Home from "@/pages/simple-home";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
@@ -60,23 +60,25 @@ function Router() {
   console.log('User authenticated, showing protected routes');
   
   return (
-    <ProtectedLayout>
-      <Switch>
-        <Route path="/auth"><Redirect to="/" /></Route>
-        <Route path="/jobs/:id" component={Jobs} />
-        <Route path="/job-create" component={JobCreate} />
-        <Route path="/jobs" component={Jobs} />
-        <Route path="/company/create" component={CompanyCreate} />
-        <Route path="/companies" component={Companies} />
-        <Route path="/profile/:id?" component={Profile} />
-        <Route path="/applications" component={Applications} />
-        <Route path="/network" component={Network} />
-        <Route path="/messaging" component={Messaging} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/" component={Home} />
-        <Route component={NotFound} />
-      </Switch>
-    </ProtectedLayout>
+    <div className="min-h-screen bg-gray-50">
+      <ProtectedLayout>
+        <Switch>
+          <Route path="/auth"><Redirect to="/" /></Route>
+          <Route path="/jobs/:id" component={Jobs} />
+          <Route path="/job-create" component={JobCreate} />
+          <Route path="/jobs" component={Jobs} />
+          <Route path="/company/create" component={CompanyCreate} />
+          <Route path="/companies" component={Companies} />
+          <Route path="/profile/:id?" component={Profile} />
+          <Route path="/applications" component={Applications} />
+          <Route path="/network" component={Network} />
+          <Route path="/messaging" component={Messaging} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/" component={Home} />
+          <Route path="*" component={NotFound} />
+        </Switch>
+      </ProtectedLayout>
+    </div>
   );
 }
 
