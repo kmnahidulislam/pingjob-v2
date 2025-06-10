@@ -234,7 +234,7 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="companies" className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
-                Companies ({companies.length})
+                Companies ({searchCompanies.length > 0 ? searchCompanies.length : companies.length})
               </TabsTrigger>
               <TabsTrigger value="jobs" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
@@ -244,7 +244,7 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
             
             <TabsContent value="companies" className="mt-6">
               <SearchResultsCompanies 
-                companies={companies} 
+                companies={searchCompanies.length > 0 ? searchCompanies : companies} 
                 searchQuery={searchQuery}
                 onSelectCompany={onSelectCompany}
                 onFollowCompany={onFollowCompany}
