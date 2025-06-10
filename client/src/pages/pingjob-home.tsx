@@ -131,10 +131,26 @@ export default function PingJobHome() {
               </Link>
             </div>
 
+            {/* Search Box */}
+            <div className="flex-1 max-w-lg mx-8">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search jobs, companies, or skills..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 w-full"
+                  />
+                </div>
+              </form>
+            </div>
+
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link href="/jobs">
-                <Button variant="ghost">Jobs</Button>
+                <Button variant="ghost">Search</Button>
               </Link>
               <Link href="/companies">
                 <Button variant="ghost">Clients</Button>
@@ -182,12 +198,8 @@ export default function PingJobHome() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8">
-            Find Your Perfect Job
-          </h1>
-          
           {/* Hero Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 pt-8">
             <div className="flex items-center justify-center space-x-2 text-green-600">
               <CheckCircle className="h-5 w-5" />
               <span className="font-semibold">100% Client-Only Jobs</span>
