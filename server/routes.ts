@@ -676,10 +676,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Job Application routes
-  app.get('/api/applications', async (req: any, res) => {
+  app.get('/api/applications', isAuthenticated, async (req: any, res) => {
     try {
-      // Use admin user for testing when not authenticated
-      const userId = "admin-krupa";
+      const userId = req.user.id;
       console.log("Fetching applications for user:", userId);
       const applications = await storage.getUserJobApplications(userId);
       console.log("Applications found:", applications.length);
