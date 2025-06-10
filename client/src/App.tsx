@@ -34,12 +34,20 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
 function Router() {
   const { user, isLoading } = useAuth();
+  const [location, navigate] = useLocation();
 
-  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', window.location.pathname);
+  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
+
+  // Handle API routes by redirecting to home immediately
+  if (location.startsWith('/api/')) {
+    console.log('API route detected, redirecting to home');
+    navigate('/');
+    return null;
+  }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -57,13 +65,18 @@ function Router() {
     );
   }
 
-  console.log('User authenticated, showing protected routes');
+  console.log('User authenticated, showing protected routes for location:', location);
+  
+  // Ensure authenticated users who visit /auth are redirected to home
+  if (location === '/auth') {
+    navigate('/');
+    return null;
+  }
   
   return (
     <div className="min-h-screen bg-gray-50">
       <ProtectedLayout>
         <Switch>
-          <Route path="/auth"><Redirect to="/" /></Route>
           <Route path="/jobs/:id" component={Jobs} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={Jobs} />
@@ -75,7 +88,12 @@ function Router() {
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/" component={Home} />
-          <Route path="*" component={NotFound} />
+          <Route>
+            {() => {
+              console.log('Fallback route hit for:', location);
+              return <NotFound />;
+            }}
+          </Route>
         </Switch>
       </ProtectedLayout>
     </div>
