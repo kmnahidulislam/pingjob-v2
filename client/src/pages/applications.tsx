@@ -43,7 +43,7 @@ export default function Applications() {
 
   // Fetch user's job applications
   const { data: applications = [], isLoading } = useQuery({
-    queryKey: ['/api/applications', user?.id],
+    queryKey: ['/api/applications'],
     enabled: !!user
   });
 
@@ -114,10 +114,10 @@ export default function Applications() {
   });
 
   const applicationsByStatus = {
-    applied: filteredApplications.filter((app: JobApplication) => app.status === 'applied'),
-    under_review: filteredApplications.filter((app: JobApplication) => app.status === 'under_review'),
+    applied: filteredApplications.filter((app: JobApplication) => app.status === 'pending' || app.status === 'applied'),
+    under_review: filteredApplications.filter((app: JobApplication) => app.status === 'reviewed' || app.status === 'under_review'),
     interview: filteredApplications.filter((app: JobApplication) => app.status === 'interview'),
-    accepted: filteredApplications.filter((app: JobApplication) => app.status === 'accepted'),
+    accepted: filteredApplications.filter((app: JobApplication) => app.status === 'hired' || app.status === 'accepted'),
     rejected: filteredApplications.filter((app: JobApplication) => app.status === 'rejected')
   };
 
