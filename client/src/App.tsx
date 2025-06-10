@@ -18,6 +18,7 @@ import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
 import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
+import JobDetails from "@/pages/job-details";
 import Navigation from "@/components/navigation";
 
 
@@ -81,7 +82,7 @@ function Router() {
     <div className="min-h-screen bg-gray-50">
       <ProtectedLayout>
         <Switch>
-          <Route path="/jobs/:id" component={Jobs} />
+          <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/company/create" component={CompanyCreate} />
