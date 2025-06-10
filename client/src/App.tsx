@@ -32,7 +32,7 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Router() {
+function ProtectedComponent({ component: Component }: { component: () => JSX.Element }) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -43,78 +43,50 @@ function Router() {
     );
   }
 
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+
+  return (
+    <ProtectedLayout>
+      <Component />
+    </ProtectedLayout>
+  );
+}
+
+function AuthComponent() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Redirect to="/" />;
+  }
+
+  return <AuthPage />;
+}
+
+function Router() {
   return (
     <Switch>
-      <Route path="/auth">
-        {user ? <Redirect to="/" /> : <AuthPage />}
-      </Route>
-      
-      <Route path="/jobs/:id">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Jobs /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/job-create">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><JobCreate /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/jobs">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Jobs /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/company/create">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><CompanyCreate /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/companies">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Companies /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/profile/:id?">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Profile /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/applications">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Applications /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/network">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Network /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/messaging">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Messaging /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/dashboard">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Dashboard /></ProtectedLayout>
-        )}
-      </Route>
-      
-      <Route path="/">
-        {!user ? <Redirect to="/auth" /> : (
-          <ProtectedLayout><Home /></ProtectedLayout>
-        )}
-      </Route>
-      
+      <Route path="/auth" component={AuthComponent} />
+      <Route path="/jobs/:id" component={() => <ProtectedComponent component={Jobs} />} />
+      <Route path="/job-create" component={() => <ProtectedComponent component={JobCreate} />} />
+      <Route path="/jobs" component={() => <ProtectedComponent component={Jobs} />} />
+      <Route path="/company/create" component={() => <ProtectedComponent component={CompanyCreate} />} />
+      <Route path="/companies" component={() => <ProtectedComponent component={Companies} />} />
+      <Route path="/profile/:id?" component={() => <ProtectedComponent component={Profile} />} />
+      <Route path="/applications" component={() => <ProtectedComponent component={Applications} />} />
+      <Route path="/network" component={() => <ProtectedComponent component={Network} />} />
+      <Route path="/messaging" component={() => <ProtectedComponent component={Messaging} />} />
+      <Route path="/dashboard" component={() => <ProtectedComponent component={Dashboard} />} />
+      <Route path="/" component={() => <ProtectedComponent component={Home} />} />
       <Route component={NotFound} />
     </Switch>
   );
