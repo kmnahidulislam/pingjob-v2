@@ -212,7 +212,7 @@ export default function JobDetails() {
             {/* Job Info Tags */}
             <div className="flex flex-wrap gap-4 mb-6">
               <Badge variant="outline" className="text-sm py-1 px-3">
-                {job.jobType.replace('_', ' ')}
+                {job.jobType?.replace('_', ' ') || 'Full Time'}
               </Badge>
               <div className="flex items-center text-sm text-gray-600">
                 <Users className="h-4 w-4 mr-1" />
@@ -276,7 +276,7 @@ export default function JobDetails() {
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
                   <div className="flex flex-wrap gap-2">
-                    {skillsArray.map((skill, index) => (
+                    {skillsArray.map((skill: string, index: number) => (
                       <Badge 
                         key={index} 
                         variant="secondary" 
