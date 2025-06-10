@@ -148,8 +148,8 @@ export default function JobDetails() {
     );
   }
 
-  const skillsArray = Array.isArray(job.skills) ? job.skills : 
-    (job.skills && typeof job.skills === 'string' ? job.skills.split(',').map((s: string) => s.trim()) : []);
+  const skillsArray: string[] = job.skills ? 
+    (Array.isArray(job.skills) ? job.skills : []) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
