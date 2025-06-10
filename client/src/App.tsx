@@ -35,6 +35,8 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   const { user, isLoading } = useAuth();
 
+  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', window.location.pathname);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -44,32 +46,38 @@ function Router() {
   }
 
   if (!user) {
+    console.log('No user, showing auth routes');
     return (
-      <Switch>
-        <Route path="/auth" component={AuthPage} />
-        <Route><Redirect to="/auth" /></Route>
-      </Switch>
+      <div className="min-h-screen bg-gray-50">
+        <Switch>
+          <Route path="/auth" component={AuthPage} />
+          <Route><Redirect to="/auth" /></Route>
+        </Switch>
+      </div>
     );
   }
 
+  console.log('User authenticated, showing protected routes');
   return (
-    <ProtectedLayout>
-      <Switch>
-        <Route path="/auth"><Redirect to="/" /></Route>
-        <Route path="/jobs/:id" component={Jobs} />
-        <Route path="/job-create" component={JobCreate} />
-        <Route path="/jobs" component={Jobs} />
-        <Route path="/company/create" component={CompanyCreate} />
-        <Route path="/companies" component={Companies} />
-        <Route path="/profile/:id?" component={Profile} />
-        <Route path="/applications" component={Applications} />
-        <Route path="/network" component={Network} />
-        <Route path="/messaging" component={Messaging} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/" component={Home} />
-        <Route component={NotFound} />
-      </Switch>
-    </ProtectedLayout>
+    <div className="min-h-screen bg-gray-50">
+      <ProtectedLayout>
+        <Switch>
+          <Route path="/auth"><Redirect to="/" /></Route>
+          <Route path="/jobs/:id" component={Jobs} />
+          <Route path="/job-create" component={JobCreate} />
+          <Route path="/jobs" component={Jobs} />
+          <Route path="/company/create" component={CompanyCreate} />
+          <Route path="/companies" component={Companies} />
+          <Route path="/profile/:id?" component={Profile} />
+          <Route path="/applications" component={Applications} />
+          <Route path="/network" component={Network} />
+          <Route path="/messaging" component={Messaging} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/" component={Home} />
+          <Route component={NotFound} />
+        </Switch>
+      </ProtectedLayout>
+    </div>
   );
 }
 
