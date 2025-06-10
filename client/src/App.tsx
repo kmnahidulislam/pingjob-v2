@@ -32,7 +32,7 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProtectedComponent({ component: Component }: { component: () => JSX.Element }) {
+function Router() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -44,51 +44,32 @@ function ProtectedComponent({ component: Component }: { component: () => JSX.Ele
   }
 
   if (!user) {
-    return <Redirect to="/auth" />;
+    return (
+      <Switch>
+        <Route path="/auth" component={AuthPage} />
+        <Route><Redirect to="/auth" /></Route>
+      </Switch>
+    );
   }
 
   return (
     <ProtectedLayout>
-      <Component />
+      <Switch>
+        <Route path="/auth"><Redirect to="/" /></Route>
+        <Route path="/jobs/:id" component={Jobs} />
+        <Route path="/job-create" component={JobCreate} />
+        <Route path="/jobs" component={Jobs} />
+        <Route path="/company/create" component={CompanyCreate} />
+        <Route path="/companies" component={Companies} />
+        <Route path="/profile/:id?" component={Profile} />
+        <Route path="/applications" component={Applications} />
+        <Route path="/network" component={Network} />
+        <Route path="/messaging" component={Messaging} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/" component={Home} />
+        <Route component={NotFound} />
+      </Switch>
     </ProtectedLayout>
-  );
-}
-
-function AuthComponent() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (user) {
-    return <Redirect to="/" />;
-  }
-
-  return <AuthPage />;
-}
-
-function Router() {
-  return (
-    <Switch>
-      <Route path="/auth" component={AuthComponent} />
-      <Route path="/jobs/:id" component={() => <ProtectedComponent component={Jobs} />} />
-      <Route path="/job-create" component={() => <ProtectedComponent component={JobCreate} />} />
-      <Route path="/jobs" component={() => <ProtectedComponent component={Jobs} />} />
-      <Route path="/company/create" component={() => <ProtectedComponent component={CompanyCreate} />} />
-      <Route path="/companies" component={() => <ProtectedComponent component={Companies} />} />
-      <Route path="/profile/:id?" component={() => <ProtectedComponent component={Profile} />} />
-      <Route path="/applications" component={() => <ProtectedComponent component={Applications} />} />
-      <Route path="/network" component={() => <ProtectedComponent component={Network} />} />
-      <Route path="/messaging" component={() => <ProtectedComponent component={Messaging} />} />
-      <Route path="/dashboard" component={() => <ProtectedComponent component={Dashboard} />} />
-      <Route path="/" component={() => <ProtectedComponent component={Home} />} />
-      <Route component={NotFound} />
-    </Switch>
   );
 }
 
