@@ -611,6 +611,10 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("getUserJobApplications called with userId:", userId);
       
+      // Debug: Check what's actually in the job_applications table
+      const allApps = await pool.query(`SELECT id, applicant_id, job_id, status, applied_at FROM job_applications LIMIT 10`);
+      console.log("All job applications in database:", allApps.rows);
+      
       // First test basic query
       const testResult = await pool.query(`SELECT COUNT(*) FROM job_applications WHERE applicant_id = $1`, [userId]);
       console.log("Test count query result:", testResult.rows[0]);
