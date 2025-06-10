@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import Home from "@/pages/home";
+import PingJobHome from "@/pages/pingjob-home";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
@@ -60,12 +61,13 @@ function Router() {
   }
 
   if (!user) {
-    console.log('No user, showing auth page');
+    console.log('No user, showing public pages');
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
           <Route path="/auth" component={AuthPage} />
-          <Route><Redirect to="/auth" /></Route>
+          <Route path="/" component={PingJobHome} />
+          <Route><Redirect to="/" /></Route>
         </Switch>
       </div>
     );
