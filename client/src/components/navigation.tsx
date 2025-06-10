@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 
 export default function Navigation() {
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -164,11 +164,12 @@ export default function Navigation() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <a href="/api/logout" className="cursor-pointer text-error-red">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </a>
+                <DropdownMenuItem 
+                  onClick={() => logoutMutation.mutate()}
+                  className="cursor-pointer text-red-600"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
