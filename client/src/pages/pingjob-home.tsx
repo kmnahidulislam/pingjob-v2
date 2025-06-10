@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Search, 
@@ -25,7 +26,13 @@ import {
   Target,
   Bot,
   BarChart3,
-  LogOut
+  LogOut,
+  TrendingUp,
+  Clock,
+  Filter,
+  Briefcase,
+  Calendar,
+  DollarSign
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -34,11 +41,25 @@ export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const jobsPerPage = 20;
 
   const handleLogout = () => {
     logoutMutation.mutate();
   };
+
+  // Fetch real-time statistics
+  const { data: jobStats } = useQuery({
+    queryKey: ['/api/jobs/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/jobs/stats');
+      if (!response.ok) throw new Error('Failed to fetch job stats');
+      return response.json();
+    },
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
 
   // Fetch jobs with pagination
   const { data: jobsData, isLoading: jobsLoading } = useQuery({
@@ -49,6 +70,18 @@ export default function PingJobHome() {
       return response.json();
     }
   });
+
+  // Featured job rotation
+  useEffect(() => {
+    if (jobsData && jobsData.length > 0) {
+      const interval = setInterval(() => {
+        const randomJob = jobsData[Math.floor(Math.random() * jobsData.length)];
+        setFeaturedJobId(randomJob.id);
+      }, 10000); // Change featured job every 10 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [jobsData]);
 
   // Fetch categories with job counts
   const { data: categories = [] } = useQuery({
@@ -316,16 +349,16 @@ export default function PingJobHome() {
                               {job.title}
                             </h3>
                             <div className="flex items-center space-x-2 mb-2">
-                              {job.companyLogoUrl ? (
+                              {job.company?.logoUrl ? (
                                 <Avatar className="h-6 w-6">
-                                  <AvatarImage src={job.companyLogoUrl} alt={job.companyName} />
-                                  <AvatarFallback>{job.companyName?.[0]}</AvatarFallback>
+                                  <AvatarImage src={job.company.logoUrl} alt={job.company.name} />
+                                  <AvatarFallback>{job.company.name?.[0]}</AvatarFallback>
                                 </Avatar>
                               ) : (
                                 <Building className="h-5 w-5 text-gray-400" />
                               )}
                               <span className="text-sm font-medium text-gray-700">
-                                {job.companyName || 'Company Name'}
+                                {job.company?.name || 'Company Name'}
                               </span>
                               <Badge variant="outline" className="text-xs">
                                 {Math.floor(Math.random() * 3) + 1} vendors
