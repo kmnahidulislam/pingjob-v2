@@ -315,16 +315,19 @@ export default function PingJobHome() {
                 <div className="space-y-4">
                   {topCompanies.slice(0, 8).map((company: any) => (
                     <div key={company.id} className="flex items-center space-x-3">
-                      {company.logoUrl ? (
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={company.logoUrl} alt={company.name} />
-                          <AvatarFallback>{company.name?.[0]}</AvatarFallback>
-                        </Avatar>
-                      ) : (
-                        <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
-                          <Building className="h-4 w-4 text-gray-500" />
-                        </div>
-                      )}
+                      <div className="w-10 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                        {company.logoUrl && company.logoUrl !== "NULL" ? (
+                          <img 
+                            src={company.logoUrl} 
+                            alt={company.name}
+                            className="w-full h-full object-contain p-0.5"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
+                            {company.name?.[0]?.toUpperCase() || 'C'}
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <Link href={`/companies/${company.id}`}>
                           <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">
