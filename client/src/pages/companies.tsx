@@ -210,11 +210,13 @@ function SearchResultsJobs({ searchQuery }: { searchQuery: string }) {
   );
 }
 
-function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollowCompany }: {
+function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollowCompany, user, onAddJob }: {
   searchQuery: string;
   companies: any[];
   onSelectCompany: (company: any) => void;
   onFollowCompany: (companyId: number) => void;
+  user?: any;
+  onAddJob?: (company: any) => void;
 }) {
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ['/api/search', searchQuery],
@@ -269,10 +271,7 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
                 searchQuery={searchQuery}
                 onSelectCompany={onSelectCompany}
                 onFollowCompany={onFollowCompany}
-                onAddJob={(company) => {
-                  setJobFormCompany(company);
-                  setShowJobForm(true);
-                }}
+                onAddJob={onAddJob}
                 user={user}
               />
             </TabsContent>
@@ -1195,6 +1194,11 @@ export default function Companies() {
               companies={filteredCompanies}
               onSelectCompany={setSelectedCompany}
               onFollowCompany={handleFollowCompany}
+              user={user}
+              onAddJob={(company) => {
+                setJobFormCompany(company);
+                setShowJobForm(true);
+              }}
             />
           )}
 
