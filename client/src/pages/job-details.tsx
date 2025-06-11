@@ -168,12 +168,19 @@ export default function JobDetails() {
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center space-x-4 flex-1">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={job.company?.logoUrl || undefined} />
-                  <AvatarFallback className="bg-linkedin-blue text-white">
-                    <Building className="h-8 w-8" />
-                  </AvatarFallback>
-                </Avatar>
+                <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                  {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                    <img 
+                      src={job.company.logoUrl} 
+                      alt={job.company.name}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
+                      <Building className="h-6 w-6" />
+                    </div>
+                  )}
+                </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
                     {job.title}
@@ -316,12 +323,19 @@ export default function JobDetails() {
             </CardHeader>
             <CardContent>
               <div className="flex items-start space-x-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={job.company.logoUrl || undefined} />
-                  <AvatarFallback className="bg-linkedin-blue text-white">
-                    <Building className="h-6 w-6" />
-                  </AvatarFallback>
-                </Avatar>
+                <div className="w-12 h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                  {job.company.logoUrl && job.company.logoUrl !== "NULL" ? (
+                    <img 
+                      src={job.company.logoUrl} 
+                      alt={job.company.name}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
+                      <Building className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
                 <div className="flex-1">
                   <p className="text-gray-700 mb-4">
                     {job.company.description || 'No company description available.'}
