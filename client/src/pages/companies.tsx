@@ -887,6 +887,141 @@ export default function Companies() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Selected Company Details - Full Width at Top */}
+      {selectedCompany && (
+        <Card className="mb-8 border-2 border-linkedin-blue shadow-xl relative bg-white">
+          <CardContent className="p-0">
+            {/* Close Button */}
+            <div className="absolute top-4 right-4 z-20">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  console.log("Closing selected company");
+                  setSelectedCompany(null);
+                }}
+                className="bg-white/90 hover:bg-white shadow-md rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {/* Company Header */}
+            <div className="h-32 bg-gradient-to-r from-linkedin-blue to-linkedin-light relative"></div>
+            <div className="p-6 -mt-16">
+              <div className="flex items-start space-x-6">
+                <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                  <AvatarImage src={selectedCompany.logoUrl || undefined} />
+                  <AvatarFallback className="bg-linkedin-blue text-white text-2xl">
+                    <Building className="h-12 w-12" />
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {selectedCompany.name}
+                  </h2>
+                  <p className="text-gray-600 font-medium">
+                    {selectedCompany.industry}
+                  </p>
+                  
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-1" />
+                      <span>{formatFollowerCount(selectedCompany.followers || 0)} followers</span>
+                    </div>
+                    {selectedCompany.size && (
+                      <div className="flex items-center">
+                        <Building className="h-4 w-4 mr-1" />
+                        <span>{selectedCompany.size} employees</span>
+                      </div>
+                    )}
+                    {selectedCompany.website && (
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-1" />
+                        <a 
+                          href={selectedCompany.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-linkedin-blue hover:underline"
+                        >
+                          Website
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Company Address */}
+                  {(selectedCompany.city || selectedCompany.state || selectedCompany.country) && (
+                    <div className="flex items-center space-x-1 text-sm text-gray-500 mt-3">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      <span>
+                        {[selectedCompany.city, selectedCompany.state, selectedCompany.zipCode, selectedCompany.country]
+                          .filter(Boolean)
+                          .join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex space-x-2">
+                  {/* Admin Add Job Button */}
+                  {user?.userType === 'admin' && (
+                    <Button
+                      onClick={() => {
+                        setJobFormCompany(selectedCompany);
+                        setShowJobForm(true);
+                      }}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Briefcase className="h-4 w-4 mr-2" />
+                      Add Job
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => handleFollowCompany(selectedCompany.id)}
+                    disabled={followMutation.isPending}
+                    className="bg-linkedin-blue hover:bg-linkedin-dark"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Follow
+                  </Button>
+                  <Button variant="outline">
+                    <Share className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Company Description */}
+              {selectedCompany.description && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">About</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {selectedCompany.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Company Jobs and Vendors */}
+              <div className="mt-6">
+                <Tabs defaultValue="jobs" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="jobs">Open Positions</TabsTrigger>
+                    <TabsTrigger value="vendors">Vendors</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="jobs" className="mt-4">
+                    <CompanyDetails companyId={selectedCompany.id} />
+                  </TabsContent>
+                  <TabsContent value="vendors" className="mt-4">
+                    <CompanyVendors companyId={selectedCompany.id} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar */}
         <div className="lg:col-span-1">
@@ -1352,7 +1487,12 @@ export default function Companies() {
                     {/* Action Buttons */}
                     <div className="flex space-x-2">
                       <Button
-                        onClick={() => setSelectedCompany(company)}
+                        onClick={() => {
+                          console.log("Selected company:", company);
+                          setSelectedCompany(company);
+                          // Scroll to top to show selected company details
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
                         variant="outline"
                         size="sm"
                         className="flex-1"
