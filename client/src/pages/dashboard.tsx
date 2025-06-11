@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { 
@@ -28,7 +32,8 @@ import {
   Eye,
   Send,
   Heart,
-  Star
+  Star,
+  ChevronsUpDown
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -710,7 +715,7 @@ function AdminDashboard() {
                                                     setVendorComboOpen(false);
                                                   }}
                                                 >
-                                                  <CheckIcon
+                                                  <Check
                                                     className={`mr-2 h-4 w-4 ${
                                                       selectedVendorCompany?.id === comp.id ? "opacity-100" : "opacity-0"
                                                     }`}
