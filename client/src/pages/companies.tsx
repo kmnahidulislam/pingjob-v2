@@ -1261,29 +1261,43 @@ export default function Companies() {
                       {/* Admin Add Job Button */}
                       {user?.userType === 'admin' && (
                         <Button
-                          onClick={() => {
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             console.log('Add Job clicked for company:', selectedCompany);
                             setJobFormCompany(selectedCompany);
                             setShowJobForm(true);
                           }}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Briefcase className="h-4 w-4 mr-2" />
                           Add Job
                         </Button>
                       )}
                       <Button
-                        onClick={() => {
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log('Follow clicked for company:', selectedCompany.id);
                           handleFollowCompany(selectedCompany.id);
                         }}
                         disabled={followMutation.isPending}
-                        className="bg-linkedin-blue hover:bg-linkedin-dark"
+                        className="bg-linkedin-blue hover:bg-linkedin-dark text-white"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         {followMutation.isPending ? "Following..." : "Follow"}
                       </Button>
-                      <Button variant="outline">
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Share clicked');
+                        }}
+                      >
                         <Share className="h-4 w-4" />
                       </Button>
                     </div>
