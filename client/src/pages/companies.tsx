@@ -41,11 +41,13 @@ import {
 import { Link } from "wouter";
 
 // Search Results Components
-function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFollowCompany }: {
+function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFollowCompany, onAddJob, user }: {
   companies: any[];
   searchQuery: string;
   onSelectCompany: (company: any) => void;
   onFollowCompany: (companyId: number) => void;
+  onAddJob?: (company: any) => void;
+  user?: any;
 }) {
   if (companies.length === 0) {
     return (
@@ -92,23 +94,42 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSelectCompany(company)}
+                  <div className="flex gap-2 relative z-10">
+                    {user?.userType === 'admin' && onAddJob && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('Add Job clicked for company:', company.name);
+                          onAddJob(company);
+                        }}
+                        className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded flex items-center"
+                      >
+                        <Briefcase className="h-4 w-4 mr-1" />
+                        Add Job
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('View clicked for company:', company.name);
+                        onSelectCompany(company);
+                      }}
+                      className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 flex items-center"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       View
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onFollowCompany(company.id)}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log('Follow clicked for company:', company.name);
+                        onFollowCompany(company.id);
+                      }}
+                      className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 flex items-center"
                     >
                       <Heart className="h-4 w-4 mr-1" />
                       Follow
-                    </Button>
+                    </button>
                   </div>
                 </div>
                 
@@ -248,6 +269,11 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
                 searchQuery={searchQuery}
                 onSelectCompany={onSelectCompany}
                 onFollowCompany={onFollowCompany}
+                onAddJob={(company) => {
+                  setJobFormCompany(company);
+                  setShowJobForm(true);
+                }}
+                user={user}
               />
             </TabsContent>
             
@@ -1258,53 +1284,49 @@ export default function Companies() {
                     </div>
 
                     <div className="flex space-x-2 relative z-10">
-                      {/* Test Button */}
-                      <button
-                        onClick={() => {
-                          console.log('TEST BUTTON CLICKED!');
-                          alert('Test button works!');
-                        }}
-                        className="px-4 py-2 bg-red-500 text-white rounded"
-                      >
-                        TEST
-                      </button>
-                      
                       {/* Admin Add Job Button */}
                       {user?.userType === 'admin' && (
-                        <button
-                          onClick={() => {
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             console.log('Add Job clicked for company:', selectedCompany);
-                            alert('Add Job clicked!');
                             setJobFormCompany(selectedCompany);
                             setShowJobForm(true);
                           }}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center"
+                          className="bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Briefcase className="h-4 w-4 mr-2" />
                           Add Job
-                        </button>
+                        </Button>
                       )}
-                      <button
-                        onClick={() => {
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log('Follow clicked for company:', selectedCompany.id);
-                          alert('Follow clicked!');
                           handleFollowCompany(selectedCompany.id);
                         }}
                         disabled={followMutation.isPending}
-                        className="px-4 py-2 bg-linkedin-blue hover:bg-linkedin-dark text-white rounded flex items-center"
+                        className="bg-linkedin-blue hover:bg-linkedin-dark text-white"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         {followMutation.isPending ? "Following..." : "Follow"}
-                      </button>
-                      <button
-                        onClick={() => {
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log('Share clicked');
-                          alert('Share clicked!');
+                          toast({
+                            title: "Share feature coming soon",
+                            description: "Company sharing will be available in a future update"
+                          });
                         }}
-                        className="px-4 py-2 border border-gray-300 rounded flex items-center"
                       >
                         <Share className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
