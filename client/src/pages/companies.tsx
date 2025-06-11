@@ -612,6 +612,19 @@ function CompanyVendors({ companyId }: { companyId: number }) {
   );
 }
 
+// Job form schema for admin job creation
+const jobFormSchema = z.object({
+  title: z.string().min(1, "Job title is required"),
+  description: z.string().min(1, "Job description is required"),
+  requirements: z.string().optional(),
+  employmentType: z.enum(["full_time", "part_time", "contract", "remote"]),
+  experienceLevel: z.enum(["entry", "mid", "senior", "executive"]),
+  location: z.string().min(1, "Location is required"),
+  salary: z.string().optional(),
+  benefits: z.string().optional(),
+  skills: z.string().optional(),
+});
+
 export default function Companies() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -665,7 +678,22 @@ export default function Companies() {
       city: "",
       state: "",
       country: "",
-      size: "1-10",
+    },
+  });
+
+  // Job form for admin job creation
+  const jobForm = useForm<z.infer<typeof jobFormSchema>>({
+    resolver: zodResolver(jobFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      requirements: "",
+      employmentType: "full_time",
+      experienceLevel: "mid",
+      location: "",
+      salary: "",
+      benefits: "",
+      skills: "",
     },
   });
 
@@ -711,6 +739,37 @@ export default function Companies() {
       toast({
         title: "Error creating company",
         description: error.message || "Failed to create company",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Job creation mutation for admins
+  const createJobMutation = useMutation({
+    mutationFn: async (jobData: z.infer<typeof jobFormSchema> & { companyId: number }) => {
+      const processedData = {
+        ...jobData,
+        recruiterId: user?.id,
+        skills: jobData.skills ? jobData.skills.split(',').map(s => s.trim()) : [],
+      };
+      
+      return apiRequest('POST', '/api/jobs', processedData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Job created successfully",
+        description: "The job has been posted and is now available for applications"
+      });
+      setShowJobForm(false);
+      setJobFormCompany(null);
+      jobForm.reset();
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/companies/${jobFormCompany?.id}/jobs`] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error creating job",
+        description: error.message || "Failed to create job",
         variant: "destructive"
       });
     }
@@ -1022,6 +1081,19 @@ export default function Companies() {
                     </div>
 
                     <div className="flex space-x-2">
+                      {/* Admin Add Job Button */}
+                      {user?.userType === 'admin' && (
+                        <Button
+                          onClick={() => {
+                            setJobFormCompany(selectedCompany);
+                            setShowJobForm(true);
+                          }}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          Add Job
+                        </Button>
+                      )}
                       <Button
                         onClick={() => handleFollowCompany(selectedCompany.id)}
                         disabled={followMutation.isPending}
@@ -1549,6 +1621,209 @@ export default function Companies() {
                   {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
                 </Button>
               </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Job Creation Dialog for Admins */}
+      <Dialog open={showJobForm} onOpenChange={setShowJobForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Job for {jobFormCompany?.name}</DialogTitle>
+            <DialogDescription>
+              Create a new job posting for this company
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...jobForm}>
+            <form 
+              onSubmit={jobForm.handleSubmit((data) => {
+                createJobMutation.mutate({
+                  ...data,
+                  companyId: jobFormCompany?.id
+                });
+              })}
+              className="space-y-4"
+            >
+              <FormField
+                control={jobForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Senior Software Engineer" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={jobForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Description *</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe the role, responsibilities, and company culture..."
+                        className="min-h-[120px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={jobForm.control}
+                name="requirements"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Requirements</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="List the required skills, experience, and qualifications..."
+                        className="min-h-[100px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={jobForm.control}
+                  name="employmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employment Type *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select employment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="full_time">Full Time</SelectItem>
+                          <SelectItem value="part_time">Part Time</SelectItem>
+                          <SelectItem value="contract">Contract</SelectItem>
+                          <SelectItem value="remote">Remote</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={jobForm.control}
+                  name="experienceLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Experience Level *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select experience level" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="entry">Entry Level</SelectItem>
+                          <SelectItem value="mid">Mid Level</SelectItem>
+                          <SelectItem value="senior">Senior Level</SelectItem>
+                          <SelectItem value="executive">Executive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={jobForm.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. New York, NY or Remote" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={jobForm.control}
+                  name="salary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Salary Range</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. $80,000 - $120,000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={jobForm.control}
+                  name="skills"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Skills (comma-separated)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. React, Node.js, Python" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={jobForm.control}
+                name="benefits"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Benefits</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Describe benefits, perks, and compensation details..."
+                        className="min-h-[80px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowJobForm(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createJobMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {createJobMutation.isPending ? "Creating..." : "Create Job"}
+                </Button>
+              </DialogFooter>
             </form>
           </Form>
         </DialogContent>
