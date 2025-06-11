@@ -299,7 +299,16 @@ const companyFormSchema = insertCompanySchema.omit({
 
 // Component to display company details (open positions and vendors)
 function CompanyDetails({ companyId }: { companyId: number }) {
-  const { data: companyDetails, isLoading } = useQuery({
+  const { data: companyJobs, isLoading: jobsLoading } = useQuery({
+    queryKey: ['/api/jobs'],
+    queryFn: async () => {
+      const response = await fetch(`/api/jobs?companyId=${companyId}&limit=50`);
+      if (!response.ok) throw new Error('Failed to fetch jobs');
+      return response.json();
+    },
+  });
+
+  const { data: companyDetails, isLoading: detailsLoading } = useQuery({
     queryKey: ['/api/companies', companyId, 'details'],
     queryFn: async () => {
       const response = await fetch(`/api/companies/${companyId}/details`);
@@ -308,69 +317,85 @@ function CompanyDetails({ companyId }: { companyId: number }) {
     },
   });
 
-  if (isLoading) {
+  if (jobsLoading || detailsLoading) {
     return (
-      <div className="text-sm text-gray-500 mb-4">
-        Loading company details...
+      <div className="space-y-4">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-3"></div>
+          <div className="space-y-2">
+            <div className="h-16 bg-gray-100 rounded"></div>
+            <div className="h-16 bg-gray-100 rounded"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const openJobs = companyDetails?.openJobs || [];
+  const jobs = companyJobs || [];
   const vendors = companyDetails?.vendors || [];
 
   return (
-    <div className="space-y-3 mb-4">
+    <div className="space-y-6">
       {/* Open Positions */}
       <div>
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <Briefcase className="h-4 w-4 mr-1" />
-          <span className="font-medium">Open Positions ({openJobs.length})</span>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold flex items-center">
+            <Briefcase className="h-5 w-5 mr-2 text-linkedin-blue" />
+            Open Positions ({jobs.length})
+          </h3>
         </div>
-        {openJobs.length > 0 ? (
-          <div className="space-y-1">
-            {openJobs.slice(0, 3).map((job: any) => (
-              <div key={job.id} className="text-xs bg-gray-50 p-2 rounded">
-                <div className="font-medium text-gray-900">{job.title}</div>
-                <div className="text-gray-500">{job.location} • {job.type}</div>
-              </div>
+        
+        {jobs.length > 0 ? (
+          <div className="grid gap-4">
+            {jobs.map((job: any) => (
+              <Card key={job.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 mb-1">{job.title}</h4>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {job.location}
+                        </div>
+                        {job.employmentType && (
+                          <Badge variant="secondary" className="text-xs">
+                            {job.employmentType.replace('_', ' ')}
+                          </Badge>
+                        )}
+                        {job.experienceLevel && (
+                          <Badge variant="outline" className="text-xs">
+                            {job.experienceLevel} level
+                          </Badge>
+                        )}
+                      </div>
+                      {job.salary && (
+                        <div className="text-sm text-gray-600 mb-2">
+                          💰 {job.salary}
+                        </div>
+                      )}
+                      {job.description && (
+                        <p className="text-sm text-gray-700 line-clamp-2">
+                          {job.description}
+                        </p>
+                      )}
+                    </div>
+                    <Button size="sm" variant="outline" className="ml-4">
+                      View Job
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-            {openJobs.length > 3 && (
-              <div className="text-xs text-linkedin-blue">
-                +{openJobs.length - 3} more positions
-              </div>
-            )}
           </div>
         ) : (
-          <div className="text-xs text-gray-500">No open positions</div>
-        )}
-      </div>
-
-      {/* Vendors */}
-      <div>
-        <div className="flex items-center text-sm text-gray-600 mb-2">
-          <Building className="h-4 w-4 mr-1" />
-          <span className="font-medium">Vendors ({vendors.length})</span>
-        </div>
-        {vendors.length > 0 ? (
-          <div className="space-y-1">
-            {vendors.slice(0, 2).map((vendor: any) => (
-              <div key={vendor.id} className="text-xs bg-blue-50 p-2 rounded">
-                <div className="font-medium text-gray-900">{vendor.name}</div>
-                <div className="text-gray-500">{vendor.services}</div>
-                <div className="text-xs text-blue-600 mt-1">
-                  Status: {vendor.status}
-                </div>
-              </div>
-            ))}
-            {vendors.length > 2 && (
-              <div className="text-xs text-linkedin-blue">
-                +{vendors.length - 2} more vendors
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-xs text-gray-500">No vendors listed</div>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Briefcase className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="font-medium text-gray-900 mb-2">No Open Positions</h3>
+              <p className="text-gray-600 text-sm">This company doesn't have any job openings at the moment.</p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
