@@ -426,13 +426,29 @@ export default function PingJobHome() {
                             <Badge variant="secondary">{job.employmentType}</Badge>
                           </div>
                           <div className="flex space-x-2">
-                            <Link href={`/jobs/${job.id}`}>
-                              <Button size="sm" variant="outline">
-                                <Eye className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                            </Link>
-                            <Button size="sm">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                console.log('View job clicked:', job.id);
+                                window.open(`/jobs/${job.id}`, '_blank');
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                            <Button 
+                              size="sm"
+                              onClick={() => {
+                                console.log('Apply clicked for job:', job.id);
+                                if (!user) {
+                                  window.location.href = '/auth';
+                                  return;
+                                }
+                                // Navigate to job application page
+                                window.location.href = `/jobs/${job.id}`;
+                              }}
+                            >
                               <Send className="h-4 w-4 mr-1" />
                               Apply
                             </Button>
