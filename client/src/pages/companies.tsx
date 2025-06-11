@@ -300,7 +300,7 @@ const companyFormSchema = insertCompanySchema.omit({
 // Component to display company details (open positions and vendors)
 function CompanyDetails({ companyId }: { companyId: number }) {
   const { data: companyJobs, isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs'],
+    queryKey: ['/api/jobs', 'company', companyId],
     queryFn: async () => {
       const response = await fetch(`/api/jobs?companyId=${companyId}&limit=50`);
       if (!response.ok) throw new Error('Failed to fetch jobs');
@@ -380,7 +380,12 @@ function CompanyDetails({ companyId }: { companyId: number }) {
                         </p>
                       )}
                     </div>
-                    <Button size="sm" variant="outline" className="ml-4">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="ml-4"
+                      onClick={() => window.open(`/jobs/${job.id}`, '_blank')}
+                    >
                       View Job
                     </Button>
                   </div>
