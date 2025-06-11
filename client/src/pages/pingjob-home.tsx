@@ -391,15 +391,20 @@ export default function PingJobHome() {
                               <h3 className="font-semibold text-lg text-gray-900 mb-2">
                                 {job.title}
                               </h3>
-                              <div className="flex items-center space-x-2 mb-2">
-                                {job.company?.logoUrl ? (
-                                  <Avatar className="h-6 w-6">
-                                    <AvatarImage src={job.company.logoUrl} alt={job.company.name} />
-                                    <AvatarFallback>{job.company.name?.[0]?.toUpperCase()}</AvatarFallback>
-                                  </Avatar>
-                                ) : (
-                                  <Building className="h-5 w-5 text-gray-400" />
-                                )}
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className="w-12 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                                  {job.company?.logoUrl ? (
+                                    <img 
+                                      src={job.company.logoUrl} 
+                                      alt={job.company.name}
+                                      className="w-full h-full object-contain p-0.5"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
+                                      {job.company?.name?.[0]?.toUpperCase() || 'C'}
+                                    </div>
+                                  )}
+                                </div>
                                 <span className="text-sm font-medium text-gray-700">
                                   {job.company?.name || `Company ${job.companyId || 'TBD'}`}
                                 </span>

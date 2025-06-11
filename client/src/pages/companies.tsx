@@ -65,15 +65,18 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
         <Card key={company.id} className="hover:shadow-md transition-shadow cursor-pointer">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage 
-                  src={company.logoUrl && company.logoUrl !== "NULL" ? company.logoUrl : undefined} 
-                  alt={company.name} 
-                />
-                <AvatarFallback className="text-lg font-semibold">
-                  {company.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+              <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                {company.logoUrl && company.logoUrl !== "NULL" ? (
+                  <img 
+                    src={company.logoUrl} 
+                    alt={company.name}
+                    className="w-full h-full object-contain p-1"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
+                    {company.name.charAt(0)}
+                  </div>
+                )}</div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between">
@@ -1222,12 +1225,19 @@ export default function Companies() {
                 <div className="h-32 bg-gradient-to-r from-linkedin-blue to-linkedin-light relative"></div>
                 <div className="p-6 -mt-16">
                   <div className="flex items-start space-x-6">
-                    <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                      <AvatarImage src={selectedCompany.logoUrl || undefined} />
-                      <AvatarFallback className="bg-linkedin-blue text-white text-2xl">
-                        <Building className="h-12 w-12" />
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="w-32 h-24 border-4 border-white shadow-lg rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                      {selectedCompany.logoUrl && selectedCompany.logoUrl !== "NULL" ? (
+                        <img 
+                          src={selectedCompany.logoUrl} 
+                          alt={selectedCompany.name}
+                          className="w-full h-full object-contain p-2"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
+                          <Building className="h-12 w-12" />
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="flex-1">
                       <h2 className="text-2xl font-bold text-gray-900">
