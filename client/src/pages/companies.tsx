@@ -947,7 +947,7 @@ export default function Companies() {
                       variant="ghost"
                       size="sm"
                       className="w-full justify-start text-xs"
-                      onClick={() => setSearchQuery(industry)}
+                      onClick={() => window.location.href = `/companies?search=${encodeURIComponent(industry)}`}
                     >
                       {industry}
                     </Button>
@@ -1009,10 +1009,22 @@ export default function Companies() {
 
           {/* Company Details Modal/Sidebar */}
           {selectedCompany && (
-            <Card className="mb-6">
+            <Card className="mb-6 border-2 border-linkedin-blue shadow-lg">
               <CardContent className="p-0">
+                {/* Close Button */}
+                <div className="absolute top-4 right-4 z-10">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedCompany(null)}
+                    className="bg-white/80 hover:bg-white shadow-md"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
                 {/* Company Header */}
-                <div className="h-32 bg-gradient-to-r from-linkedin-blue to-linkedin-light"></div>
+                <div className="h-32 bg-gradient-to-r from-linkedin-blue to-linkedin-light relative"></div>
                 <div className="p-6 -mt-16">
                   <div className="flex items-start space-x-6">
                     <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
@@ -1375,7 +1387,7 @@ export default function Companies() {
                       }
                     </p>
                     {searchQuery && (
-                      <Button onClick={() => setSearchQuery("")} variant="outline">
+                      <Button onClick={() => window.location.href = '/companies'} variant="outline">
                         Clear search
                       </Button>
                     )}
