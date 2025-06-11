@@ -65,6 +65,7 @@ function Router() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
+          <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
