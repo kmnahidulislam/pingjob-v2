@@ -1257,49 +1257,54 @@ export default function Companies() {
                       )}
                     </div>
 
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 relative z-10">
+                      {/* Test Button */}
+                      <button
+                        onClick={() => {
+                          console.log('TEST BUTTON CLICKED!');
+                          alert('Test button works!');
+                        }}
+                        className="px-4 py-2 bg-red-500 text-white rounded"
+                      >
+                        TEST
+                      </button>
+                      
                       {/* Admin Add Job Button */}
                       {user?.userType === 'admin' && (
-                        <Button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
+                        <button
+                          onClick={() => {
                             console.log('Add Job clicked for company:', selectedCompany);
+                            alert('Add Job clicked!');
                             setJobFormCompany(selectedCompany);
                             setShowJobForm(true);
                           }}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded flex items-center"
                         >
                           <Briefcase className="h-4 w-4 mr-2" />
                           Add Job
-                        </Button>
+                        </button>
                       )}
-                      <Button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                      <button
+                        onClick={() => {
                           console.log('Follow clicked for company:', selectedCompany.id);
+                          alert('Follow clicked!');
                           handleFollowCompany(selectedCompany.id);
                         }}
                         disabled={followMutation.isPending}
-                        className="bg-linkedin-blue hover:bg-linkedin-dark text-white"
+                        className="px-4 py-2 bg-linkedin-blue hover:bg-linkedin-dark text-white rounded flex items-center"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         {followMutation.isPending ? "Following..." : "Follow"}
-                      </Button>
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                      </button>
+                      <button
+                        onClick={() => {
                           console.log('Share clicked');
+                          alert('Share clicked!');
                         }}
+                        className="px-4 py-2 border border-gray-300 rounded flex items-center"
                       >
                         <Share className="h-4 w-4" />
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
