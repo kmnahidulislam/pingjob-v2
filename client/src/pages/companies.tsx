@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
-import { insertCompanySchema } from "@shared/schema";
+import { insertCompanySchema, insertJobSchema } from "@shared/schema";
 import { z } from "zod";
 import {
   Building,
@@ -619,6 +619,8 @@ export default function Companies() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showPendingApprovals, setShowPendingApprovals] = useState(false);
+  const [showJobForm, setShowJobForm] = useState(false);
+  const [jobFormCompany, setJobFormCompany] = useState<any>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
