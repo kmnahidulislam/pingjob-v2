@@ -1262,6 +1262,7 @@ export default function Companies() {
                       {user?.userType === 'admin' && (
                         <Button
                           onClick={() => {
+                            console.log('Add Job clicked for company:', selectedCompany);
                             setJobFormCompany(selectedCompany);
                             setShowJobForm(true);
                           }}
@@ -1272,12 +1273,15 @@ export default function Companies() {
                         </Button>
                       )}
                       <Button
-                        onClick={() => handleFollowCompany(selectedCompany.id)}
+                        onClick={() => {
+                          console.log('Follow clicked for company:', selectedCompany.id);
+                          handleFollowCompany(selectedCompany.id);
+                        }}
                         disabled={followMutation.isPending}
                         className="bg-linkedin-blue hover:bg-linkedin-dark"
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Follow
+                        {followMutation.isPending ? "Following..." : "Follow"}
                       </Button>
                       <Button variant="outline">
                         <Share className="h-4 w-4" />
