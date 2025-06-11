@@ -389,11 +389,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timestamp = Date.now();
       const ext = path.extname(req.file.originalname);
       const filename = `company-logo-${timestamp}${ext}`;
-      const logoUrl = `/uploads/${filename}`;
+      const logoUrl = `/logos/${filename}`;
 
       // Rename file to have proper extension
       const oldPath = req.file.path;
-      const newPath = path.join('uploads', filename);
+      const newPath = path.join('logos', filename);
       
       fs.renameSync(oldPath, newPath);
 

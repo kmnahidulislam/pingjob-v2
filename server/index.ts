@@ -37,6 +37,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Serve static files from logos directory
+app.use('/logos', express.static('logos'));
+
 // Session management is now handled by working-auth.ts
 
 app.use((req, res, next) => {
