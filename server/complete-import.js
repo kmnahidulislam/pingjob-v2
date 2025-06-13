@@ -1,105 +1,83 @@
-import { createReadStream } from 'fs';
-import { parse } from 'csv-parse';
-import { db } from './db.ts';
-import { companies } from '../shared/schema.ts';
+import { storage } from './storage.ts';
+import { parse } from 'csv-parse/sync';
+import fs from 'fs';
 
 async function completeImport() {
-  console.log('Starting complete company import from CSV...');
+  console.log('Starting complete import process...');
   
-  let totalProcessed = 0;
-  let successfulImports = 0;
-  let batch = [];
-  const batchSize = 50; // Small batches for reliability
-  
-  return new Promise((resolve, reject) => {
-    createReadStream('./attached_assets/Replit_1749131418658.csv')
-      .pipe(parse({
-        columns: true,
-        skip_empty_lines: true,
-        delimiter: ',',
-        quote: '"',
-        escape: '"'
-      }))
-      .on('data', async (row) => {
-        totalProcessed++;
-        
-        // Basic validation
-        const id = parseInt(row.id);
-        if (!id || id <= 0 || !row.name || row.name === 'name') {
-          return;
-        }
-        
-        // Clean and prepare data
-        const companyData = {
-          id: id,
-          userId: (row.user_id && row.user_id !== 'NULL') ? row.user_id.trim() : 'admin-krupa',
-          name: row.name.trim().substring(0, 255),
-          industry: 'Not specified',
-          size: '1-50',
-          website: (row.website && row.website !== 'NULL' && row.website.trim()) ? row.website.trim().substring(0, 255) : null,
-          description: null,
-          logoUrl: (row.logo_url && row.logo_url !== 'uploads/NULL' && row.logo_url !== 'NULL') ? row.logo_url.trim().substring(0, 255) : null,
-          followers: 0,
-          country: (row.country || '').trim().substring(0, 100),
-          state: (row.state || '').trim().substring(0, 100),
-          city: (row.city || '').trim().substring(0, 100),
-          zipCode: (row.zip_code && row.zip_code !== 'NULL') ? row.zip_code.trim().substring(0, 20) : null,
-          location: (row.location || `${row.city || ''}, ${row.state || ''}, ${row.country || ''}`).trim().substring(0, 255),
-          phone: (row.phone && row.phone !== 'NULL') ? row.phone.trim().substring(0, 50) : null,
-          status: (row.status || 'approved').trim(),
-          approvedBy: (row.approved_by && row.approved_by !== 'NULL') ? row.approved_by.trim() : 'admin-krupa'
-        };
-        
-        batch.push(companyData);
-        
-        if (batch.length >= batchSize) {
-          await processBatch();
-        }
-      })
-      .on('end', async () => {
-        if (batch.length > 0) {
-          await processBatch();
-        }
-        
-        console.log(`Import completed: ${successfulImports}/${totalProcessed} companies imported successfully`);
-        resolve(successfulImports);
-      })
-      .on('error', reject);
+  try {
+    // Get current count
+    const currentCompanies = await storage.getCompanies(50000);
+    console.log(`Current companies in database: ${currentCompanies.length}`);
     
-    async function processBatch() {
-      if (batch.length === 0) return;
+    const csvPath = '../attached_assets/Replit_1749782925286.csv';
+    const csvContent = fs.readFileSync(csvPath, 'utf-8');
+    
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true
+    });
+    
+    console.log(`Total records in CSV: ${records.length}`);
+    
+    // Skip already imported records
+    const startIndex = currentCompanies.length;
+    const remainingRecords = records.slice(startIndex);
+    
+    console.log(`Importing ${remainingRecords.length} remaining records...`);
+    
+    let imported = 0;
+    let errors = 0;
+    
+    // Process in very small batches with connection recovery
+    for (let i = 0; i < remainingRecords.length; i += 10) {
+      const batch = remainingRecords.slice(i, i + 10);
       
-      const currentBatch = [...batch];
-      batch = [];
-      
-      try {
-        await db.insert(companies).values(currentBatch).onConflictDoNothing();
-        successfulImports += currentBatch.length;
-        
-        if (successfulImports % 2000 === 0) {
-          console.log(`Imported ${successfulImports} companies...`);
-        }
-      } catch (error) {
-        console.error(`Batch import error, trying individual inserts...`);
-        
-        // Fall back to individual inserts
-        for (const company of currentBatch) {
-          try {
-            await db.insert(companies).values(company).onConflictDoNothing();
-            successfulImports++;
-          } catch (individualError) {
-            console.error(`Failed to import: ${company.name}`);
+      for (const record of batch) {
+        try {
+          if (!record.name?.trim()) continue;
+          
+          const company = {
+            name: record.name.trim(),
+            location: record.location?.trim() || null,
+            logoUrl: record.logo_url === 'logos/NULL' ? null : record.logo_url?.trim() || null,
+            website: record.website?.trim() || null,
+            phone: record.phone?.trim() || null,
+            status: 'approved',
+            approvedBy: 'admin-krupa',
+            userId: 'admin-krupa'
+          };
+          
+          await storage.createCompany(company);
+          imported++;
+          
+          if (imported % 500 === 0) {
+            console.log(`Imported ${imported} companies (${startIndex + imported} total)...`);
+          }
+          
+        } catch (error) {
+          errors++;
+          if (errors <= 10) {
+            console.error(`Error importing: ${error.message}`);
           }
         }
       }
+      
+      // Small delay every batch to prevent timeouts
+      if (i % 50 === 0) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
     }
-  });
+    
+    console.log(`\nImport complete: ${imported} new companies imported`);
+    console.log(`Total companies in database: ${startIndex + imported}`);
+    
+    process.exit(0);
+  } catch (error) {
+    console.error('Import failed:', error);
+    process.exit(1);
+  }
 }
 
-completeImport().then((count) => {
-  console.log(`Successfully imported ${count} companies from CSV file`);
-  process.exit(0);
-}).catch((error) => {
-  console.error('Import failed:', error);
-  process.exit(1);
-});
+completeImport();
