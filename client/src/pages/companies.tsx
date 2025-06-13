@@ -94,6 +94,10 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
                         <Users className="h-4 w-4" />
                         {company.size} employees
                       </div>
+                      <div className="flex items-center gap-1">
+                        <Building className="h-4 w-4" />
+                        {company.vendor_count || 0} vendor{(company.vendor_count || 0) !== 1 ? 's' : ''}
+                      </div>
                     </div>
                   </div>
                   

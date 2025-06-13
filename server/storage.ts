@@ -335,66 +335,119 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getCompanies(limit = 50000): Promise<Company[]> {
-    if (limit === 50000) {
-      // For unlimited requests, return all approved companies
+  async getCompanies(limit = 50000): Promise<any[]> {
+    try {
+      const query = `
+        SELECT 
+          c.*,
+          COALESCE(v.vendor_count, 0) as vendor_count
+        FROM companies c
+        LEFT JOIN (
+          SELECT company_id, COUNT(*) as vendor_count 
+          FROM vendors 
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
+        WHERE c.status = 'approved'
+        ORDER BY c.followers DESC
+        ${limit === 50000 ? '' : `LIMIT ${limit}`}
+      `;
+      
+      const result = await pool.query(query);
+      console.log(`DEBUG ROUTE: getCompanies returned ${result.rows.length} companies with vendor counts`);
+      return result.rows;
+    } catch (error) {
+      console.error('Error in getCompanies with vendor counts:', error);
+      // Fallback to original query without vendor counts
+      if (limit === 50000) {
+        return await db
+          .select()
+          .from(companies)
+          .where(eq(companies.status, 'approved'))
+          .orderBy(desc(companies.followers));
+      }
       return await db
         .select()
         .from(companies)
         .where(eq(companies.status, 'approved'))
-        .orderBy(desc(companies.followers));
-    }
-    return await db
-      .select()
-      .from(companies)
-      .where(eq(companies.status, 'approved'))
-      .orderBy(desc(companies.followers))
-      .limit(limit);
-  }
-
-  async searchCompanies(query: string, limit = 50000): Promise<Company[]> {
-    console.log(`DEBUG: searchCompanies called with query="${query}", limit=${limit}`);
-    
-    // Search across multiple fields: name, city, state, zipCode, industry, description
-    const searchCondition = or(
-      sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.city}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.state}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.zipCode}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.industry}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.description}) LIKE LOWER(${'%' + query + '%'})`,
-      sql`LOWER(${companies.location}) LIKE LOWER(${'%' + query + '%'})`
-    );
-    
-    let results: Company[];
-    if (limit === 50000) {
-      // For unlimited searches, return all matching approved companies
-      results = await db
-        .select()
-        .from(companies)
-        .where(
-          and(
-            eq(companies.status, 'approved'),
-            searchCondition
-          )
-        )
-        .orderBy(desc(companies.followers));
-    } else {
-      results = await db
-        .select()
-        .from(companies)
-        .where(
-          and(
-            eq(companies.status, 'approved'),
-            searchCondition
-          )
-        )
         .orderBy(desc(companies.followers))
         .limit(limit);
     }
+  }
+
+  async searchCompanies(query: string, limit = 50000): Promise<any[]> {
+    console.log(`DEBUG: searchCompanies called with query="${query}", limit=${limit}`);
     
-    console.log(`DEBUG: searchCompanies returned ${results.length} results for "${query}"`);
-    return results;
+    try {
+      const searchQuery = `
+        SELECT 
+          c.*,
+          COALESCE(v.vendor_count, 0) as vendor_count
+        FROM companies c
+        LEFT JOIN (
+          SELECT company_id, COUNT(*) as vendor_count 
+          FROM vendors 
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
+        WHERE c.status = 'approved' 
+          AND (
+            LOWER(c.name) LIKE LOWER($1) OR
+            LOWER(c.city) LIKE LOWER($1) OR
+            LOWER(c.state) LIKE LOWER($1) OR
+            LOWER(c.zip_code) LIKE LOWER($1) OR
+            LOWER(c.industry) LIKE LOWER($1) OR
+            LOWER(c.description) LIKE LOWER($1) OR
+            LOWER(c.location) LIKE LOWER($1)
+          )
+        ORDER BY c.followers DESC
+        ${limit === 50000 ? '' : `LIMIT ${limit}`}
+      `;
+      
+      const searchTerm = `%${query}%`;
+      const result = await pool.query(searchQuery, [searchTerm]);
+      console.log(`DEBUG: searchCompanies returned ${result.rows.length} results for "${query}"`);
+      return result.rows;
+    } catch (error) {
+      console.error('Error in searchCompanies with vendor counts:', error);
+      // Fallback to original Drizzle query without vendor counts
+      const searchCondition = or(
+        sql`LOWER(${companies.name}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.city}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.state}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.zipCode}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.industry}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.description}) LIKE LOWER(${'%' + query + '%'})`,
+        sql`LOWER(${companies.location}) LIKE LOWER(${'%' + query + '%'})`
+      );
+      
+      let results: any[];
+      if (limit === 50000) {
+        results = await db
+          .select()
+          .from(companies)
+          .where(
+            and(
+              eq(companies.status, 'approved'),
+              searchCondition
+            )
+          )
+          .orderBy(desc(companies.followers));
+      } else {
+        results = await db
+          .select()
+          .from(companies)
+          .where(
+            and(
+              eq(companies.status, 'approved'),
+              searchCondition
+            )
+          )
+          .orderBy(desc(companies.followers))
+          .limit(limit);
+      }
+      
+      console.log(`DEBUG: searchCompanies fallback returned ${results.length} results for "${query}"`);
+      return results;
+    }
   }
 
   async getPendingCompanies(): Promise<Company[]> {
