@@ -340,10 +340,10 @@ export class DatabaseStorage implements IStorage {
       const query = `
         SELECT 
           c.*,
-          COALESCE(v.vendor_count, 0) as vendor_count
+          COALESCE(v.vendor_count, 0)::integer as vendor_count
         FROM companies c
         LEFT JOIN (
-          SELECT company_id, COUNT(*) as vendor_count 
+          SELECT company_id, COUNT(*)::integer as vendor_count 
           FROM vendors 
           GROUP BY company_id
         ) v ON c.id = v.company_id
@@ -354,7 +354,18 @@ export class DatabaseStorage implements IStorage {
       
       const result = await pool.query(query);
       console.log(`DEBUG ROUTE: getCompanies returned ${result.rows.length} companies with vendor counts`);
-      return result.rows;
+      
+      // Convert vendor_count from string to number
+      const processedRows = result.rows.map(row => {
+        const vendorCount = parseInt(row.vendor_count) || 0;
+        console.log(`DEBUG: Converting vendor_count "${row.vendor_count}" to ${vendorCount} for company ${row.name}`);
+        return {
+          ...row,
+          vendor_count: vendorCount
+        };
+      });
+      
+      return processedRows;
     } catch (error) {
       console.error('Error in getCompanies with vendor counts:', error);
       // Fallback to original query without vendor counts
@@ -381,10 +392,10 @@ export class DatabaseStorage implements IStorage {
       const searchQuery = `
         SELECT 
           c.*,
-          COALESCE(v.vendor_count, 0) as vendor_count
+          COALESCE(v.vendor_count, 0)::integer as vendor_count
         FROM companies c
         LEFT JOIN (
-          SELECT company_id, COUNT(*) as vendor_count 
+          SELECT company_id, COUNT(*)::integer as vendor_count 
           FROM vendors 
           GROUP BY company_id
         ) v ON c.id = v.company_id
@@ -405,7 +416,14 @@ export class DatabaseStorage implements IStorage {
       const searchTerm = `%${query}%`;
       const result = await pool.query(searchQuery, [searchTerm]);
       console.log(`DEBUG: searchCompanies returned ${result.rows.length} results for "${query}"`);
-      return result.rows;
+      
+      // Convert vendor_count from string to number
+      const processedRows = result.rows.map(row => ({
+        ...row,
+        vendor_count: parseInt(row.vendor_count) || 0
+      }));
+      
+      return processedRows;
     } catch (error) {
       console.error('Error in searchCompanies with vendor counts:', error);
       // Fallback to original Drizzle query without vendor counts
