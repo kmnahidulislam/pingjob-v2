@@ -96,7 +96,9 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
                       </div>
                       <div className="flex items-center gap-1">
                         <Building className="h-4 w-4" />
-                        {company.vendor_count || 0} vendor{(company.vendor_count || 0) !== 1 ? 's' : ''}
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>
+                          {company.vendor_count || 0} vendor{(company.vendor_count || 0) !== 1 ? 's' : ''}
+                        </span>
                       </div>
                     </div>
                   </div>
