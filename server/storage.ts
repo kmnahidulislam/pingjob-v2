@@ -78,6 +78,7 @@ export interface IStorage {
   getCompany(id: number): Promise<Company | undefined>;
   getUserCompany(userId: string): Promise<Company | undefined>;
   createCompany(company: InsertCompany): Promise<Company>;
+  bulkCreateCompanies(companies: InsertCompany[]): Promise<void>;
   updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company>;
   getCompanies(limit?: number): Promise<Company[]>;
   searchCompanies(query: string, limit?: number): Promise<Company[]>;
@@ -312,6 +313,17 @@ export class DatabaseStorage implements IStorage {
   async createCompany(company: InsertCompany): Promise<Company> {
     const [result] = await db.insert(companies).values(company).returning();
     return result;
+  }
+
+  async bulkCreateCompanies(companyList: InsertCompany[]): Promise<void> {
+    if (companyList.length === 0) return;
+    
+    // Use batch inserts for maximum speed - split into chunks of 500
+    const chunkSize = 500;
+    for (let i = 0; i < companyList.length; i += chunkSize) {
+      const chunk = companyList.slice(i, i + chunkSize);
+      await db.insert(companies).values(chunk);
+    }
   }
 
   async updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company> {
