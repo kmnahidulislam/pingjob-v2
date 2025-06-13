@@ -1,86 +1,86 @@
-import { createReadStream } from 'fs';
+import { storage } from './storage.ts';
 import { parse } from 'csv-parse';
-import { db } from './db.ts';
-import { companies } from '../shared/schema.ts';
-import { sql } from 'drizzle-orm';
+import fs from 'fs';
 
 async function importCompanies() {
-  console.log('Starting company import...');
+  console.log('Starting companies import from CSV...');
   
-  const records = [];
-  const parser = parse({
-    columns: true,
-    skip_empty_lines: true,
-    delimiter: ','
-  });
-
-  // Read and parse CSV file
-  createReadStream('./attached_assets/Replit_1749131418658.csv')
-    .pipe(parser)
-    .on('data', (data) => {
-      // Map CSV columns to database schema
-      const companyData = {
-        id: parseInt(data.id),
-        userId: data.user_id || 'admin-krupa',
-        name: data.name,
-        industry: data.industry || 'Not specified',
-        size: '1-50', // Default size since not in CSV
-        website: data.website || null,
-        description: null,
-        logoUrl: data.logo_url || null,
-        followers: 0,
-        country: data.country,
-        state: data.state,
-        city: data.city,
-        zipCode: data.zip_code || null,
-        location: data.location || `${data.city}, ${data.state}, ${data.country}`,
-        phone: data.phone || null,
-        status: data.status || 'approved',
-        approvedBy: data.approved_by || 'admin-krupa'
-      };
-      
-      records.push(companyData);
-    })
-    .on('end', async () => {
-      console.log(`Parsed ${records.length} companies from CSV`);
-      
-      try {
-        // Insert companies in batches using upsert to handle duplicates
-        const batchSize = 500;
-        for (let i = 0; i < records.length; i += batchSize) {
-          const batch = records.slice(i, i + batchSize);
-          await db.insert(companies).values(batch).onConflictDoUpdate({
-            target: companies.id,
-            set: {
-              name: sql`excluded.name`,
-              industry: sql`excluded.industry`,
-              size: sql`excluded.size`,
-              website: sql`excluded.website`,
-              logoUrl: sql`excluded.logo_url`,
-              country: sql`excluded.country`,
-              state: sql`excluded.state`,
-              city: sql`excluded.city`,
-              zipCode: sql`excluded.zip_code`,
-              location: sql`excluded.location`,
-              phone: sql`excluded.phone`,
-              status: sql`excluded.status`,
-              approvedBy: sql`excluded.approved_by`
-            }
-          });
-          console.log(`Imported batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(records.length/batchSize)}`);
-        }
-        
-        console.log(`Successfully imported ${records.length} companies`);
-        process.exit(0);
-      } catch (error) {
-        console.error('Error importing companies:', error);
-        process.exit(1);
-      }
-    })
-    .on('error', (error) => {
-      console.error('Error reading CSV:', error);
-      process.exit(1);
+  try {
+    const csvFilePath = '../attached_assets/Replit_1749782925286.csv';
+    const fileContent = fs.readFileSync(csvFilePath, 'utf-8');
+    
+    const records = [];
+    const parser = parse(fileContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true
     });
+    
+    for await (const record of parser) {
+      records.push(record);
+    }
+    
+    console.log(`Parsed ${records.length} companies from CSV`);
+    
+    let successCount = 0;
+    let errorCount = 0;
+    let batchSize = 100;
+    
+    // Process in batches to avoid overwhelming the database
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(records.length/batchSize)}`);
+      
+      for (const record of batch) {
+        try {
+          // Map CSV fields to company data
+          const companyData = {
+            name: record.name?.trim() || '',
+            location: record.location?.trim() || null,
+            logoUrl: record.logo_url === 'logos/NULL' ? null : record.logo_url?.trim() || null,
+            website: record.website?.trim() || null,
+            phone: record.phone?.trim() || null,
+            status: record.status?.trim() || 'pending',
+            approvedBy: record.approved_by?.trim() || null,
+            userId: record.user_id?.trim() || 'admin-krupa'
+          };
+          
+          await storage.createCompany(companyData);
+          successCount++;
+          
+          if (successCount % 1000 === 0) {
+            console.log(`Imported ${successCount} companies...`);
+          }
+          
+        } catch (error) {
+          errorCount++;
+          if (errorCount <= 5) {
+            console.error(`Error importing ${record.name}: ${error.message}`);
+          }
+        }
+      }
+      
+      // Small delay between batches
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    console.log(`\n=== IMPORT COMPLETE ===`);
+    console.log(`Successfully imported: ${successCount} companies`);
+    console.log(`Errors: ${errorCount} companies`);
+    console.log(`Total processed: ${records.length} companies`);
+    
+    // Verify the import
+    const totalCompanies = await storage.getCompanies(10);
+    console.log(`\nVerification: Database now contains companies starting with:`);
+    totalCompanies.slice(0, 5).forEach((company, index) => {
+      console.log(`${index + 1}. ${company.name} (Logo: ${company.logoUrl || 'None'})`);
+    });
+    
+    process.exit(0);
+  } catch (error) {
+    console.error('Error importing companies:', error);
+    process.exit(1);
+  }
 }
 
 importCompanies();
