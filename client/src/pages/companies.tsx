@@ -700,10 +700,44 @@ export default function Companies() {
   const [jobFormCompany, setJobFormCompany] = useState<any>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
 
   // Get search query from URL params for global search
   const searchParams = new URLSearchParams(window.location.search);
   const searchQuery = searchParams.get('search') || '';
+
+  // Location data queries
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    queryFn: async () => {
+      if (!selectedCountryId) return [];
+      const response = await fetch(`/api/states/${selectedCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountryId
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedStateId],
+    queryFn: async () => {
+      if (!selectedStateId) return [];
+      const response = await fetch(`/api/cities/${selectedStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedStateId
+  });
 
   // Load companies based on search query from global search
   const { data: companies, isLoading } = useQuery({
@@ -1785,16 +1819,39 @@ export default function Companies() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={companyForm.control}
                   name="country"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Country *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="United States" {...field} />
-                      </FormControl>
+                      <Select 
+                        onValueChange={(value) => {
+                          const countryObj = countries?.find((c: any) => c.name === value);
+                          if (countryObj) {
+                            setSelectedCountryId(countryObj.id);
+                            setSelectedStateId(null);
+                            companyForm.setValue('state', '');
+                            companyForm.setValue('city', '');
+                          }
+                          field.onChange(value);
+                        }} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countries?.map((country: any) => (
+                            <SelectItem key={country.id} value={country.name}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1806,9 +1863,62 @@ export default function Companies() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>State *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="California" {...field} />
-                      </FormControl>
+                      <Select 
+                        onValueChange={(value) => {
+                          const stateObj = states?.find((s: any) => s.name === value);
+                          if (stateObj) {
+                            setSelectedStateId(stateObj.id);
+                            companyForm.setValue('city', '');
+                          }
+                          field.onChange(value);
+                        }} 
+                        defaultValue={field.value}
+                        disabled={!selectedCountryId}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={selectedCountryId ? "Select state" : "Select country first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {states?.map((state: any) => (
+                            <SelectItem key={state.id} value={state.name}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={companyForm.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City *</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        disabled={!selectedStateId}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {cities?.map((city: any) => (
+                            <SelectItem key={city.id} value={city.name}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1816,12 +1926,12 @@ export default function Companies() {
 
                 <FormField
                   control={companyForm.control}
-                  name="city"
+                  name="zipCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City *</FormLabel>
+                      <FormLabel>Zip Code</FormLabel>
                       <FormControl>
-                        <Input placeholder="San Francisco" {...field} />
+                        <Input placeholder="12345" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
