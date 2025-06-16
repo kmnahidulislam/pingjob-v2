@@ -468,43 +468,99 @@ function AdminDashboard() {
     });
   };
 
-  // Company Vendors Component
-  function CompanyVendors({ companyId }: { companyId: number }) {
-    const { data: vendors, isLoading } = useQuery({
-      queryKey: ['/api/companies', companyId, 'vendors'],
+  // Vendor Approvals Component
+  function VendorApprovals() {
+    const { toast } = useToast();
+    
+    const { data: pendingVendors, isLoading: loadingVendors } = useQuery({
+      queryKey: ['/api/vendors/pending'],
       queryFn: async () => {
-        const response = await apiRequest('GET', `/api/companies/${companyId}/vendors`);
+        const response = await apiRequest('GET', '/api/vendors/pending');
         return response;
       },
     });
 
-    if (isLoading) {
-      return <div className="text-sm text-gray-500 mt-2">Loading vendors...</div>;
+    const vendorStatusMutation = useMutation({
+      mutationFn: async ({ vendorId, status }: { vendorId: number; status: 'approved' | 'rejected' }) => {
+        return await apiRequest('PUT', `/api/vendors/${vendorId}/status`, { status });
+      },
+      onSuccess: () => {
+        toast({
+          title: "Vendor status updated",
+          description: "The vendor status has been updated successfully.",
+        });
+        queryClient.invalidateQueries({ queryKey: ['/api/vendors/pending'] });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Error updating vendor status",
+          description: error.message || "Failed to update vendor status",
+          variant: "destructive",
+        });
+      },
+    });
+
+    const handleApproveVendor = (vendorId: number) => {
+      vendorStatusMutation.mutate({ vendorId, status: 'approved' });
+    };
+
+    const handleRejectVendor = (vendorId: number) => {
+      vendorStatusMutation.mutate({ vendorId, status: 'rejected' });
+    };
+
+    if (loadingVendors) {
+      return <div className="text-center py-8">Loading pending vendors...</div>;
     }
 
-    if (!vendors || !Array.isArray(vendors) || vendors.length === 0) {
-      return <div className="text-sm text-gray-500 mt-2">No vendors added yet</div>;
+    if (!pendingVendors || pendingVendors.length === 0) {
+      return (
+        <div className="text-center py-8 text-gray-500">
+          <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
+          <p>No pending vendor approvals</p>
+          <p className="text-sm mt-2">All vendors have been reviewed</p>
+        </div>
+      );
     }
 
     return (
-      <div className="mt-3">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">Vendors ({vendors.length})</h4>
-        <div className="space-y-1">
-          {vendors.map((vendor: any) => (
-            <div key={vendor.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+      <div className="space-y-4">
+        {pendingVendors.map((vendor: any) => (
+          <div key={vendor.id} className="border rounded-lg p-4">
+            <div className="flex items-center justify-between">
               <div className="flex-1">
-                <span className="font-medium">{vendor.name}</span>
-                <span className="text-gray-500 ml-2">• {vendor.services}</span>
+                <h3 className="font-semibold text-lg">{vendor.name}</h3>
+                <p className="text-gray-600">{vendor.email}</p>
+                <p className="text-sm text-gray-500 mt-1">{vendor.services}</p>
+                <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                  <span>Company: {vendor.company?.name}</span>
+                  {vendor.phone && <span>Phone: {vendor.phone}</span>}
+                </div>
               </div>
-              <Badge 
-                variant={vendor.status === 'active' ? 'default' : 'secondary'}
-                className="text-xs"
-              >
-                {vendor.status}
-              </Badge>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                  onClick={() => handleApproveVendor(vendor.id)}
+                  disabled={vendorStatusMutation.isPending}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => handleRejectVendor(vendor.id)}
+                  disabled={vendorStatusMutation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Reject
+                </Button>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -564,8 +620,9 @@ function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="companies" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-1">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="companies">Company Management</TabsTrigger>
+          <TabsTrigger value="vendors">Vendor Approvals</TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies" className="space-y-6">
@@ -658,125 +715,7 @@ function AdminDashboard() {
                             <span>{company.followers} followers</span>
                             <span>{company.location}</span>
                           </div>
-                          <CompanyVendors companyId={company.id} />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setSelectedCompany(company.id)}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                Add Vendor
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Add Vendor to {company.name}</DialogTitle>
-                                <DialogDescription>
-                                  Add a new vendor or service provider for this company.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <form onSubmit={handleAddVendor}>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="vendorCompany" className="text-right">
-                                      Vendor Company
-                                    </Label>
-                                    <div className="col-span-3">
-                                      <Popover open={vendorComboOpen} onOpenChange={setVendorComboOpen}>
-                                        <PopoverTrigger asChild>
-                                          <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={vendorComboOpen}
-                                            className="w-full justify-between"
-                                          >
-                                            {selectedVendorCompany
-                                              ? selectedVendorCompany.name
-                                              : "Select vendor company..."}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-full p-0">
-                                          <Command>
-                                            <CommandInput placeholder="Search companies..." />
-                                            <CommandEmpty>No company found.</CommandEmpty>
-                                            <CommandGroup>
-                                              {companies.map((comp: any) => (
-                                                <CommandItem
-                                                  key={comp.id}
-                                                  value={comp.name}
-                                                  onSelect={() => {
-                                                    setSelectedVendorCompany(comp);
-                                                    setVendorComboOpen(false);
-                                                  }}
-                                                >
-                                                  <Check
-                                                    className={`mr-2 h-4 w-4 ${
-                                                      selectedVendorCompany?.id === comp.id ? "opacity-100" : "opacity-0"
-                                                    }`}
-                                                  />
-                                                  <div>
-                                                    <div className="font-medium">{comp.name}</div>
-                                                    <div className="text-sm text-gray-500">{comp.industry}</div>
-                                                  </div>
-                                                </CommandItem>
-                                              ))}
-                                            </CommandGroup>
-                                          </Command>
-                                        </PopoverContent>
-                                      </Popover>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="email" className="text-right">
-                                      Email
-                                    </Label>
-                                    <Input
-                                      id="email"
-                                      name="email"
-                                      type="email"
-                                      placeholder="contact@vendor.com"
-                                      className="col-span-3"
-                                      required
-                                    />
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="phone" className="text-right">
-                                      Phone
-                                    </Label>
-                                    <Input
-                                      id="phone"
-                                      name="phone"
-                                      placeholder="+1 (555) 123-4567"
-                                      className="col-span-3"
-                                    />
-                                  </div>
-                                  <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="services" className="text-right">
-                                      Services
-                                    </Label>
-                                    <Input
-                                      id="services"
-                                      name="services"
-                                      placeholder="IT Support, Consulting"
-                                      className="col-span-3"
-                                      required
-                                    />
-                                  </div>
 
-                                </div>
-                                <DialogFooter>
-                                  <Button type="submit" disabled={addVendorMutation.isPending}>
-                                    {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
-                                  </Button>
-                                </DialogFooter>
-                              </form>
-                            </DialogContent>
-                          </Dialog>
                         </div>
                       </div>
                     </div>
@@ -787,7 +726,19 @@ function AdminDashboard() {
           </Card>
         </TabsContent>
 
-
+        <TabsContent value="vendors">
+          <Card>
+            <CardHeader>
+              <CardTitle>Vendor Approvals</CardTitle>
+              <CardDescription>
+                Review and approve pending vendor registrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <VendorApprovals />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
