@@ -564,9 +564,8 @@ function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="companies" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="companies">Company Management</TabsTrigger>
-          <TabsTrigger value="vendors">Vendor Management</TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies" className="space-y-6">
@@ -788,21 +787,7 @@ function AdminDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="vendors">
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendor Management</CardTitle>
-              <CardDescription>
-                Manage all vendors across the platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                Vendor management features coming soon...
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+
       </Tabs>
     </div>
   );

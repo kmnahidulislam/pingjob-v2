@@ -109,6 +109,12 @@ Changelog:
   - Implemented vendor count display in both search results and main company grid
   - Applied conditional display (only shows for companies with 1+ vendors)
   - Successfully imported 76,806 companies with vendor relationship tracking
+- June 16, 2025. Enhanced job creation forms and fixed company logo display
+  - Replaced simple location fields with cascading dropdowns (country → state → city → zip)
+  - Added database-driven category selection from categories table
+  - Fixed company logo display issue by implementing proper snake_case to camelCase transformation
+  - Updated both standalone job creation page and companies page job forms
+  - Confirmed successful job posting with enhanced location and category data
 ```
 
 ## User Preferences
