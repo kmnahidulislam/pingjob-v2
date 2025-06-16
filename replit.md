@@ -115,6 +115,12 @@ Changelog:
   - Fixed company logo display issue by implementing proper snake_case to camelCase transformation
   - Updated both standalone job creation page and companies page job forms
   - Confirmed successful job posting with enhanced location and category data
+- June 16, 2025. Cleaned up dashboard vendor management and created dedicated approval workflow
+  - Removed redundant vendor management from companies section in dashboard
+  - Created dedicated vendor approvals tab focused only on pending vendor reviews
+  - Fixed API endpoint mappings and database query structure for proper vendor data handling
+  - Implemented approve/reject functionality with proper status updates and cache invalidation
+  - Verified vendor approval system works correctly with real pending vendors
 ```
 
 ## User Preferences
