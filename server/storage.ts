@@ -355,13 +355,19 @@ export class DatabaseStorage implements IStorage {
       const result = await pool.query(query);
       console.log(`DEBUG ROUTE: getCompanies returned ${result.rows.length} companies with vendor counts`);
       
-      // Convert vendor_count from string to number
+      // Convert vendor_count from string to number and transform snake_case to camelCase
       const processedRows = result.rows.map(row => {
         const vendorCount = parseInt(row.vendor_count) || 0;
         console.log(`DEBUG: Converting vendor_count "${row.vendor_count}" to ${vendorCount} for company ${row.name}`);
         return {
           ...row,
-          vendor_count: vendorCount
+          vendor_count: vendorCount,
+          logoUrl: row.logo_url, // Transform snake_case to camelCase for frontend compatibility
+          zipCode: row.zip_code,
+          userId: row.user_id,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+          approvedBy: row.approved_by
         };
       });
       
@@ -417,10 +423,16 @@ export class DatabaseStorage implements IStorage {
       const result = await pool.query(searchQuery, [searchTerm]);
       console.log(`DEBUG: searchCompanies returned ${result.rows.length} results for "${query}"`);
       
-      // Convert vendor_count from string to number
+      // Convert vendor_count from string to number and transform snake_case to camelCase
       const processedRows = result.rows.map(row => ({
         ...row,
-        vendor_count: parseInt(row.vendor_count) || 0
+        vendor_count: parseInt(row.vendor_count) || 0,
+        logoUrl: row.logo_url, // Transform snake_case to camelCase for frontend compatibility
+        zipCode: row.zip_code,
+        userId: row.user_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        approvedBy: row.approved_by
       }));
       
       return processedRows;

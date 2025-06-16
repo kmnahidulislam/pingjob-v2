@@ -1183,7 +1183,7 @@ export default function Companies() {
                   <div className="p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={userCompany.logoUrl || userCompany.logo_url || undefined} />
+                        <AvatarImage src={userCompany.logoUrl || undefined} />
                         <AvatarFallback className="bg-linkedin-blue text-white">
                           <Building className="h-5 w-5" />
                         </AvatarFallback>
@@ -1583,7 +1583,7 @@ export default function Companies() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-4 flex-1">
                         <Avatar className="h-16 w-16">
-                          <AvatarImage src={company.logoUrl || company.logo_url || undefined} />
+                          <AvatarImage src={company.logoUrl || undefined} />
                           <AvatarFallback className="bg-linkedin-blue text-white">
                             <Building className="h-8 w-8" />
                           </AvatarFallback>
