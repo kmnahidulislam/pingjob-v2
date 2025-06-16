@@ -1140,11 +1140,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPendingVendors(): Promise<any[]> {
-    return await db
-      .select()
-      .from(vendors)
-      .where(eq(vendors.status, "pending"))
-      .orderBy(desc(vendors.createdAt));
+    try {
+      // Use raw SQL to avoid schema mapping issues
+      const result = await pool.query(`
+        SELECT 
+          v.id,
+          v.name,
+          v.email,
+          v.phone,
+          v.services,
+          v.status,
+          v.created_at as "createdAt",
+          json_build_object(
+            'id', c.id,
+            'name', c.name,
+            'industry', c.industry
+          ) as company
+        FROM vendors v
+        LEFT JOIN companies c ON v.company_id = c.id
+        WHERE v.status = 'pending'
+        ORDER BY v.created_at DESC
+      `);
+      
+      return result.rows;
+    } catch (error) {
+      console.error("Error fetching pending vendors:", error);
+      throw error;
+    }
   }
 
   // Category operations

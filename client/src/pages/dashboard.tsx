@@ -473,23 +473,23 @@ function AdminDashboard() {
     const { toast } = useToast();
     
     const { data: pendingVendors, isLoading: loadingVendors } = useQuery({
-      queryKey: ['/api/vendors/pending'],
+      queryKey: ['/api/admin/vendors/pending'],
       queryFn: async () => {
-        const response = await apiRequest('GET', '/api/vendors/pending');
-        return response;
+        const response = await apiRequest('GET', '/api/admin/vendors/pending');
+        return await response.json();
       },
     });
 
     const vendorStatusMutation = useMutation({
       mutationFn: async ({ vendorId, status }: { vendorId: number; status: 'approved' | 'rejected' }) => {
-        return await apiRequest('PUT', `/api/vendors/${vendorId}/status`, { status });
+        return await apiRequest('PATCH', `/api/admin/vendors/${vendorId}/status`, { status });
       },
       onSuccess: () => {
         toast({
           title: "Vendor status updated",
           description: "The vendor status has been updated successfully.",
         });
-        queryClient.invalidateQueries({ queryKey: ['/api/vendors/pending'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/vendors/pending'] });
       },
       onError: (error: any) => {
         toast({
