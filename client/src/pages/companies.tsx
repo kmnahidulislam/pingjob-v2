@@ -702,6 +702,8 @@ export default function Companies() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
   const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
+  const [jobFormCountryId, setJobFormCountryId] = useState<number | null>(null);
+  const [jobFormStateId, setJobFormStateId] = useState<number | null>(null);
 
   // Get search query from URL params for global search
   const searchParams = new URLSearchParams(window.location.search);
@@ -737,6 +739,39 @@ export default function Companies() {
       return response.json();
     },
     enabled: !!selectedStateId
+  });
+
+  // Location data queries for job form
+  const { data: jobFormStates } = useQuery({
+    queryKey: ['/api/states', jobFormCountryId],
+    queryFn: async () => {
+      if (!jobFormCountryId) return [];
+      const response = await fetch(`/api/states/${jobFormCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!jobFormCountryId
+  });
+
+  const { data: jobFormCities } = useQuery({
+    queryKey: ['/api/cities', jobFormStateId],
+    queryFn: async () => {
+      if (!jobFormStateId) return [];
+      const response = await fetch(`/api/cities/${jobFormStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!jobFormStateId
+  });
+
+  // Categories query for job form
+  const { data: categories } = useQuery({
+    queryKey: ['/api/categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    }
   });
 
   // Load companies based on search query from global search
@@ -2111,19 +2146,152 @@ export default function Companies() {
                 />
               </div>
 
+              {/* Category Selection */}
               <FormField
                 control={jobForm.control}
-                name="location"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. New York, NY or Remote" {...field} />
-                    </FormControl>
+                    <FormLabel>Job Category *</FormLabel>
+                    <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value?.toString()}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select job category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories?.map((category: any) => (
+                          <SelectItem key={category.id} value={category.id.toString()}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Location Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={jobForm.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country *</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          const countryObj = countries?.find((c: any) => c.name === value);
+                          if (countryObj) {
+                            setJobFormCountryId(countryObj.id);
+                            setJobFormStateId(null);
+                            jobForm.setValue('state', '');
+                            jobForm.setValue('city', '');
+                          }
+                          field.onChange(value);
+                        }} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countries?.map((country: any) => (
+                            <SelectItem key={country.id} value={country.name}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={jobForm.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State *</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          const stateObj = jobFormStates?.find((s: any) => s.name === value);
+                          if (stateObj) {
+                            setJobFormStateId(stateObj.id);
+                            jobForm.setValue('city', '');
+                          }
+                          field.onChange(value);
+                        }} 
+                        defaultValue={field.value}
+                        disabled={!jobFormCountryId}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={jobFormCountryId ? "Select state" : "Select country first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {jobFormStates?.map((state: any) => (
+                            <SelectItem key={state.id} value={state.name}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={jobForm.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City *</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        disabled={!jobFormStateId}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={jobFormStateId ? "Select city" : "Select state first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {jobFormCities?.map((city: any) => (
+                            <SelectItem key={city.id} value={city.name}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={jobForm.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Zip Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="12345" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField

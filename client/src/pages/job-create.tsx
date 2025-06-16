@@ -21,7 +21,10 @@ const jobFormSchema = insertJobSchema.omit({ employmentType: true }).extend({
   title: z.string().min(1, "Job title is required"),
   description: z.string().min(50, "Description must be at least 50 characters"),
   requirements: z.string().min(20, "Requirements must be at least 20 characters"),
-  location: z.string().min(1, "Location is required"),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().min(1, "State is required"),
+  city: z.string().min(1, "City is required"),
+  zipCode: z.string().optional(),
   salaryMin: z.number().min(0, "Minimum salary must be positive").optional(),
   salaryMax: z.number().min(0, "Maximum salary must be positive").optional(),
   companyId: z.number().min(1, "Company selection is required"),
@@ -35,6 +38,8 @@ export default function JobCreate() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [companySearch, setCompanySearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -76,6 +81,38 @@ export default function JobCreate() {
   console.log('Debug - companiesLoading:', companiesLoading);
 
 
+
+  // Location data queries
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    queryFn: async () => {
+      if (!selectedCountryId) return [];
+      const response = await fetch(`/api/states/${selectedCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountryId
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedStateId],
+    queryFn: async () => {
+      if (!selectedStateId) return [];
+      const response = await fetch(`/api/cities/${selectedStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedStateId
+  });
 
   // Fetch categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
