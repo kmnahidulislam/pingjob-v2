@@ -130,7 +130,10 @@ export default function JobCreate() {
       title: "",
       description: "",
       requirements: "",
-      location: "",
+      country: "",
+      state: "",
+      city: "",
+      zipCode: "",
       jobType: "full_time",
       experienceLevel: "mid",
       salaryMin: undefined,
@@ -307,23 +310,126 @@ export default function JobCreate() {
                   )}
                 />
 
-                {/* Location */}
-                <FormField
-                  control={jobForm.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPin className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                          <Input placeholder="e.g. San Francisco, CA" className="pl-10" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* Location Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={jobForm.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country *</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const countryObj = countries?.find((c: any) => c.name === value);
+                            if (countryObj) {
+                              setSelectedCountryId(countryObj.id);
+                              setSelectedStateId(null);
+                              jobForm.setValue('state', '');
+                              jobForm.setValue('city', '');
+                            }
+                            field.onChange(value);
+                          }} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries?.map((country: any) => (
+                              <SelectItem key={country.id} value={country.name}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={jobForm.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State *</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const stateObj = states?.find((s: any) => s.name === value);
+                            if (stateObj) {
+                              setSelectedStateId(stateObj.id);
+                              jobForm.setValue('city', '');
+                            }
+                            field.onChange(value);
+                          }} 
+                          defaultValue={field.value}
+                          disabled={!selectedCountryId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={selectedCountryId ? "Select state" : "Select country first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {states?.map((state: any) => (
+                              <SelectItem key={state.id} value={state.name}>
+                                {state.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={jobForm.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City *</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                          disabled={!selectedStateId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {cities?.map((city: any) => (
+                              <SelectItem key={city.id} value={city.name}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={jobForm.control}
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Zip Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="12345" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/* Job Type and Level */}
                 <div className="grid grid-cols-2 gap-4">
