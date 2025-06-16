@@ -94,12 +94,12 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
                         <Users className="h-4 w-4" />
                         {company.size} employees
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Building className="h-4 w-4" />
-                        <span style={{ color: 'red', fontWeight: 'bold' }}>
-                          {company.vendor_count || 0} vendor{(company.vendor_count || 0) !== 1 ? 's' : ''}
-                        </span>
-                      </div>
+                      {(company.vendor_count || 0) > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Building className="h-4 w-4" />
+                          {company.vendor_count} vendor{company.vendor_count !== 1 ? 's' : ''}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -1531,12 +1531,14 @@ export default function Companies() {
                                 <span>{company.size}</span>
                               </div>
                             )}
-                            <div className="flex items-center">
-                              <Building className="h-4 w-4 mr-1" />
-                              <span style={{ color: 'red', fontWeight: 'bold' }}>
-                                {company.vendor_count || 0} vendor{(company.vendor_count || 0) !== 1 ? 's' : ''}
-                              </span>
-                            </div>
+                            {(company.vendor_count || 0) > 0 && (
+                              <div className="flex items-center">
+                                <Building className="h-4 w-4 mr-1" />
+                                <span>
+                                  {company.vendor_count} vendor{company.vendor_count !== 1 ? 's' : ''}
+                                </span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Company Address */}

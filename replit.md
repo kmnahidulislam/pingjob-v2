@@ -104,6 +104,11 @@ PingJob is a full-stack web application built with React, TypeScript, Express.js
 ```
 Changelog:
 - June 13, 2025. Initial setup
+- June 13, 2025. Completed vendor count display system
+  - Added vendor_count field to company data with proper SQL JOIN queries
+  - Implemented vendor count display in both search results and main company grid
+  - Applied conditional display (only shows for companies with 1+ vendors)
+  - Successfully imported 76,806 companies with vendor relationship tracking
 ```
 
 ## User Preferences
