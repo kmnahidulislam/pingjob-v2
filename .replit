@@ -15,7 +15,7 @@ runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
-mode = "sequential"
+mode = "parallel"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -30,10 +30,6 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bash ./deploy.sh"
 
 [[ports]]
 localPort = 5000
