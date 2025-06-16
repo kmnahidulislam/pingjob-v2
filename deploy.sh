@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Stage all changes
+echo "🚀 [deploy.sh] Starting auto-push..."
+
+git status
+
 git add .
+echo "🚀 [deploy.sh] Staged changes: $(git diff --cached --name-only)"
 
-# Commit with timestamp
-git commit -m "Auto update: $(date)" || echo "No changes to commit."
+git commit -m "Auto update: $(date)" || echo "🚀 [deploy.sh] Nothing to commit."
 
-# Push to GitHub
-git push origin main
+echo "🚀 [deploy.sh] Running git push..."
+git push origin main && echo "✅ [deploy.sh] Push succeeded" || echo "❌ [deploy.sh] Push failed"
