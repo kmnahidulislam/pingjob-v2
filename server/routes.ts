@@ -956,6 +956,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Location API endpoints
+  app.get('/api/countries', async (req, res) => {
+    try {
+      const countries = await storage.getCountries();
+      res.json(countries);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      res.status(500).json({ message: "Failed to fetch countries" });
+    }
+  });
+
+  app.get('/api/states/:countryId', async (req, res) => {
+    try {
+      const countryId = parseInt(req.params.countryId);
+      if (isNaN(countryId)) {
+        return res.status(400).json({ message: "Invalid country ID" });
+      }
+      const states = await storage.getStatesByCountry(countryId);
+      res.json(states);
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      res.status(500).json({ message: "Failed to fetch states" });
+    }
+  });
+
+  app.get('/api/cities/:stateId', async (req, res) => {
+    try {
+      const stateId = parseInt(req.params.stateId);
+      if (isNaN(stateId)) {
+        return res.status(400).json({ message: "Invalid state ID" });
+      }
+      const cities = await storage.getCitiesByState(stateId);
+      res.json(cities);
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      res.status(500).json({ message: "Failed to fetch cities" });
+    }
+  });
+
   // Admin Routes - Platform Admin can approve vendors and edit jobs
   app.get('/api/admin/vendors/pending', isAuthenticated, async (req, res) => {
     try {
