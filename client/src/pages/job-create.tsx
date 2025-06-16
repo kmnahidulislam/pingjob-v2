@@ -17,7 +17,7 @@ import { Briefcase, MapPin, DollarSign, Check, ChevronsUpDown } from "lucide-rea
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const jobFormSchema = insertJobSchema.omit({ employmentType: true }).extend({
+const jobFormSchema = insertJobSchema.extend({
   title: z.string().min(1, "Job title is required"),
   description: z.string().min(50, "Description must be at least 50 characters"),
   requirements: z.string().min(20, "Requirements must be at least 20 characters"),
@@ -134,7 +134,7 @@ export default function JobCreate() {
       state: "",
       city: "",
       zipCode: "",
-      jobType: "full_time",
+      employmentType: "full_time",
       experienceLevel: "mid",
       salaryMin: undefined,
       salaryMax: undefined,
@@ -145,7 +145,12 @@ export default function JobCreate() {
 
   const createJobMutation = useMutation({
     mutationFn: async (jobData: z.infer<typeof jobFormSchema>) => {
-      return apiRequest('POST', '/api/jobs', jobData);
+      const processedData = {
+        ...jobData,
+        location: `${jobData.city}, ${jobData.state}, ${jobData.country}`, // Combine for legacy location field
+        skills: jobData.skills ? (typeof jobData.skills === 'string' ? [jobData.skills] : jobData.skills) : [],
+      };
+      return apiRequest('POST', '/api/jobs', processedData);
     },
     onSuccess: () => {
       toast({
@@ -435,14 +440,14 @@ export default function JobCreate() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={jobForm.control}
-                    name="jobType"
+                    name="employmentType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Job Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>Employment Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select job type" />
+                              <SelectValue placeholder="Select employment type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>

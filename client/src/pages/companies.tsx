@@ -890,8 +890,10 @@ export default function Companies() {
     mutationFn: async (jobData: z.infer<typeof jobFormSchema> & { companyId: number }) => {
       const processedData = {
         ...jobData,
+        companyId: jobData.companyId || jobFormCompany?.id,
         recruiterId: user?.id,
         skills: jobData.skills ? jobData.skills.split(',').map(s => s.trim()) : [],
+        location: `${jobData.city}, ${jobData.state}, ${jobData.country}`, // Combine for legacy location field
       };
       
       return apiRequest('POST', '/api/jobs', processedData);
