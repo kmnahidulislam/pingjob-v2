@@ -817,8 +817,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import company addresses from CSV
   app.post("/api/companies/import-addresses", isAuthenticated, async (req: any, res) => {
     try {
-      if (!req.user || (req.user.userType !== 'admin' && req.user.email !== 'krupas@vedsoft.com')) {
-        return res.status(403).json({ error: "Admin access required" });
+      if (!req.user) {
+        return res.status(403).json({ error: "Authentication required" });
       }
 
       const fs = await import('fs');
