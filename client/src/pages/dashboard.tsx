@@ -745,6 +745,20 @@ function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="data-import">
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Import</CardTitle>
+              <CardDescription>
+                Import company address data from CSV files
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AddressImportTool />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
