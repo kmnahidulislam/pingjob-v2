@@ -31,11 +31,7 @@ export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   
   const [filters, setFilters] = useState({
-    search: "",
-    jobType: "all",
-    experienceLevel: "all",
-    location: "",
-    industry: ""
+    search: ""
   });
 
   // Read search parameter from URL on page load
@@ -61,16 +57,7 @@ export default function Jobs() {
         searchParams.append('search', filters.search);
       }
       
-      // Add other filters if they're not default values
-      if (filters.jobType && filters.jobType !== 'all') {
-        searchParams.append('jobType', filters.jobType);
-      }
-      if (filters.experienceLevel && filters.experienceLevel !== 'all') {
-        searchParams.append('experienceLevel', filters.experienceLevel);
-      }
-      if (filters.location && filters.location.trim()) {
-        searchParams.append('location', filters.location);
-      }
+
       
       const url = `/api/jobs${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
       const response = await fetch(url, { credentials: 'include' });
@@ -162,93 +149,7 @@ export default function Jobs() {
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          
-          {/* Sidebar Filters */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Filter className="h-5 w-5 mr-2" />
-                  Filters
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                
-                {/* Job Type Filter */}
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Job Type
-                  </label>
-                  <Select
-                    value={filters.jobType}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Any type</SelectItem>
-                      <SelectItem value="full_time">Full Time</SelectItem>
-                      <SelectItem value="part_time">Part Time</SelectItem>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="remote">Remote</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Experience Level Filter */}
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Experience Level
-                  </label>
-                  <Select
-                    value={filters.experienceLevel}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Any level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Any level</SelectItem>
-                      <SelectItem value="entry">Entry Level</SelectItem>
-                      <SelectItem value="mid">Mid Level</SelectItem>
-                      <SelectItem value="senior">Senior Level</SelectItem>
-                      <SelectItem value="executive">Executive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Location Filter */}
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Location
-                  </label>
-                  <Input
-                    placeholder="Enter location"
-                    value={filters.location}
-                    onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                  />
-                </div>
-
-                {/* Industry Filter */}
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Industry
-                  </label>
-                  <Input
-                    placeholder="Enter industry"
-                    value={filters.industry}
-                    onChange={(e) => setFilters(prev => ({ ...prev, industry: e.target.value }))}
-                  />
-                </div>
-
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6">
             
             {/* Admin Actions */}
             {user?.userType === 'admin' && (
@@ -561,7 +462,6 @@ export default function Jobs() {
                 ))
               )}
             </div>
-          </div>
         </div>
       </div>
       
