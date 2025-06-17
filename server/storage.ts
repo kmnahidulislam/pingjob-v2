@@ -227,6 +227,53 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Password reset methods
+  async setPasswordResetToken(email: string, token: string, expiry: Date): Promise<boolean> {
+    try {
+      const result = await pool.query(`
+        UPDATE users 
+        SET reset_token = $1, reset_token_expiry = $2
+        WHERE email = $3
+        RETURNING id
+      `, [token, expiry, email]);
+      
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error("Error setting password reset token:", error);
+      return false;
+    }
+  }
+
+  async getUserByResetToken(token: string): Promise<User | null> {
+    try {
+      const result = await pool.query(`
+        SELECT * FROM users 
+        WHERE reset_token = $1 AND reset_token_expiry > NOW()
+      `, [token]);
+      
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error("Error getting user by reset token:", error);
+      return null;
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    try {
+      const result = await pool.query(`
+        UPDATE users 
+        SET password = $1, reset_token = NULL, reset_token_expiry = NULL
+        WHERE reset_token = $2 AND reset_token_expiry > NOW()
+        RETURNING id
+      `, [newPassword, token]);
+      
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      return false;
+    }
+  }
+
   // Experience operations
   async getUserExperiences(userId: string): Promise<Experience[]> {
     return await db

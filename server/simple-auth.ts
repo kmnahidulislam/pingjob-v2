@@ -161,6 +161,72 @@ export function setupSimpleAuth(app: Express) {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
   });
+
+  // Password reset routes
+  app.post("/api/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await getUserByEmail(email);
+      if (!user) {
+        // Return success even if user doesn't exist for security
+        return res.json({ message: "If an account with that email exists, a password reset link has been sent." });
+      }
+
+      // Generate reset token (simple implementation - in production use crypto.randomBytes)
+      const resetToken = Math.random().toString(36).substr(2, 15) + Math.random().toString(36).substr(2, 15);
+      const resetExpiry = new Date();
+      resetExpiry.setHours(resetExpiry.getHours() + 1); // 1 hour expiry
+
+      const success = await storage.setPasswordResetToken(email, resetToken, resetExpiry);
+      
+      if (success) {
+        console.log(`Password reset token for ${email}: ${resetToken}`);
+        // In production, send email with reset link
+        res.json({ 
+          message: "If an account with that email exists, a password reset link has been sent.",
+          resetToken // Remove this in production - only for testing
+        });
+      } else {
+        res.status(500).json({ message: "Failed to generate reset token" });
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+      
+      const success = await storage.resetPassword(token, hashedPassword);
+      
+      if (success) {
+        res.json({ message: "Password has been reset successfully" });
+      } else {
+        res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 }
 
 export const isAuthenticated = (req: any, res: any, next: any) => {

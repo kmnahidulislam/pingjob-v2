@@ -39,6 +39,8 @@ export const users = pgTable("users", {
   summary: text("summary"),
   location: varchar("location"),
   industry: varchar("industry"),
+  resetToken: varchar("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
