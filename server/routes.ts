@@ -796,6 +796,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Skills routes
+  app.get('/api/skills/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const skills = await storage.getUserSkills(userId);
+      res.json(skills);
+    } catch (error) {
+      console.error("Error fetching skills:", error);
+      res.status(500).json({ message: "Failed to fetch skills" });
+    }
+  });
+
+  app.post('/api/skills', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const validatedData = insertSkillSchema.parse({
+        ...req.body,
+        userId,
+      });
+      const skill = await storage.addSkill(validatedData);
+      res.json(skill);
+    } catch (error) {
+      console.error("Error adding skill:", error);
+      res.status(500).json({ message: "Failed to add skill" });
+    }
+  });
+
+  app.delete('/api/skills/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSkill(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+      res.status(500).json({ message: "Failed to delete skill" });
+    }
+  });
+
+  // Experience routes
+  app.get('/api/experience/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const experience = await storage.getUserExperiences(userId);
+      res.json(experience);
+    } catch (error) {
+      console.error("Error fetching experience:", error);
+      res.status(500).json({ message: "Failed to fetch experience" });
+    }
+  });
+
+  app.post('/api/experience', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const validatedData = insertExperienceSchema.parse({
+        ...req.body,
+        userId,
+      });
+      const experience = await storage.addExperience(validatedData);
+      res.json(experience);
+    } catch (error) {
+      console.error("Error adding experience:", error);
+      res.status(500).json({ message: "Failed to add experience" });
+    }
+  });
+
+  app.put('/api/experience/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const experience = await storage.updateExperience(id, req.body);
+      res.json(experience);
+    } catch (error) {
+      console.error("Error updating experience:", error);
+      res.status(500).json({ message: "Failed to update experience" });
+    }
+  });
+
+  app.delete('/api/experience/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteExperience(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting experience:", error);
+      res.status(500).json({ message: "Failed to delete experience" });
+    }
+  });
+
+  // Education routes
+  app.get('/api/education/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const education = await storage.getUserEducation(userId);
+      res.json(education);
+    } catch (error) {
+      console.error("Error fetching education:", error);
+      res.status(500).json({ message: "Failed to fetch education" });
+    }
+  });
+
+  app.post('/api/education', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const validatedData = insertEducationSchema.parse({
+        ...req.body,
+        userId,
+      });
+      const education = await storage.addEducation(validatedData);
+      res.json(education);
+    } catch (error) {
+      console.error("Error adding education:", error);
+      res.status(500).json({ message: "Failed to add education" });
+    }
+  });
+
+  app.put('/api/education/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const education = await storage.updateEducation(id, req.body);
+      res.json(education);
+    } catch (error) {
+      console.error("Error updating education:", error);
+      res.status(500).json({ message: "Failed to update education" });
+    }
+  });
+
+  app.delete('/api/education/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteEducation(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting education:", error);
+      res.status(500).json({ message: "Failed to delete education" });
+    }
+  });
+
   // Message routes
   app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
     try {
