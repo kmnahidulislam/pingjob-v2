@@ -347,16 +347,16 @@ function JobSeekerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {skills.slice(0, 6).map((skill: any) => (
+                {Array.isArray(skills) && skills.slice(0, 6).map((skill: any) => (
                   <Badge key={skill.id} variant="outline">
                     {skill.name}
                   </Badge>
                 ))}
-                {skills.length > 6 && (
+                {Array.isArray(skills) && skills.length > 6 && (
                   <Badge variant="secondary">+{skills.length - 6} more</Badge>
                 )}
               </div>
-              {skills.length === 0 && (
+              {(!Array.isArray(skills) || skills.length === 0) && (
                 <p className="text-sm text-gray-600">
                   Add skills to your profile to get better job recommendations
                 </p>
@@ -597,7 +597,7 @@ function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingCompanies.length}</div>
+            <div className="text-2xl font-bold">{Array.isArray(pendingCompanies) ? pendingCompanies.length : 0}</div>
             <p className="text-xs text-muted-foreground">Awaiting review</p>
           </CardContent>
         </Card>
@@ -608,7 +608,7 @@ function AdminDashboard() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeJobs || 0}</div>
+            <div className="text-2xl font-bold">{(stats as any)?.activeJobs || 0}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
@@ -643,13 +643,13 @@ function AdminDashboard() {
             <CardContent>
               {loadingPending ? (
                 <div className="text-center py-8">Loading pending companies...</div>
-              ) : pendingCompanies.length === 0 ? (
+              ) : !Array.isArray(pendingCompanies) || pendingCompanies.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   No pending companies to review
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {pendingCompanies.map((company: any) => (
+                  {Array.isArray(pendingCompanies) && pendingCompanies.map((company: any) => (
                     <div key={company.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
