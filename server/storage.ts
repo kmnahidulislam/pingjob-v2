@@ -595,6 +595,14 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async clearAllCompanies(): Promise<void> {
+    // Use raw SQL to handle cascade deletions properly
+    await pool.query('TRUNCATE TABLE job_applications CASCADE');
+    await pool.query('TRUNCATE TABLE vendors CASCADE');
+    await pool.query('TRUNCATE TABLE jobs CASCADE');
+    await pool.query('TRUNCATE TABLE companies RESTART IDENTITY CASCADE');
+  }
+
   // Job operations
   async getJob(id: number): Promise<Job | undefined> {
     try {
