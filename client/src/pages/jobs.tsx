@@ -243,16 +243,6 @@ export default function Jobs() {
                   />
                 </div>
 
-                {/* Clear Filters */}
-                {Object.values(filters).some(Boolean) && (
-                  <Button
-                    variant="outline"
-                    onClick={clearFilters}
-                    className="w-full"
-                  >
-                    Clear All Filters
-                  </Button>
-                )}
               </CardContent>
             </Card>
           </div>
