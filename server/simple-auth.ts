@@ -2,6 +2,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import { storage } from "./storage";
 import { Pool } from 'pg';
 import connectPg from "connect-pg-simple";
 
@@ -157,9 +158,9 @@ export function setupSimpleAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+  app.get("/api/user", (req: any, res) => {
+    if (!req.session?.user) return res.sendStatus(401);
+    res.json(req.session.user);
   });
 
   // Password reset routes
