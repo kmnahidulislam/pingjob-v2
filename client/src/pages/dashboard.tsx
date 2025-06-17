@@ -77,13 +77,13 @@ function JobSeekerDashboard() {
     let completed = 0;
     const total = 7;
 
-    if (profile?.firstName && profile?.lastName) completed++;
+    if (profile?.first_name && profile?.last_name) completed++;
     if (profile?.email) completed++;
     if (profile?.phone) completed++;
     if (profile?.location) completed++;
-    if (skills.length > 0) completed++;
-    if (experience.length > 0) completed++;
-    if (education.length > 0) completed++;
+    if (Array.isArray(skills) && skills.length > 0) completed++;
+    if (Array.isArray(experience) && experience.length > 0) completed++;
+    if (Array.isArray(education) && education.length > 0) completed++;
 
     return Math.round((completed / total) * 100);
   };
@@ -92,10 +92,11 @@ function JobSeekerDashboard() {
 
   // Get application statistics
   const getApplicationStats = () => {
-    const total = applications.length;
-    const applied = applications.filter((app: any) => app.status === 'applied' || app.status === 'pending').length;
-    const interviews = applications.filter((app: any) => app.status === 'interview').length;
-    const offers = applications.filter((app: any) => app.status === 'offered').length;
+    const appArray = Array.isArray(applications) ? applications : [];
+    const total = appArray.length;
+    const applied = appArray.filter((app: any) => app.status === 'applied' || app.status === 'pending').length;
+    const interviews = appArray.filter((app: any) => app.status === 'interview').length;
+    const offers = appArray.filter((app: any) => app.status === 'offered').length;
 
     return { total, applied, interviews, offers };
   };
