@@ -21,6 +21,7 @@ import { insertCompanySchema, insertJobSchema } from "@shared/schema";
 import { z } from "zod";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { getDisplayAddress } from "@/utils/addressUtils";
 import {
   Building,
   Search,
