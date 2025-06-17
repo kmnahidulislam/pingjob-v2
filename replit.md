@@ -121,6 +121,13 @@ Changelog:
   - Fixed API endpoint mappings and database query structure for proper vendor data handling
   - Implemented approve/reject functionality with proper status updates and cache invalidation
   - Verified vendor approval system works correctly with real pending vendors
+- June 17, 2025. Implemented complete forgot password/reset functionality
+  - Added password reset database columns (reset_token, reset_token_expiry) with automatic initialization
+  - Created secure token generation and validation system with expiry handling
+  - Built complete API endpoints: /api/forgot-password and /api/reset-password
+  - Integrated frontend forms in auth page with proper state management and validation
+  - Tested complete workflow: token generation → password reset → login with new password
+  - Enhanced authentication system with password recovery capabilities
 ```
 
 ## User Preferences

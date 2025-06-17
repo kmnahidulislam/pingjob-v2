@@ -228,6 +228,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Password reset methods
+  async initializePasswordResetColumns(): Promise<void> {
+    try {
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR`);
+      await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`);
+      console.log('Password reset columns initialized successfully');
+    } catch (error: any) {
+      console.log('Password reset columns setup:', error.message);
+      throw error;
+    }
+  }
+
   async setPasswordResetToken(email: string, token: string, expiry: Date): Promise<boolean> {
     try {
       // First, ensure the columns exist
