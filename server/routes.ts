@@ -817,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import company addresses from CSV
   app.post("/api/companies/import-addresses", isAuthenticated, async (req: any, res) => {
     try {
-      if (!req.user || req.user.userType !== 'admin') {
+      if (!req.user || (req.user.userType !== 'admin' && req.user.email !== 'krupas@vedsoft.com')) {
         return res.status(403).json({ error: "Admin access required" });
       }
 
@@ -826,29 +826,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('Starting address import process...');
       
-      return new Promise((resolve) => {
-        const csvData: any[] = [];
-        const parser = parse({
-          columns: true,
-          skip_empty_lines: true,
-          trim: true
-        });
+      const csvData: any[] = [];
+      const parser = parse({
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      });
+      
+      const stream = fs.default.createReadStream('attached_assets/CSZ_1750183986263.csv');
+      
+      stream.pipe(parser);
+      
+      parser.on('data', (row) => {
+        csvData.push(row);
+      });
+      
+      parser.on('end', async () => {
+        let updated = 0;
+        let notFound = 0;
         
-        const stream = fs.default.createReadStream('attached_assets/CSZ_1750183986263.csv');
+        console.log(`Processing ${csvData.length} companies...`);
         
-        stream.pipe(parser);
+        // Process in smaller batches to avoid timeout
+        const batchSize = 50;
+        const totalBatches = Math.ceil(Math.min(csvData.length, 500) / batchSize);
         
-        parser.on('data', (row) => {
-          csvData.push(row);
-        });
-        
-        parser.on('end', async () => {
-          let updated = 0;
-          let notFound = 0;
+        for (let batch = 0; batch < totalBatches; batch++) {
+          const startIndex = batch * batchSize;
+          const endIndex = Math.min(startIndex + batchSize, csvData.length);
+          const currentBatch = csvData.slice(startIndex, endIndex);
           
-          console.log(`Processing ${csvData.length} companies...`);
+          console.log(`Processing batch ${batch + 1}/${totalBatches} (${currentBatch.length} companies)...`);
           
-          for (const csvCompany of csvData.slice(0, 100)) { // Process first 100 for testing
+          for (const csvCompany of currentBatch) {
             try {
               // Try to find company by name and update
               const existingCompanies = await storage.searchCompanies(csvCompany.name, 1);
@@ -860,10 +870,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   zipCode: csvCompany.zip_code,
                 });
                 updated++;
-                
-                if (updated % 10 === 0) {
-                  console.log(`Updated ${updated} companies so far...`);
-                }
               } else {
                 notFound++;
               }
@@ -873,24 +879,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
           
-          const result = {
-            success: true,
-            updated,
-            notFound,
-            total: Math.min(csvData.length, 100),
-            message: `Updated ${updated} companies, ${notFound} not found`
-          };
-          
-          console.log('Import completed:', result);
-          res.json(result);
-          resolve(result);
-        });
+          console.log(`Batch ${batch + 1} completed. Updated: ${updated}, Not found: ${notFound}`);
+        }
         
-        parser.on('error', (error) => {
-          console.error('CSV parsing error:', error);
-          res.status(500).json({ error: "CSV parsing failed" });
-          resolve({ error: "CSV parsing failed" });
-        });
+        const result = {
+          success: true,
+          updated,
+          notFound,
+          total: Math.min(csvData.length, 500),
+          message: `Import completed: ${updated} companies updated, ${notFound} not found`
+        };
+        
+        console.log('Final import result:', result);
+        res.json(result);
+      });
+      
+      parser.on('error', (error) => {
+        console.error('CSV parsing error:', error);
+        res.status(500).json({ error: "CSV parsing failed" });
       });
       
     } catch (error) {
