@@ -84,6 +84,7 @@ export interface IStorage {
   searchCompanies(query: string, limit?: number): Promise<Company[]>;
   getPendingCompanies(): Promise<Company[]>;
   updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company>;
+  clearAllCompanies(): Promise<void>;
   
   // Job operations
   getJob(id: number): Promise<Job | undefined>;

@@ -860,16 +860,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           for (const csvCompany of currentBatch) {
             try {
-              // Try to find company by name and update
-              const existingCompanies = await storage.searchCompanies(csvCompany.name, 1);
+              // Find ALL companies with this name and update them
+              const existingCompanies = await storage.searchCompanies(csvCompany.name, 50);
               if (existingCompanies.length > 0) {
-                await storage.updateCompany(existingCompanies[0].id, {
-                  country: csvCompany.country,
-                  state: csvCompany.state,
-                  city: csvCompany.city?.trim(),
-                  zipCode: csvCompany.zip_code,
-                });
-                updated++;
+                // Update all matching companies with the same address data
+                for (const company of existingCompanies) {
+                  await storage.updateCompany(company.id, {
+                    country: csvCompany.country,
+                    state: csvCompany.state,
+                    city: csvCompany.city?.trim(),
+                    zipCode: csvCompany.zip_code,
+                  });
+                }
+                updated += existingCompanies.length;
               } else {
                 notFound++;
               }
@@ -888,6 +891,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notFound,
           total: Math.min(csvData.length, 500),
           message: `Import completed: ${updated} companies updated, ${notFound} not found`
+        };
+        
+        console.log('Final import result:', result);
+        res.json(result);
+      });
+      
+      parser.on('error', (error) => {
+        console.error('CSV parsing error:', error);
+        res.status(500).json({ error: "CSV parsing failed" });
+      });
+      
+    } catch (error) {
+      console.error("Import error:", error);
+      res.status(500).json({ error: "Import failed" });
+    }
+  });
+
+  // Fresh import - clear all and import from CSV
+  app.post("/api/companies/fresh-import", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!req.user) {
+        return res.status(403).json({ error: "Authentication required" });
+      }
+
+      const fs = await import('fs');
+      const { parse } = await import('csv-parse');
+      
+      console.log('Starting fresh company import - clearing existing data...');
+      
+      // Clear all existing companies
+      await storage.clearAllCompanies();
+      
+      const csvData: any[] = [];
+      let imported = 0;
+      let errors = 0;
+      
+      const parser = parse({
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      });
+      
+      const stream = fs.default.createReadStream('attached_assets/CSZ_1750183986263.csv');
+      
+      stream.pipe(parser);
+      
+      parser.on('data', (row) => {
+        csvData.push(row);
+      });
+      
+      parser.on('end', async () => {
+        console.log(`Importing ${csvData.length} companies from CSV...`);
+        
+        // Process in batches
+        const batchSize = 100;
+        const totalBatches = Math.ceil(csvData.length / batchSize);
+        
+        for (let batch = 0; batch < totalBatches; batch++) {
+          const startIndex = batch * batchSize;
+          const endIndex = Math.min(startIndex + batchSize, csvData.length);
+          const currentBatch = csvData.slice(startIndex, endIndex);
+          
+          console.log(`Processing batch ${batch + 1}/${totalBatches} (${currentBatch.length} companies)...`);
+          
+          for (const csvCompany of currentBatch) {
+            try {
+              // Create new company with all CSV data
+              const newCompany = await storage.createCompany({
+                name: csvCompany.name,
+                website: csvCompany.website || null,
+                country: csvCompany.country,
+                state: csvCompany.state,
+                city: csvCompany.city?.trim(),
+                zipCode: csvCompany.zip_code,
+                location: csvCompany.location || null,
+                industry: csvCompany.industry || null,
+                size: csvCompany.size || null,
+                description: csvCompany.description || null,
+                phone: csvCompany.phone || null,
+                userId: req.user.id,
+                status: 'approved'
+              });
+              imported++;
+            } catch (error) {
+              console.error(`Error importing ${csvCompany.name}:`, error);
+              errors++;
+            }
+          }
+          
+          console.log(`Batch ${batch + 1} completed. Imported: ${imported}, Errors: ${errors}`);
+        }
+        
+        const result = {
+          success: true,
+          imported,
+          errors,
+          total: csvData.length,
+          message: `Fresh import completed: ${imported} companies imported, ${errors} errors`
         };
         
         console.log('Final import result:', result);
