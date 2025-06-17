@@ -1292,7 +1292,7 @@ export default function Companies() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Enhanced Search Results Header */}
+          {/* Enhanced Search Results Header - Only show when searching */}
           {searchQuery && (
             <SearchResultsDisplay 
               searchQuery={searchQuery}
@@ -1569,20 +1569,21 @@ export default function Companies() {
             </Card>
           )}
 
-          {/* Results Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {searchQuery ? `Companies matching "${searchQuery}"` : 'All Companies'}
-              </h1>
-              <p className="text-gray-600">
-                {isLoading ? 'Loading...' : `${filteredCompanies.length} companies found`}
-              </p>
+          {/* Results Header - Only show when not searching */}
+          {!searchQuery && (
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">All Companies</h1>
+                <p className="text-gray-600">
+                  {isLoading ? 'Loading...' : `${filteredCompanies.length} companies found`}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Company Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Company Grid - Only show when not searching */}
+          {!searchQuery && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {isLoading ? (
               [...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
@@ -1741,10 +1742,11 @@ export default function Companies() {
                 </Card>
               </div>
             )}
-          </div>
+            </div>
+          )}
 
-          {/* Load More */}
-          {filteredCompanies.length > 0 && (
+          {/* Load More - Only show when not searching */}
+          {!searchQuery && filteredCompanies.length > 0 && (
             <div className="text-center py-8">
               <Button variant="outline" size="lg">
                 Load More Companies
