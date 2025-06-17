@@ -43,13 +43,15 @@ function JobSeekerDashboard() {
   const { toast } = useToast();
 
   // Fetch user profile data
-  const { data: profile } = useQuery({
+  const { data: profile = {} } = useQuery({
     queryKey: [`/api/profile/${user?.id}`],
+    enabled: !!user?.id,
   });
 
   // Fetch user applications
   const { data: applications = [] } = useQuery({
     queryKey: ['/api/applications'],
+    enabled: !!user?.id,
   });
 
   // Fetch recommended jobs
@@ -60,16 +62,19 @@ function JobSeekerDashboard() {
   // Fetch user skills
   const { data: skills = [] } = useQuery({
     queryKey: [`/api/skills/${user?.id}`],
+    enabled: !!user?.id,
   });
 
   // Fetch user experience
   const { data: experience = [] } = useQuery({
     queryKey: [`/api/experience/${user?.id}`],
+    enabled: !!user?.id,
   });
 
   // Fetch user education
   const { data: education = [] } = useQuery({
     queryKey: [`/api/education/${user?.id}`],
+    enabled: !!user?.id,
   });
 
   // Calculate profile completion percentage
@@ -77,10 +82,10 @@ function JobSeekerDashboard() {
     let completed = 0;
     const total = 7;
 
-    if (profile?.first_name && profile?.last_name) completed++;
-    if (profile?.email) completed++;
-    if (profile?.phone) completed++;
-    if (profile?.location) completed++;
+    if ((profile as any)?.first_name && (profile as any)?.last_name) completed++;
+    if ((profile as any)?.email) completed++;
+    if ((profile as any)?.phone) completed++;
+    if ((profile as any)?.location) completed++;
     if (Array.isArray(skills) && skills.length > 0) completed++;
     if (Array.isArray(experience) && experience.length > 0) completed++;
     if (Array.isArray(education) && education.length > 0) completed++;
@@ -108,7 +113,7 @@ function JobSeekerDashboard() {
       {/* Welcome Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {profile?.firstName || user?.firstName}!
+          Welcome back, {user?.firstName || 'User'}!
         </h1>
         <p className="text-gray-600">
           Here's your job search progress and recommendations.
@@ -212,7 +217,7 @@ function JobSeekerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recommendedJobs.slice(0, 4).map((job: any) => (
+                {Array.isArray(recommendedJobs) && recommendedJobs.slice(0, 4).map((job: any) => (
                   <div key={job.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{job.title}</h3>
@@ -270,7 +275,7 @@ function JobSeekerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {applications.slice(0, 3).map((app: any) => (
+                {Array.isArray(applications) && applications.slice(0, 3).map((app: any) => (
                   <div key={app.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="font-medium text-sm">{app.jobTitle}</p>
