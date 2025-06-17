@@ -1118,13 +1118,17 @@ export default function Companies() {
                   </div>
 
                   {/* Company Address */}
-                  {(selectedCompany.city || selectedCompany.state || selectedCompany.country) && (
+                  {(selectedCompany.location || selectedCompany.city || selectedCompany.state || selectedCompany.country) && (
                     <div className="flex items-center space-x-1 text-sm text-gray-500 mt-3">
                       <MapPin className="h-4 w-4 mr-1" />
                       <span>
-                        {[selectedCompany.city, selectedCompany.state, selectedCompany.zipCode, selectedCompany.country]
-                          .filter(Boolean)
-                          .join(', ')}
+                        {[
+                          selectedCompany.location,
+                          selectedCompany.city, 
+                          selectedCompany.state, 
+                          selectedCompany.zipCode || selectedCompany.zip_code, 
+                          selectedCompany.country
+                        ].filter(Boolean).join(', ')}
                       </span>
                     </div>
                   )}
