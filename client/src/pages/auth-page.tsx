@@ -15,6 +15,8 @@ import { Loader2, Briefcase, Users, Building2, ArrowLeft } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
+import logoPath from "@assets/logo_1749581218265.png";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -148,51 +150,63 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        {/* Hero Section */}
-        <div className="hidden lg:block space-y-8">
-          <div className="text-center lg:text-left">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Connect with Your Future
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Join thousands of professionals building meaningful careers through our comprehensive networking platform.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-6">
-            <div className="flex items-start space-x-4">
-              <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
-                <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Discover Opportunities</h3>
-                <p className="text-gray-600 dark:text-gray-300">Access thousands of job listings from top companies worldwide.</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
+      {/* Logo Header */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link href="/">
+          <img 
+            src={logoPath} 
+            alt="PingJob Logo" 
+            className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          />
+        </Link>
+      </div>
+      
+      <div className="flex items-center justify-center p-4 flex-1">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Hero Section */}
+          <div className="hidden lg:block space-y-8">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Connect with Your Future
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+                Join thousands of professionals building meaningful careers through our comprehensive networking platform.
+              </p>
             </div>
             
-            <div className="flex items-start space-x-4">
-              <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
-                <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Build Networks</h3>
-                <p className="text-gray-600 dark:text-gray-300">Connect with professionals in your industry and expand your reach.</p>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                    <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Discover Opportunities</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Access thousands of job listings from top companies worldwide.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
+                    <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Build Networks</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Connect with professionals in your industry and expand your reach.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-lg">
+                    <Building2 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Company Insights</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Get detailed information about companies and their culture.</p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-lg">
-                <Building2 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Company Insights</h3>
-                <p className="text-gray-600 dark:text-gray-300">Get detailed information about companies and their culture.</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Auth Forms */}
         <div className="w-full max-w-md mx-auto">
@@ -485,6 +499,7 @@ export default function AuthPage() {
               )}
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>
