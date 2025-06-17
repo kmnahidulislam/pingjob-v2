@@ -1018,7 +1018,11 @@ export default function Companies() {
     }
   };
 
-  const filteredCompanies = companies || [];
+  // Remove duplicates and ensure unique companies only
+  const filteredCompanies = companies ? 
+    companies.filter((company: any, index: number, self: any[]) => 
+      index === self.findIndex((c: any) => c.id === company.id)
+    ) : [];
 
   const formatFollowerCount = (count: number) => {
     if (count >= 1000000) {
@@ -1634,7 +1638,7 @@ export default function Companies() {
                           </div>
 
                           {/* Company Address */}
-                          {(company.city || company.state || company.country || company.location) && (
+                          {(company.city || company.state || company.country || company.location || company.zipCode) && (
                             <div className="flex items-center text-sm text-gray-500 mt-2">
                               <MapPin className="h-4 w-4 mr-1" />
                               <span className="truncate">
