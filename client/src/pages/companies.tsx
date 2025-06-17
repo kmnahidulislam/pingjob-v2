@@ -1378,18 +1378,10 @@ export default function Companies() {
                       </div>
 
                       {/* Company Address */}
-                      {(selectedCompany.city || selectedCompany.state || selectedCompany.country || selectedCompany.location || selectedCompany.zipCode || selectedCompany.zip_code) && (
+                      {(selectedCompany.city || selectedCompany.state || selectedCompany.country || selectedCompany.location || selectedCompany.zipCode) && (
                         <div className="flex items-center space-x-1 text-sm text-gray-500 mt-3">
                           <MapPin className="h-4 w-4 mr-1" />
-                          <span>
-                            {[
-                              selectedCompany.location,
-                              selectedCompany.city, 
-                              selectedCompany.state, 
-                              selectedCompany.zipCode || selectedCompany.zip_code, 
-                              selectedCompany.country
-                            ].filter(Boolean).join(', ')}
-                          </span>
+                          <span>{getDisplayAddress(selectedCompany)}</span>
                         </div>
                       )}
                     </div>
@@ -1634,18 +1626,10 @@ export default function Companies() {
                           </div>
 
                           {/* Company Address */}
-                          {(company.city || company.state || company.country || company.location || company.zipCode || company.zip_code) && (
+                          {(company.city || company.state || company.country || company.location || company.zipCode) && (
                             <div className="flex items-center text-sm text-gray-500 mt-2">
                               <MapPin className="h-4 w-4 mr-1" />
-                              <span className="truncate">
-                                {[
-                                  company.location,
-                                  company.city, 
-                                  company.state, 
-                                  company.zipCode || company.zip_code, 
-                                  company.country
-                                ].filter(Boolean).join(', ')}
-                              </span>
+                              <span className="truncate">{getDisplayAddress(company)}</span>
                             </div>
                           )}
 
