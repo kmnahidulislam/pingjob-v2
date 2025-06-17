@@ -1238,26 +1238,6 @@ export default function Companies() {
 
               <Separator />
 
-              {/* Industry Filter */}
-              <div>
-                <h4 className="font-semibold text-sm mb-2">Popular Industries</h4>
-                <div className="space-y-2">
-                  {['Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing'].map((industry) => (
-                    <Button
-                      key={industry}
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start text-xs"
-                      onClick={() => window.location.href = `/companies?search=${encodeURIComponent(industry)}`}
-                    >
-                      {industry}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <Separator />
-
               {/* Create Company (for clients and admins) */}
               {(user?.userType === 'client' || user?.userType === 'admin') && (
                 <Button
@@ -1299,10 +1279,10 @@ export default function Companies() {
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
           {/* Enhanced Search Results Header - Only show when searching */}
-          {searchQuery && searchData && (
+          {searchQuery && (
             <SearchResultsDisplay 
               searchQuery={searchQuery}
-              companies={searchData.companies || []}
+              companies={filteredCompanies || []}
               onSelectCompany={setSelectedCompany}
               onFollowCompany={handleFollowCompany}
               user={user}

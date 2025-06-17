@@ -149,6 +149,10 @@ Changelog:
   - Fixed both company grid and selected company detail views to properly display full addresses
   - Improved address formatting to handle both zipCode and zip_code field variations
   - Ensured single company display per search result with comprehensive location data
+- June 17, 2025. Cleaned up companies page interface
+  - Removed Popular Industries section from companies page sidebar as requested
+  - Fixed searchData reference error that was causing page crashes
+  - Streamlined companies page layout for better user experience
 ```
 
 ## User Preferences
