@@ -814,6 +814,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Import company addresses from CSV
+  app.post("/api/companies/import-addresses", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!req.user || req.user.userType !== 'admin') {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const fs = await import('fs');
+      const { parse } = await import('csv-parse');
+      
+      console.log('Starting address import process...');
+      
+      return new Promise((resolve) => {
+        const csvData: any[] = [];
+        const parser = parse({
+          columns: true,
+          skip_empty_lines: true,
+          trim: true
+        });
+        
+        const stream = fs.default.createReadStream('attached_assets/CSZ_1750183986263.csv');
+        
+        stream.pipe(parser);
+        
+        parser.on('data', (row) => {
+          csvData.push(row);
+        });
+        
+        parser.on('end', async () => {
+          let updated = 0;
+          let notFound = 0;
+          
+          console.log(`Processing ${csvData.length} companies...`);
+          
+          for (const csvCompany of csvData.slice(0, 100)) { // Process first 100 for testing
+            try {
+              // Try to find company by name and update
+              const existingCompanies = await storage.searchCompanies(csvCompany.name, 1);
+              if (existingCompanies.length > 0) {
+                await storage.updateCompany(existingCompanies[0].id, {
+                  country: csvCompany.country,
+                  state: csvCompany.state,
+                  city: csvCompany.city?.trim(),
+                  zipCode: csvCompany.zip_code,
+                });
+                updated++;
+                
+                if (updated % 10 === 0) {
+                  console.log(`Updated ${updated} companies so far...`);
+                }
+              } else {
+                notFound++;
+              }
+            } catch (error) {
+              console.error(`Error updating ${csvCompany.name}:`, error);
+              notFound++;
+            }
+          }
+          
+          const result = {
+            success: true,
+            updated,
+            notFound,
+            total: Math.min(csvData.length, 100),
+            message: `Updated ${updated} companies, ${notFound} not found`
+          };
+          
+          console.log('Import completed:', result);
+          res.json(result);
+          resolve(result);
+        });
+        
+        parser.on('error', (error) => {
+          console.error('CSV parsing error:', error);
+          res.status(500).json({ error: "CSV parsing failed" });
+          resolve({ error: "CSV parsing failed" });
+        });
+      });
+      
+    } catch (error) {
+      console.error("Import error:", error);
+      res.status(500).json({ error: "Import failed" });
+    }
+  });
+
   // Skills routes
   app.get('/api/skills/:userId', isAuthenticated, async (req, res) => {
     try {
