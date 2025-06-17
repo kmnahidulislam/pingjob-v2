@@ -575,6 +575,25 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async updateCompanyAddress(id: number, addressData: { city?: string; state?: string; zipCode?: string; country?: string }): Promise<Company> {
+    // Map zipCode to the correct database field
+    const updateData: any = {
+      updatedAt: new Date()
+    };
+    
+    if (addressData.city) updateData.city = addressData.city;
+    if (addressData.state) updateData.state = addressData.state;
+    if (addressData.zipCode) updateData.zipCode = addressData.zipCode;
+    if (addressData.country) updateData.country = addressData.country;
+    
+    const [result] = await db
+      .update(companies)
+      .set(updateData)
+      .where(eq(companies.id, id))
+      .returning();
+    return result;
+  }
+
   // Job operations
   async getJob(id: number): Promise<Job | undefined> {
     try {

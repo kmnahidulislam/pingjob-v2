@@ -474,6 +474,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update company address (for testing)
+  app.post('/api/companies/:id/update-address', async (req: any, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      const { city, state, zipCode, country } = req.body;
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      await storage.updateCompanyAddress(companyId, { city, state, zipCode, country });
+      res.json({ message: "Company address updated successfully" });
+    } catch (error) {
+      console.error("Error updating company address:", error);
+      res.status(500).json({ message: "Failed to update company address" });
+    }
+  });
+
   // Admin stats endpoint
   app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
