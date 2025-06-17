@@ -86,10 +86,22 @@ export default function Home() {
   if (!user) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Sidebar - Profile Card */}
-        <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Logo Header */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link href="/">
+          <img 
+            src={logoPath} 
+            alt="PingJob Logo" 
+            className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          />
+        </Link>
+      </div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Sidebar - Profile Card */}
+          <div className="space-y-6">
           <Card className="dashboard-card">
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
@@ -260,6 +272,7 @@ export default function Home() {
             </Card>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
