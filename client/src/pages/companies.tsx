@@ -1387,13 +1387,17 @@ export default function Companies() {
                       </div>
 
                       {/* Company Address */}
-                      {(selectedCompany.city || selectedCompany.state || selectedCompany.country) && (
+                      {(selectedCompany.city || selectedCompany.state || selectedCompany.country || selectedCompany.location || selectedCompany.zipCode || selectedCompany.zip_code) && (
                         <div className="flex items-center space-x-1 text-sm text-gray-500 mt-3">
                           <MapPin className="h-4 w-4 mr-1" />
                           <span>
-                            {[selectedCompany.city, selectedCompany.state, selectedCompany.zipCode, selectedCompany.country]
-                              .filter(Boolean)
-                              .join(', ')}
+                            {[
+                              selectedCompany.location,
+                              selectedCompany.city, 
+                              selectedCompany.state, 
+                              selectedCompany.zipCode || selectedCompany.zip_code, 
+                              selectedCompany.country
+                            ].filter(Boolean).join(', ')}
                           </span>
                         </div>
                       )}
@@ -1638,14 +1642,17 @@ export default function Companies() {
                           </div>
 
                           {/* Company Address */}
-                          {(company.city || company.state || company.country || company.location || company.zipCode) && (
+                          {(company.city || company.state || company.country || company.location || company.zipCode || company.zip_code) && (
                             <div className="flex items-center text-sm text-gray-500 mt-2">
                               <MapPin className="h-4 w-4 mr-1" />
                               <span className="truncate">
-                                {company.location || 
-                                 [company.city, company.state, company.zipCode, company.country]
-                                   .filter(Boolean)
-                                   .join(', ')}
+                                {[
+                                  company.location,
+                                  company.city, 
+                                  company.state, 
+                                  company.zipCode || company.zip_code, 
+                                  company.country
+                                ].filter(Boolean).join(', ')}
                               </span>
                             </div>
                           )}

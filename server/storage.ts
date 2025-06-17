@@ -466,7 +466,7 @@ export class DatabaseStorage implements IStorage {
     
     try {
       const searchQuery = `
-        SELECT 
+        SELECT DISTINCT
           c.*,
           COALESCE(v.vendor_count, 0)::integer as vendor_count
         FROM companies c

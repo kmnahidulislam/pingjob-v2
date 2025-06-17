@@ -143,6 +143,12 @@ Changelog:
   - Removed "Clear All Filters" section from jobs page to maintain single search header approach
   - Implemented consistent logo positioning in top-left corner across all pages
   - Verified navigation functionality working properly with smooth user experience
+- June 17, 2025. Fixed company search duplicate display and address formatting
+  - Added DISTINCT clause to searchCompanies SQL query to prevent duplicate results
+  - Enhanced address display logic to show complete location information (location, city, state, zip, country)
+  - Fixed both company grid and selected company detail views to properly display full addresses
+  - Improved address formatting to handle both zipCode and zip_code field variations
+  - Ensured single company display per search result with comprehensive location data
 ```
 
 ## User Preferences
