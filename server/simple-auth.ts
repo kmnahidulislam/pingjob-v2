@@ -154,7 +154,7 @@ export function setupSimpleAuth(app: Express) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
-      res.sendStatus(200);
+      res.status(200).json({ message: "Logout successful" });
     });
   });
 
