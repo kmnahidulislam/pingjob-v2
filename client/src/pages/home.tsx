@@ -19,6 +19,7 @@ import {
   MessageSquare
 } from "lucide-react";
 import { Link } from "wouter";
+import logoPath from "@assets/logo_1749581218265.png";
 
 export default function Home() {
   const { user } = useAuth();

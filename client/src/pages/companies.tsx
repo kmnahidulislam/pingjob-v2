@@ -19,6 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
 import { insertCompanySchema, insertJobSchema } from "@shared/schema";
 import { z } from "zod";
+import { Link } from "wouter";
+import logoPath from "@assets/logo_1749581218265.png";
 import {
   Building,
   Search,
@@ -38,7 +40,6 @@ import {
   X,
   Edit
 } from "lucide-react";
-import { Link } from "wouter";
 
 // Search Results Components
 function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFollowCompany, onAddJob, user }: {

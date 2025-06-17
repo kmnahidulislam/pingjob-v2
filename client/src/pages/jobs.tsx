@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
+import { Link } from "wouter";
+import logoPath from "@assets/logo_1749581218265.png";
 
 export default function Jobs() {
   const { user } = useAuth();
