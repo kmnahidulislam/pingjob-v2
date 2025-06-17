@@ -89,7 +89,13 @@ function SearchResultsCompanies({ companies, searchQuery, onSelectCompany, onFol
                     <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
-                        {company.city}, {company.state || company.country}
+                        {[
+                          company.location,
+                          company.city, 
+                          company.state, 
+                          company.zipCode || company.zip_code, 
+                          company.country
+                        ].filter(Boolean).join(', ')}
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
@@ -277,7 +283,7 @@ function SearchResultsDisplay({ searchQuery, companies, onSelectCompany, onFollo
             
             <TabsContent value="companies" className="mt-6">
               <SearchResultsCompanies 
-                companies={searchCompanies.length > 0 ? searchCompanies : companies} 
+                companies={searchCompanies} 
                 searchQuery={searchQuery}
                 onSelectCompany={onSelectCompany}
                 onFollowCompany={onFollowCompany}
@@ -1293,10 +1299,10 @@ export default function Companies() {
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
           {/* Enhanced Search Results Header - Only show when searching */}
-          {searchQuery && (
+          {searchQuery && searchData && (
             <SearchResultsDisplay 
               searchQuery={searchQuery}
-              companies={filteredCompanies}
+              companies={searchData.companies || []}
               onSelectCompany={setSelectedCompany}
               onFollowCompany={handleFollowCompany}
               user={user}
