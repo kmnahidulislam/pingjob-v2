@@ -908,67 +908,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Fresh import - clear all and import from CSV using direct SQL
-  app.post("/api/companies/fresh-import", isAuthenticated, async (req: any, res) => {
+  // Complete CSV import with ALL columns and original IDs
+  app.post("/api/companies/complete-import", isAuthenticated, async (req: any, res) => {
     try {
       if (!req.user) {
         return res.status(403).json({ error: "Authentication required" });
       }
 
-      console.log('Starting fresh company import - clearing existing data...');
+      const fs = await import('fs');
+      const { parse } = await import('csv-parse');
+      
+      console.log('Starting complete CSV import with ALL columns and original IDs...');
       
       // Clear all existing companies and related data
       await storage.clearAllCompanies();
+      console.log('Existing data cleared successfully.');
       
-      console.log('Data cleared successfully. Starting direct SQL import...');
-      
-      // Use direct SQL COPY command to import CSV data efficiently
-      const copyQuery = `
-        COPY companies (name, website, country, state, city, zip_code, location, industry, size, description, phone, user_id, status, created_at, updated_at, approved_by)
-        FROM '/tmp/companies_import.csv'
-        WITH (FORMAT csv, HEADER true, DELIMITER ',', QUOTE '"', ESCAPE '"');
-      `;
-      
-      // For now, let's use a simpler approach with INSERT statements
-      const insertQuery = `
-        INSERT INTO companies (name, website, country, state, city, zip_code, location, industry, size, description, phone, user_id, status, created_at, updated_at, approved_by)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'approved', NOW(), NOW(), $13)
-      `;
-      
+      const csvData: any[] = [];
       let imported = 0;
       let errors = 0;
       
-      // Sample companies data from CSV structure
-      const sampleCompanies = [
-        ['3M Company', 'www.3m.com', 'United States', 'Minnesota', 'Saint Paul', '55144', '3M Corporate Headquarters', 'Manufacturing', 'Large', 'Multinational conglomerate corporation', '651-733-1110', req.user.id, req.user.id],
-        ['VED Software Services Inc', 'www.vedsoft.com', 'United States', 'Michigan', 'Farmington Hills', '48331', '31700 W 13 Mile Road', 'Technology', 'Medium', 'Software development and consulting', '248-553-8300', req.user.id, req.user.id],
-        ['7-Eleven Inc', 'www.7-eleven.com', 'United States', 'Texas', 'Irving', '75063', '7-Eleven Corporate Headquarters', 'Retail', 'Large', 'Convenience store chain', '972-828-7011', req.user.id, req.user.id],
-        ['1st Source Bank', 'www.1stsource.com', 'United States', 'Indiana', 'South Bend', '46601', '100 North Michigan Street', 'Financial Services', 'Medium', 'Commercial banking services', '574-235-2000', req.user.id, req.user.id]
-      ];
+      const parser = parse({
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      });
       
-      console.log(`Importing ${sampleCompanies.length} sample companies...`);
+      const stream = fs.default.createReadStream('attached_assets/CSZ_1750183986263.csv');
       
-      for (const companyData of sampleCompanies) {
-        try {
-          await pool.query(insertQuery, companyData);
-          imported++;
-          console.log(`✓ Imported: ${companyData[0]}`);
-        } catch (error) {
-          console.error(`✗ Error importing ${companyData[0]}:`, error);
-          errors++;
+      stream.pipe(parser);
+      
+      parser.on('data', (row) => {
+        csvData.push(row);
+      });
+      
+      parser.on('end', async () => {
+        console.log(`Processing ${csvData.length} companies with ALL columns from CSV...`);
+        
+        // Process in batches
+        const batchSize = 100;
+        const totalBatches = Math.ceil(csvData.length / batchSize);
+        
+        for (let batch = 0; batch < totalBatches; batch++) {
+          const startIndex = batch * batchSize;
+          const endIndex = Math.min(startIndex + batchSize, csvData.length);
+          const currentBatch = csvData.slice(startIndex, endIndex);
+          
+          console.log(`Processing batch ${batch + 1}/${totalBatches} (${currentBatch.length} companies)...`);
+          
+          for (const csvCompany of currentBatch) {
+            try {
+              // Import with ALL columns from CSV, preserving original ID
+              const insertQuery = `
+                INSERT INTO companies (id, name, country, state, city, location, zip_code, website, phone, status, approved_by, user_id, logo_url, created_at, updated_at, followers, industry, size, description)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW(), 0, NULL, NULL, NULL)
+              `;
+              
+              const { cleanPool } = await import('./clean-neon');
+              await cleanPool.query(insertQuery, [
+                parseInt(csvCompany.id),           // Preserve original ID from CSV
+                csvCompany.name,
+                csvCompany.country,
+                csvCompany.state,
+                csvCompany.city?.trim(),
+                csvCompany.location,
+                csvCompany.zip_code,
+                csvCompany.website,
+                csvCompany.phone,
+                csvCompany.status || 'approved',
+                csvCompany.approved_by || req.user.id,
+                csvCompany.user_id || req.user.id,
+                csvCompany.logo_url
+              ]);
+              
+              imported++;
+            } catch (error) {
+              console.error(`Error importing ${csvCompany.name} (ID: ${csvCompany.id}):`, error);
+              errors++;
+            }
+          }
+          
+          console.log(`Batch ${batch + 1} completed. Imported: ${imported}, Errors: ${errors}`);
         }
-      }
+        
+        // Reset sequence to continue from highest ID
+        const { cleanPool } = await import('./clean-neon');
+        await cleanPool.query('SELECT setval(\'companies_id_seq\', (SELECT MAX(id) FROM companies))');
+        
+        const result = {
+          success: true,
+          imported,
+          errors,
+          total: csvData.length,
+          message: `Complete import finished: ${imported} companies imported with ALL columns and original IDs preserved`
+        };
+        
+        console.log('Final import result:', result);
+        res.json(result);
+      });
       
-      const result = {
-        success: true,
-        imported,
-        errors,
-        total: sampleCompanies.length,
-        message: `Fresh import completed: ${imported} companies imported with complete address data`
-      };
-      
-      console.log('Final import result:', result);
-      res.json(result);
+      parser.on('error', (error) => {
+        console.error('CSV parsing error:', error);
+        res.status(500).json({ error: "CSV parsing failed" });
+      });
       
     } catch (error) {
       console.error("Import error:", error);
