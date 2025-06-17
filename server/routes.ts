@@ -1092,6 +1092,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File upload endpoints
+  app.post('/api/upload/resume', isAuthenticated, upload.single('resume'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user.id;
+      const fileName = `resume_${userId}_${Date.now()}${path.extname(req.file.originalname)}`;
+      const filePath = path.join('uploads', fileName);
+      
+      // Move file to proper location
+      fs.renameSync(req.file.path, filePath);
+      
+      // Update user profile with resume URL
+      await storage.updateUserProfile(userId, { resumeUrl: `/uploads/${fileName}` });
+      
+      res.json({ 
+        message: "Resume uploaded successfully",
+        resumeUrl: `/uploads/${fileName}`
+      });
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      res.status(500).json({ message: "Failed to upload resume" });
+    }
+  });
+
+  app.post('/api/upload/logo', isAuthenticated, upload.single('logo'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user.id;
+      const fileName = `logo_${userId}_${Date.now()}${path.extname(req.file.originalname)}`;
+      const filePath = path.join('uploads', fileName);
+      
+      // Move file to proper location
+      fs.renameSync(req.file.path, filePath);
+      
+      res.json({ 
+        message: "Logo uploaded successfully",
+        logoUrl: `/uploads/${fileName}`
+      });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      res.status(500).json({ message: "Failed to upload logo" });
+    }
+  });
+
+  app.post('/api/upload/profile-image', isAuthenticated, upload.single('profileImage'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = req.user.id;
+      const fileName = `profile_${userId}_${Date.now()}${path.extname(req.file.originalname)}`;
+      const filePath = path.join('uploads', fileName);
+      
+      // Move file to proper location
+      fs.renameSync(req.file.path, filePath);
+      
+      // Update user profile with image URL
+      await storage.updateUserProfile(userId, { profileImageUrl: `/uploads/${fileName}` });
+      
+      res.json({ 
+        message: "Profile image uploaded successfully",
+        profileImageUrl: `/uploads/${fileName}`
+      });
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+      res.status(500).json({ message: "Failed to upload profile image" });
+    }
+  });
+
+  // Static file serving for uploads
+  app.use('/uploads', express.static('uploads'));
+
   // Location API endpoints
   app.get('/api/countries', async (req, res) => {
     try {
