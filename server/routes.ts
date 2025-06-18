@@ -1349,6 +1349,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Temporary admin endpoint to fix TEK Systems vendor location
+  app.put('/api/admin/fix-vendor/:id', async (req, res) => {
+    try {
+      const vendorId = parseInt(req.params.id);
+      const updateData = req.body;
+      const updatedVendor = await storage.updateVendor(vendorId, updateData);
+      res.json(updatedVendor);
+    } catch (error) {
+      console.error("Error updating vendor:", error);
+      res.status(500).json({ message: "Failed to update vendor" });
+    }
+  });
+
   // File upload endpoints
   app.post('/api/upload/resume', isAuthenticated, upload.single('resume'), async (req: any, res) => {
     try {
