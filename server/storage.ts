@@ -1201,8 +1201,30 @@ export class DatabaseStorage implements IStorage {
       
       const result = await pool.query(queryText);
       
-      console.log(`DEBUG: Found ${result.rows.length} total vendors:`, result.rows);
-      return result.rows;
+      // Map service codes to proper names
+      const serviceMap: { [key: string]: string } = {
+        'ste': 'Strategic Consulting',
+        'staff': 'Staff Augmentation',
+        'staffing': 'Staffing Services',
+        'it': 'IT Services',
+        'consulting': 'Business Consulting',
+        'development': 'Software Development',
+        'design': 'Design Services',
+        'marketing': 'Marketing Services',
+        'finance': 'Financial Services',
+        'hr': 'Human Resources',
+        'legal': 'Legal Services',
+        'support': 'Technical Support'
+      };
+      
+      // Transform results to include proper service names
+      const transformedResults = result.rows.map(vendor => ({
+        ...vendor,
+        service_name: serviceMap[vendor.services] || vendor.services || 'General Services'
+      }));
+      
+      console.log(`DEBUG: Found ${transformedResults.length} total vendors with service names:`, transformedResults);
+      return transformedResults;
     } catch (error) {
       console.error("Error in getClientVendors:", error);
       return [];

@@ -184,6 +184,15 @@ export const groupMemberships = pgTable("group_memberships", {
   joinedAt: timestamp("joined_at").defaultNow(),
 });
 
+// Services lookup table
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull().unique(),
+  code: varchar("code").notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Vendors (service providers for companies)
 export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
@@ -191,7 +200,7 @@ export const vendors = pgTable("vendors", {
   name: varchar("name").notNull(),
   email: varchar("email").notNull(),
   phone: varchar("phone"),
-  services: text("services"),
+  services: text("services"), // Will store service codes or IDs
   status: varchar("status").default("pending"),
   createdBy: varchar("created_by"),
   approvedBy: varchar("approved_by"),
@@ -359,6 +368,10 @@ export const vendorRelations = relations(vendors, ({ one }) => ({
     fields: [vendors.companyId],
     references: [companies.id],
   }),
+}));
+
+export const serviceRelations = relations(services, ({ many }) => ({
+  vendors: many(vendors),
 }));
 
 export const countryRelations = relations(countries, ({ many }) => ({
