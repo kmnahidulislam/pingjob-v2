@@ -275,6 +275,14 @@ Changelog:
   - Once vendors are approved/rejected, they automatically disappear from the dashboard
   - Dashboard statistics now pull from /api/admin/stats endpoint for accurate totals
   - Enhanced focus on actionable items requiring immediate admin attention
+- June 18, 2025. Implemented vendor information display in job details pages
+  - Added comprehensive vendor display section showing approved company vendors
+  - Created /api/companies/:companyId/vendors endpoint with authentication-based access control
+  - Unregistered users see maximum 3 vendors with "Sign in to view all" prompt
+  - Registered users see complete vendor list with full contact information
+  - Vendor cards display company name, location (city, state, zip, country), services, email, phone, website
+  - Applied service name mapping for professional display (staffing→Staffing Services, etc.)
+  - Only approved vendors are shown to maintain data quality and professional presentation
 ```
 
 ## User Preferences
