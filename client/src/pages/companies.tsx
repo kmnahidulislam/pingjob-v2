@@ -90,12 +90,12 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
             </p>
           )}
           
-          {/* Location */}
-          {(company.city || company.state || company.country) && (
+          {/* Location with Zip Code */}
+          {(company.city || company.state || company.zipCode || company.zip_code || company.country) && (
             <div className="flex items-center justify-center text-sm text-gray-500">
               <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
               <span className="truncate text-center">
-                {[company.city, company.state, company.country].filter(Boolean).join(', ')}
+                {[company.city, company.state, company.zipCode || company.zip_code, company.country].filter(Boolean).join(', ')}
               </span>
             </div>
           )}
@@ -152,7 +152,7 @@ function SearchResults({ companies, onSelectCompany, onFollowCompany }: {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {companies.map((company: any) => (
         <CompanyCard
           key={company.id}

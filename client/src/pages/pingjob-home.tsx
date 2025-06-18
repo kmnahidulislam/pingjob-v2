@@ -76,11 +76,11 @@ export default function PingJobHome() {
     }
   });
 
-  // Fetch top companies
+  // Fetch top 100 companies ranked by jobs and vendors
   const { data: topCompanies = [] } = useQuery({
-    queryKey: ['/api/companies', { featured: true }],
+    queryKey: ['/api/companies/top'],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=10');
+      const response = await fetch('/api/companies/top');
       if (!response.ok) throw new Error('Failed to fetch companies');
       return response.json();
     }
@@ -365,11 +365,11 @@ export default function PingJobHome() {
                         </p>
                       )}
                       
-                      {(company.city || company.state || company.country) && (
+                      {(company.city || company.state || company.zipCode || company.zip_code || company.country) && (
                         <div className="flex items-center justify-center text-sm text-gray-500">
                           <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
                           <span className="truncate text-center">
-                            {[company.city, company.state, company.country].filter(Boolean).join(', ')}
+                            {[company.city, company.state, company.zipCode || company.zip_code, company.country].filter(Boolean).join(', ')}
                           </span>
                         </div>
                       )}
