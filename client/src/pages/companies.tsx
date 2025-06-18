@@ -323,9 +323,12 @@ export default function CompaniesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Get search query from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search') || "";
 
   const companiesPerPage = 20;
   const totalPages = 5; // 100 companies / 20 per page = 5 pages
@@ -343,7 +346,7 @@ export default function CompaniesPage() {
   const { data: searchResults } = useQuery({
     queryKey: ['/api/search', searchQuery],
     queryFn: async () => {
-      const response = await apiRequest('GET', `/api/search/${encodeURIComponent(searchQuery)}`);
+      const response = await apiRequest('GET', `/api/search?q=${encodeURIComponent(searchQuery)}`);
       return response.json();
     },
     enabled: searchQuery.length >= 2
@@ -406,36 +409,22 @@ export default function CompaniesPage() {
         </Link>
       </div>
 
-      {/* Search Bar */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Search companies by name, location, industry..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            {searchQuery && (
-              <Button
-                onClick={() => setSearchQuery("")}
-                variant="outline"
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Search Results or Company Grid */}
       {searchQuery && searchQuery.length >= 2 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Search Results for "{searchQuery}"</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Search Results for "{searchQuery}"</CardTitle>
+              <Button
+                onClick={() => window.location.href = '/companies'}
+                variant="outline"
+                size="sm"
+              >
+                Clear Search
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <SearchResults
