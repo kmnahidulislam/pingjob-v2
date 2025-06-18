@@ -161,7 +161,7 @@ function AddVendorButton({ companyId }: { companyId: number }) {
   };
 
   // Debounced search effect
-  React.useEffect(() => {
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (searchQuery) {
         searchCompanies(searchQuery);
@@ -339,7 +339,7 @@ function AddVendorButton({ companyId }: { companyId: number }) {
                             <Checkbox
                               id={service.value}
                               checked={field.value.includes(service.value)}
-                              onCheckedChange={(checked) => {
+                              onCheckedChange={(checked: boolean) => {
                                 if (checked) {
                                   field.onChange([...field.value, service.value]);
                                 } else {
