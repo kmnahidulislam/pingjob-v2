@@ -195,6 +195,11 @@ Changelog:
   - Fixed vendor location display to show actual company addresses based on vendor's company_id
   - Vendor system now correctly displays vendor ID, name, and location derived from associated company
   - TEK Systems vendors now show proper locations: Linthicum, MD (approved) and North Sioux City, SD (pending)
+- June 18, 2025. Implemented service name mapping for vendor display
+  - Created service code to name mapping system (ste→Strategic Consulting, staff→Staff Augmentation, staffing→Staffing Services)
+  - Updated vendor display to show "ID: X - Vendor Name" format with proper service names instead of raw database codes
+  - Enhanced vendor information display with professional service descriptions for better user experience
+  - Confirmed vendor display shows: ID, name, service names, and accurate location data based on company associations
 ```
 
 ## User Preferences
