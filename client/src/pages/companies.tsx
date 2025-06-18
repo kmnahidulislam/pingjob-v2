@@ -654,7 +654,7 @@ function CompanyVendors({ companyId }: { companyId: number }) {
                   email: vendorEmail,
                   phone: vendorPhone,
                   services: vendorServices,
-                  companyId: companyId
+                  companyId
                 });
               }}
               disabled={addVendorMutation.isPending} 
