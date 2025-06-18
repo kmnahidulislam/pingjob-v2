@@ -142,69 +142,23 @@ function SearchResults({ companies, onSelectCompany, onFollowCompany }: {
 }) {
   if (companies.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Building className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <h3 className="text-lg font-semibold mb-2">No companies found</h3>
-        <p className="text-gray-600">Try adjusting your search terms</p>
+      <div className="text-center py-8 text-gray-500">
+        <Building className="h-12 w-12 mx-auto mb-3 opacity-30" />
+        <p>No companies found</p>
+        <p className="text-sm mt-2">Try adjusting your search terms</p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4">
-      {companies.map((company) => (
-        <Card key={company.id} className="hover:shadow-md transition-shadow cursor-pointer">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                {company.logoUrl && company.logoUrl !== "NULL" ? (
-                  <img 
-                    src={company.logoUrl} 
-                    alt={company.name}
-                    className="w-full h-full object-contain p-1"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
-                    {company.name.charAt(0)}
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-linkedin-blue hover:text-linkedin-dark cursor-pointer">
-                      {company.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm">{company.industry}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {getDisplayAddress(company)}
-                      </div>
-                      {(company.vendor_count || 0) > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Building className="h-4 w-4" />
-                          {company.vendor_count} vendors
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onFollowCompany(company.id);
-                    }}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+      {companies.map((company: any) => (
+        <CompanyCard
+          key={company.id}
+          company={company}
+          onSelectCompany={onSelectCompany}
+          onFollowCompany={onFollowCompany}
+        />
       ))}
     </div>
   );
@@ -302,22 +256,22 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="jobs" className="mt-4">
+            <TabsContent value="jobs" className="space-y-4">
               {companyDetails?.openJobs && companyDetails.openJobs.length > 0 ? (
                 <div className="space-y-4">
                   {companyDetails.openJobs.map((job: any) => (
-                    <JobCard key={job.id} job={job} compact showCompany={false} />
+                    <JobCard key={job.id} job={job} />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>No open positions at this time</p>
+                  <p>No open positions</p>
                 </div>
               )}
             </TabsContent>
             
-            <TabsContent value="vendors" className="mt-4">
+            <TabsContent value="vendors" className="space-y-4">
               {companyDetails?.vendors && companyDetails.vendors.length > 0 ? (
                 <div className="space-y-4">
                   {companyDetails.vendors.map((vendor: any) => (
@@ -408,38 +362,35 @@ export default function CompaniesPage() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to follow company",
+        description: error.message || "Failed to follow company",
         variant: "destructive",
       });
     },
   });
 
-  const handleFollowCompany = (companyId: number) => {
-    followMutation.mutate(companyId);
-  };
+  // Get current page companies
+  const currentCompanies = topCompanies.slice(
+    (currentPage - 1) * companiesPerPage,
+    currentPage * companiesPerPage
+  );
 
   const handleSelectCompany = (company: any) => {
     setSelectedCompany(company);
   };
 
-  // Calculate pagination
-  const startIndex = (currentPage - 1) * companiesPerPage;
-  const endIndex = startIndex + companiesPerPage;
-  const currentCompanies = topCompanies.slice(startIndex, endIndex);
+  const handleFollowCompany = (companyId: number) => {
+    followMutation.mutate(companyId);
+  };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    setCurrentPage(prev => Math.max(1, prev - 1));
   };
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage(prev => Math.min(totalPages, prev + 1));
   };
 
   return (
@@ -507,77 +458,77 @@ export default function CompaniesPage() {
             </div>
           </CardHeader>
           <CardContent>
-          {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
-                  {[...Array(20)].map((_, i) => (
-                    <Card key={i} className="animate-pulse">
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="w-16 h-12 bg-gray-200 rounded mx-auto"></div>
-                          <div className="h-4 bg-gray-200 rounded"></div>
-                          <div className="h-3 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
+            {isLoading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+                {[...Array(20)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="w-16 h-12 bg-gray-200 rounded mx-auto"></div>
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : currentCompanies.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+                  {currentCompanies.map((company: any) => (
+                    <CompanyCard
+                      key={company.id}
+                      company={company}
+                      onSelectCompany={handleSelectCompany}
+                      onFollowCompany={handleFollowCompany}
+                    />
                   ))}
                 </div>
-              ) : currentCompanies.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
-                    {currentCompanies.map((company: any) => (
-                      <CompanyCard
-                        key={company.id}
-                        company={company}
-                        onSelectCompany={handleSelectCompany}
-                        onFollowCompany={handleFollowCompany}
-                      />
+                
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-8">
+                  <Button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center space-x-2">
+                    {[...Array(totalPages)].map((_, i) => (
+                      <Button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        variant={currentPage === i + 1 ? "default" : "outline"}
+                        size="sm"
+                      >
+                        {i + 1}
+                      </Button>
                     ))}
                   </div>
                   
-                  {/* Pagination */}
-                  <div className="flex items-center justify-between mt-8">
-                    <Button
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                      variant="outline"
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-2" />
-                      Previous
-                    </Button>
-                    
-                    <div className="flex items-center space-x-2">
-                      {[...Array(totalPages)].map((_, i) => (
-                        <Button
-                          key={i + 1}
-                          onClick={() => setCurrentPage(i + 1)}
-                          variant={currentPage === i + 1 ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {i + 1}
-                        </Button>
-                      ))}
-                    </div>
-                    
-                    <Button
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages}
-                      variant="outline"
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-12">
-                  <Building className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No companies available</h3>
-                  <p className="text-gray-600">Companies will appear here once they are approved</p>
+                  <Button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    variant="outline"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <Building className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No companies available</h3>
+                <p className="text-gray-600">Companies will appear here once they are approved</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Company Details Modal */}
       <CompanyDetailsModal
