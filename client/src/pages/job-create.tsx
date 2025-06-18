@@ -41,6 +41,22 @@ export default function JobCreate() {
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
   const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
 
+  // Check URL parameters for pre-selected company
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const companyId = urlParams.get('companyId');
+    const companyName = urlParams.get('companyName');
+    
+    if (companyId && companyName) {
+      const preSelectedCompany = {
+        id: parseInt(companyId),
+        name: decodeURIComponent(companyName)
+      };
+      setSelectedCompany(preSelectedCompany);
+      setCompanySearch(preSelectedCompany.name);
+    }
+  }, []);
+
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {

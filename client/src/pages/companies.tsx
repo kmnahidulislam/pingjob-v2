@@ -170,6 +170,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const { user } = useAuth();
   const { data: companyDetails } = useQuery({
     queryKey: [`/api/companies/${company?.id}/details`],
     queryFn: async () => {
@@ -178,6 +179,9 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
     },
     enabled: !!company
   });
+
+  // Check if user is admin
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
 
   if (!company) return null;
 
@@ -257,6 +261,22 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             </TabsList>
             
             <TabsContent value="jobs" className="space-y-4">
+              {/* Admin Actions */}
+              {isAdmin && (
+                <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div>
+                    <h4 className="font-semibold text-blue-900">Admin Actions</h4>
+                    <p className="text-sm text-blue-700">Post jobs for this company</p>
+                  </div>
+                  <Link href={`/job-create?companyId=${company.id}&companyName=${encodeURIComponent(company.name)}`}>
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post a Job
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              
               {companyDetails?.openJobs && companyDetails.openJobs.length > 0 ? (
                 <div className="space-y-4">
                   {companyDetails.openJobs.map((job: any) => (
@@ -267,6 +287,9 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                 <div className="text-center py-8 text-gray-500">
                   <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
                   <p>No open positions</p>
+                  {isAdmin && (
+                    <p className="text-sm mt-2 text-blue-600">Use "Post a Job" above to create the first job for this company</p>
+                  )}
                 </div>
               )}
             </TabsContent>

@@ -231,6 +231,14 @@ Changelog:
   - Removed 'pending' status badges from vendor details display
   - Page now shows only logo and company grid directly for cleaner, focused presentation
   - Companies display correctly ranked with IBM Corporation leading (108 vendors)
+- June 18, 2025. Restored complete admin job and company management functionality
+  - Added Job Management tab to admin dashboard with "Add New Job" functionality
+  - Added Admin Actions tab with company and job management tools
+  - Restored "Post a Job" functionality for individual companies in company detail modals
+  - Fixed all routing paths (/job-create, /company/create) to match existing page structure
+  - Enhanced job creation page to handle company pre-selection via URL parameters
+  - Admin users can now create jobs directly from company profiles or dashboard
+  - Full platform admin capabilities restored for job posting, company management, and editing
 ```
 
 ## User Preferences
