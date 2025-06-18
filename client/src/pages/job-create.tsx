@@ -144,7 +144,7 @@ export default function JobCreate() {
     }
   });
 
-  const jobForm = useForm<z.infer<typeof jobFormSchema>>({
+  const jobForm = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
       title: "",
@@ -154,21 +154,22 @@ export default function JobCreate() {
       state: "",
       city: "",
       zipCode: "",
+      location: "",
+      salary: "",
       employmentType: "full_time",
       experienceLevel: "mid",
-      salaryMin: undefined,
-      salaryMax: undefined,
-      companyId: undefined,
-      categoryId: undefined,
+      skills: "",
+      companyId: 0,
+      categoryId: 0,
     },
   });
 
   const createJobMutation = useMutation({
-    mutationFn: async (jobData: z.infer<typeof jobFormSchema>) => {
+    mutationFn: async (jobData: JobFormData) => {
       const processedData = {
         ...jobData,
-        location: `${jobData.city}, ${jobData.state}, ${jobData.country}`, // Combine for legacy location field
-        skills: jobData.skills ? (typeof jobData.skills === 'string' ? [jobData.skills] : jobData.skills) : [],
+        location: `${jobData.city}, ${jobData.state}, ${jobData.country}`,
+        skills: jobData.skills ? [jobData.skills] : [],
       };
       return apiRequest('POST', '/api/jobs', processedData);
     },
@@ -190,7 +191,7 @@ export default function JobCreate() {
     }
   });
 
-  const handleSubmit = (data: z.infer<typeof jobFormSchema>) => {
+  const handleSubmit = (data: JobFormData) => {
     console.log("Job form submitted with data:", data);
     console.log("Selected company:", selectedCompany);
     console.log("Form errors:", jobForm.formState.errors);
@@ -203,6 +204,24 @@ export default function JobCreate() {
     console.log("Final data being sent:", data);
     createJobMutation.mutate(data);
   };
+
+  // Check URL parameters for pre-selected company
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const companyId = urlParams.get('companyId');
+    const companyName = urlParams.get('companyName');
+    
+    if (companyId && companyName) {
+      const preSelectedCompany = {
+        id: parseInt(companyId),
+        name: decodeURIComponent(companyName)
+      };
+      setSelectedCompany(preSelectedCompany);
+      setCompanySearch(preSelectedCompany.name);
+      jobForm.setValue('companyId', parseInt(companyId));
+      console.log("Pre-selected company from URL:", preSelectedCompany);
+    }
+  }, [jobForm]);
 
   if (!user) {
     return (
@@ -520,42 +539,17 @@ export default function JobCreate() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={jobForm.control}
-                    name="salaryMin"
+                    name="salary"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Minimum Salary</FormLabel>
+                      <FormItem className="col-span-2">
+                        <FormLabel>Salary Range</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <DollarSign className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                             <Input 
-                              type="number" 
-                              placeholder="50000" 
+                              placeholder="e.g. $50,000 - $80,000 per year" 
                               className="pl-10" 
                               {...field}
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={jobForm.control}
-                    name="salaryMax"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Maximum Salary</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <DollarSign className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                            <Input 
-                              type="number" 
-                              placeholder="100000" 
-                              className="pl-10" 
-                              {...field}
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                             />
                           </div>
                         </FormControl>
