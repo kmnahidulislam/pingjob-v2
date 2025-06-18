@@ -493,186 +493,167 @@ function CompanyVendors({ companyId }: { companyId: number }) {
     }
   });
 
-  const renderAddVendorDialog = () => (
-    <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Add New Vendor</DialogTitle>
-          <DialogDescription>
-            Add a new vendor to this company. Search and select from existing companies or enter a custom name.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...vendorForm}>
-          <form onSubmit={vendorForm.handleSubmit((data) => {
-            if (!selectedCompany) {
-              toast({
-                title: "No company selected",
-                description: "Please select a company first",
-                variant: "destructive"
-              });
-              return;
-            }
-            addVendorMutation.mutate({
-              ...data,
-              companyId: selectedCompany.id
-            });
-          })} className="space-y-4">
-            
-            {/* Enhanced Vendor Name with Auto-complete */}
-            <FormField
-              control={vendorForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vendor Name *</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input 
-                        placeholder="Type to search companies or enter custom name"
-                        value={vendorNameSearch}
-                        onChange={(e) => {
-                          setVendorNameSearch(e.target.value);
-                          field.onChange(e.target.value);
-                          setShowVendorDropdown(e.target.value.length >= 2);
-                        }}
-                        onFocus={() => setShowVendorDropdown(vendorNameSearch.length >= 2)}
-                        onBlur={() => {
-                          // Delay hiding dropdown to allow selection
-                          setTimeout(() => setShowVendorDropdown(false), 200);
-                        }}
-                      />
-                      
-                      {/* Auto-complete Dropdown */}
-                      {showVendorDropdown && vendorCompanies.length > 0 && (
-                        <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
-                          {vendorCompanies.map((company: Company) => (
-                            <div
-                              key={company.id}
-                              className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                              onClick={() => {
-                                setSelectedVendorCompany(company);
-                                setVendorNameSearch(company.name);
-                                field.onChange(company.name);
-                                setShowVendorDropdown(false);
-                                
-                                // Auto-populate website if available
-                                if (company.website) {
-                                  const emailDomain = company.website.replace(/^https?:\/\//, '').replace(/^www\./, '');
-                                  vendorForm.setValue('email', `contact@${emailDomain}`);
-                                }
-                              }}
-                            >
-                              <div className="flex items-center space-x-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={company.logoUrl || undefined} />
-                                  <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
-                                    <Building className="h-4 w-4" />
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-sm">{company.name}</div>
-                                  <div className="text-xs text-gray-500">
-                                    {company.industry} • {company.city}, {company.state}
-                                  </div>
-                                  {company.website && (
-                                    <div className="text-xs text-blue-600">{company.website}</div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                  {selectedVendorCompany && (
-                    <div className="text-sm text-green-600 mt-1">
-                      ✓ Selected: {selectedVendorCompany.name}
-                    </div>
-                  )}
-                </FormItem>
-              )}
-            />
+  const renderAddVendorDialog = () => {
+    const [localVendorName, setLocalVendorName] = useState("");
+    const [localVendorEmail, setLocalVendorEmail] = useState("");
+    const [localVendorPhone, setLocalVendorPhone] = useState("");
+    const [localVendorServices, setLocalVendorServices] = useState("");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedVendor, setSelectedVendor] = useState<Company | null>(null);
 
-            <FormField
-              control={vendorForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Email *</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="vendor@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+    return (
+      <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Vendor</DialogTitle>
+            <DialogDescription>
+              Add a new vendor to this company. Search and select from existing companies or enter a custom name.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Enhanced Vendor Name with Auto-complete */}
+            <div>
+              <label className="text-sm font-medium">Vendor Name *</label>
+              <div className="relative mt-1">
+                <Input 
+                  placeholder="Type to search companies or enter custom name"
+                  value={localVendorName}
+                  onChange={(e) => {
+                    setLocalVendorName(e.target.value);
+                    setShowDropdown(e.target.value.length >= 2);
+                  }}
+                  onFocus={() => setShowDropdown(localVendorName.length >= 2)}
+                  onBlur={() => {
+                    setTimeout(() => setShowDropdown(false), 200);
+                  }}
+                />
+                
+                {/* Auto-complete Dropdown */}
+                {showDropdown && filteredCompanies && filteredCompanies.length > 0 && (
+                  <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                    {filteredCompanies.filter((company: Company) => 
+                      company.name.toLowerCase().includes(localVendorName.toLowerCase())
+                    ).slice(0, 10).map((company: Company) => (
+                      <div
+                        key={company.id}
+                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                        onClick={() => {
+                          setSelectedVendor(company);
+                          setLocalVendorName(company.name);
+                          setShowDropdown(false);
+                          
+                          // Auto-populate email if available
+                          if (company.website) {
+                            const emailDomain = company.website.replace(/^https?:\/\//, '').replace(/^www\./, '');
+                            setLocalVendorEmail(`contact@${emailDomain}`);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={company.logoUrl || undefined} />
+                            <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                              <Building className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm">{company.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {company.industry} • {company.city}, {company.state}
+                            </div>
+                            {company.website && (
+                              <div className="text-xs text-blue-600">{company.website}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedVendor && (
+                <div className="text-sm text-green-600 mt-1">
+                  ✓ Selected: {selectedVendor.name}
+                </div>
               )}
-            />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Contact Email *</label>
+              <Input 
+                type="email" 
+                placeholder="vendor@example.com" 
+                value={localVendorEmail}
+                onChange={(e) => setLocalVendorEmail(e.target.value)}
+                className="mt-1"
+              />
+            </div>
             
-            <FormField
-              control={vendorForm.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="(555) 123-4567" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="text-sm font-medium">Contact Phone</label>
+              <Input 
+                placeholder="(555) 123-4567" 
+                value={localVendorPhone}
+                onChange={(e) => setLocalVendorPhone(e.target.value)}
+                className="mt-1"
+              />
+            </div>
             
-            <FormField
-              control={vendorForm.control}
-              name="services"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Services Provided *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., IT Support, Marketing, Consulting" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={vendorForm.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Additional details about the vendor services..."
-                      className="min-h-[80px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => {
-                setIsAddVendorOpen(false);
-                setVendorNameSearch("");
-                setSelectedVendorCompany(null);
-                vendorForm.reset();
-              }}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={addVendorMutation.isPending} className="bg-linkedin-blue hover:bg-linkedin-dark">
-                {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
+            <div>
+              <label className="text-sm font-medium">Services Provided *</label>
+              <Input 
+                placeholder="e.g., IT Support, Marketing, Consulting" 
+                value={localVendorServices}
+                onChange={(e) => setLocalVendorServices(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => {
+              setIsAddVendorOpen(false);
+              setLocalVendorName("");
+              setLocalVendorEmail("");
+              setLocalVendorPhone("");
+              setLocalVendorServices("");
+              setSelectedVendor(null);
+            }}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (!localVendorName || !localVendorEmail || !localVendorServices) {
+                  toast({
+                    title: "Required fields missing",
+                    description: "Please fill in all required fields",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                // Use the first available company ID from the current companies list
+                const companyId = selectedCompany?.id || (filteredCompanies && filteredCompanies.length > 0 ? filteredCompanies[0].id : 1);
+                
+                addVendorMutation.mutate({
+                  name: localVendorName,
+                  email: localVendorEmail,
+                  phone: localVendorPhone,
+                  services: localVendorServices,
+                  companyId: companyId
+                });
+              }}
+              disabled={addVendorMutation.isPending} 
+              className="bg-linkedin-blue hover:bg-linkedin-dark"
+            >
+              {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -1144,7 +1125,7 @@ export default function Companies() {
 
   // Add vendor mutation
   const addVendorMutation = useMutation({
-    mutationFn: async (vendorData: z.infer<typeof vendorFormSchema> & { companyId: number }) => {
+    mutationFn: async (vendorData: any) => {
       return apiRequest('POST', '/api/vendors', vendorData);
     },
     onSuccess: () => {
@@ -1153,9 +1134,6 @@ export default function Companies() {
         description: "The vendor has been added and is pending approval.",
       });
       setIsAddVendorOpen(false);
-      vendorForm.reset();
-      setVendorNameSearch("");
-      setSelectedVendorCompany(null);
       // Refresh company details to show new vendor
       if (selectedCompany) {
         queryClient.invalidateQueries({ queryKey: ['/api/companies', selectedCompany.id, 'details'] });
