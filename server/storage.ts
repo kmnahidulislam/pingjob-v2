@@ -470,7 +470,22 @@ export class DatabaseStorage implements IStorage {
     try {
       const query = `
         SELECT 
-          c.*,
+          c.id,
+          c.name,
+          c.country,
+          c.state,
+          c.city,
+          c.location,
+          c.zip_code,
+          c.website,
+          c.phone,
+          c.status,
+          c.approved_by,
+          c.user_id,
+          c.logo_url,
+          c.created_at,
+          c.updated_at,
+          c.followers,
           COALESCE(v.vendor_count, 0)::integer as vendor_count,
           COALESCE(j.job_count, 0)::integer as job_count,
           (COALESCE(v.vendor_count, 0) + COALESCE(j.job_count, 0))::integer as total_activity
@@ -486,12 +501,19 @@ export class DatabaseStorage implements IStorage {
           GROUP BY company_id
         ) j ON c.id = j.company_id
         WHERE c.status = 'approved'
-        ORDER BY total_activity DESC, vendor_count DESC, job_count DESC, c.created_at DESC
+        ORDER BY vendor_count DESC, job_count DESC, c.followers DESC, c.created_at DESC
         LIMIT 100
       `;
       
+      console.log(`DEBUG: Executing getTopCompanies query...`);
       const result = await pool.query(query);
-      console.log(`DEBUG: getTopCompanies returned ${result.rows.length} companies ranked by activity`);
+      console.log(`DEBUG: Query returned ${result.rows.length} rows`);
+      console.log(`DEBUG: First 3 results:`, result.rows.slice(0, 3).map(r => 
+        `ID:${r.id} ${r.name} - Vendors:${r.vendor_count} Jobs:${r.job_count}`));
+      
+      if (result.rows[0]?.vendor_count === 0) {
+        console.log(`WARNING: Top company has 0 vendors - this indicates a problem with the query`);
+      }
       
       return result.rows.map(row => ({
         ...row,
