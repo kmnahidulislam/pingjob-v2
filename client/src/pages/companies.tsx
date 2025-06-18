@@ -67,7 +67,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
           <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
             {company.logoUrl && company.logoUrl !== "NULL" ? (
               <img 
-                src={company.logoUrl} 
+                src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                 alt={company.name}
                 className="w-full h-full object-contain p-1"
               />
@@ -101,16 +101,17 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
           )}
           
           {/* Stats */}
-          <div className="flex items-center justify-center space-x-3 text-xs text-gray-500">
-            {(company.vendor_count || 0) > 0 && (
-              <div className="flex items-center">
-                <span>{company.vendor_count} Vendors</span>
+          <div className="flex items-center justify-center space-x-4 text-xs">
+            {(company.job_count || 0) > 0 && (
+              <div className="flex items-center text-green-600 font-medium">
+                <Briefcase className="h-3 w-3 mr-1" />
+                <span>{company.job_count} Job{company.job_count !== 1 ? 's' : ''}</span>
               </div>
             )}
-            {(company.job_count || 0) > 0 && (
-              <div className="flex items-center">
-                <Briefcase className="h-3 w-3 mr-1" />
-                <span>{company.job_count}</span>
+            {(company.vendor_count || 0) > 0 && (
+              <div className="flex items-center text-blue-600">
+                <Users className="h-3 w-3 mr-1" />
+                <span>{company.vendor_count} Vendor{company.vendor_count !== 1 ? 's' : ''}</span>
               </div>
             )}
           </div>
@@ -193,7 +194,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50">
               {company.logoUrl && company.logoUrl !== "NULL" ? (
                 <img 
-                  src={company.logoUrl} 
+                  src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                   alt={company.name}
                   className="w-full h-full object-contain p-1"
                 />
@@ -208,6 +209,31 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* Company Statistics */}
+          {(companyDetails?.openJobs?.length > 0 || companyDetails?.vendors?.length > 0) && (
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-semibold mb-3">Company Activity</h4>
+              <div className="flex items-center space-x-6">
+                {companyDetails?.openJobs?.length > 0 && (
+                  <div className="flex items-center text-green-600">
+                    <Briefcase className="h-5 w-5 mr-2" />
+                    <span className="font-medium">
+                      {companyDetails.openJobs.length} Open Job{companyDetails.openJobs.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+                {companyDetails?.vendors?.length > 0 && (
+                  <div className="flex items-center text-blue-600">
+                    <Users className="h-5 w-5 mr-2" />
+                    <span className="font-medium">
+                      {companyDetails.vendors.length} Vendor{companyDetails.vendors.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Company Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

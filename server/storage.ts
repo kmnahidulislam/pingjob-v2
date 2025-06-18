@@ -501,7 +501,7 @@ export class DatabaseStorage implements IStorage {
           GROUP BY company_id
         ) j ON c.id = j.company_id
         WHERE c.status = 'approved'
-        ORDER BY vendor_count DESC, job_count DESC, c.followers DESC, c.created_at DESC
+        ORDER BY job_count DESC, vendor_count DESC, c.followers DESC, c.created_at DESC
         LIMIT 100
       `;
       
