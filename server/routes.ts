@@ -61,6 +61,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve static files from uploads directory
   app.use('/uploads', express.static('uploads'));
   
+  // Serve static files from logos directory
+  app.use('/logos', express.static('logos'));
+  
   // Public routes (before auth middleware)
   
 
