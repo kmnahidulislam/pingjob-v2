@@ -268,6 +268,13 @@ Changelog:
   - Added service selection with checkboxes for multiple vendor service types
   - Integrated with existing /api/vendors endpoint and proper cache invalidation
   - Enhanced admin actions section with green-themed vendor management interface
+- June 18, 2025. Streamlined admin dashboard to focus only on pending approvals
+  - Removed "Approved Companies" section from Company Management tab to reduce clutter
+  - Removed approved companies query to improve dashboard performance
+  - Vendor Approvals tab now exclusively shows pending vendors requiring admin action
+  - Once vendors are approved/rejected, they automatically disappear from the dashboard
+  - Dashboard statistics now pull from /api/admin/stats endpoint for accurate totals
+  - Enhanced focus on actionable items requiring immediate admin attention
 ```
 
 ## User Preferences

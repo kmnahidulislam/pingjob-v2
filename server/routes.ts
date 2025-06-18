@@ -801,6 +801,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get vendors for a specific company (for job details page)
+  app.get('/api/companies/:companyId/vendors', async (req, res) => {
+    try {
+      const companyId = parseInt(req.params.companyId);
+      const isAuthenticated = !!req.user;
+      
+      // Get all approved vendors for this company
+      const vendors = await storage.getClientVendors(companyId);
+      
+      // For unauthenticated users, limit to 3 vendors
+      const vendorsToShow = isAuthenticated ? vendors : vendors.slice(0, 3);
+      
+      res.json({
+        vendors: vendorsToShow,
+        totalCount: vendors.length,
+        showingCount: vendorsToShow.length,
+        isAuthenticated
+      });
+    } catch (error) {
+      console.error("Error fetching company vendors:", error);
+      res.status(500).json({ message: "Failed to fetch vendors" });
+    }
+  });
+
   // Connection routes
   app.get('/api/connections', isAuthenticated, async (req: any, res) => {
     try {

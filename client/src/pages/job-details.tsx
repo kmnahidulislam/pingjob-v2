@@ -21,10 +21,150 @@ import {
   ArrowLeft,
   Bookmark,
   Share2,
-  Edit
+  Edit,
+  Phone,
+  Mail,
+  Globe
 } from "lucide-react";
 import { Link } from "wouter";
 import type { JobWithCompany } from "@/lib/types";
+
+// Service name mapping
+const serviceNameMap: { [key: string]: string } = {
+  'ste': 'Strategic Consulting',
+  'staff': 'Staff Augmentation', 
+  'staffing': 'Staffing Services',
+  'consulting': 'Consulting Services',
+  'development': 'Development Services',
+  'tech': 'Technology Services'
+};
+
+function getServiceNames(services: string): string {
+  if (!services) return 'General Services';
+  return services.split(',')
+    .map(s => s.trim().toLowerCase())
+    .map(s => serviceNameMap[s] || s.charAt(0).toUpperCase() + s.slice(1))
+    .join(', ');
+}
+
+// Vendor Info Card Component
+function VendorInfoCard({ companyId }: { companyId: number }) {
+  const { user } = useAuth();
+  
+  const { data: vendorData, isLoading } = useQuery({
+    queryKey: [`/api/companies/${companyId}/vendors`],
+    queryFn: async () => {
+      const response = await fetch(`/api/companies/${companyId}/vendors`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch vendors');
+      return response.json();
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Partner Vendors</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-3">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!vendorData || vendorData.vendors.length === 0) {
+    return null; // Don't show card if no vendors
+  }
+
+  const { vendors, totalCount, showingCount, isAuthenticated } = vendorData;
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="h-5 w-5" />
+          Partner Vendors
+          <Badge variant="secondary" className="ml-2">
+            {totalCount} total
+          </Badge>
+        </CardTitle>
+        {!isAuthenticated && totalCount > 3 && (
+          <p className="text-sm text-gray-600">
+            Showing {showingCount} of {totalCount} vendors. 
+            <Link href="/auth" className="text-blue-600 hover:underline ml-1">
+              Sign in to view all
+            </Link>
+          </p>
+        )}
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {vendors.map((vendor: any) => (
+            <div key={vendor.vendor_id} className="border rounded-lg p-4 bg-gray-50">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg">{vendor.vendor_name}</h4>
+                  <p className="text-blue-600 text-sm font-medium mb-2">
+                    {getServiceNames(vendor.services)}
+                  </p>
+                  
+                  {/* Location */}
+                  <div className="flex items-center gap-1 text-gray-600 text-sm mb-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>
+                      {[vendor.city, vendor.state, vendor.zip_code, vendor.country]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </span>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {vendor.email && (
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Mail className="h-4 w-4" />
+                        <span>{vendor.email}</span>
+                      </div>
+                    )}
+                    {vendor.phone && (
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Phone className="h-4 w-4" />
+                        <span>{vendor.phone}</span>
+                      </div>
+                    )}
+                    {vendor.website && (
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Globe className="h-4 w-4" />
+                        <a 
+                          href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {vendor.website.replace(/^https?:\/\/(www\.)?/, '')}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  Approved
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function JobDetails() {
   const { id } = useParams();
@@ -319,6 +459,11 @@ export default function JobDetails() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Vendors Card */}
+        {job.company && (
+          <VendorInfoCard companyId={job.company.id} />
+        )}
 
         {/* Company Info Card */}
         {job.company && (
