@@ -124,6 +124,7 @@ export interface IStorage {
   // Vendor operations
   getClientVendors(clientId: number): Promise<any[]>;
   addVendor(vendor: InsertVendor): Promise<Vendor>;
+  createVendor(vendor: InsertVendor): Promise<Vendor>;
   updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor>;
   getPendingVendors(): Promise<any[]>;
   
@@ -1209,6 +1210,33 @@ export class DatabaseStorage implements IStorage {
       return result.rows[0];
     } catch (error) {
       console.error("Error in addVendor:", error);
+      throw error;
+    }
+  }
+
+  async createVendor(vendor: InsertVendor): Promise<Vendor> {
+    try {
+      console.log(`DEBUG: Creating vendor for company ${vendor.companyId}:`, vendor);
+      
+      // Use raw SQL to avoid Drizzle schema mapping issues
+      const result = await pool.query(`
+        INSERT INTO vendors (company_id, name, email, phone, services, status, created_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *
+      `, [
+        vendor.companyId,
+        vendor.name,
+        vendor.email,
+        vendor.phone || null,
+        vendor.services,
+        vendor.status || "pending",
+        vendor.createdBy || null
+      ]);
+      
+      console.log(`DEBUG: Created vendor successfully:`, result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error in createVendor:", error);
       throw error;
     }
   }

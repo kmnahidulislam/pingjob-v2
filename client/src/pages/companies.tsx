@@ -811,7 +811,7 @@ const vendorFormSchema = z.object({
   email: z.string().email("Valid email is required"),
   phone: z.string().optional(),
   services: z.string().min(1, "Services description is required"),
-  description: z.string().optional(),
+  companyId: z.number(),
 });
 
 export default function Companies() {
@@ -985,7 +985,7 @@ export default function Companies() {
       email: "",
       phone: "",
       services: "",
-      description: "",
+      companyId: 0,
     },
   });
 

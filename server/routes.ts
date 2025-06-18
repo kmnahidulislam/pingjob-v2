@@ -1443,6 +1443,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Vendor routes
+  app.post('/api/vendors', async (req: any, res) => {
+    try {
+      // Use admin user for testing
+      const userId = "admin-krupa";
+      const validatedData = insertVendorSchema.parse({
+        ...req.body,
+        status: 'pending', // All new vendors start as pending
+        createdBy: userId
+      });
+      
+      const vendor = await storage.createVendor(validatedData);
+      res.status(201).json(vendor);
+    } catch (error) {
+      console.error("Error creating vendor:", error);
+      res.status(500).json({ message: "Failed to create vendor" });
+    }
+  });
+
   app.patch('/api/admin/vendors/:id/status', isAuthenticated, async (req: any, res) => {
     try {
       const vendorId = parseInt(req.params.id);
