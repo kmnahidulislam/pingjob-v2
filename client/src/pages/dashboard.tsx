@@ -626,9 +626,11 @@ function AdminDashboard() {
       </div>
 
       <Tabs defaultValue="companies" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="companies">Company Management</TabsTrigger>
+          <TabsTrigger value="jobs">Job Management</TabsTrigger>
           <TabsTrigger value="vendors">Vendor Approvals</TabsTrigger>
+          <TabsTrigger value="admin-actions">Admin Actions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies" className="space-y-6">
@@ -732,6 +734,45 @@ function AdminDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="jobs" className="space-y-6">
+          {/* Job Management Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Management</CardTitle>
+              <CardDescription>
+                Create, edit, and manage job postings across all companies
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Platform Job Management</h3>
+                  <Link href="/job-create">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New Job
+                    </Button>
+                  </Link>
+                </div>
+                
+                {/* Recent Jobs List */}
+                <div className="border rounded-lg">
+                  <div className="p-4 border-b bg-gray-50">
+                    <h4 className="font-medium">Recent Job Postings</h4>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-center py-8 text-gray-500">
+                      <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p>No jobs found</p>
+                      <p className="text-sm mt-2">Start by creating your first job posting</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="vendors">
           <Card>
             <CardHeader>
@@ -746,21 +787,68 @@ function AdminDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="data-import">
+        <TabsContent value="admin-actions" className="space-y-6">
+          {/* Admin Actions Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Data Import</CardTitle>
+              <CardTitle>Admin Actions</CardTitle>
               <CardDescription>
-                Import company address data from CSV files
+                Platform administration and company management tools
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="text-green-600 font-medium">
-                  ✓ Successfully imported 76,806 companies from CSV
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Company Actions</h3>
+                  <div className="space-y-2">
+                    <Link href="/company/create">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Building className="h-4 w-4 mr-2" />
+                        Add New Company
+                      </Button>
+                    </Link>
+                    <Link href="/companies">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Eye className="h-4 w-4 mr-2" />
+                        View All Companies
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600">
-                  All company data including addresses, websites, and phone numbers has been imported and is available for vendor management and job postings.
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Job Actions</h3>
+                  <div className="space-y-2">
+                    <Link href="/job-create">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Briefcase className="h-4 w-4 mr-2" />
+                        Create Job Posting
+                      </Button>
+                    </Link>
+                    <Link href="/jobs">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Eye className="h-4 w-4 mr-2" />
+                        Manage All Jobs
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 pt-8 border-t">
+                <h3 className="text-lg font-semibold mb-4">Data Import Status</h3>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <Check className="h-5 w-5 text-green-600 mr-2" />
+                    <div>
+                      <div className="text-green-800 font-medium">
+                        Successfully imported 76,806 companies from CSV
+                      </div>
+                      <div className="text-sm text-green-600 mt-1">
+                        All company data including addresses, websites, and phone numbers is available for job postings and vendor management.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
