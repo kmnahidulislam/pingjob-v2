@@ -125,6 +125,7 @@ export interface IStorage {
   getClientVendors(clientId: number): Promise<any[]>;
   addVendor(vendor: InsertVendor): Promise<Vendor>;
   createVendor(vendor: InsertVendor): Promise<Vendor>;
+  updateVendor(id: number, vendor: Partial<InsertVendor>): Promise<Vendor>;
   updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor>;
   getPendingVendors(): Promise<any[]>;
   
@@ -1251,6 +1252,67 @@ export class DatabaseStorage implements IStorage {
       return result.rows[0];
     } catch (error) {
       console.error("Error in createVendor:", error);
+      throw error;
+    }
+  }
+
+  async updateVendor(id: number, vendor: Partial<InsertVendor>): Promise<Vendor> {
+    try {
+      console.log(`DEBUG: Updating vendor ${id} with data:`, vendor);
+      
+      // Build dynamic SQL query based on provided fields
+      const setFields = [];
+      const values = [];
+      let paramIndex = 1;
+      
+      if (vendor.companyId !== undefined) {
+        setFields.push(`company_id = $${paramIndex}`);
+        values.push(vendor.companyId);
+        paramIndex++;
+      }
+      if (vendor.name !== undefined) {
+        setFields.push(`name = $${paramIndex}`);
+        values.push(vendor.name);
+        paramIndex++;
+      }
+      if (vendor.email !== undefined) {
+        setFields.push(`email = $${paramIndex}`);
+        values.push(vendor.email);
+        paramIndex++;
+      }
+      if (vendor.phone !== undefined) {
+        setFields.push(`phone = $${paramIndex}`);
+        values.push(vendor.phone);
+        paramIndex++;
+      }
+      if (vendor.services !== undefined) {
+        setFields.push(`services = $${paramIndex}`);
+        values.push(vendor.services);
+        paramIndex++;
+      }
+      if (vendor.status !== undefined) {
+        setFields.push(`status = $${paramIndex}`);
+        values.push(vendor.status);
+        paramIndex++;
+      }
+      
+      values.push(id); // Add ID as the last parameter
+      
+      const result = await pool.query(`
+        UPDATE vendors 
+        SET ${setFields.join(', ')}
+        WHERE id = $${paramIndex}
+        RETURNING *
+      `, values);
+      
+      if (result.rows.length === 0) {
+        throw new Error(`Vendor with id ${id} not found`);
+      }
+      
+      console.log(`DEBUG: Updated vendor successfully:`, result.rows[0]);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Error updating vendor:", error);
       throw error;
     }
   }
