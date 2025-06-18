@@ -104,8 +104,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
           <div className="flex items-center justify-center space-x-3 text-xs text-gray-500">
             {(company.vendor_count || 0) > 0 && (
               <div className="flex items-center">
-                <Building className="h-3 w-3 mr-1" />
-                <span>{company.vendor_count}</span>
+                <span>{company.vendor_count} Vendors</span>
               </div>
             )}
             {(company.job_count || 0) > 0 && (
