@@ -293,12 +293,14 @@ export default function PingJobHome() {
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                          <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
                         </div>
                       </div>
-                      <Button className="w-full mt-4" size="sm">
-                        View Details
-                      </Button>
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button className="w-full mt-4" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
                 ))}
