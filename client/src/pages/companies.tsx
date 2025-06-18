@@ -493,62 +493,180 @@ function CompanyVendors({ companyId }: { companyId: number }) {
     }
   });
 
-  const renderAddVendorDialog = () => (
-    <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Add New Vendor</DialogTitle>
-          <DialogDescription>
-            Add a new vendor to this company. Enter vendor details below.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Vendor Name *</label>
-            <Input 
-              placeholder="Enter vendor company name"
-              className="mt-1"
-            />
-          </div>
+  // Move vendor form state to component level to fix hooks issue
+  const [vendorName, setVendorName] = useState("");
+  const [vendorEmail, setVendorEmail] = useState("");
+  const [vendorPhone, setVendorPhone] = useState("");
+  const [vendorServices, setVendorServices] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedVendorCompany, setSelectedVendorCompany] = useState<Company | null>(null);
 
-          <div>
-            <label className="text-sm font-medium">Contact Email *</label>
-            <Input 
-              type="email" 
-              placeholder="vendor@example.com" 
-              className="mt-1"
-            />
+  // Query for searching companies for auto-complete
+  const { data: searchCompanies = [] } = useQuery<Company[]>({
+    queryKey: ['/api/companies', vendorName],
+    queryFn: async () => {
+      if (vendorName.length < 2) return [];
+      const response = await fetch(`/api/companies?query=${encodeURIComponent(vendorName)}&limit=10`);
+      return response.json();
+    },
+    enabled: vendorName.length >= 2 && isAddVendorOpen
+  });
+
+  const renderAddVendorDialog = () => {
+
+    return (
+      <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Vendor</DialogTitle>
+            <DialogDescription>
+              Add a new vendor to this company. Search from existing companies or enter a custom name.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Vendor Name *</label>
+              <div className="relative mt-1">
+                <Input 
+                  placeholder="Type to search companies or enter custom name"
+                  value={vendorName}
+                  onChange={(e) => {
+                    setVendorName(e.target.value);
+                    setShowDropdown(e.target.value.length >= 2);
+                  }}
+                  onFocus={() => setShowDropdown(vendorName.length >= 2)}
+                  onBlur={() => {
+                    setTimeout(() => setShowDropdown(false), 200);
+                  }}
+                />
+                
+                {/* Auto-complete Dropdown */}
+                {showDropdown && searchCompanies.length > 0 && (
+                  <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                    {searchCompanies.map((company: Company) => (
+                      <div
+                        key={company.id}
+                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                        onClick={() => {
+                          setSelectedVendorCompany(company);
+                          setVendorName(company.name);
+                          setShowDropdown(false);
+                          
+                          // Auto-populate email if available
+                          if (company.website) {
+                            const emailDomain = company.website.replace(/^https?:\/\//, '').replace(/^www\./, '');
+                            setVendorEmail(`contact@${emailDomain}`);
+                          }
+                          
+                          // Auto-populate phone if available
+                          if (company.phone && company.phone !== 'NULL') {
+                            setVendorPhone(company.phone);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={company.logoUrl || undefined} />
+                            <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                              <Building className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm">{company.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {company.industry} • {company.city}, {company.state}
+                            </div>
+                            {company.website && (
+                              <div className="text-xs text-blue-600">{company.website}</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedVendorCompany && (
+                <div className="text-sm text-green-600 mt-1">
+                  ✓ Selected: {selectedVendorCompany.name}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Contact Email *</label>
+              <Input 
+                type="email" 
+                placeholder="vendor@example.com" 
+                value={vendorEmail}
+                onChange={(e) => setVendorEmail(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Contact Phone</label>
+              <Input 
+                placeholder="(555) 123-4567" 
+                value={vendorPhone}
+                onChange={(e) => setVendorPhone(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Services Provided *</label>
+              <Input 
+                placeholder="e.g., IT Support, Marketing, Consulting" 
+                value={vendorServices}
+                onChange={(e) => setVendorServices(e.target.value)}
+                className="mt-1"
+              />
+            </div>
           </div>
           
-          <div>
-            <label className="text-sm font-medium">Contact Phone</label>
-            <Input 
-              placeholder="(555) 123-4567" 
-              className="mt-1"
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium">Services Provided *</label>
-            <Input 
-              placeholder="e.g., IT Support, Marketing, Consulting" 
-              className="mt-1"
-            />
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setIsAddVendorOpen(false)}>
-            Cancel
-          </Button>
-          <Button className="bg-linkedin-blue hover:bg-linkedin-dark">
-            Add Vendor
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => {
+              setIsAddVendorOpen(false);
+              setVendorName("");
+              setVendorEmail("");
+              setVendorPhone("");
+              setVendorServices("");
+              setSelectedVendorCompany(null);
+              setShowDropdown(false);
+            }}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (!vendorName || !vendorEmail || !vendorServices) {
+                  toast({
+                    title: "Required fields missing",
+                    description: "Please fill in all required fields",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+                
+                addVendorMutation.mutate({
+                  name: vendorName,
+                  email: vendorEmail,
+                  phone: vendorPhone,
+                  services: vendorServices,
+                  companyId: companyId
+                });
+              }}
+              disabled={addVendorMutation.isPending} 
+              className="bg-linkedin-blue hover:bg-linkedin-dark"
+            >
+              {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   if (isLoading) {
     return (
