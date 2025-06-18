@@ -288,11 +288,16 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                                   {vendor.city}, {vendor.state} {vendor.zip_code}
                                 </div>
                               )}
-                              {vendor.email && (
+                              {vendor.website && (
                                 <div className="flex items-center gap-1">
-                                  <Mail className="h-4 w-4" />
-                                  <a href={`mailto:${vendor.email}`} className="text-linkedin-blue hover:underline">
-                                    {vendor.email}
+                                  <Globe className="h-4 w-4" />
+                                  <a 
+                                    href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-linkedin-blue hover:underline"
+                                  >
+                                    {vendor.website}
                                   </a>
                                 </div>
                               )}
