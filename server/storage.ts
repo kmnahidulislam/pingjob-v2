@@ -806,6 +806,12 @@ export class DatabaseStorage implements IStorage {
       client.release();
       
       console.log(`getJobs query returned ${result.rows.length} jobs`);
+      
+      // Debug: Log first job to check logo data
+      if (result.rows.length > 0) {
+        console.log('First job company data:', JSON.stringify(result.rows[0].company, null, 2));
+      }
+      
       return result.rows;
     } catch (error) {
       console.error('Error in getJobs:', error);

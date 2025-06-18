@@ -1,0 +1,39 @@
+·Experience with source code control systems (DevOps preferred) and CI/CD processes.
+
+·Strong knowledge of OOAD and multi-tier architectures, and application of architectural design patterns for solutions.
+
+·Strong knowledge of enterprise software development techniques such as SOA / EDA-based design, Microservices using Web API, Queue-based processing using any messaging technologies such as RabbitMQ, MSMQ, etc.
+
+·Ability to design, develop, and maintain large-scale, high-performing, high-transactional systems.
+
+·Ability to diagram and document designs and requirements.
+
+·Strong verbal and written communication skills with presentation experience.
+
+·Ability to work as a collaborative member of a team while also being comfortable in leading a work initiative when directed to do so.
+
+·Ability to set strategic architectural direction in integration technologies.
+
+·Design and architect Identity and Access Management (IAM) solution using AD, Microsoft application servers, and Azure.
+
+·Design and develop the low-level environment and a production environment to support the Software development cycle.
+
+·Guide project teams with the implementation consistent with company policies and practices
+
+·Align projects with business and IT strategy to help projects sustain alignment with company policies and standards
+
+·Write policy and standards as needed to sustain company compliance with regulatory changes
+
+·Work with development and QA teams to ensure the use of secure coding practices and verification methods
+
+·Development of product roadmaps and aligning efforts to meet security goals
+
+·Deep knowledge in service-oriented architecture frameworks, standards, and tools.
+
+·Deep understanding of the architecture standards and best practices surrounding integration technologies
+
+·Deep understanding of the security considerations and implications surrounding SOA and transaction management.
+
+·Ability to determine the architectural implications from requirements that impact other areas of enterprise architecture.
+
+·Ability to breakdown requirements into project estimates and to determine timelines and dependencies with the other domains/ projects.

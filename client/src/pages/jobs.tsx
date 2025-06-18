@@ -379,8 +379,18 @@ export default function Jobs() {
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
-                          <div className="w-12 h-12 bg-linkedin-blue rounded-lg flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-white" />
+                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                              <img 
+                                src={job.company.logoUrl} 
+                                alt={job.company.name}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
+                                <Building2 className="h-6 w-6" />
+                              </div>
+                            )}
                           </div>
                           
                           <div className="flex-1 min-w-0">
