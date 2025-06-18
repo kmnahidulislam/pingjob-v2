@@ -283,6 +283,12 @@ Changelog:
   - Vendor cards display company name, location (city, state, zip, country), services, email, phone, website
   - Applied service name mapping for professional display (staffing→Staffing Services, etc.)
   - Only approved vendors are shown to maintain data quality and professional presentation
+- June 18, 2025. Fixed navigation and date display issues across job listings
+  - Fixed "Invalid Date" display in Latest Job Opportunities section to show "Recently posted" for missing dates
+  - Added proper Link wrapper to "View Details" buttons in home page job listings for functional navigation
+  - Resolved both job card components and home page listings to have working "View Details" navigation
+  - Updated logout functionality to redirect users to home page instead of auth page for better UX
+  - All job detail pages now properly display vendor information with complete navigation flow
 ```
 
 ## User Preferences

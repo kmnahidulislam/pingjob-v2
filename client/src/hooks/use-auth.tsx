@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       // Force complete page reload to reset all state
-      window.location.replace("/auth");
+      window.location.replace("/");
     },
     onError: (error: Error) => {
       toast({
