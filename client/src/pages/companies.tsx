@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +46,342 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
+
+// Create a vendor schema for validation
+const vendorSchema = z.object({
+  name: z.string().min(1, "Vendor name is required"),
+  email: z.string().email("Valid email is required"),
+  phone: z.string().optional(),
+  services: z.array(z.string()).min(1, "At least one service is required"),
+  companyId: z.number(),
+});
+
+// Service options for vendors
+const serviceOptions = [
+  { value: "ste", label: "Strategic Consulting" },
+  { value: "staff", label: "Staff Augmentation" },
+  { value: "staffing", label: "Staffing Services" },
+  { value: "consulting", label: "Consulting" },
+  { value: "development", label: "Development" },
+  { value: "testing", label: "Testing" },
+  { value: "support", label: "Support" },
+];
+
+// AddVendorButton component
+function AddVendorButton({ companyId }: { companyId: number }) {
+  const [showDialog, setShowDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof vendorSchema>>({
+    resolver: zodResolver(vendorSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      services: [],
+      companyId: companyId,
+    },
+  });
+
+  // Search companies for vendor selection
+  const searchCompanies = async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`/api/companies/search?q=${encodeURIComponent(query)}&limit=20`);
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error searching companies:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle company selection
+  const handleCompanySelect = (company: any) => {
+    setSelectedCompany(company);
+    setSearchQuery(company.name);
+    setSearchResults([]);
+    
+    // Auto-populate form fields
+    form.setValue("name", company.name);
+    if (company.website) {
+      const email = company.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+      if (email.includes(".")) {
+        form.setValue("email", `info@${email}`);
+      }
+    }
+    if (company.phone) {
+      form.setValue("phone", company.phone);
+    }
+  };
+
+  // Create vendor mutation
+  const createVendorMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof vendorSchema>) => {
+      const response = await apiRequest("POST", "/api/vendors", {
+        ...data,
+        services: data.services.join(","),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Vendor added successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/companies/${companyId}/details`] });
+      setShowDialog(false);
+      form.reset();
+      setSelectedCompany(null);
+      setSearchQuery("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add vendor",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof vendorSchema>) => {
+    createVendorMutation.mutate(data);
+  };
+
+  // Debounced search effect
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        searchCompanies(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  return (
+    <>
+      <Button 
+        onClick={() => setShowDialog(true)}
+        className="bg-green-600 hover:bg-green-700"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Vendor
+      </Button>
+
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Vendor</DialogTitle>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Company Search */}
+              <div className="space-y-2">
+                <Label>Search Company</Label>
+                <div className="relative">
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for a company..."
+                    className="w-full"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-3">
+                      <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-blue-600 rounded-full"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Search Results */}
+                {searchResults.length > 0 && (
+                  <div className="border rounded-lg max-h-60 overflow-y-auto bg-white shadow-lg">
+                    {searchResults.map((company) => (
+                      <div
+                        key={company.id}
+                        onClick={() => handleCompanySelect(company)}
+                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                            {company.logoUrl && company.logoUrl !== "NULL" ? (
+                              <img 
+                                src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                                alt={company.name}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white text-xs font-bold">
+                                {company.name.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{company.name}</p>
+                            {company.industry && (
+                              <p className="text-sm text-gray-500 truncate">{company.industry}</p>
+                            )}
+                            {(company.city || company.state) && (
+                              <p className="text-xs text-gray-400 truncate">
+                                {[company.city, company.state].filter(Boolean).join(", ")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Company Preview */}
+              {selectedCompany && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-medium text-blue-900 mb-2">Selected Company</h4>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white">
+                      {selectedCompany.logoUrl && selectedCompany.logoUrl !== "NULL" ? (
+                        <img 
+                          src={`/${selectedCompany.logoUrl.replace(/ /g, '%20')}`} 
+                          alt={selectedCompany.name}
+                          className="w-full h-full object-contain p-1"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold">
+                          {selectedCompany.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium">{selectedCompany.name}</p>
+                      {selectedCompany.website && (
+                        <p className="text-sm text-gray-600">{selectedCompany.website}</p>
+                      )}
+                      {(selectedCompany.city || selectedCompany.state) && (
+                        <p className="text-xs text-gray-500">
+                          {[selectedCompany.city, selectedCompany.state, selectedCompany.country].filter(Boolean).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Vendor Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vendor Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter vendor name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="Enter email address" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Phone */}
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone (Optional)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter phone number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Services */}
+              <FormField
+                control={form.control}
+                name="services"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Services</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-2 gap-2">
+                        {serviceOptions.map((service) => (
+                          <div key={service.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={service.value}
+                              checked={field.value.includes(service.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...field.value, service.value]);
+                                } else {
+                                  field.onChange(field.value.filter((v) => v !== service.value));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={service.value} className="text-sm">
+                              {service.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDialog(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createVendorMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {createVendorMutation.isPending ? "Adding..." : "Add Vendor"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 // Company Card Component
 function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
@@ -321,6 +659,17 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             </TabsContent>
             
             <TabsContent value="vendors" className="space-y-4">
+              {/* Admin Actions for Vendors */}
+              {isAdmin && (
+                <div className="flex justify-between items-center bg-green-50 p-4 rounded-lg border border-green-200">
+                  <div>
+                    <h4 className="font-semibold text-green-900">Admin Actions</h4>
+                    <p className="text-sm text-green-700">Add vendors for this company</p>
+                  </div>
+                  <AddVendorButton companyId={company.id} />
+                </div>
+              )}
+              
               {companyDetails?.vendors && companyDetails.vendors.length > 0 ? (
                 <div className="space-y-4">
                   {companyDetails.vendors.map((vendor: any) => (
@@ -362,6 +711,9 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                 <div className="text-center py-8 text-gray-500">
                   <Building className="h-12 w-12 mx-auto mb-3 opacity-30" />
                   <p>No vendors registered</p>
+                  {isAdmin && (
+                    <p className="text-sm mt-2 text-green-600">Use "Add Vendor" above to add the first vendor for this company</p>
+                  )}
                 </div>
               )}
             </TabsContent>
