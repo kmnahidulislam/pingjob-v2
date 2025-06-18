@@ -34,7 +34,8 @@ import {
   Calendar,
   DollarSign,
   Heart,
-  Globe
+  Globe,
+  Plus
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -48,6 +49,7 @@ export default function PingJobHome() {
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [showJobs, setShowJobs] = useState(false);
   const jobsPerPage = 20;
 
   const handleLogout = () => {
@@ -161,14 +163,22 @@ export default function PingJobHome() {
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/jobs">
-                <Button variant="ghost">Search</Button>
-              </Link>
+              <Button 
+                variant="ghost"
+                onClick={() => {
+                  setShowJobs(!showJobs);
+                  setShowCompanies(false);
+                  setShowPricing(false);
+                }}
+              >
+                Jobs
+              </Button>
               <Button 
                 variant="ghost" 
                 onClick={() => {
                   setShowCompanies(!showCompanies);
                   setShowPricing(false);
+                  setShowJobs(false);
                 }}
               >
                 Companies
@@ -178,6 +188,7 @@ export default function PingJobHome() {
                 onClick={() => {
                   setShowPricing(!showPricing);
                   setShowCompanies(false);
+                  setShowJobs(false);
                 }}
               >
                 Pricing
@@ -220,6 +231,101 @@ export default function PingJobHome() {
           </div>
         </div>
       </header>
+
+      {/* Latest Job Opportunities Section */}
+      {showJobs && (
+        <section className="bg-white border-b border-gray-200 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
+              <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
+            </div>
+            
+            {jobs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {jobs.slice(0, 9).map((job: any) => (
+                  <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
+                            {job.title}
+                          </CardTitle>
+                          <div className="flex items-center text-sm text-gray-600 mb-2">
+                            <Building className="h-4 w-4 mr-1" />
+                            <span>{job.company?.name || 'Company Name'}</span>
+                          </div>
+                          {job.location && (
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <span>{job.location}</span>
+                            </div>
+                          )}
+                        </div>
+                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
+                          <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50 ml-4">
+                            <img 
+                              src={job.company.logoUrl} 
+                              alt={job.company.name}
+                              className="w-full h-full object-contain p-1"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-700 line-clamp-3 mb-4">
+                        {job.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          {job.employment_type && (
+                            <Badge variant="secondary" className="text-xs">
+                              {job.employment_type}
+                            </Badge>
+                          )}
+                          {job.salary_range && (
+                            <div className="flex items-center">
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              <span>{job.salary_range}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <Button className="w-full mt-4" size="sm">
+                        View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Available</h3>
+                <p className="text-gray-600 mb-6">Check back soon for new opportunities</p>
+                <Button className="px-8">
+                  Post a Job
+                  <Plus className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            )}
+            
+            <div className="text-center mt-8">
+              <Link href="/jobs">
+                <Button size="lg" className="px-8">
+                  View All Jobs
+                  <Briefcase className="h-5 w-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Companies Section */}
       {showCompanies && (
