@@ -47,7 +47,214 @@ import {
   ChevronRight
 } from "lucide-react";
 
+// VendorManagement Component - Restored from working dashboard implementation
+function VendorManagement({ companyId }: { companyId: number }) {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedVendorCompany, setSelectedVendorCompany] = useState<any>(null);
+  const [vendorComboOpen, setVendorComboOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
+  // Fetch companies for vendor selection
+  const { data: companies = [] } = useQuery({
+    queryKey: ['/api/companies', { limit: 100 }],
+    queryFn: async () => {
+      const response = await fetch('/api/companies?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    }
+  });
+
+  // Add vendor mutation
+  const addVendorMutation = useMutation({
+    mutationFn: async (vendorData: any) => {
+      return await apiRequest('POST', '/api/vendors', vendorData);
+    },
+    onSuccess: () => {
+      setShowAddForm(false);
+      setSelectedVendorCompany(null);
+      queryClient.invalidateQueries({ queryKey: [`/api/companies/${companyId}/details`] });
+      toast({
+        title: "Vendor added",
+        description: "Vendor has been successfully added to the company.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add vendor.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddVendor = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    if (!selectedVendorCompany) {
+      toast({
+        title: "Error",
+        description: "Please select a vendor company.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    addVendorMutation.mutate({
+      companyId: companyId,
+      name: selectedVendorCompany.name,
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      services: formData.get('services'),
+      description: formData.get('description'),
+      status: 'active',
+    });
+  };
+
+  if (!showAddForm) {
+    return (
+      <div className="flex justify-end mb-4">
+        <Button 
+          onClick={() => setShowAddForm(true)}
+          className="bg-green-600 hover:bg-green-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Vendor
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold text-green-900">Add Vendor to Company</h4>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => {
+            setShowAddForm(false);
+            setSelectedVendorCompany(null);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+
+      <form onSubmit={handleAddVendor} className="space-y-4">
+        {/* Vendor Company Selection */}
+        <div className="space-y-2">
+          <Label htmlFor="vendor-company">Select Vendor Company</Label>
+          <Select onValueChange={(value) => {
+            const company = companies.find((c: any) => c.id.toString() === value);
+            setSelectedVendorCompany(company);
+          }}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a company..." />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.isArray(companies) && companies.map((company: any) => (
+                <SelectItem key={company.id} value={company.id.toString()}>
+                  {company.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Selected Company Preview */}
+        {selectedVendorCompany && (
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h5 className="font-medium text-blue-900 mb-2">Selected Vendor Company</h5>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded bg-blue-500 text-white flex items-center justify-center font-bold">
+                {selectedVendorCompany.name.charAt(0)}
+              </div>
+              <div>
+                <p className="font-medium">{selectedVendorCompany.name}</p>
+                {selectedVendorCompany.location && (
+                  <p className="text-sm text-gray-600">{selectedVendorCompany.location}</p>
+                )}
+                {selectedVendorCompany.website && (
+                  <p className="text-xs text-gray-500">{selectedVendorCompany.website}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={selectedVendorCompany?.website ? `info@${selectedVendorCompany.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}` : ""}
+              placeholder="Enter vendor email"
+              required
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              name="phone"
+              defaultValue={selectedVendorCompany?.phone || ""}
+              placeholder="Enter phone number"
+            />
+          </div>
+        </div>
+
+        {/* Services */}
+        <div className="space-y-2">
+          <Label htmlFor="services">Services</Label>
+          <Input
+            id="services"
+            name="services"
+            placeholder="e.g., Staffing, Consulting, Development"
+            required
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="description">Description (Optional)</Label>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="Brief description of vendor services"
+            rows={3}
+          />
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setShowAddForm(false);
+              setSelectedVendorCompany(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={addVendorMutation.isPending}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {addVendorMutation.isPending ? "Adding..." : "Add Vendor"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 // Company Card Component
 function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
