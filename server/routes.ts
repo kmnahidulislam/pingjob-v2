@@ -63,6 +63,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Public routes (before auth middleware)
   
+
+
   // Get open jobs and vendors for a company (public endpoint)
   app.get('/api/companies/:id/details', async (req: any, res) => {
     try {
@@ -361,6 +363,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search endpoint for vendor auto-complete - Must come before /:id route
+  app.get('/api/companies/search', async (req, res) => {
+    try {
+      const query = req.query.query as string;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      if (!query || query.length < 2) {
+        return res.json([]);
+      }
+      
+      console.log(`DEBUG SEARCH: Searching companies with query="${query}", limit=${limit}`);
+      const companies = await storage.searchCompanies(query, limit);
+      console.log(`DEBUG SEARCH: Found ${companies.length} companies matching "${query}"`);
+      
+      res.json(companies);
+    } catch (error) {
+      console.error('Error searching companies:', error);
+      res.status(500).json({ error: 'Failed to search companies' });
+    }
+  });
+
   app.get('/api/companies/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -515,27 +538,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching admin stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
-    }
-  });
-
-  // Dedicated search endpoint for vendor auto-complete
-  app.get('/api/companies/search', async (req, res) => {
-    try {
-      const query = req.query.query as string;
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      if (!query || query.length < 2) {
-        return res.json([]);
-      }
-      
-      console.log(`DEBUG SEARCH: Searching companies with query="${query}", limit=${limit}`);
-      const companies = await storage.searchCompanies(query, limit);
-      console.log(`DEBUG SEARCH: Found ${companies.length} companies matching "${query}"`);
-      
-      res.json(companies);
-    } catch (error) {
-      console.error('Error searching companies:', error);
-      res.status(500).json({ error: 'Failed to search companies' });
     }
   });
 
