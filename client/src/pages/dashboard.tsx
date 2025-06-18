@@ -383,15 +383,7 @@ function AdminDashboard() {
     queryKey: ['/api/companies/pending'],
   });
 
-  // Fetch sample of approved companies for dashboard display
-  const { data: companies = [], isLoading: loadingCompanies } = useQuery({
-    queryKey: ['/api/companies', { limit: 100 }],
-    queryFn: async () => {
-      const response = await fetch('/api/companies?limit=100');
-      if (!response.ok) throw new Error('Failed to fetch companies');
-      return response.json();
-    }
-  });
+
 
   // Fetch dashboard stats
   const { data: stats = {} } = useQuery({
@@ -697,41 +689,7 @@ function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Approved Companies */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Approved Companies</CardTitle>
-              <CardDescription>
-                Manage approved companies and their vendors
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loadingCompanies ? (
-                <div className="text-center py-8">Loading companies...</div>
-              ) : (
-                <div className="space-y-4">
-                  {companies.map((company: any) => (
-                    <div key={company.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg">{company.name}</h3>
-                            <Badge variant="secondary">Approved</Badge>
-                          </div>
-                          <p className="text-gray-600">{company.industry}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>{company.followers} followers</span>
-                            <span>{company.location}</span>
-                          </div>
 
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="jobs" className="space-y-6">
