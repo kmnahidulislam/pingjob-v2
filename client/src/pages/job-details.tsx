@@ -90,7 +90,7 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
   }
 
   // For unregistered users, show maximum 3 vendors
-  const isAuthenticated = false; // TODO: Get from auth context
+  const isAuthenticated = !!user;
   const vendorsToShow = isAuthenticated ? approvedVendors : approvedVendors.slice(0, 3);
   const totalCount = approvedVendors.length;
   const showingCount = vendorsToShow.length;
