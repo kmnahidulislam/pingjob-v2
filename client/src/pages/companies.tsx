@@ -701,6 +701,15 @@ const jobFormSchema = z.object({
   skills: z.string().optional(),
 });
 
+// Vendor form schema
+const vendorFormSchema = z.object({
+  name: z.string().min(1, "Vendor name is required"),
+  email: z.string().email("Valid email is required"),
+  phone: z.string().optional(),
+  services: z.string().min(1, "Services description is required"),
+  description: z.string().optional(),
+});
+
 export default function Companies() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -716,6 +725,12 @@ export default function Companies() {
   const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
   const [jobFormCountryId, setJobFormCountryId] = useState<number | null>(null);
   const [jobFormStateId, setJobFormStateId] = useState<number | null>(null);
+  
+  // Vendor form states
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [vendorNameSearch, setVendorNameSearch] = useState("");
+  const [selectedVendorCompany, setSelectedVendorCompany] = useState<Company | null>(null);
+  const [showVendorDropdown, setShowVendorDropdown] = useState(false);
 
   // Get search query from URL params for global search
   const searchParams = new URLSearchParams(window.location.search);
@@ -812,6 +827,18 @@ export default function Companies() {
     }
   });
 
+  // Fetch companies for vendor name auto-complete
+  const { data: vendorCompanies = [] } = useQuery({
+    queryKey: ['/api/companies/search', vendorNameSearch],
+    queryFn: async () => {
+      if (vendorNameSearch.length < 2) return [];
+      const response = await fetch(`/api/companies?q=${encodeURIComponent(vendorNameSearch)}&limit=10`);
+      if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    },
+    enabled: vendorNameSearch.length >= 2
+  });
+
   const companyForm = useForm<z.infer<typeof companyFormSchema>>({
     resolver: zodResolver(companyFormSchema),
     defaultValues: {
@@ -843,6 +870,18 @@ export default function Companies() {
       salary: "",
       benefits: "",
       skills: "",
+    },
+  });
+
+  // Vendor form
+  const vendorForm = useForm<z.infer<typeof vendorFormSchema>>({
+    resolver: zodResolver(vendorFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      services: "",
+      description: "",
     },
   });
 
