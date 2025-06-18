@@ -78,11 +78,22 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
     );
   }
 
-  if (!vendorData || vendorData.vendors.length === 0) {
+  if (!vendorData || vendorData.length === 0) {
     return null; // Don't show card if no vendors
   }
 
-  const { vendors, totalCount, showingCount, isAuthenticated } = vendorData;
+  // Filter only approved vendors
+  const approvedVendors = vendorData.filter((vendor: any) => vendor.status === 'approved');
+  
+  if (approvedVendors.length === 0) {
+    return null; // Don't show card if no approved vendors
+  }
+
+  // For unregistered users, show maximum 3 vendors
+  const isAuthenticated = false; // TODO: Get from auth context
+  const vendorsToShow = isAuthenticated ? approvedVendors : approvedVendors.slice(0, 3);
+  const totalCount = approvedVendors.length;
+  const showingCount = vendorsToShow.length;
 
   return (
     <Card className="mb-6">
@@ -105,7 +116,7 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {vendors.map((vendor: any) => (
+          {vendorsToShow.map((vendor: any) => (
             <div key={vendor.vendor_id} className="border rounded-lg p-4 bg-gray-50">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
