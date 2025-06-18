@@ -181,6 +181,12 @@ Changelog:
   - Fixed all TypeScript errors and syntax issues preventing application functionality
   - Enhanced vendor selection with proper form validation and user feedback
   - System now provides seamless vendor management with database-driven company search
+- June 18, 2025. Fixed vendor auto-complete to search complete company database
+  - Resolved route conflict that limited search to first 10 companies instead of full database
+  - Created dedicated /api/companies/search endpoint positioned before parameterized routes
+  - Enhanced search functionality to query all 76,806 companies with proper LIKE pattern matching
+  - Verified search results include companies like VED Software Services Inc, VedaSoft Inc, iVedha Inc
+  - Auto-complete now provides comprehensive company selection with 20 result limit for optimal performance
 ```
 
 ## User Preferences
