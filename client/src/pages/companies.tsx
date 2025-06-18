@@ -345,9 +345,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                               )}
                             </div>
                           </div>
-                          <Badge variant={vendor.status === 'approved' ? 'default' : 'secondary'}>
-                            {vendor.status}
-                          </Badge>
+
                         </div>
                       </CardContent>
                     </Card>

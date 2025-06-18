@@ -225,6 +225,12 @@ Changelog:
   - IBM Corporation leads with 108 vendors, followed by Comsys (99) and State of Michigan (92)
   - Vendor displays show complete location data, company websites, and service information
   - Platform now fully operational with authentic business data in Neon database
+- June 18, 2025. Cleaned up companies page interface for better user experience
+  - Removed "Companies" header title and promotional description text from companies page
+  - Removed search box and search functionality section entirely
+  - Removed 'pending' status badges from vendor details display
+  - Page now shows only logo and company grid directly for cleaner, focused presentation
+  - Companies display correctly ranked with IBM Corporation leading (108 vendors)
 ```
 
 ## User Preferences
