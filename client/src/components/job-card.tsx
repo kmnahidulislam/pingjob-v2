@@ -159,7 +159,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             <div className="flex items-center space-x-4 flex-1">
               {showCompany && (
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={job.company?.logoUrl ? job.company.logoUrl.replace(/ /g, '%20') : undefined} />
+                  <AvatarImage src={job.company?.logoUrl ? `/${job.company.logoUrl.replace(/ /g, '%20')}` : undefined} />
                   <AvatarFallback className="bg-linkedin-blue text-white">
                     <Building className="h-6 w-6" />
                   </AvatarFallback>

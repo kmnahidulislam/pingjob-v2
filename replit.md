@@ -239,6 +239,13 @@ Changelog:
   - Enhanced job creation page to handle company pre-selection via URL parameters
   - Admin users can now create jobs directly from company profiles or dashboard
   - Full platform admin capabilities restored for job posting, company management, and editing
+- June 18, 2025. Fixed company logo display issue across all job listings and detail pages
+  - Applied proper URL encoding using .replace(/ /g, '%20') to handle logo file names with spaces
+  - Implemented absolute paths with leading slash (/) for reliable static file serving
+  - Updated logo display in job details page (header and company info sections)
+  - Fixed logo display in jobs page listings and JobCard component
+  - Company logos now display correctly across all pages including Duke Energy Corporation
+  - Static file serving for /logos directory confirmed working with proper encoding
 ```
 
 ## User Preferences
