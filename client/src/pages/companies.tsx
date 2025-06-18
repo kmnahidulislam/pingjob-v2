@@ -40,7 +40,9 @@ import {
   Star,
   Check,
   X,
-  Edit
+  Edit,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 // Search Results Components

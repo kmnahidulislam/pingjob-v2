@@ -81,6 +81,7 @@ export interface IStorage {
   bulkCreateCompanies(companies: InsertCompany[]): Promise<void>;
   updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company>;
   getCompanies(limit?: number): Promise<Company[]>;
+  getTopCompanies(): Promise<Company[]>;
   searchCompanies(query: string, limit?: number): Promise<Company[]>;
   getPendingCompanies(): Promise<Company[]>;
   updateCompanyStatus(id: number, status: string, approvedBy?: string): Promise<Company>;
@@ -461,6 +462,52 @@ export class DatabaseStorage implements IStorage {
         .where(eq(companies.status, 'approved'))
         .orderBy(desc(companies.followers))
         .limit(limit);
+    }
+  }
+
+  // Get top 100 companies prioritized by vendor and job count
+  async getTopCompanies(): Promise<any[]> {
+    try {
+      const query = `
+        SELECT 
+          c.*,
+          COALESCE(v.vendor_count, 0)::integer as vendor_count,
+          COALESCE(j.job_count, 0)::integer as job_count,
+          (COALESCE(v.vendor_count, 0) + COALESCE(j.job_count, 0))::integer as total_activity
+        FROM companies c
+        LEFT JOIN (
+          SELECT company_id, COUNT(*)::integer as vendor_count 
+          FROM vendors 
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
+        LEFT JOIN (
+          SELECT company_id, COUNT(*)::integer as job_count 
+          FROM jobs 
+          GROUP BY company_id
+        ) j ON c.id = j.company_id
+        WHERE c.status = 'approved'
+        ORDER BY total_activity DESC, vendor_count DESC, job_count DESC, c.created_at DESC
+        LIMIT 100
+      `;
+      
+      const result = await pool.query(query);
+      console.log(`DEBUG: getTopCompanies returned ${result.rows.length} companies ranked by activity`);
+      
+      return result.rows.map(row => ({
+        ...row,
+        vendor_count: parseInt(row.vendor_count) || 0,
+        job_count: parseInt(row.job_count) || 0,
+        total_activity: parseInt(row.total_activity) || 0,
+        logoUrl: row.logo_url,
+        zipCode: row.zip_code,
+        userId: row.user_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        approvedBy: row.approved_by
+      }));
+    } catch (error) {
+      console.error('Error fetching top companies:', error);
+      throw error;
     }
   }
 

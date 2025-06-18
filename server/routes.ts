@@ -316,6 +316,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get top 100 companies prioritized by vendor and job count
+  app.get('/api/companies/top', async (req, res) => {
+    try {
+      const companies = await storage.getTopCompanies();
+      res.json(companies);
+    } catch (error) {
+      console.error("Error fetching top companies:", error);
+      res.status(500).json({ message: "Failed to fetch top companies" });
+    }
+  });
+
   // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
@@ -340,9 +351,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG ROUTE: getCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else {
-        // No query and no limit - return reasonable sample
-        console.log(`DEBUG ROUTE: Returning sample of companies`);
-        const companies = await storage.getCompanies(100);
+        // No query and no limit - return top 100 companies
+        console.log(`DEBUG ROUTE: Returning top 100 companies`);
+        const companies = await storage.getTopCompanies();
         res.json(companies);
       }
     } catch (error) {
