@@ -447,49 +447,16 @@ export default function CompaniesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          <Link href="/">
-            <img 
-              src={logoPath} 
-              alt="PingJob"
-              className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-            />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
-            <p className="text-gray-600">
-              Discover top companies with active job openings and vendor partnerships
-            </p>
-          </div>
-        </div>
+      {/* Header - Logo Only */}
+      <div className="flex items-center mb-8">
+        <Link href="/">
+          <img 
+            src={logoPath} 
+            alt="PingJob"
+            className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+          />
+        </Link>
       </div>
-
-      {/* Search Bar */}
-      <Card className="mb-8">
-        <CardContent className="p-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Search companies by name, location, industry..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            {searchQuery && (
-              <Button
-                onClick={() => setSearchQuery("")}
-                variant="outline"
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Search Results or Company Grid */}
       {searchQuery && searchQuery.length >= 2 ? (
