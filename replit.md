@@ -205,6 +205,11 @@ Changelog:
   - Corrected vendor location system to show vendor's actual company location instead of client company location
   - HCL Technologies now displays Sunnyvale, CA (vendor location) instead of Boston, MA (client location)
   - Vendor display query matches vendor names to company records for accurate location data
+- June 18, 2025. Fixed vendor filtering to show only company-specific vendors
+  - Added WHERE clause to filter vendors by specific company ID instead of showing all vendors
+  - Company 2309 (General Motors) now shows only Apex Systems Inc vendor
+  - Company 2094 (Fidelity) now shows only HCL Technologies vendor
+  - Vendor tabs correctly display vendors associated with each specific company
 ```
 
 ## User Preferences

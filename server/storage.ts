@@ -1168,12 +1168,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(groups.id, groupId));
   }
 
-  // Get all vendors and show the vendor's actual company location (not client location)
+  // Get vendors for specific company and show the vendor's actual company location (not client location)
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
-      console.log(`DEBUG: Getting all vendors with their actual vendor company locations`);
+      console.log(`DEBUG: Getting vendors for company ${companyId} with their actual vendor company locations`);
       
-      // Get vendors and find their actual company details by matching vendor name to company name
+      // Get vendors for specific company and find their actual company details by matching vendor name to company name
       const queryText = `
         SELECT DISTINCT
           v.id as vendor_id,
@@ -1195,12 +1195,13 @@ export class DatabaseStorage implements IStorage {
           vendor_co.website
         FROM vendors v
         LEFT JOIN companies vendor_co ON LOWER(vendor_co.name) = LOWER(v.name)
+        WHERE v.company_id = $1
         ORDER BY v.created_at DESC
       `;
       
-      console.log(`DEBUG: Executing vendor query with vendor company lookup: ${queryText}`);
+      console.log(`DEBUG: Executing vendor query for company ${companyId}: ${queryText}`);
       
-      const result = await pool.query(queryText);
+      const result = await pool.query(queryText, [companyId]);
       
       // Map service codes to proper names
       const serviceMap: { [key: string]: string } = {
