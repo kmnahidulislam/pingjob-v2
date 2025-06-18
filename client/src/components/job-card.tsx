@@ -183,7 +183,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                   </span>
                   <span className="mx-2">•</span>
                   <Badge variant="outline" className="text-xs">
-                    {job.jobType.replace('_', ' ')}
+                    {job.jobType?.replace('_', ' ') || 'Full Time'}
                   </Badge>
                 </div>
               </div>
