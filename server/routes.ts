@@ -802,13 +802,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get vendors for a specific company (for job details page)
-  app.get('/api/companies/:companyId/vendors', async (req, res) => {
+  app.get('/api/companies/:companyId/vendors', async (req: any, res) => {
     try {
       const companyId = parseInt(req.params.companyId);
       const isAuthenticated = !!req.user;
       
       // Get all approved vendors for this company
-      const vendors = await storage.getClientVendors(companyId);
+      const allVendors = await storage.getClientVendors(companyId);
+      const vendors = allVendors.filter((vendor: any) => vendor.status === 'approved');
       
       // For unauthenticated users, limit to 3 vendors
       const vendorsToShow = isAuthenticated ? vendors : vendors.slice(0, 3);
