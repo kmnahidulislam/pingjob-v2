@@ -171,9 +171,14 @@ export default function JobDetails() {
                 <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                   {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                     <img 
-                      src={encodeURI(job.company.logoUrl)} 
+                      src={job.company.logoUrl.replace(/ /g, '%20')} 
                       alt={job.company.name}
                       className="w-full h-full object-contain p-1"
+                      onError={(e) => {
+                        console.log('Image failed to load:', job.company?.logoUrl);
+                        console.log('Encoded URL:', job.company?.logoUrl?.replace(/ /g, '%20'));
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
@@ -326,7 +331,7 @@ export default function JobDetails() {
                 <div className="w-12 h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                   {job.company.logoUrl && job.company.logoUrl !== "NULL" ? (
                     <img 
-                      src={encodeURI(job.company.logoUrl)} 
+                      src={job.company.logoUrl.replace(/ /g, '%20')} 
                       alt={job.company.name}
                       className="w-full h-full object-contain p-1"
                     />

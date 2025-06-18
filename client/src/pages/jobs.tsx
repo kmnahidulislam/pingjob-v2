@@ -382,7 +382,7 @@ export default function Jobs() {
                           <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                               <img 
-                                src={encodeURI(job.company.logoUrl)} 
+                                src={job.company.logoUrl.replace(/ /g, '%20')} 
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
                               />
