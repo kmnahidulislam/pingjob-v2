@@ -17,7 +17,24 @@ import { Briefcase, MapPin, DollarSign, Check, ChevronsUpDown } from "lucide-rea
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const jobFormSchema = insertJobSchema.extend({
+type JobFormData = {
+  title: string;
+  description: string;
+  requirements: string;
+  country: string;
+  state: string;
+  city: string;
+  zipCode?: string;
+  location?: string;
+  salary?: string;
+  employmentType: "full_time" | "part_time" | "contract" | "remote";
+  experienceLevel: "entry" | "mid" | "senior" | "executive";
+  skills?: string;
+  companyId: number;
+  categoryId: number;
+};
+
+const jobFormSchema = z.object({
   title: z.string().min(1, "Job title is required"),
   description: z.string().min(50, "Description must be at least 50 characters"),
   requirements: z.string().min(20, "Requirements must be at least 20 characters"),
@@ -25,11 +42,14 @@ const jobFormSchema = insertJobSchema.extend({
   state: z.string().min(1, "State is required"),
   city: z.string().min(1, "City is required"),
   zipCode: z.string().optional(),
-  salaryMin: z.number().min(0, "Minimum salary must be positive").optional(),
-  salaryMax: z.number().min(0, "Maximum salary must be positive").optional(),
+  location: z.string().optional(),
+  salary: z.string().optional(),
+  employmentType: z.enum(["full_time", "part_time", "contract", "remote"]),
+  experienceLevel: z.enum(["entry", "mid", "senior", "executive"]),
+  skills: z.string().optional(),
   companyId: z.number().min(1, "Company selection is required"),
   categoryId: z.number().min(1, "Category selection is required"),
-});
+}) satisfies z.ZodType<JobFormData>;
 
 export default function JobCreate() {
   const { user } = useAuth();
@@ -40,22 +60,6 @@ export default function JobCreate() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
   const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
-
-  // Check URL parameters for pre-selected company
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const companyId = urlParams.get('companyId');
-    const companyName = urlParams.get('companyName');
-    
-    if (companyId && companyName) {
-      const preSelectedCompany = {
-        id: parseInt(companyId),
-        name: decodeURIComponent(companyName)
-      };
-      setSelectedCompany(preSelectedCompany);
-      setCompanySearch(preSelectedCompany.name);
-    }
-  }, []);
 
   // Debounce search input
   useEffect(() => {
@@ -188,6 +192,15 @@ export default function JobCreate() {
 
   const handleSubmit = (data: z.infer<typeof jobFormSchema>) => {
     console.log("Job form submitted with data:", data);
+    console.log("Selected company:", selectedCompany);
+    console.log("Form errors:", jobForm.formState.errors);
+    
+    // Ensure companyId is set
+    if (!data.companyId && selectedCompany) {
+      data.companyId = selectedCompany.id;
+    }
+    
+    console.log("Final data being sent:", data);
     createJobMutation.mutate(data);
   };
 
