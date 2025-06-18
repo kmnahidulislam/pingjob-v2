@@ -1172,8 +1172,22 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: getClientVendors called with companyId=${companyId}, type: ${typeof companyId}`);
       
-      // Get ALL vendors for this company, not just approved ones
-      const queryText = 'SELECT * FROM vendors WHERE company_id = $1 ORDER BY created_at DESC';
+      // Get ALL vendors for this company with company location details
+      const queryText = `
+        SELECT 
+          v.*,
+          c.name as company_name,
+          c.city,
+          c.state,
+          c.zip_code,
+          c.country,
+          c.location as company_location,
+          c.website as company_website
+        FROM vendors v
+        LEFT JOIN companies c ON v.company_id = c.id
+        WHERE v.company_id = $1 
+        ORDER BY v.created_at DESC
+      `;
       const queryValues = [companyId];
       
       console.log(`DEBUG: Executing query: ${queryText} with values:`, queryValues);

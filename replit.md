@@ -187,6 +187,12 @@ Changelog:
   - Enhanced search functionality to query all 76,806 companies with proper LIKE pattern matching
   - Verified search results include companies like VED Software Services Inc, VedaSoft Inc, iVedha Inc
   - Auto-complete now provides comprehensive company selection with 20 result limit for optimal performance
+- June 18, 2025. Enhanced vendor display with location details from companies table
+  - Modified getClientVendors to JOIN with companies table for location data
+  - Vendor displays now show city, state, zip code, and country information
+  - Added icons for location, email, phone, and website details in vendor cards
+  - Enhanced vendor information includes company website links and complete address context
+  - Confirmed TEK Systems vendor now displays "North Sioux City, South Dakota, 57049" location
 ```
 
 ## User Preferences

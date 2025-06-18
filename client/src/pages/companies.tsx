@@ -36,6 +36,7 @@ import {
   Plus,
   Filter,
   Phone,
+  Mail,
   Star,
   Check,
   X,
@@ -722,6 +723,17 @@ function CompanyVendors({ companyId }: { companyId: number }) {
                   <h4 className="font-semibold text-lg text-gray-900">{vendor.name}</h4>
                   <p className="text-gray-600 font-medium">{vendor.services}</p>
                   
+                  {/* Location information from company */}
+                  {(vendor.city || vendor.state || vendor.zip_code) && (
+                    <div className="flex items-center mt-2 text-sm text-gray-500">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      <span>
+                        {[vendor.city, vendor.state, vendor.zip_code].filter(Boolean).join(', ')}
+                        {vendor.country && vendor.country !== 'United States' && `, ${vendor.country}`}
+                      </span>
+                    </div>
+                  )}
+                  
                   {vendor.description && (
                     <p className="text-gray-600 text-sm mt-2 line-clamp-2">
                       {vendor.description}
@@ -729,14 +741,26 @@ function CompanyVendors({ companyId }: { companyId: number }) {
                   )}
                   
                   <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                    {vendor.contactEmail && (
+                    {vendor.email && (
                       <div className="flex items-center">
-                        <span>📧 {vendor.contactEmail}</span>
+                        <Mail className="h-4 w-4 mr-1" />
+                        <span>{vendor.email}</span>
                       </div>
                     )}
-                    {vendor.contactPhone && (
+                    {vendor.phone && (
                       <div className="flex items-center">
-                        <span>📞 {vendor.contactPhone}</span>
+                        <Phone className="h-4 w-4 mr-1" />
+                        <span>{vendor.phone}</span>
+                      </div>
+                    )}
+                    {vendor.company_website && vendor.company_website !== 'NULL' && (
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-1" />
+                        <a href={vendor.company_website.startsWith('http') ? vendor.company_website : `https://${vendor.company_website}`} 
+                           target="_blank" rel="noopener noreferrer" 
+                           className="text-blue-600 hover:text-blue-800">
+                          Website
+                        </a>
                       </div>
                     )}
                   </div>
