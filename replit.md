@@ -246,6 +246,13 @@ Changelog:
   - Fixed logo display in jobs page listings and JobCard component
   - Company logos now display correctly across all pages including Duke Energy Corporation
   - Static file serving for /logos directory confirmed working with proper encoding
+- June 18, 2025. Enhanced companies page formatting and confirmed universal access
+  - Redesigned company card layout from 10-column to 5-column grid for better readability
+  - Increased logo size (20x16) and improved company name display with better typography
+  - Added prominent green badges for job counts and blue badges for vendor counts
+  - Enhanced card padding and spacing for cleaner visual presentation
+  - Confirmed /api/companies/top endpoint is publicly accessible for both logged-in users and visitors
+  - Companies with jobs prioritized at top of list with "Open Jobs" labeling for better user experience
 ```
 
 ## User Preferences

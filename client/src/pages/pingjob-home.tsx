@@ -336,26 +336,26 @@ export default function PingJobHome() {
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {topCompanies.slice(0, 20).map((company: any) => (
-                <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
-                  <CardContent className="p-4">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group h-full">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                         {company.logoUrl && company.logoUrl !== "NULL" ? (
                           <img 
-                            src={company.logoUrl} 
+                            src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                             alt={company.name}
-                            className="w-full h-full object-contain p-1"
+                            className="w-full h-full object-contain p-2"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-sm">
+                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
                             {company.name.charAt(0)}
                           </div>
                         )}
                       </div>
                       
-                      <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 min-h-[40px] flex items-center">
+                      <h3 className="font-semibold text-base text-gray-900 line-clamp-3 min-h-[60px] flex items-center text-center leading-tight">
                         {company.name}
                       </h3>
                       
@@ -366,24 +366,25 @@ export default function PingJobHome() {
                       )}
                       
                       {(company.city || company.state || company.country) && (
-                        <div className="flex items-center text-xs text-gray-500">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          <span className="truncate">
+                        <div className="flex items-center justify-center text-sm text-gray-500">
+                          <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate text-center">
                             {[company.city, company.state, company.country].filter(Boolean).join(', ')}
                           </span>
                         </div>
                       )}
                       
-                      <div className="flex items-center justify-center space-x-3 text-xs text-gray-500">
-                        {(company.vendor_count || 0) > 0 && (
-                          <div className="flex items-center">
-                            <span>{company.vendor_count} Vendors</span>
+                      <div className="flex flex-col items-center space-y-2 w-full">
+                        {(company.job_count || 0) > 0 && (
+                          <div className="flex items-center text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full">
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            <span className="text-sm">{company.job_count} Open Job{company.job_count !== 1 ? 's' : ''}</span>
                           </div>
                         )}
-                        {(company.job_count || 0) > 0 && (
-                          <div className="flex items-center">
-                            <Briefcase className="h-3 w-3 mr-1" />
-                            <span>{company.job_count}</span>
+                        {(company.vendor_count || 0) > 0 && (
+                          <div className="flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                            <Users className="h-4 w-4 mr-2" />
+                            <span className="text-sm">{company.vendor_count} Vendor{company.vendor_count !== 1 ? 's' : ''}</span>
                           </div>
                         )}
                       </div>
