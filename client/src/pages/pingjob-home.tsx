@@ -32,7 +32,9 @@ import {
   Filter,
   Briefcase,
   Calendar,
-  DollarSign
+  DollarSign,
+  Heart,
+  Globe
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -44,6 +46,8 @@ export default function PingJobHome() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
+  const [showCompanies, setShowCompanies] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   const jobsPerPage = 20;
 
   const handleLogout = () => {
@@ -131,10 +135,10 @@ export default function PingJobHome() {
               </Link>
             </div>
 
-            {/* Search Box */}
+            {/* Search Box with Go Button */}
             <div className="flex-1 max-w-lg mx-8">
-              <form onSubmit={handleSearch} className="relative">
-                <div className="relative">
+              <form onSubmit={handleSearch} className="relative flex items-center">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="text"
@@ -144,6 +148,14 @@ export default function PingJobHome() {
                     className="pl-10 pr-4 py-2 w-full"
                   />
                 </div>
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="ml-2 px-3"
+                  disabled={!searchQuery.trim()}
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
               </form>
             </div>
 
@@ -152,10 +164,24 @@ export default function PingJobHome() {
               <Link href="/jobs">
                 <Button variant="ghost">Search</Button>
               </Link>
-              <Link href="/companies">
-                <Button variant="ghost">Clients</Button>
-              </Link>
-              <Button variant="ghost">Pricing</Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setShowCompanies(!showCompanies);
+                  setShowPricing(false);
+                }}
+              >
+                Companies
+              </Button>
+              <Button 
+                variant="ghost"
+                onClick={() => {
+                  setShowPricing(!showPricing);
+                  setShowCompanies(false);
+                }}
+              >
+                Pricing
+              </Button>
               <Link href="/network">
                 <Button variant="ghost">Network</Button>
               </Link>
@@ -194,6 +220,208 @@ export default function PingJobHome() {
           </div>
         </div>
       </header>
+
+      {/* Companies Section */}
+      {showCompanies && (
+        <section className="bg-white border-b border-gray-200 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies</h2>
+              <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+              {topCompanies.slice(0, 20).map((company: any) => (
+                <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                        {company.logoUrl && company.logoUrl !== "NULL" ? (
+                          <img 
+                            src={company.logoUrl} 
+                            alt={company.name}
+                            className="w-full h-full object-contain p-1"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-sm">
+                            {company.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 min-h-[40px] flex items-center">
+                        {company.name}
+                      </h3>
+                      
+                      {company.industry && (
+                        <p className="text-xs text-gray-600 line-clamp-1">
+                          {company.industry}
+                        </p>
+                      )}
+                      
+                      {(company.city || company.state || company.country) && (
+                        <div className="flex items-center text-xs text-gray-500">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          <span className="truncate">
+                            {[company.city, company.state, company.country].filter(Boolean).join(', ')}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-center space-x-3 text-xs text-gray-500">
+                        {(company.vendor_count || 0) > 0 && (
+                          <div className="flex items-center">
+                            <span>{company.vendor_count} Vendors</span>
+                          </div>
+                        )}
+                        {(company.job_count || 0) > 0 && (
+                          <div className="flex items-center">
+                            <Briefcase className="h-3 w-3 mr-1" />
+                            <span>{company.job_count}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/companies">
+                <Button size="lg" className="px-8">
+                  View All Companies
+                  <Building className="h-5 w-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Pricing Section */}
+      {showPricing && (
+        <section className="bg-white border-b border-gray-200 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Plan</h2>
+              <p className="text-lg text-gray-600">Select the perfect plan for your recruitment needs</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Basic Plan */}
+              <Card className="relative border-2 border-gray-200 hover:border-blue-300 transition-colors">
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-2xl font-bold">Basic</CardTitle>
+                  <div className="text-4xl font-bold text-gray-900 mt-4">
+                    $99
+                    <span className="text-lg font-normal text-gray-600">/month</span>
+                  </div>
+                  <p className="text-gray-600 mt-2">Perfect for small teams</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Up to 10 job postings</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Basic candidate search</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Email support</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Standard analytics</span>
+                  </div>
+                  <Button className="w-full mt-6" variant="outline">
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Professional Plan */}
+              <Card className="relative border-2 border-blue-500 shadow-lg scale-105">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-blue-500 text-white px-4 py-1">Most Popular</Badge>
+                </div>
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-2xl font-bold">Professional</CardTitle>
+                  <div className="text-4xl font-bold text-gray-900 mt-4">
+                    $299
+                    <span className="text-lg font-normal text-gray-600">/month</span>
+                  </div>
+                  <p className="text-gray-600 mt-2">Best for growing companies</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Unlimited job postings</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Advanced AI matching</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Priority support</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Advanced analytics</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Vendor management</span>
+                  </div>
+                  <Button className="w-full mt-6">
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Enterprise Plan */}
+              <Card className="relative border-2 border-gray-200 hover:border-purple-300 transition-colors">
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-2xl font-bold">Enterprise</CardTitle>
+                  <div className="text-4xl font-bold text-gray-900 mt-4">
+                    $799
+                    <span className="text-lg font-normal text-gray-600">/month</span>
+                  </div>
+                  <p className="text-gray-600 mt-2">For large organizations</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Everything in Professional</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Custom integrations</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Dedicated account manager</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>Custom reporting</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span>24/7 phone support</span>
+                  </div>
+                  <Button className="w-full mt-6" variant="outline">
+                    Contact Sales
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
