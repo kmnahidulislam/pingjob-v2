@@ -325,18 +325,8 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             </TabsContent>
             
             <TabsContent value="vendors" className="space-y-4">
-              {/* Add Vendor Button for Admin Users */}
-              {isAdmin && (
-                <div className="flex justify-end mb-4">
-                  <Button 
-                    onClick={() => window.open(`/dashboard?tab=admin-actions&addVendor=${company.id}`, '_blank')}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Vendor
-                  </Button>
-                </div>
-              )}
+              {/* Add Vendor Interface for Admin Users */}
+              {isAdmin && <VendorManagement companyId={company.id} />}
               
               {companyDetails?.vendors && companyDetails.vendors.length > 0 ? (
                 <div className="space-y-4">
