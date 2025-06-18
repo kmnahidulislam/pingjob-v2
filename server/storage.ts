@@ -1411,3 +1411,4 @@ export class DatabaseStorage implements IStorage {
 initializeCleanDatabase();
 
 export const storage = new DatabaseStorage();
+export { pool as pool };

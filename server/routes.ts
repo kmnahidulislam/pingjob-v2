@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, pool } from "./storage";
 import { setupSimpleAuth } from "./simple-auth";
 import { z } from "zod";
 import { 
@@ -1349,16 +1349,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Temporary admin endpoint to fix TEK Systems vendor location
-  app.put('/api/admin/fix-vendor/:id', async (req, res) => {
+  // Fix TEK Systems vendor location
+  app.get('/api/admin/fix-tek-systems', async (req, res) => {
     try {
-      const vendorId = parseInt(req.params.id);
-      const updateData = req.body;
-      const updatedVendor = await storage.updateVendor(vendorId, updateData);
-      res.json(updatedVendor);
+      console.log("Fixing TEK Systems vendor location...");
+      
+      // Use raw SQL to update vendor record
+      const result = await pool.query(`
+        UPDATE vendors 
+        SET company_id = $1
+        WHERE id = $2 AND name = $3
+        RETURNING *
+      `, [6812, 1, 'TEK Systems']);
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: "TEK Systems vendor not found" });
+      }
+      
+      console.log("TEK Systems vendor updated successfully:", result.rows[0]);
+      res.json({ 
+        message: "TEK Systems location fixed successfully",
+        vendor: result.rows[0] 
+      });
     } catch (error) {
-      console.error("Error updating vendor:", error);
-      res.status(500).json({ message: "Failed to update vendor" });
+      console.error("Error fixing TEK Systems:", error);
+      res.status(500).json({ message: "Failed to fix TEK Systems location" });
     }
   });
 
