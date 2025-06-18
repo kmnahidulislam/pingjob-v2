@@ -288,6 +288,8 @@ Changelog:
   - Added proper Link wrapper to "View Details" buttons in home page job listings for functional navigation
   - Resolved both job card components and home page listings to have working "View Details" navigation
   - Updated logout functionality to redirect users to home page instead of auth page for better UX
+  - Fixed vendor display in job details: authenticated users now see all vendors (approved + pending) with status badges
+  - Added dynamic status indicators: green badges for approved vendors, yellow badges for pending vendors
   - All job detail pages now properly display vendor information with complete navigation flow
 ```
 

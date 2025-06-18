@@ -82,17 +82,19 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
     return null; // Don't show card if no vendors
   }
 
-  // Filter only approved vendors
+  // For authenticated users, show all vendors (approved and pending)
+  // For unregistered users, show only approved vendors (max 3)
+  const isAuthenticated = !!user;
   const approvedVendors = vendorData.filter((vendor: any) => vendor.status === 'approved');
+  const allVendors = isAuthenticated ? vendorData : approvedVendors;
   
-  if (approvedVendors.length === 0) {
-    return null; // Don't show card if no approved vendors
+  if (allVendors.length === 0) {
+    return null; // Don't show card if no vendors
   }
 
-  // For unregistered users, show maximum 3 vendors
-  const isAuthenticated = !!user;
-  const vendorsToShow = isAuthenticated ? approvedVendors : approvedVendors.slice(0, 3);
-  const totalCount = approvedVendors.length;
+  // For unregistered users, show maximum 3 approved vendors
+  const vendorsToShow = isAuthenticated ? allVendors : allVendors.slice(0, 3);
+  const totalCount = allVendors.length;
   const showingCount = vendorsToShow.length;
 
   return (
@@ -165,8 +167,14 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
                   </div>
                 </div>
                 
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  Approved
+                <Badge 
+                  variant="outline" 
+                  className={vendor.status === 'approved' 
+                    ? "bg-green-50 text-green-700 border-green-200" 
+                    : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                  }
+                >
+                  {vendor.status === 'approved' ? 'Approved' : 'Pending'}
                 </Badge>
               </div>
             </div>
