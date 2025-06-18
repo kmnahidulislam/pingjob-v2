@@ -261,7 +261,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setLocation(`/jobs/${job.id}`)}
+                onClick={() => {
+                  console.log('View Details clicked for job:', job.id);
+                  console.log('Navigating to:', `/jobs/${job.id}`);
+                  setLocation(`/jobs/${job.id}`);
+                }}
                 className="border-linkedin-blue text-linkedin-blue hover:bg-linkedin-blue hover:text-white"
               >
                 View Details
