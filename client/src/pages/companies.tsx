@@ -503,10 +503,10 @@ function CompanyVendors({ companyId }: { companyId: number }) {
 
   // Query for searching companies for auto-complete
   const { data: searchCompanies = [] } = useQuery<Company[]>({
-    queryKey: ['/api/companies', vendorName],
+    queryKey: ['/api/companies/search', vendorName],
     queryFn: async () => {
       if (vendorName.length < 2) return [];
-      const response = await fetch(`/api/companies?query=${encodeURIComponent(vendorName)}&limit=10`);
+      const response = await fetch(`/api/companies/search?query=${encodeURIComponent(vendorName)}&limit=20`);
       return response.json();
     },
     enabled: vendorName.length >= 2 && isAddVendorOpen

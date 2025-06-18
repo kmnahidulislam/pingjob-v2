@@ -518,6 +518,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dedicated search endpoint for vendor auto-complete
+  app.get('/api/companies/search', async (req, res) => {
+    try {
+      const query = req.query.query as string;
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      if (!query || query.length < 2) {
+        return res.json([]);
+      }
+      
+      console.log(`DEBUG SEARCH: Searching companies with query="${query}", limit=${limit}`);
+      const companies = await storage.searchCompanies(query, limit);
+      console.log(`DEBUG SEARCH: Found ${companies.length} companies matching "${query}"`);
+      
+      res.json(companies);
+    } catch (error) {
+      console.error('Error searching companies:', error);
+      res.status(500).json({ error: 'Failed to search companies' });
+    }
+  });
+
   // Vendor management routes (temporary bypass for testing)
   app.post('/api/vendors', async (req: any, res) => {
     try {
