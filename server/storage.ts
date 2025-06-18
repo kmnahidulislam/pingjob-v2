@@ -1168,14 +1168,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(groups.id, groupId));
   }
 
-  // Get all vendors regardless of client company - show vendor ID, name, and their actual company location
+  // Get all vendors and show the vendor's actual company location (not client location)
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
-      console.log(`DEBUG: Getting all vendors with their actual company locations`);
+      console.log(`DEBUG: Getting all vendors with their actual vendor company locations`);
       
-      // Simply get all vendors and show their actual company information
+      // Get vendors and find their actual company details by matching vendor name to company name
       const queryText = `
-        SELECT 
+        SELECT DISTINCT
           v.id as vendor_id,
           v.name as vendor_name,
           v.email,
@@ -1184,20 +1184,21 @@ export class DatabaseStorage implements IStorage {
           v.status,
           v.created_at,
           v.approved_by,
-          v.company_id,
-          c.name as company_name,
-          c.city,
-          c.state,
-          c.zip_code,
-          c.country,
-          c.location,
-          c.website
+          v.company_id as client_company_id,
+          vendor_co.id as vendor_company_id,
+          vendor_co.name as vendor_company_name,
+          vendor_co.city,
+          vendor_co.state,
+          vendor_co.zip_code,
+          vendor_co.country,
+          vendor_co.location,
+          vendor_co.website
         FROM vendors v
-        LEFT JOIN companies c ON v.company_id = c.id
+        LEFT JOIN companies vendor_co ON LOWER(vendor_co.name) = LOWER(v.name)
         ORDER BY v.created_at DESC
       `;
       
-      console.log(`DEBUG: Executing simple vendor query: ${queryText}`);
+      console.log(`DEBUG: Executing vendor query with vendor company lookup: ${queryText}`);
       
       const result = await pool.query(queryText);
       
@@ -1206,6 +1207,7 @@ export class DatabaseStorage implements IStorage {
         'ste': 'Strategic Consulting',
         'staff': 'Staff Augmentation',
         'staffing': 'Staffing Services',
+        'Staffing': 'Staffing Services',
         'it': 'IT Services',
         'consulting': 'Business Consulting',
         'development': 'Software Development',
@@ -1223,7 +1225,7 @@ export class DatabaseStorage implements IStorage {
         service_name: serviceMap[vendor.services] || vendor.services || 'General Services'
       }));
       
-      console.log(`DEBUG: Found ${transformedResults.length} total vendors with service names:`, transformedResults);
+      console.log(`DEBUG: Found ${transformedResults.length} total vendors with vendor company locations:`, transformedResults);
       return transformedResults;
     } catch (error) {
       console.error("Error in getClientVendors:", error);

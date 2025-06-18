@@ -720,7 +720,7 @@ function CompanyVendors({ companyId }: { companyId: number }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-lg text-gray-900">ID: {vendor.vendor_id} - {vendor.vendor_name}</h4>
+                  <h4 className="font-semibold text-lg text-gray-900">{vendor.vendor_name}</h4>
                   <p className="text-gray-600 font-medium">{vendor.service_name || vendor.services}</p>
                   
                   {/* Location information from company */}

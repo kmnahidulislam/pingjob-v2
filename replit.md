@@ -200,6 +200,11 @@ Changelog:
   - Updated vendor display to show "ID: X - Vendor Name" format with proper service names instead of raw database codes
   - Enhanced vendor information display with professional service descriptions for better user experience
   - Confirmed vendor display shows: ID, name, service names, and accurate location data based on company associations
+- June 18, 2025. Fixed vendor location display and cleaned vendor name presentation
+  - Removed "ID:" prefix from vendor names for cleaner display
+  - Corrected vendor location system to show vendor's actual company location instead of client company location
+  - HCL Technologies now displays Sunnyvale, CA (vendor location) instead of Boston, MA (client location)
+  - Vendor display query matches vendor names to company records for accurate location data
 ```
 
 ## User Preferences
