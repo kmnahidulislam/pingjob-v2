@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import JobEditModal from "@/components/modals/job-edit-modal";
 import {
@@ -75,9 +75,15 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     }
   });
 
-  const formatTimeAgo = (date: string | Date) => {
+  const formatTimeAgo = (date: string | Date | null) => {
+    if (!date) return "Recently posted";
+    
     const now = new Date();
     const posted = new Date(date);
+    
+    // Check if date is valid
+    if (isNaN(posted.getTime())) return "Recently posted";
+    
     const diffTime = Math.abs(now.getTime() - posted.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
@@ -258,18 +264,15 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             </div>
             
             <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  console.log('View Details clicked for job:', job.id);
-                  console.log('Navigating to:', `/jobs/${job.id}`);
-                  setLocation(`/jobs/${job.id}`);
-                }}
-                className="border-linkedin-blue text-linkedin-blue hover:bg-linkedin-blue hover:text-white"
-              >
-                View Details
-              </Button>
+              <Link href={`/jobs/${job.id}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-linkedin-blue text-linkedin-blue hover:bg-linkedin-blue hover:text-white"
+                >
+                  View Details
+                </Button>
+              </Link>
               
               {/* Admin Actions */}
               {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
