@@ -253,6 +253,13 @@ Changelog:
   - Enhanced card padding and spacing for cleaner visual presentation
   - Confirmed /api/companies/top endpoint is publicly accessible for both logged-in users and visitors
   - Companies with jobs prioritized at top of list with "Open Jobs" labeling for better user experience
+- June 18, 2025. Completed comprehensive company display enhancement across all platforms
+  - Updated home page companies section to use /api/companies/top endpoint for all 100 companies
+  - Enhanced location display to include vendor count, job count, location, and zip code information
+  - Fixed grid layout consistency across home page and dedicated companies page (5-column maximum)
+  - Implemented proper zip code display in location format: city, state, zip, country
+  - All company displays now show complete address information with proper URL encoding for logos
+  - System displays top 100 companies ranked by job count first, then vendor count for optimal user experience
 ```
 
 ## User Preferences

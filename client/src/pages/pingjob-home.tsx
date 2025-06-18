@@ -337,7 +337,7 @@ export default function PingJobHome() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {topCompanies.slice(0, 20).map((company: any) => (
+              {topCompanies.slice(0, 100).map((company: any) => (
                 <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group h-full">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-4">
