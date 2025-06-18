@@ -369,7 +369,6 @@ export default function CompaniesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -383,16 +382,6 @@ export default function CompaniesPage() {
       const response = await apiRequest('GET', '/api/companies/top');
       return response.json();
     }
-  });
-
-  // Search companies when query is provided
-  const { data: searchResults } = useQuery({
-    queryKey: ['/api/search', searchQuery],
-    queryFn: async () => {
-      const response = await apiRequest('GET', `/api/search/${encodeURIComponent(searchQuery)}`);
-      return response.json();
-    },
-    enabled: searchQuery.length >= 2
   });
 
   // Follow company mutation
@@ -455,37 +444,21 @@ export default function CompaniesPage() {
         </Link>
       </div>
 
-      {/* Search Results or Company Grid */}
-      {searchQuery && searchQuery.length >= 2 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Search Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SearchResults
-              companies={searchResults?.companies || []}
-              onSelectCompany={handleSelectCompany}
-              onFollowCompany={handleFollowCompany}
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          {/* Company Grid */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>
-                  Top Companies ({topCompanies.length} total)
-                </CardTitle>
-                <div className="text-sm text-gray-500">
-                  Page {currentPage} of {totalPages}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
+      {/* Company Grid */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              Top Companies ({topCompanies.length} total)
+            </CardTitle>
+            <div className="text-sm text-gray-500">
+              Page {currentPage} of {totalPages}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-4">
                   {[...Array(20)].map((_, i) => (
                     <Card key={i} className="animate-pulse">
                       <CardContent className="p-4">
@@ -554,8 +527,6 @@ export default function CompaniesPage() {
               )}
             </CardContent>
           </Card>
-        </>
-      )}
 
       {/* Company Details Modal */}
       <CompanyDetailsModal
