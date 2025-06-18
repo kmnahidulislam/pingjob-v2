@@ -1168,34 +1168,40 @@ export class DatabaseStorage implements IStorage {
       .where(eq(groups.id, groupId));
   }
 
-  // Vendor operations
+  // Get all vendors regardless of client company - show vendor ID, name, and their actual company location
   async getClientVendors(companyId: number): Promise<any[]> {
     try {
-      console.log(`DEBUG: getClientVendors called with companyId=${companyId}, type: ${typeof companyId}`);
+      console.log(`DEBUG: Getting all vendors with their actual company locations`);
       
-      // Get ALL vendors for this company with company location details
+      // Simply get all vendors and show their actual company information
       const queryText = `
         SELECT 
-          v.*,
+          v.id as vendor_id,
+          v.name as vendor_name,
+          v.email,
+          v.phone,
+          v.services,
+          v.status,
+          v.created_at,
+          v.approved_by,
+          v.company_id,
           c.name as company_name,
           c.city,
           c.state,
           c.zip_code,
           c.country,
-          c.location as company_location,
-          c.website as company_website
+          c.location,
+          c.website
         FROM vendors v
         LEFT JOIN companies c ON v.company_id = c.id
-        WHERE v.company_id = $1 
         ORDER BY v.created_at DESC
       `;
-      const queryValues = [companyId];
       
-      console.log(`DEBUG: Executing query: ${queryText} with values:`, queryValues);
+      console.log(`DEBUG: Executing simple vendor query: ${queryText}`);
       
-      const result = await pool.query(queryText, queryValues);
+      const result = await pool.query(queryText);
       
-      console.log(`DEBUG: Found ${result.rows.length} vendors for company ${companyId}:`, result.rows);
+      console.log(`DEBUG: Found ${result.rows.length} total vendors:`, result.rows);
       return result.rows;
     } catch (error) {
       console.error("Error in getClientVendors:", error);

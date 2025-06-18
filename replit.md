@@ -192,7 +192,9 @@ Changelog:
   - Vendor displays now show city, state, zip code, and country information
   - Added icons for location, email, phone, and website details in vendor cards
   - Enhanced vendor information includes company website links and complete address context
-  - Confirmed TEK Systems vendor now displays "North Sioux City, South Dakota, 57049" location
+  - Fixed vendor location display to show actual company addresses based on vendor's company_id
+  - Vendor system now correctly displays vendor ID, name, and location derived from associated company
+  - TEK Systems vendors now show proper locations: Linthicum, MD (approved) and North Sioux City, SD (pending)
 ```
 
 ## User Preferences
