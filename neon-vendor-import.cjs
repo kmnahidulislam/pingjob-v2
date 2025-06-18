@@ -84,7 +84,7 @@ async function importVendorsToNeon() {
 
       if (placeholders.length > 0) {
         const insertQuery = `
-          INSERT INTO vendors (id, company_id, name, email, services, status, created_by) 
+          INSERT INTO vendors (id, company_id, name, email, services, status) 
           VALUES ${placeholders.join(', ')}
         `;
         
