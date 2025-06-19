@@ -88,9 +88,11 @@ export default function CompanyCreate() {
     },
     onError: (error: any) => {
       console.error("Company creation error:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to create company";
       toast({
         title: "Error creating company",
-        description: error.message || "Failed to create company",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -132,7 +134,19 @@ export default function CompanyCreate() {
   const handleSubmit = (data: z.infer<typeof companyFormSchema>) => {
     console.log("Form submitted with data:", data);
     console.log("Form errors:", companyForm.formState.errors);
+    console.log("Form is valid:", companyForm.formState.isValid);
     console.log("Logo file:", logoFile);
+    
+    // Check for validation errors
+    if (Object.keys(companyForm.formState.errors).length > 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please check all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     createCompanyMutation.mutate(data);
   };
 
@@ -329,7 +343,7 @@ export default function CompanyCreate() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company Size</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select company size" />
