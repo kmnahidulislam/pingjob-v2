@@ -40,12 +40,9 @@ export function setupAuth(app: Express) {
     }
   }));
 
-  // Initialize Passport
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  // Configure Google OAuth Strategy
+  // Configure Google OAuth Strategy FIRST
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    console.log('Setting up Google OAuth strategy...');
     passport.use(new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -53,6 +50,8 @@ export function setupAuth(app: Express) {
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        console.log('Google OAuth callback received for:', profile.emails?.[0]?.value);
+        
         // Check if user exists
         const existingUser = await pool.query(
           'SELECT * FROM users WHERE email = $1',
@@ -60,15 +59,17 @@ export function setupAuth(app: Express) {
         );
 
         if (existingUser.rows.length > 0) {
+          console.log('Existing user found, logging in');
           return done(null, existingUser.rows[0]);
         }
 
-        // Create new user
+        // Create new user with Google ID
+        console.log('Creating new user from Google profile');
         const newUser = await pool.query(
           `INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at) 
            VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *`,
           [
-            profile.id,
+            `google_${profile.id}`,
             profile.emails?.[0]?.value,
             profile.name?.givenName,
             profile.name?.familyName,
@@ -76,12 +77,21 @@ export function setupAuth(app: Express) {
           ]
         );
 
+        console.log('New user created successfully');
         return done(null, newUser.rows[0]);
       } catch (error) {
-        return done(error, null);
+        console.error('Google OAuth error:', error);
+        return done(error);
       }
     }));
+    console.log('Google OAuth strategy registered');
+  } else {
+    console.log('Google OAuth credentials not found');
   }
+
+  // Initialize Passport AFTER strategy setup
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   // Passport serialization
   passport.serializeUser((user: any, done) => {
@@ -245,9 +255,17 @@ export function setupAuth(app: Express) {
   };
 
   // Google OAuth routes
-  app.get('/api/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-  );
+  app.get('/api/auth/google', (req, res, next) => {
+    console.log('Google OAuth request initiated');
+    console.log('Google Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+    console.log('Google Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+    
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'Google OAuth not configured' });
+    }
+    
+    next();
+  }, passport.authenticate('google', { scope: ['profile', 'email'] }));
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/auth' }),
