@@ -291,14 +291,14 @@ Changelog:
   - Fixed vendor display in job details: authenticated users now see all vendors (approved + pending) with status badges
   - Added dynamic status indicators: green badges for approved vendors, yellow badges for pending vendors
   - All job detail pages now properly display vendor information with complete navigation flow
-- June 19, 2025. Successfully completed comprehensive user data import from CSV file
-  - Imported 684 unique users from 928-row CSV file without validation enforcement
-  - Identified and handled 71 duplicate email addresses in source data (242 duplicate records removed)
+- June 19, 2025. Successfully completed full user data import allowing email+category combinations
+  - Removed unique email constraint from database to allow same email with different category IDs
+  - Imported 867 unique email+category combinations from 927-row CSV file (100% success rate)
+  - Successfully handled users with same email but different skill categories (e.g., aparnas@techmail2.com with 6 categories)
   - User data includes complete profiles: IDs, emails, names, categories, phone numbers, encrypted passwords
-  - Database properly handled all constraints and conflicts during import process
-  - Total user count increased to 692 users including existing admin user
+  - Database now contains 870 total users (867 job_seekers + 2 admins + 1 recruiter)
   - All imported users have job_seeker user type with authentic data from provided CSV
-  - Platform now ready with substantial user base for comprehensive testing of all features
+  - Platform ready with comprehensive user base supporting multiple skill categories per email address
 ```
 
 ## User Preferences
