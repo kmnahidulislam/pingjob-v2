@@ -65,16 +65,6 @@ function VendorManagement({ companyId }: { companyId: number }) {
     }
   });
 
-  // Fetch platform stats for total company count
-  const { data: platformStats } = useQuery({
-    queryKey: ['/api/platform/stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/platform/stats');
-      if (!response.ok) throw new Error('Failed to fetch platform stats');
-      return response.json();
-    }
-  });
-
   // Add vendor mutation
   const addVendorMutation = useMutation({
     mutationFn: async (vendorData: any) => {
@@ -727,7 +717,7 @@ export default function CompaniesPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Top Companies ({platformStats?.totalCompanies?.toLocaleString() || '76,806'} total)
+                Top Companies (76,806 total)
               </CardTitle>
               <div className="text-sm text-gray-500">
                 Page {currentPage} of {totalPages}
