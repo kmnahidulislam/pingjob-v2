@@ -171,6 +171,11 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     </div>
   );
 
+  const { data: adminStats } = useQuery({
+    queryKey: ['/api/admin/stats'],
+    enabled: userType === 'admin'
+  });
+
   const renderAdminStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card className="dashboard-card">
@@ -179,8 +184,8 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-linkedin-blue">15,847</div>
-          <p className="text-xs text-muted-foreground">+12% from last month</p>
+          <div className="text-2xl font-bold text-linkedin-blue">{(adminStats as any)?.totalUsers || 0}</div>
+          <p className="text-xs text-muted-foreground">Platform members</p>
         </CardContent>
       </Card>
 
@@ -190,19 +195,19 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Briefcase className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-success-green">1,293</div>
-          <p className="text-xs text-muted-foreground">+8% from last month</p>
+          <div className="text-2xl font-bold text-success-green">{(adminStats as any)?.activeJobs || 0}</div>
+          <p className="text-xs text-muted-foreground">Currently available</p>
         </CardContent>
       </Card>
 
       <Card className="dashboard-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Total Companies</CardTitle>
+          <Building className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-warning-orange">$24,750</div>
-          <p className="text-xs text-muted-foreground">This month</p>
+          <div className="text-2xl font-bold text-warning-orange">{(adminStats as any)?.totalCompanies || 0}</div>
+          <p className="text-xs text-muted-foreground">Approved companies</p>
         </CardContent>
       </Card>
 

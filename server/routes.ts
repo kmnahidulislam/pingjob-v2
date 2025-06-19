@@ -543,9 +543,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobs = await storage.getJobs({}, 1000);
       const activeJobs = jobs.filter((job: any) => job.status !== 'closed').length;
       
+      // Get actual user counts
+      const totalUsers = await storage.getTotalUserCount();
+      const companies = await storage.getTopCompanies();
+      const totalCompanies = companies.length;
+      
       res.json({
         activeJobs,
-        totalUsers: 0,
+        totalUsers,
+        totalCompanies,
         revenue: 0,
         activeSessions: 0
       });

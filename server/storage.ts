@@ -52,6 +52,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
+  getTotalUserCount(): Promise<number>;
   
   // Profile operations
   getUserProfile(id: string): Promise<any>;
@@ -201,6 +202,11 @@ export class DatabaseStorage implements IStorage {
       }
       throw error;
     }
+  }
+
+  async getTotalUserCount(): Promise<number> {
+    const result = await pool.query('SELECT COUNT(*) as count FROM users');
+    return parseInt(result.rows[0].count);
   }
 
   // Profile operations
