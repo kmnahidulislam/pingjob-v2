@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage, pool } from "./storage";
-import { setupSimpleAuth } from "./simple-auth";
+import { setupAuth } from "./auth";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -56,7 +56,7 @@ const imageUpload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication FIRST before any other routes
-  setupSimpleAuth(app);
+  setupAuth(app);
   
   // Serve static files from uploads directory
   app.use('/uploads', express.static('uploads'));
