@@ -209,6 +209,11 @@ export class DatabaseStorage implements IStorage {
     return parseInt(result.rows[0].count);
   }
 
+  async getTotalCompanyCount(): Promise<number> {
+    const result = await pool.query('SELECT COUNT(*) as count FROM companies');
+    return parseInt(result.rows[0].count);
+  }
+
   // Profile operations
   async getUserProfile(id: string): Promise<any> {
     const user = await this.getUser(id);
