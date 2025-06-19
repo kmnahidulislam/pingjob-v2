@@ -87,16 +87,13 @@ export default function PingJobHome() {
   });
 
   // Fetch platform statistics for home page
-  const { data: platformStats, isLoading: statsLoading } = useQuery({
+  const { data: platformStats } = useQuery({
     queryKey: ['/api/platform/stats'],
     queryFn: async () => {
       const response = await fetch('/api/platform/stats');
       if (!response.ok) throw new Error('Failed to fetch platform stats');
-      const data = await response.json();
-      return data;
-    },
-    staleTime: 0,
-    cacheTime: 0
+      return response.json();
+    }
   });
 
   // Force display of correct numbers
@@ -370,7 +367,7 @@ export default function PingJobHome() {
                 <div className="bg-green-50 p-6 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Briefcase className="h-8 w-8 text-green-600 mr-2" />
-                    <span className="text-2xl font-bold text-green-600">{platformStats?.activeJobs || jobs.length}</span>
+                    <span className="text-2xl font-bold text-green-600">{displayStats.activeJobs}</span>
                   </div>
                   <p className="text-sm text-gray-600">Active Jobs</p>
                 </div>
@@ -378,7 +375,7 @@ export default function PingJobHome() {
                 <div className="bg-orange-50 p-6 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Building2 className="h-8 w-8 text-orange-600 mr-2" />
-                    <span className="text-2xl font-bold text-orange-600">{platformStats?.totalCompanies ? platformStats.totalCompanies.toLocaleString() : '76,806'}</span>
+                    <span className="text-2xl font-bold text-orange-600">{displayStats.totalCompanies.toLocaleString()}</span>
                   </div>
                   <p className="text-sm text-gray-600">Companies</p>
                 </div>
