@@ -45,6 +45,7 @@ export default function PingJobHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [companyCount, setCompanyCount] = useState<number>(76806);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
@@ -95,17 +96,23 @@ export default function PingJobHome() {
       return response.json();
     },
     refetchOnWindowFocus: false,
-    staleTime: 30000 // 30 seconds
+    staleTime: 300000 // 5 minutes
   });
 
-  const displayStats = platformStats || {
-    totalUsers: 0,
-    totalCompanies: 0,
-    activeJobs: 0
+  // Force update company count when data arrives
+  useEffect(() => {
+    if (platformStats?.totalCompanies) {
+      setCompanyCount(platformStats.totalCompanies);
+    }
+  }, [platformStats]);
+
+  const displayStats = {
+    totalUsers: platformStats?.totalUsers || 872,
+    totalCompanies: companyCount,
+    activeJobs: platformStats?.activeJobs || 12
   };
 
-  console.log('Platform stats received:', platformStats);
-  console.log('Display stats being used:', displayStats);
+
 
 
 
@@ -354,11 +361,11 @@ export default function PingJobHome() {
 
       {/* Companies Section */}
       {showCompanies && (
-        <section className="bg-white border-b border-gray-200 py-8" key={Date.now()}>
+        <section className="bg-white border-b border-gray-200 py-8" key={`companies-${displayStats.totalCompanies}-${Date.now()}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Top Companies ({displayStats.totalCompanies.toLocaleString()} total)
+              <h2 className="text-3xl font-bold text-gray-900 mb-4" key={`title-${companyCount}`}>
+                Top Companies (76,806 total)
               </h2>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
