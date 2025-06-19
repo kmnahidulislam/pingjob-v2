@@ -394,6 +394,13 @@ Changelog:
   - Synchronized PostgreSQL sequence from incorrect value (15) to correct next ID (83547)
   - Job creation now works properly after deleting 10,657 jobs from Unknown Company
   - Fixed database sequence consistency to prevent future ID conflicts
+- June 19, 2025. Fixed home page statistics to display authentic database counts instead of hardcoded values
+  - Added getTotalActiveJobsCount() method to count all active jobs directly from database
+  - Updated platform stats API to use authentic job count (14,478 jobs) instead of limited query result (1,000)
+  - Modified home page jobStats calculation to use platformStats instead of page-limited data
+  - Fixed "Active Jobs: 20" and "Top Companies: 100" to show real counts: 14,478 jobs and 76,806 companies
+  - Verified API returns correct statistics: 872 users, 76,806 companies, 14,478 active jobs
+  - Home page now displays authentic real-time database statistics for accurate business intelligence
 ```
 
 ## User Preferences
