@@ -378,6 +378,12 @@ Changelog:
   - Enhanced vendor cards show company names, locations, services, and professional contact details
   - Authentication-based filtering works correctly: unauthenticated users see approved vendors, authenticated users see all
   - Vendor system fully operational with authentic business data from imported CSV sources
+- June 19, 2025. Cleaned up job data by removing invalid Unknown Company entries
+  - Successfully deleted all 10,657 jobs associated with Unknown Company (ID: 76283)
+  - Handled foreign key constraints by removing 2 job applications before job deletion
+  - Eliminated artificial company from top rankings that had no legitimate business presence
+  - Platform now displays authentic company rankings: JPMorgan (204 jobs), IBM (171 jobs), AT&T (161 jobs)
+  - Improved data quality by removing jobs without valid company associations
 ```
 
 ## User Preferences

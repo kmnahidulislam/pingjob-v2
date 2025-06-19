@@ -102,6 +102,9 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
+          <div className="text-sm text-gray-600 mt-1">
+            Company: {job.company?.name || 'Unknown Company'}
+          </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
