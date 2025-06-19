@@ -123,8 +123,13 @@ export default function CompanyCreate() {
       queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
     },
     onError: (error: any) => {
-      console.error("Company creation error:", error);
-      console.error("Error details:", error.response?.data || error.message);
+      console.error("=== COMPANY CREATION ERROR ===");
+      console.error("Full error object:", error);
+      console.error("Error message:", error.message);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      
       const errorMessage = error.response?.data?.message || error.message || "Failed to create company";
       toast({
         title: "Error creating company",
@@ -168,21 +173,26 @@ export default function CompanyCreate() {
   };
 
   const handleSubmit = (data: z.infer<typeof companyFormSchema>) => {
+    console.log("=== COMPANY FORM SUBMISSION ===");
     console.log("Form submitted with data:", data);
     console.log("Form errors:", companyForm.formState.errors);
     console.log("Form is valid:", companyForm.formState.isValid);
+    console.log("Form state:", companyForm.formState);
     console.log("Logo file:", logoFile);
     
     // Check for validation errors
-    if (Object.keys(companyForm.formState.errors).length > 0) {
+    const errors = companyForm.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.log("VALIDATION FAILED - Errors:", errors);
       toast({
         title: "Validation Error",
-        description: "Please check all required fields",
+        description: `Please check required fields: ${Object.keys(errors).join(', ')}`,
         variant: "destructive"
       });
       return;
     }
     
+    console.log("VALIDATION PASSED - Calling mutation");
     createCompanyMutation.mutate(data);
   };
 
