@@ -30,6 +30,15 @@ delete process.env.ISSUER_URL;
 
 console.log("FORCED REMOVAL OF ALL REPLIT AUTH AND DATABASE VARIABLES");
 
+// Debug OAuth credentials
+console.log('=== OAUTH DEBUG ===');
+console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+if (process.env.GOOGLE_CLIENT_ID) {
+  console.log('Client ID starts with:', process.env.GOOGLE_CLIENT_ID.substring(0, 15) + '...');
+}
+console.log('==================');
+
 // Initialize clean Neon.tech database before starting server
 await initializeCleanDatabase();
 

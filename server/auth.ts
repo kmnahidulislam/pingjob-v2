@@ -41,52 +41,60 @@ export function setupAuth(app: Express) {
   }));
 
   // Configure Google OAuth Strategy FIRST
+  console.log('Checking Google OAuth credentials...');
+  console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+  console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+  
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('Setting up Google OAuth strategy...');
-    passport.use(new GoogleStrategy({
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback"
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        console.log('Google OAuth callback received for:', profile.emails?.[0]?.value);
-        
-        // Check if user exists
-        const existingUser = await pool.query(
-          'SELECT * FROM users WHERE email = $1',
-          [profile.emails?.[0]?.value]
-        );
+    try {
+      passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "/api/auth/google/callback"
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          console.log('Google OAuth callback received for:', profile.emails?.[0]?.value);
+          
+          // Check if user exists
+          const existingUser = await pool.query(
+            'SELECT * FROM users WHERE email = $1',
+            [profile.emails?.[0]?.value]
+          );
 
-        if (existingUser.rows.length > 0) {
-          console.log('Existing user found, logging in');
-          return done(null, existingUser.rows[0]);
+          if (existingUser.rows.length > 0) {
+            console.log('Existing user found, logging in');
+            return done(null, existingUser.rows[0]);
+          }
+
+          // Create new user with Google ID
+          console.log('Creating new user from Google profile');
+          const newUser = await pool.query(
+            `INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at) 
+             VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *`,
+            [
+              `google_${profile.id}`,
+              profile.emails?.[0]?.value,
+              profile.name?.givenName,
+              profile.name?.familyName,
+              'job_seeker'
+            ]
+          );
+
+          console.log('New user created successfully');
+          return done(null, newUser.rows[0]);
+        } catch (error) {
+          console.error('Google OAuth error:', error);
+          return done(error);
         }
-
-        // Create new user with Google ID
-        console.log('Creating new user from Google profile');
-        const newUser = await pool.query(
-          `INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at) 
-           VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *`,
-          [
-            `google_${profile.id}`,
-            profile.emails?.[0]?.value,
-            profile.name?.givenName,
-            profile.name?.familyName,
-            'job_seeker'
-          ]
-        );
-
-        console.log('New user created successfully');
-        return done(null, newUser.rows[0]);
-      } catch (error) {
-        console.error('Google OAuth error:', error);
-        return done(error);
-      }
-    }));
-    console.log('Google OAuth strategy registered');
+      }));
+      console.log('✓ Google OAuth strategy registered successfully');
+    } catch (error) {
+      console.error('Error setting up Google OAuth strategy:', error);
+    }
   } else {
-    console.log('Google OAuth credentials not found');
+    console.log('⚠️ Google OAuth credentials not found - OAuth will not be available');
   }
 
   // Initialize Passport AFTER strategy setup
