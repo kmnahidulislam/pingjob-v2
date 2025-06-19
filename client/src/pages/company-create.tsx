@@ -106,9 +106,10 @@ export default function CompanyCreate() {
         }
       }
       
-      // Create company with logo URL
+      // Create company with logo URL and userId
       return apiRequest('POST', '/api/companies', {
         ...companyData,
+        userId: user?.id || 'admin',
         logoUrl
       });
     },
@@ -491,11 +492,7 @@ export default function CompanyCreate() {
                     type="submit"
                     disabled={createCompanyMutation.isPending}
                     className="bg-blue-600 hover:bg-blue-700"
-                    onClick={() => {
-                      console.log("=== SUBMIT BUTTON CLICKED ===");
-                      console.log("Form data:", companyForm.getValues());
-                      console.log("Form errors:", companyForm.formState.errors);
-                    }}
+
                   >
                     {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
                   </Button>
