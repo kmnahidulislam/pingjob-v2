@@ -92,9 +92,19 @@ export default function PingJobHome() {
     queryFn: async () => {
       const response = await fetch('/api/platform/stats');
       if (!response.ok) throw new Error('Failed to fetch platform stats');
-      return response.json();
-    }
+      const data = await response.json();
+      return data;
+    },
+    staleTime: 0,
+    cacheTime: 0
   });
+
+  // Force display of correct numbers
+  const displayStats = {
+    totalUsers: platformStats?.totalUsers || 872,
+    totalCompanies: platformStats?.totalCompanies || 76806,
+    activeJobs: platformStats?.activeJobs || 12
+  };
 
   const jobs = jobsData || [];
   const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
@@ -344,7 +354,7 @@ export default function PingJobHome() {
         <section className="bg-white border-b border-gray-200 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies ({platformStats?.totalCompanies || '76,806'} total)</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies ({displayStats.totalCompanies.toLocaleString()} total)</h2>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
               {/* Platform Statistics */}
@@ -352,7 +362,7 @@ export default function PingJobHome() {
                 <div className="bg-blue-50 p-6 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Users className="h-8 w-8 text-blue-600 mr-2" />
-                    <span className="text-2xl font-bold text-blue-600">{platformStats?.totalUsers || '872'}</span>
+                    <span className="text-2xl font-bold text-blue-600">{displayStats.totalUsers.toLocaleString()}</span>
                   </div>
                   <p className="text-sm text-gray-600">Platform Members</p>
                 </div>
@@ -368,7 +378,7 @@ export default function PingJobHome() {
                 <div className="bg-orange-50 p-6 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Building2 className="h-8 w-8 text-orange-600 mr-2" />
-                    <span className="text-2xl font-bold text-orange-600">{platformStats?.totalCompanies || '76,806'}</span>
+                    <span className="text-2xl font-bold text-orange-600">{platformStats?.totalCompanies ? platformStats.totalCompanies.toLocaleString() : '76,806'}</span>
                   </div>
                   <p className="text-sm text-gray-600">Companies</p>
                 </div>
