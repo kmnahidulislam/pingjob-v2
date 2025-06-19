@@ -595,21 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get vendors for a company (temporary bypass for testing)
-  app.get('/api/companies/:id/vendors', async (req: any, res) => {
-    try {
-      const companyId = parseInt(req.params.id);
-      if (isNaN(companyId)) {
-        return res.status(400).json({ message: "Invalid company ID" });
-      }
 
-      const vendors = await storage.getClientVendors(companyId);
-      res.json(vendors);
-    } catch (error) {
-      console.error("Error fetching vendors:", error);
-      res.status(500).json({ message: "Failed to fetch vendors" });
-    }
-  });
 
   app.put('/api/companies/:id', isAuthenticated, async (req, res) => {
     try {
@@ -831,21 +817,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const companyId = parseInt(req.params.companyId);
       const isAuthenticated = !!req.user;
       
+      console.log(`DEBUG: /api/companies/${companyId}/vendors - isAuthenticated: ${isAuthenticated}`);
+      
       // Get all vendors for this company
       const allVendors = await storage.getClientVendors(companyId);
+      console.log(`DEBUG: Found ${allVendors.length} total vendors`);
+      
+      // Remove duplicates first
+      const uniqueVendors = allVendors.filter((vendor: any, index: number, self: any[]) => 
+        index === self.findIndex(v => v.vendor_id === vendor.vendor_id)
+      );
+      console.log(`DEBUG: After removing duplicates: ${uniqueVendors.length} vendors`);
       
       // Filter by authentication status:
-      // - Authenticated users see all vendors (approved + pending) with status badges
-      // - Unauthenticated users see only approved vendors without status info, limited to 3
+      // - Authenticated users see all vendors (approved + pending)
+      // - Unauthenticated users see only approved vendors, limited to 3
       let vendorsToShow;
       if (isAuthenticated) {
-        vendorsToShow = allVendors; // Show all vendors for authenticated users
+        vendorsToShow = uniqueVendors; // Show all vendors for authenticated users
       } else {
-        const approvedVendors = allVendors.filter((vendor: any) => vendor.status === 'approved');
+        const approvedVendors = uniqueVendors.filter((vendor: any) => vendor.status === 'approved');
         vendorsToShow = approvedVendors.slice(0, 3); // Limit to 3 approved vendors for unauthenticated
+        console.log(`DEBUG: Unauthenticated user - showing ${vendorsToShow.length} of ${approvedVendors.length} approved vendors`);
       }
       
-      const totalVendors = isAuthenticated ? allVendors.length : allVendors.filter((v: any) => v.status === 'approved').length;
+      const totalVendors = isAuthenticated ? uniqueVendors.length : uniqueVendors.filter((v: any) => v.status === 'approved').length;
       
       res.json({
         vendors: vendorsToShow,
