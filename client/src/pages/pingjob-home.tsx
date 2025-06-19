@@ -120,12 +120,12 @@ export default function PingJobHome() {
   const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
-  // Calculate real-time statistics from data
+  // Calculate real-time statistics from platform data
   const jobStats = {
-    totalJobs: jobs.length,
-    activeCompanies: topCompanies.length,
+    totalJobs: platformStats?.activeJobs || 12,
+    activeCompanies: platformStats?.totalCompanies || 76806,
     totalCategories: categories.length,
-    todayJobs: Math.floor(jobs.length * 0.15) // Simulate 15% posted today
+    todayJobs: Math.floor((platformStats?.activeJobs || 12) * 0.15) // Simulate 15% posted today
   };
 
   // Featured job rotation
