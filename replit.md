@@ -299,6 +299,13 @@ Changelog:
   - Database now contains 870 total users (867 job_seekers + 2 admins + 1 recruiter)
   - All imported users have job_seeker user type with authentic data from provided CSV
   - Platform ready with comprehensive user base supporting multiple skill categories per email address
+- June 19, 2025. Enhanced admin dashboard and home page with accurate real-time statistics
+  - Added getTotalUserCount method to storage layer for accurate user counting
+  - Updated admin dashboard to display actual user counts (870 users) instead of hardcoded values
+  - Enhanced admin stats endpoint to return totalUsers and totalCompanies from database
+  - Fixed home page "Top Companies" section to show actual company count instead of "100 Top Companies"
+  - Dashboard now displays real-time data: active jobs, total users, total companies from live database
+  - All platform statistics now reflect authentic data for accurate business intelligence
 ```
 
 ## User Preferences
