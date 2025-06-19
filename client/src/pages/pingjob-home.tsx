@@ -837,9 +837,11 @@ export default function PingJobHome() {
                                 <span className="text-sm font-medium text-gray-700">
                                   {job.company?.name || `Company ${job.companyId || 'TBD'}`}
                                 </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {job.vendorCount || Math.floor(Math.random() * 5) + 1} vendors
-                                </Badge>
+                                {job.vendorCount > 0 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {job.vendorCount} vendors
+                                  </Badge>
+                                )}
                               </div>
                               <div className="flex items-center space-x-1 text-sm text-gray-500 mb-3">
                                 <MapPin className="h-4 w-4" />

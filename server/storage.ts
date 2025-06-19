@@ -790,6 +790,7 @@ export class DatabaseStorage implements IStorage {
           j.application_count as "applicationCount",
           j.created_at as "createdAt",
           j.updated_at as "updatedAt",
+          COALESCE(v.vendor_count, 0) as "vendorCount",
           jsonb_build_object(
             'id', c.id,
             'name', c.name,
@@ -798,6 +799,12 @@ export class DatabaseStorage implements IStorage {
           ) as company
         FROM jobs j
         LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN (
+          SELECT company_id, COUNT(*)::integer as vendor_count 
+          FROM vendors 
+          WHERE status = 'approved'
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
         ${whereClause}
         ORDER BY j.created_at DESC
         LIMIT $${paramIndex}
@@ -818,9 +825,11 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`getJobs query returned ${result.rows.length} jobs`);
       
-      // Debug: Log first job to check logo data
+      // Debug: Log first job to check vendor count data
       if (result.rows.length > 0) {
         console.log('First job company data:', JSON.stringify(result.rows[0].company, null, 2));
+        console.log('First job vendor count:', result.rows[0].vendorCount);
+        console.log('First job full data keys:', Object.keys(result.rows[0]));
       }
       
       return result.rows;
