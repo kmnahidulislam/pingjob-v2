@@ -825,12 +825,7 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`getJobs query returned ${result.rows.length} jobs`);
       
-      // Debug: Log first job to check vendor count data
-      if (result.rows.length > 0) {
-        console.log('First job company data:', JSON.stringify(result.rows[0].company, null, 2));
-        console.log('First job vendor count:', result.rows[0].vendorCount);
-        console.log('First job serialized JSON:', JSON.stringify(result.rows[0], null, 2).substring(0, 500));
-      }
+      // Vendor count data successfully integrated
       
       return result.rows;
     } catch (error) {
