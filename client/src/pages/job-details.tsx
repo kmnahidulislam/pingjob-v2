@@ -88,8 +88,15 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
     return null; // Don't show card if no vendors
   }
 
-  // Use the vendors from API response (already filtered appropriately)
-  const vendorsToShow = vendorData;
+  // Remove duplicates and filter for unauthenticated users
+  const uniqueVendors = vendorData.filter((vendor: any, index: number, self: any[]) => 
+    index === self.findIndex(v => v.vendor_id === vendor.vendor_id)
+  );
+  
+  // For unauthenticated users, limit to 3 approved vendors only
+  const vendorsToShow = isAuthenticated 
+    ? uniqueVendors 
+    : uniqueVendors.filter((v: any) => v.status === 'approved').slice(0, 3);
 
   return (
     <Card className="mb-6">
