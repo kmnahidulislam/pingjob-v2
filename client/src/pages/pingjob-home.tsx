@@ -87,13 +87,15 @@ export default function PingJobHome() {
   });
 
   // Fetch platform statistics for home page
-  const { data: platformStats } = useQuery({
+  const { data: platformStats, isLoading: statsLoading } = useQuery({
     queryKey: ['/api/platform/stats'],
     queryFn: async () => {
       const response = await fetch('/api/platform/stats');
       if (!response.ok) throw new Error('Failed to fetch platform stats');
       return response.json();
-    }
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 30000 // 30 seconds
   });
 
   const displayStats = platformStats || {
@@ -101,6 +103,8 @@ export default function PingJobHome() {
     totalCompanies: 0,
     activeJobs: 0
   };
+
+
 
   const jobs = jobsData || [];
   const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
@@ -347,10 +351,14 @@ export default function PingJobHome() {
 
       {/* Companies Section */}
       {showCompanies && (
-        <section className="bg-white border-b border-gray-200 py-8">
+        <section className="bg-white border-b border-gray-200 py-8" key={`section-${displayStats.totalCompanies}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies ({displayStats.totalCompanies?.toLocaleString() || '0'} total)</h2>
+              <div className="mb-4">
+                <h2 className="text-3xl font-bold text-gray-900">
+                  Top Companies ({displayStats.totalCompanies > 0 ? displayStats.totalCompanies.toLocaleString() : 'Loading...'} total)
+                </h2>
+              </div>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
               {/* Platform Statistics */}
