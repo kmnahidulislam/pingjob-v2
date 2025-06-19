@@ -90,6 +90,7 @@ function Router() {
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/company/create" component={CompanyCreate} />
+          <Route path="/companies/create" component={CompanyCreate} />
           <Route path="/companies" component={Companies} />
           <Route path="/profile/:id?" component={Profile} />
           <Route path="/applications" component={Applications} />
