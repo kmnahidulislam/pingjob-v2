@@ -363,6 +363,14 @@ Changelog:
   - Authentic job distribution: JPMorgan (204), IBM (171), AT&T (161), Deloitte (142)
   - Jobs without valid company mappings assigned to "Unknown Company" instead of incorrect associations
   - Platform displays proper job-company relationships with no false attributions to @Comm Corporation
+- June 19, 2025. Enhanced vendor display system with authentication filtering and real vendor counts
+  - Fixed React key warnings by removing duplicate vendors with same vendor_id from display
+  - Removed email addresses and pending status badges from vendor display cards per user request
+  - Implemented proper authentication filtering limiting unauthenticated users to maximum 3 approved vendors only
+  - Added structured API response format with authentication metadata for vendor endpoints
+  - Enhanced job listings with real vendor count data instead of random fallback numbers
+  - Home page "Latest Job Opportunities" now displays authentic vendor counts (e.g., Hearst Communications: 3 vendors)
+  - Vendor information properly integrated across job details pages and home page listings
 ```
 
 ## User Preferences
