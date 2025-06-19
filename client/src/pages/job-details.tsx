@@ -133,12 +133,6 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
 
                   {/* Contact Info */}
                   <div className="flex flex-wrap gap-4 text-sm">
-                    {vendor.email && (
-                      <div className="flex items-center gap-1 text-gray-600">
-                        <Mail className="h-4 w-4" />
-                        <span>{vendor.email}</span>
-                      </div>
-                    )}
                     {vendor.phone && (
                       <div className="flex items-center gap-1 text-gray-600">
                         <Phone className="h-4 w-4" />
@@ -160,16 +154,6 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
                     )}
                   </div>
                 </div>
-                
-                <Badge 
-                  variant="outline" 
-                  className={vendor.status === 'approved' 
-                    ? "bg-green-50 text-green-700 border-green-200" 
-                    : "bg-yellow-50 text-yellow-700 border-yellow-200"
-                  }
-                >
-                  {vendor.status === 'approved' ? 'Approved' : 'Pending'}
-                </Badge>
               </div>
             </div>
           ))}

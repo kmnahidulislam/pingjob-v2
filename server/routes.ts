@@ -835,14 +835,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allVendors = await storage.getClientVendors(companyId);
       
       // Filter by authentication status:
-      // - Authenticated users see all vendors (approved + pending)
-      // - Unauthenticated users see only approved vendors, limited to 3
+      // - Authenticated users see all vendors (approved + pending) with status badges
+      // - Unauthenticated users see only approved vendors without status info, limited to 3
       let vendorsToShow;
       if (isAuthenticated) {
         vendorsToShow = allVendors; // Show all vendors for authenticated users
       } else {
         const approvedVendors = allVendors.filter((vendor: any) => vendor.status === 'approved');
-        vendorsToShow = approvedVendors.slice(0, 3); // Limit to 3 for unauthenticated
+        vendorsToShow = approvedVendors.slice(0, 3); // Limit to 3 approved vendors for unauthenticated
       }
       
       const totalVendors = isAuthenticated ? allVendors.length : allVendors.filter((v: any) => v.status === 'approved').length;
