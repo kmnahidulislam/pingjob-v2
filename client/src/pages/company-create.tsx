@@ -19,7 +19,7 @@ const companyFormSchema = insertCompanySchema.extend({
   name: z.string().min(1, "Company name is required"),
   industry: z.string().min(1, "Industry is required"),
   description: z.string().min(1, "Description is required"),
-  website: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  website: z.string().optional(),
   phone: z.string().optional(),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
@@ -491,6 +491,11 @@ export default function CompanyCreate() {
                     type="submit"
                     disabled={createCompanyMutation.isPending}
                     className="bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      console.log("=== SUBMIT BUTTON CLICKED ===");
+                      console.log("Form data:", companyForm.getValues());
+                      console.log("Form errors:", companyForm.formState.errors);
+                    }}
                   >
                     {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
                   </Button>
