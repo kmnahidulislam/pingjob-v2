@@ -6,7 +6,7 @@ async function approveRandomVendors() {
   try {
     console.log('Approving vendors to make them visible to unauthenticated users...');
     
-    // Update vendors to approved status (every 3rd vendor to create a mix)
+    // Update vendors to approved status 
     const result = await db
       .update(vendors)
       .set({ 
