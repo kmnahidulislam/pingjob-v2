@@ -437,7 +437,7 @@ export default function PingJobHome() {
               <Link href="/companies">
                 <Button size="lg" className="px-8">
                   View All Companies
-                  <Building className="h-5 w-5 ml-2" />
+                  <Building2 className="h-5 w-5 ml-2" />
                 </Button>
               </Link>
             </div>
@@ -618,7 +618,7 @@ export default function PingJobHome() {
             <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Building className="h-6 w-6 text-green-600" />
+                  <Building2 className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="text-2xl font-bold text-green-600">{jobStats.activeCompanies}</div>
                 <div className="text-sm text-gray-600">Top Companies</div>
