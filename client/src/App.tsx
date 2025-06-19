@@ -67,6 +67,7 @@ function Router() {
         <Switch>
           <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/home-fresh" component={PingJobHome} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>

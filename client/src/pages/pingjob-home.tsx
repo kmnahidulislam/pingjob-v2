@@ -41,6 +41,14 @@ import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 
 export default function PingJobHome() {
+  const [forceRender, setForceRender] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setForceRender(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
   const { user, logoutMutation } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -351,11 +359,21 @@ export default function PingJobHome() {
 
       {/* Companies Section */}
       {showCompanies && (
-        <section className="bg-white border-b border-gray-200 py-8" key={`section-${displayStats.totalCompanies}`}>
+        <section className="bg-white border-b border-gray-200 py-8" key={Date.now()}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Top Companies ({displayStats.totalCompanies.toLocaleString()} total)
+              <div style={{backgroundColor: '#ff69b4', color: 'white', padding: '40px', fontSize: '32px', fontWeight: 'bold', border: '10px solid blue', animation: 'blink 1s infinite'}}>
+                FORCE RENDER #{forceRender}: {platformStats?.totalCompanies || 'NULL'} COMPANIES - NOT 100!
+              </div>
+              <style>{`
+                @keyframes blink {
+                  0% { opacity: 1; }
+                  50% { opacity: 0.5; }
+                  100% { opacity: 1; }
+                }
+              `}</style>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 mt-4">
+                Company Count: {displayStats.totalCompanies || 0}
               </h2>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
