@@ -564,8 +564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get actual user counts
       const totalUsers = await storage.getTotalUserCount();
-      const companies = await storage.getTopCompanies();
-      const totalCompanies = companies.length;
+      const totalCompanies = await storage.getTotalCompanyCount();
       
       res.json({
         activeJobs,
