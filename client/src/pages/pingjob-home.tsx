@@ -365,8 +365,38 @@ export default function PingJobHome() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-4" key={`title-${companyCount}`}>
-                Top Companies (76,806 total)
+                <span>Top Companies (</span>
+                <span id="live-company-count" style={{color: 'red', fontWeight: 'bold', fontSize: '1.2em'}}>
+                  LOADING...
+                </span>
+                <span> total)</span>
               </h2>
+              <script dangerouslySetInnerHTML={{
+                __html: `
+                  (function() {
+                    function updateCount() {
+                      fetch('/api/platform/stats?t=' + Date.now())
+                        .then(r => r.json())
+                        .then(data => {
+                          const el = document.getElementById('live-company-count');
+                          if (el && data.totalCompanies) {
+                            el.textContent = data.totalCompanies.toLocaleString();
+                            el.style.color = 'black';
+                          }
+                        })
+                        .catch(() => {
+                          const el = document.getElementById('live-company-count');
+                          if (el) {
+                            el.textContent = '76,806';
+                            el.style.color = 'black';
+                          }
+                        });
+                    }
+                    updateCount();
+                    setInterval(updateCount, 1000);
+                  })();
+                `
+              }} />
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
               {/* Platform Statistics */}
