@@ -707,7 +707,7 @@ export default function CompaniesPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Top Companies ({topCompanies.length} total)
+                Top Companies (76,806 total)
               </CardTitle>
               <div className="text-sm text-gray-500">
                 Page {currentPage} of {totalPages}
