@@ -409,6 +409,8 @@ Changelog:
   - OAuth automatically creates user accounts from Google profile data (email, name) with job_seeker role
   - Authentication system supports both traditional email/password and Google OAuth login methods
   - Platform now provides comprehensive user analytics and simplified Gmail-based registration
+  - Fixed OAuth redirect URI configuration for Replit domain: fb4df221-1179-4005-89f0-51b4d2de40e0-00-13fngzu1jain2.worf.replit.dev
+  - Google OAuth strategy properly configured and registered with correct callback URL
 ```
 
 ## User Preferences
