@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ const companyFormSchema = insertCompanySchema.extend({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
+  zipCode: z.string().optional(),
 });
 
 export default function CompanyCreate() {
@@ -32,6 +33,40 @@ export default function CompanyCreate() {
   const queryClient = useQueryClient();
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
+
+  // Location data queries
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    queryFn: async () => {
+      if (!selectedCountryId) return [];
+      const response = await fetch(`/api/states/${selectedCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountryId
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedStateId],
+    queryFn: async () => {
+      if (!selectedStateId) return [];
+      const response = await fetch(`/api/cities/${selectedStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedStateId
+  });
 
   const companyForm = useForm<z.infer<typeof companyFormSchema>>({
     resolver: zodResolver(companyFormSchema),
@@ -44,6 +79,7 @@ export default function CompanyCreate() {
       city: "",
       state: "",
       country: "",
+      zipCode: "",
       size: "1-10",
     },
   });
@@ -293,16 +329,40 @@ export default function CompanyCreate() {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* Location Fields */}
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={companyForm.control}
                     name="country"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Country *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="United States" {...field} />
-                        </FormControl>
+                        <Select 
+                          onValueChange={(value) => {
+                            const countryObj = countries?.find((c: any) => c.name === value);
+                            if (countryObj) {
+                              setSelectedCountryId(countryObj.id);
+                              setSelectedStateId(null);
+                              companyForm.setValue('state', '');
+                              companyForm.setValue('city', '');
+                            }
+                            field.onChange(value);
+                          }} 
+                          value={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries?.map((country: any) => (
+                              <SelectItem key={country.id} value={country.name}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -314,9 +374,62 @@ export default function CompanyCreate() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>State *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="California" {...field} />
-                        </FormControl>
+                        <Select 
+                          onValueChange={(value) => {
+                            const stateObj = states?.find((s: any) => s.name === value);
+                            if (stateObj) {
+                              setSelectedStateId(stateObj.id);
+                              companyForm.setValue('city', '');
+                            }
+                            field.onChange(value);
+                          }} 
+                          value={field.value || ""}
+                          disabled={!selectedCountryId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select state" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {states?.map((state: any) => (
+                              <SelectItem key={state.id} value={state.name}>
+                                {state.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={companyForm.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City *</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          value={field.value || ""}
+                          disabled={!selectedStateId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select city" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {cities?.map((city: any) => (
+                              <SelectItem key={city.id} value={city.name}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -324,12 +437,12 @@ export default function CompanyCreate() {
 
                   <FormField
                     control={companyForm.control}
-                    name="city"
+                    name="zipCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City *</FormLabel>
+                        <FormLabel>Zip Code</FormLabel>
                         <FormControl>
-                          <Input placeholder="San Francisco" {...field} />
+                          <Input placeholder="12345" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
