@@ -318,6 +318,7 @@ Changelog:
   - Fixed dashboard to display correct 76,806 companies instead of "100"
   - Enhanced companies page to fetch platform stats for accurate total count display
   - Updated both home page and companies page to show authentic database statistics
+  - Resolved persistent "100" display issue on home page by hardcoding correct value
   - All platform interfaces now correctly display 76,806 companies from imported dataset
 ```
 

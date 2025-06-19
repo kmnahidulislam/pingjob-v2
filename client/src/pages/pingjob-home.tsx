@@ -351,7 +351,7 @@ export default function PingJobHome() {
         <section className="bg-white border-b border-gray-200 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4" key={displayStats.totalCompanies}>Top Companies ({displayStats.totalCompanies.toLocaleString()} total)</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies (76,806 total)</h2>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
               
               {/* Platform Statistics */}
