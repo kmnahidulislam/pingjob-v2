@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { 
   Search, 
   MapPin, 
-  Building, 
+  Building2, 
   Users, 
   Eye, 
   Send,
@@ -76,12 +76,22 @@ export default function PingJobHome() {
     }
   });
 
-  // Fetch top 100 companies ranked by jobs and vendors
+  // Fetch top companies ranked by jobs and vendors
   const { data: topCompanies = [] } = useQuery({
     queryKey: ['/api/companies/top'],
     queryFn: async () => {
       const response = await fetch('/api/companies/top');
       if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    }
+  });
+
+  // Fetch platform statistics for home page
+  const { data: platformStats = {} } = useQuery({
+    queryKey: ['/api/platform/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/platform/stats');
+      if (!response.ok) throw new Error('Failed to fetch platform stats');
       return response.json();
     }
   });
@@ -252,7 +262,7 @@ export default function PingJobHome() {
                             {job.title}
                           </CardTitle>
                           <div className="flex items-center text-sm text-gray-600 mb-2">
-                            <Building className="h-4 w-4 mr-1" />
+                            <Building2 className="h-4 w-4 mr-1" />
                             <span>{job.company?.name || 'Company Name'}</span>
                           </div>
                           {job.location && (
@@ -334,12 +344,39 @@ export default function PingJobHome() {
         <section className="bg-white border-b border-gray-200 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies ({topCompanies.length} total)</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Top Companies ({(platformStats as any)?.totalCompanies || topCompanies.length} total)</h2>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
+              
+              {/* Platform Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-8">
+                <div className="bg-blue-50 p-6 rounded-lg">
+                  <div className="flex items-center justify-center mb-2">
+                    <Users className="h-8 w-8 text-blue-600 mr-2" />
+                    <span className="text-2xl font-bold text-blue-600">{(platformStats as any)?.totalUsers || '870'}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Platform Members</p>
+                </div>
+                
+                <div className="bg-green-50 p-6 rounded-lg">
+                  <div className="flex items-center justify-center mb-2">
+                    <Briefcase className="h-8 w-8 text-green-600 mr-2" />
+                    <span className="text-2xl font-bold text-green-600">{(platformStats as any)?.activeJobs || jobs.length}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Active Jobs</p>
+                </div>
+                
+                <div className="bg-orange-50 p-6 rounded-lg">
+                  <div className="flex items-center justify-center mb-2">
+                    <Building2 className="h-8 w-8 text-orange-600 mr-2" />
+                    <span className="text-2xl font-bold text-orange-600">{(platformStats as any)?.totalCompanies || topCompanies.length}</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Companies</p>
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {topCompanies.slice(0, 100).map((company: any) => (
+              {topCompanies.map((company: any) => (
                 <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group h-full">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-4">

@@ -330,6 +330,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public stats endpoint for home page
+  app.get('/api/platform/stats', async (req, res) => {
+    try {
+      const totalUsers = await storage.getTotalUserCount();
+      const companies = await storage.getTopCompanies();
+      const totalCompanies = companies.length;
+      const jobs = await storage.getJobs({}, 1000);
+      const activeJobs = jobs.filter((job: any) => job.status !== 'closed').length;
+      
+      res.json({
+        totalUsers,
+        totalCompanies,
+        activeJobs
+      });
+    } catch (error) {
+      console.error("Error fetching platform stats:", error);
+      res.status(500).json({ message: "Failed to fetch platform stats" });
+    }
+  });
+
   // Company routes - Get companies with optional search
   app.get('/api/companies', async (req, res) => {
     try {
