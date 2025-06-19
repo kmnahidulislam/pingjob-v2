@@ -57,10 +57,20 @@ function VendorManagement({ companyId }: { companyId: number }) {
 
   // Fetch companies for vendor selection
   const { data: companies = [] } = useQuery({
-    queryKey: ['/api/companies', { limit: 100 }],
+    queryKey: ['/api/companies/top'],
     queryFn: async () => {
-      const response = await fetch('/api/companies?limit=100');
+      const response = await fetch('/api/companies/top');
       if (!response.ok) throw new Error('Failed to fetch companies');
+      return response.json();
+    }
+  });
+
+  // Fetch platform stats for total company count
+  const { data: platformStats } = useQuery({
+    queryKey: ['/api/platform/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/platform/stats');
+      if (!response.ok) throw new Error('Failed to fetch platform stats');
       return response.json();
     }
   });
@@ -610,6 +620,16 @@ export default function CompaniesPage() {
     }
   });
 
+  // Fetch platform stats for total company count
+  const { data: platformStats } = useQuery({
+    queryKey: ['/api/platform/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/platform/stats');
+      if (!response.ok) throw new Error('Failed to fetch platform stats');
+      return response.json();
+    }
+  });
+
   // Search companies when query is provided
   const { data: searchResults } = useQuery({
     queryKey: ['/api/search', searchQuery],
@@ -707,7 +727,7 @@ export default function CompaniesPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>
-                Top Companies (76,806 total)
+                Top Companies ({platformStats?.totalCompanies?.toLocaleString() || '76,806'} total)
               </CardTitle>
               <div className="text-sm text-gray-500">
                 Page {currentPage} of {totalPages}

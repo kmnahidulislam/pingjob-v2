@@ -313,6 +313,12 @@ Changelog:
   - Fixed all Building icon references to Building2 for proper display consistency
   - Added getTotalCompanyCount() method to return actual database count instead of limited top companies
   - Platform now displays authentic real-time statistics (872 users, 76,806 companies) across all interfaces
+- June 19, 2025. Fixed platform statistics display across all pages to show authentic database counts
+  - Updated admin stats endpoint to use getTotalCompanyCount() instead of getTopCompanies().length
+  - Fixed dashboard to display correct 76,806 companies instead of "100"
+  - Enhanced companies page to fetch platform stats for accurate total count display
+  - Updated both home page and companies page to show authentic database statistics
+  - All platform interfaces now correctly display 76,806 companies from imported dataset
 ```
 
 ## User Preferences
