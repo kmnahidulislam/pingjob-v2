@@ -28,7 +28,7 @@ export const sessions = pgTable(
 // User storage table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique().notNull(),
+  email: varchar("email").notNull(), // Removed unique constraint to allow same email with different categories
   password: varchar("password").notNull(), // Password is required for auth
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
