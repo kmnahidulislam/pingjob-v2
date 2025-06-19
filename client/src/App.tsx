@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import Home from "@/pages/home";
 import PingJobHome from "@/pages/pingjob-home";
+import HomeV2 from "@/pages/home-v2";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
@@ -67,7 +68,6 @@ function Router() {
         <Switch>
           <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/auth" component={AuthPage} />
-          <Route path="/home-fresh" component={PingJobHome} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
