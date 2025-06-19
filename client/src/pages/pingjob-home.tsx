@@ -41,6 +41,8 @@ import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 
 export default function PingJobHome() {
+  // Force component refresh
+  const refreshKey = Date.now();
   const { user, logoutMutation } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -354,9 +356,16 @@ export default function PingJobHome() {
         <section className="bg-white border-b border-gray-200 py-8" key={`section-${displayStats.totalCompanies}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <div className="mb-4">
+              <div className="mb-4" style={{backgroundColor: 'red', padding: '10px'}}>
+                <h2 className="text-3xl font-bold text-white">
+                  DEBUG: Companies = {platformStats?.totalCompanies || 'NULL'}
+                </h2>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  Top Companies ({displayStats.totalCompanies > 0 ? displayStats.totalCompanies.toLocaleString() : 'Loading...'} total)
+                  {platformStats ? (
+                    `Top Companies (${platformStats.totalCompanies.toLocaleString()} total)`
+                  ) : (
+                    'Top Companies (Loading... total)'
+                  )}
                 </h2>
               </div>
               <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
