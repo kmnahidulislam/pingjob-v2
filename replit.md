@@ -384,6 +384,11 @@ Changelog:
   - Eliminated artificial company from top rankings that had no legitimate business presence
   - Platform now displays authentic company rankings: JPMorgan (204 jobs), IBM (171 jobs), AT&T (161 jobs)
   - Improved data quality by removing jobs without valid company associations
+- June 19, 2025. Fixed job editing interface to display correct company names
+  - Added company name display to JobEditModal header showing actual company instead of "Unknown Company"
+  - Job edit forms now clearly show which company the job belongs to (e.g., "Company: Hearst Communications Inc")
+  - Enhanced user experience by providing proper context when editing job postings
+  - Resolved confusion where editors couldn't identify which company they were editing jobs for
 ```
 
 ## User Preferences
