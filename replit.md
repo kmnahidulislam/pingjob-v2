@@ -308,10 +308,11 @@ Changelog:
   - All platform statistics now reflect authentic data for accurate business intelligence
 - June 19, 2025. Implemented comprehensive platform statistics display on home page
   - Created /api/platform/stats public endpoint providing real-time user, company, and job counts
-  - Added prominent statistics section to home page showing 872 platform members, 100 companies, and active jobs
+  - Added prominent statistics section to home page showing 872 platform members, 76,806 companies, and active jobs
   - Enhanced home page companies section with accurate total count display instead of hardcoded "100"
   - Fixed all Building icon references to Building2 for proper display consistency
-  - Platform now displays authentic real-time statistics across all public and admin interfaces
+  - Added getTotalCompanyCount() method to return actual database count instead of limited top companies
+  - Platform now displays authentic real-time statistics (872 users, 76,806 companies) across all interfaces
 ```
 
 ## User Preferences
