@@ -318,9 +318,10 @@ Changelog:
   - Fixed dashboard to display correct 76,806 companies instead of "100"
   - Enhanced companies page to fetch platform stats for accurate total count display
   - Updated both home page and companies page to show authentic database statistics
-  - Implemented dynamic platform statistics with React Query for real-time updates
-  - Home page now shows live company count that automatically increases when companies are added
-  - All platform interfaces now display authentic database counts that update dynamically
+  - Resolved persistent browser caching issue preventing correct display of company counts
+  - Implemented fresh component approach to bypass cache and force correct data rendering
+  - Home page now shows live company count (76,806) that automatically increases when companies are added
+  - All platform interfaces display authentic database counts with dynamic updates
 ```
 
 ## User Preferences
