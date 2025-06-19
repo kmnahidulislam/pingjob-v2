@@ -40,6 +40,63 @@ export function setupAuth(app: Express) {
     }
   }));
 
+  // Initialize Passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Configure Google OAuth Strategy
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/api/auth/google/callback"
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if user exists
+        const existingUser = await pool.query(
+          'SELECT * FROM users WHERE email = $1',
+          [profile.emails?.[0]?.value]
+        );
+
+        if (existingUser.rows.length > 0) {
+          return done(null, existingUser.rows[0]);
+        }
+
+        // Create new user
+        const newUser = await pool.query(
+          `INSERT INTO users (id, email, first_name, last_name, user_type, created_at, updated_at) 
+           VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *`,
+          [
+            profile.id,
+            profile.emails?.[0]?.value,
+            profile.name?.givenName,
+            profile.name?.familyName,
+            'job_seeker'
+          ]
+        );
+
+        return done(null, newUser.rows[0]);
+      } catch (error) {
+        return done(error, null);
+      }
+    }));
+  }
+
+  // Passport serialization
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+      done(null, result.rows[0]);
+    } catch (error) {
+      done(error, null);
+    }
+  });
+
   app.get('/api/user', (req: any, res) => {
     console.log('GET /api/user - Session exists:', !!req.session);
     console.log('GET /api/user - Session user:', !!req.session?.user);
@@ -186,6 +243,28 @@ export function setupAuth(app: Express) {
       res.json({ message: "Already logged out" });
     }
   };
+
+  // Google OAuth routes
+  app.get('/api/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+  );
+
+  app.get('/api/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/auth' }),
+    (req: any, res) => {
+      // Set session user data
+      req.session.user = {
+        id: req.user.id,
+        email: req.user.email,
+        firstName: req.user.first_name,
+        lastName: req.user.last_name,
+        userType: req.user.user_type
+      };
+      
+      // Redirect to home page after successful login
+      res.redirect('/');
+    }
+  );
 
   // Handle both GET and POST requests for logout
   app.post('/api/logout', logoutHandler);
