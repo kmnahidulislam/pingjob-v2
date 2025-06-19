@@ -351,6 +351,12 @@ Changelog:
   - Platform displays complete job ecosystem with authentic titles, descriptions, requirements, and locations
   - @Comm Corporation now leads with 7,050 jobs, followed by IBM Corporation with 133 jobs
   - All job listings show proper company associations, employment types, and location data
+- June 19, 2025. Corrected job-company associations to restore authentic data relationships
+  - Fixed data integrity issue where jobs were incorrectly defaulted to @Comm Corporation during import
+  - Batch correction processed 13,122 jobs using original CSV company mappings
+  - Restored proper job distribution: @Comm Corporation (10,931), JPMorgan (202), IBM (171), Pfizer (130)
+  - Applied foreign key validation to ensure only valid company associations
+  - Platform now displays authentic job-company relationships from original CSV data
 ```
 
 ## User Preferences
