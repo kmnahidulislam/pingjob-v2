@@ -48,8 +48,8 @@ export function setupAuth(app: Express) {
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('Setting up Google OAuth strategy...');
     console.log('REPLIT_DOMAINS:', process.env.REPLIT_DOMAINS);
-    // Use the correct Replit domain for OAuth callback
-    const callbackURL = "https://fb4df221-1179-4005-89f0-51b4d2de40e0-00-13fngzu1jain2.worf.replit.dev/api/auth/google/callback";
+    // Use the production domain for OAuth callback
+    const callbackURL = "https://pingjob.com/api/auth/google/callback";
     console.log('OAuth Callback URL:', callbackURL);
     
     try {
