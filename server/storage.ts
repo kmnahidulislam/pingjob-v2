@@ -1497,6 +1497,25 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async approveAllVendors(): Promise<{ updated: number }> {
+    try {
+      console.log('DEBUG: Approving all vendors in database...');
+      
+      const result = await pool.query(`
+        UPDATE vendors 
+        SET status = 'approved', approved_by = 'system'
+        WHERE status != 'approved'
+        RETURNING id
+      `);
+      
+      console.log(`DEBUG: Successfully approved ${result.rows.length} vendors`);
+      return { updated: result.rows.length };
+    } catch (error) {
+      console.error("Error in approveAllVendors:", error);
+      throw error;
+    }
+  }
+
   // Category operations
   async getCategories(): Promise<Category[]> {
     return await db.select().from(categories).orderBy(categories.name);

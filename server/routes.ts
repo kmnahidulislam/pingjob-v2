@@ -811,6 +811,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Approve all vendors endpoint
+  app.post('/api/vendors/approve-all', async (req: any, res) => {
+    try {
+      console.log('DEBUG: Approving all vendors in database...');
+      const result = await storage.approveAllVendors();
+      res.json({ 
+        message: `Successfully approved ${result.updated} vendors`,
+        updated: result.updated 
+      });
+    } catch (error) {
+      console.error("Error approving all vendors:", error);
+      res.status(500).json({ message: "Failed to approve vendors" });
+    }
+  });
+
   // Get vendors for a specific company (for job details page)
   app.get('/api/companies/:companyId/vendors', async (req: any, res) => {
     try {
