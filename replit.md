@@ -389,6 +389,11 @@ Changelog:
   - Job edit forms now clearly show which company the job belongs to (e.g., "Company: Hearst Communications Inc")
   - Enhanced user experience by providing proper context when editing job postings
   - Resolved confusion where editors couldn't identify which company they were editing jobs for
+- June 19, 2025. Fixed job creation sequence error after bulk deletions
+  - Resolved primary key constraint violation (jobs_pkey) that prevented new job creation
+  - Synchronized PostgreSQL sequence from incorrect value (15) to correct next ID (83547)
+  - Job creation now works properly after deleting 10,657 jobs from Unknown Company
+  - Fixed database sequence consistency to prevent future ID conflicts
 ```
 
 ## User Preferences
