@@ -22,6 +22,8 @@ import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
 import Navigation from "@/components/navigation";
+import { initGA } from "./lib/analytics";
+import { useAnalytics } from "./hooks/use-analytics";
 
 
 
@@ -39,6 +41,9 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
+  
+  // Track page views when routes change
+  useAnalytics();
 
   console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
 
@@ -111,6 +116,15 @@ function Router() {
 }
 
 function App() {
+  // Initialize Google Analytics when app loads
+  useEffect(() => {
+    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
+    } else {
+      initGA();
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

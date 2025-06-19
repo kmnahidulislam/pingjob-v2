@@ -4,6 +4,8 @@ import { promisify } from "util";
 import { cleanPool as pool } from "./clean-neon";
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 const scryptAsync = promisify(scrypt);
 
