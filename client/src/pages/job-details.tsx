@@ -51,7 +51,7 @@ function getServiceNames(services: string): string {
 function VendorInfoCard({ companyId }: { companyId: number }) {
   const { user } = useAuth();
   
-  const { data: vendorData, isLoading } = useQuery({
+  const { data: vendorResponse, isLoading } = useQuery({
     queryKey: [`/api/companies/${companyId}/vendors`],
     queryFn: async () => {
       const response = await fetch(`/api/companies/${companyId}/vendors`, {
@@ -78,24 +78,18 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
     );
   }
 
+  // Handle both old array format and new structured response
+  const vendorData = Array.isArray(vendorResponse) ? vendorResponse : vendorResponse?.vendors || [];
+  const isAuthenticated = vendorResponse?.isAuthenticated ?? !!user;
+  const totalVendorCount = vendorResponse?.totalCount || vendorData.length;
+  const showingVendorCount = vendorResponse?.showingCount || vendorData.length;
+
   if (!vendorData || vendorData.length === 0) {
     return null; // Don't show card if no vendors
   }
 
-  // For authenticated users, show all vendors (approved and pending)
-  // For unregistered users, show only approved vendors (max 3)
-  const isAuthenticated = !!user;
-  const approvedVendors = vendorData.filter((vendor: any) => vendor.status === 'approved');
-  const allVendors = isAuthenticated ? vendorData : approvedVendors;
-  
-  if (allVendors.length === 0) {
-    return null; // Don't show card if no vendors
-  }
-
-  // For unregistered users, show maximum 3 approved vendors
-  const vendorsToShow = isAuthenticated ? allVendors : allVendors.slice(0, 3);
-  const totalCount = allVendors.length;
-  const showingCount = vendorsToShow.length;
+  // Use the vendors from API response (already filtered appropriately)
+  const vendorsToShow = vendorData;
 
   return (
     <Card className="mb-6">
@@ -104,12 +98,12 @@ function VendorInfoCard({ companyId }: { companyId: number }) {
           <Users className="h-5 w-5" />
           Partner Vendors
           <Badge variant="secondary" className="ml-2">
-            {totalCount} total
+            {totalVendorCount} total
           </Badge>
         </CardTitle>
-        {!isAuthenticated && totalCount > 3 && (
+        {!isAuthenticated && totalVendorCount > 3 && (
           <p className="text-sm text-gray-600">
-            Showing {showingCount} of {totalCount} vendors. 
+            Showing {showingVendorCount} of {totalVendorCount} vendors. 
             <Link href="/auth" className="text-blue-600 hover:underline ml-1">
               Sign in to view all
             </Link>

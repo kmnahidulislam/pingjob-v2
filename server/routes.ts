@@ -831,16 +831,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const companyId = parseInt(req.params.companyId);
       const isAuthenticated = !!req.user;
       
-      // Get all approved vendors for this company
+      // Get all vendors for this company
       const allVendors = await storage.getClientVendors(companyId);
-      const vendors = allVendors.filter((vendor: any) => vendor.status === 'approved');
       
-      // For unauthenticated users, limit to 3 vendors
-      const vendorsToShow = isAuthenticated ? vendors : vendors.slice(0, 3);
+      // Filter by authentication status:
+      // - Authenticated users see all vendors (approved + pending)
+      // - Unauthenticated users see only approved vendors, limited to 3
+      let vendorsToShow;
+      if (isAuthenticated) {
+        vendorsToShow = allVendors; // Show all vendors for authenticated users
+      } else {
+        const approvedVendors = allVendors.filter((vendor: any) => vendor.status === 'approved');
+        vendorsToShow = approvedVendors.slice(0, 3); // Limit to 3 for unauthenticated
+      }
+      
+      const totalVendors = isAuthenticated ? allVendors.length : allVendors.filter((v: any) => v.status === 'approved').length;
       
       res.json({
         vendors: vendorsToShow,
-        totalCount: vendors.length,
+        totalCount: totalVendors,
         showingCount: vendorsToShow.length,
         isAuthenticated
       });
