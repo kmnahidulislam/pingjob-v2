@@ -29,6 +29,7 @@ async function directCommCorpFix() {
   if (unknownCompany.length === 0) {
     const [created] = await db.insert(companies).values({
       name: 'Unknown Company',
+      userId: 'admin',
       city: 'Unknown',
       state: 'Unknown',
       country: 'Unknown'
