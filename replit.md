@@ -430,6 +430,13 @@ Changelog:
   - Added live database ranking summary showing top company statistics prominently
   - Categories now provide complete business intelligence with job listings and top company insights
   - All data sourced from live database with real vendor relationships and job postings, properly sorted by job count
+- June 20, 2025. Fixed home page "Top Companies" sidebar to display authentic database counts
+  - Replaced random fake vendor counts (Math.random()) with real database jobCount and vendorCount values
+  - Renamed "Top Clients" to "Top Companies" for consistency across platform
+  - Added numbered rankings and enhanced visual design with green job badges and blue vendor badges
+  - Home page sidebar now shows authentic data: J P Morgan Chase & Co (204 jobs, 60 vendors), IBM (171 jobs, 108 vendors)
+  - Fixed company logo URLs with proper encoding and path structure
+  - Eliminated all placeholder data from home page company listings
 ```
 
 ## User Preferences

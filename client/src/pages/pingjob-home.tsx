@@ -720,27 +720,32 @@ export default function PingJobHome() {
               </CardContent>
             </Card>
 
-            {/* Top Clients */}
+            {/* Top Companies */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Clients</CardTitle>
+                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {topCompanies.slice(0, 8).map((company: any) => (
-                    <div key={company.id} className="flex items-center space-x-3">
-                      <div className="w-10 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
-                        {company.logoUrl && company.logoUrl !== "NULL" ? (
-                          <img 
-                            src={company.logoUrl} 
-                            alt={company.name}
-                            className="w-full h-full object-contain p-0.5"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
-                            {company.name?.[0]?.toUpperCase() || 'C'}
-                          </div>
-                        )}
+                  {topCompanies.slice(0, 8).map((company: any, index) => (
+                    <div key={company.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex-shrink-0 relative">
+                        <div className="absolute -top-1 -left-1 bg-blue-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                          {index + 1}
+                        </div>
+                        <div className="w-10 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50">
+                          {company.logoUrl && company.logoUrl !== "NULL" ? (
+                            <img 
+                              src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                              alt={company.name}
+                              className="w-full h-full object-contain p-0.5"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
+                              {company.name?.[0]?.toUpperCase() || 'C'}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link href={`/companies/${company.id}`}>
@@ -748,9 +753,14 @@ export default function PingJobHome() {
                             {company.name}
                           </p>
                         </Link>
-                        <p className="text-xs text-gray-500">
-                          {Math.floor(Math.random() * 5) + 1} vendors
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="default" className="text-xs bg-green-600 text-white">
+                            {company.jobCount || 0} jobs
+                          </Badge>
+                          <Badge variant="default" className="text-xs bg-blue-600 text-white">
+                            {company.vendorCount || 0} vendors
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
