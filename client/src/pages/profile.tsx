@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import CreateProfileModal from "@/components/modals/create-profile-modal";
+import { SocialMediaLinks } from "@/components/social-media-links";
 import {
   Plus,
   Edit,
@@ -36,7 +37,7 @@ export default function Profile() {
   const profileId = id || user?.id;
   const isOwnProfile = !id || id === user?.id;
 
-  const { data: profile, isLoading, error } = useQuery({
+  const { data: profile = {}, isLoading, error } = useQuery({
     queryKey: [`/api/profile/${profileId}`],
     enabled: !!profileId
   });
@@ -332,6 +333,15 @@ export default function Profile() {
               )}
             </CardContent>
           </Card>
+
+          {/* Social Media Links */}
+          <SocialMediaLinks
+            userId={profileId || ''}
+            facebookUrl={profile.facebookUrl || ''}
+            twitterUrl={profile.twitterUrl || ''}
+            instagramUrl={profile.instagramUrl || ''}
+            editable={isOwnProfile}
+          />
         </div>
 
         {/* Sidebar */}

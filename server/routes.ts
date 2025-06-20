@@ -171,6 +171,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/profile/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.params.id;
+      
+      // Ensure user can only update their own profile or admin can update any
+      if (req.user.id !== userId && req.user.userType !== 'admin') {
+        return res.status(403).json({ message: "Unauthorized to update this profile" });
+      }
+      
+      const updateData = req.body;
+      const updatedProfile = await storage.updateUserProfile(userId, updateData);
+      
+      res.json(updatedProfile);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Experience routes
   app.get('/api/experiences', isAuthenticated, async (req: any, res) => {
     try {
