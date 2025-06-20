@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { JobCategories } from "@/components/job-categories";
 
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
@@ -715,20 +716,7 @@ export default function PingJobHome() {
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {categories.slice(0, 10).map((category: any) => (
-                    <div key={category.id} className="flex items-center justify-between">
-                      <Link href={`/jobs?category=${category.id}`}>
-                        <span className="text-sm font-medium text-blue-600 hover:underline">
-                          {category.name}
-                        </span>
-                      </Link>
-                      <Badge variant="secondary" className="text-xs">
-                        {Math.floor(Math.random() * 150) + 10} jobs
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
+                <JobCategories limit={10} />
               </CardContent>
             </Card>
 

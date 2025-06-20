@@ -1646,7 +1646,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Category routes
+  // Category routes - IMPORTANT: Order matters! Specific routes before parameterized ones
+  app.get('/api/categories/with-counts', async (req, res) => {
+    try {
+      const categories = await storage.getCategoriesWithJobCounts();
+      res.json(categories);
+    } catch (error) {
+      console.error("Failed to get categories with counts:", error);
+      res.status(500).json({ error: "Failed to get categories with counts" });
+    }
+  });
+
   app.get('/api/categories', async (req, res) => {
     try {
       const categories = await storage.getCategories();
@@ -1654,6 +1664,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching categories:", error);
       res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Get latest jobs by category (for unregistered users)
+  app.get('/api/categories/:categoryId/jobs', async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      if (isNaN(categoryId)) {
+        return res.status(400).json({ error: "Invalid category ID" });
+      }
+
+      const jobs = await storage.getLatestJobsByCategory(categoryId, limit);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Failed to get jobs by category:", error);
+      res.status(500).json({ error: "Failed to get jobs by category" });
     }
   });
 
@@ -1674,35 +1702,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching category:", error);
       res.status(500).json({ message: "Failed to fetch category" });
-    }
-  });
-
-  // Get categories with job counts (sorted by job count descending)
-  app.get('/api/categories/with-counts', async (req, res) => {
-    try {
-      const categories = await storage.getCategoriesWithJobCounts();
-      res.json(categories);
-    } catch (error) {
-      console.error("Failed to get categories with counts:", error);
-      res.status(500).json({ error: "Failed to get categories with counts" });
-    }
-  });
-
-  // Get latest jobs by category (for unregistered users)
-  app.get('/api/categories/:categoryId/jobs', async (req, res) => {
-    try {
-      const categoryId = parseInt(req.params.categoryId);
-      const limit = parseInt(req.query.limit as string) || 10;
-      
-      if (isNaN(categoryId)) {
-        return res.status(400).json({ error: "Invalid category ID" });
-      }
-
-      const jobs = await storage.getLatestJobsByCategory(categoryId, limit);
-      res.json(jobs);
-    } catch (error) {
-      console.error("Failed to get jobs by category:", error);
-      res.status(500).json({ error: "Failed to get jobs by category" });
     }
   });
 
