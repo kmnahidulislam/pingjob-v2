@@ -1958,8 +1958,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Accept external invitation (public endpoint)
-  app.post("/api/external-invitations/:token/accept", async (req, res) => {
+  // Get invitation details (public endpoint)
+  app.get("/api/external-invitations/:token/details", async (req, res) => {
     try {
       const { token } = req.params;
       const invitation = await storage.getExternalInvitation(token);
@@ -1976,10 +1976,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invitation expired" });
       }
 
+      res.json(invitation);
+    } catch (error) {
+      console.error("Get invitation details error:", error);
+      res.status(500).json({ message: "Failed to get invitation details" });
+    }
+  });
+
+  // Accept external invitation (public endpoint)
+  app.post("/api/external-invitations/:token/accept", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { firstName, lastName, password } = req.body;
+      
+      const invitation = await storage.getExternalInvitation(token);
+
+      if (!invitation) {
+        return res.status(404).json({ message: "Invitation not found" });
+      }
+
+      if (invitation.status !== 'pending') {
+        return res.status(400).json({ message: "Invitation already processed" });
+      }
+
+      if (new Date() > invitation.expiresAt) {
+        return res.status(400).json({ message: "Invitation expired" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(invitation.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+
+      // Hash password
+      const { hashPassword } = await import('./auth');
+      const hashedPassword = await hashPassword(password);
+
+      // Generate unique user ID
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Create new user account
+      const newUser = await storage.createUser({
+        id: userId,
+        email: invitation.email,
+        firstName: firstName || invitation.firstName || '',
+        lastName: lastName || invitation.lastName || '',
+        password: hashedPassword,
+        userType: 'job_seeker'
+      });
+
       // Update invitation status
       await storage.updateExternalInvitationStatus(invitation.id, 'accepted', new Date());
       
-      res.json({ message: "Invitation accepted successfully", invitation });
+      res.json({ 
+        message: "Invitation accepted successfully", 
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName
+        }
+      });
     } catch (error) {
       console.error("Accept external invitation error:", error);
       res.status(500).json({ message: "Failed to accept invitation" });

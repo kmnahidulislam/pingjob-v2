@@ -75,6 +75,7 @@ function Router() {
         <Switch>
           <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
+          <Route path="/invite/:token" component={InvitationAccept} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
