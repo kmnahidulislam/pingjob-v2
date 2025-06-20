@@ -3,6 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage, pool } from "./storage";
 import { setupAuth } from "./auth";
+import { initializeSocialMediaPoster } from "./social-media";
 import { z } from "zod";
 import { 
   insertExperienceSchema,
@@ -58,6 +59,17 @@ const imageUpload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication FIRST before any other routes
   setupAuth(app);
+
+  // Initialize social media poster
+  let socialMediaPoster: any = null;
+  initializeSocialMediaPoster(pool).then(poster => {
+    socialMediaPoster = poster;
+    if (poster) {
+      console.log('✓ Social media posting enabled for Facebook, Twitter, and Instagram');
+    } else {
+      console.log('ℹ Social media posting disabled - configure API keys to enable automatic posting');
+    }
+  });
   
   // Serve static files from uploads directory
   app.use('/uploads', express.static('uploads'));
@@ -750,17 +762,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Validated data:", validatedData);
       
       const job = await storage.createJob(validatedData);
+      
+      // Automatic social media posting if socialMediaPoster is initialized
+      if (socialMediaPoster && job.id) {
+        try {
+          // Get company name for social media post
+          const company = await storage.getCompany(job.companyId);
+          
+          const jobPostData = {
+            id: job.id,
+            title: job.title,
+            company: company?.name || 'Company',
+            location: job.location || 'Remote',
+            description: job.description,
+            employmentType: job.employmentType,
+            experienceLevel: job.experienceLevel,
+            salary: job.salary
+          };
+          
+          console.log('🚀 Posting job to social media platforms...');
+          const socialResults = await socialMediaPoster.postJobToAllPlatforms(jobPostData);
+          
+          const successCount = socialResults.filter(r => r.success).length;
+          console.log(`✓ Social media posting completed: ${successCount}/${socialResults.length} platforms successful`);
+          
+          // Add social media results to response
+          job.socialMediaResults = socialResults;
+        } catch (socialError) {
+          console.error('Social media posting failed:', socialError);
+          // Don't fail the job creation if social media posting fails
+        }
+      }
+      
       res.json(job);
     } catch (error) {
       console.error("Error creating job:", error);
-      console.error("Error details:", error.message);
-      if (error.errors) {
-        console.error("Validation errors:", error.errors);
+      console.error("Error details:", (error as Error).message);
+      if ((error as any).errors) {
+        console.error("Validation errors:", (error as any).errors);
       }
       res.status(500).json({ 
         message: "Failed to create job", 
-        error: error.message,
-        details: error.errors || []
+        error: (error as Error).message,
+        details: (error as any).errors || []
       });
     }
   });

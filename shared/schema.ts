@@ -349,6 +349,22 @@ export const connectionRelations = relations(connections, ({ one }) => ({
   }),
 }));
 
+// Social Media Posts table for tracking automatic job postings
+export const socialMediaPosts = pgTable("social_media_posts", {
+  id: serial("id").primaryKey(),
+  jobId: integer("job_id").references(() => jobs.id).notNull(),
+  platformsPosted: jsonb("platforms_posted").notNull(), // Array of platforms: ['facebook', 'twitter', 'instagram']
+  results: jsonb("results").notNull(), // Results from each platform posting attempt
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const socialMediaPostRelations = relations(socialMediaPosts, ({ one }) => ({
+  job: one(jobs, {
+    fields: [socialMediaPosts.jobId],
+    references: [jobs.id],
+  }),
+}));
+
 export const messageRelations = relations(messages, ({ one }) => ({
   sender: one(users, {
     fields: [messages.senderId],
