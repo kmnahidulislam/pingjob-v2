@@ -40,7 +40,11 @@ export function setupAuth(app: Express) {
     }
   }));
 
-  // Configure Google OAuth Strategy FIRST
+  // Initialize Passport FIRST
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Configure Google OAuth Strategy AFTER passport initialization
   console.log('Checking Google OAuth credentials...');
   console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID);
   console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
@@ -102,11 +106,7 @@ export function setupAuth(app: Express) {
     console.log('⚠️ Google OAuth credentials not found - OAuth will not be available');
   }
 
-  // Initialize Passport AFTER strategy setup
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  // Passport serialization
+  // Passport serialization (already initialized above)
   passport.serializeUser((user: any, done) => {
     done(null, user.id);
   });

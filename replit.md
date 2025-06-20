@@ -440,6 +440,12 @@ Changelog:
   - Resolved API field mapping issue by adding camelCase versions (jobCount, vendorCount) to backend response
   - Confirmed complete elimination of placeholder data across all Top Companies sections platform-wide
   - Expanded Top Companies sidebar from 8 to 20 companies for more comprehensive rankings display
+- June 20, 2025. Fixed Google OAuth "Unknown authentication strategy" error and enhanced error handling
+  - Resolved passport strategy initialization order by moving passport.initialize() before strategy registration
+  - Enhanced Google OAuth route handling with proper HEAD request support for frontend validation
+  - Fixed Google Cloud Console configuration with proper authorized JavaScript origins (https://pingjob.com)
+  - Google OAuth now works correctly for both email/password and Gmail-based authentication
+  - Users can successfully sign in using "Continue with Google" button without errors
 ```
 
 ## User Preferences
