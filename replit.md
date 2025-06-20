@@ -439,6 +439,7 @@ Changelog:
   - Eliminated all placeholder data from home page company listings
   - Resolved API field mapping issue by adding camelCase versions (jobCount, vendorCount) to backend response
   - Confirmed complete elimination of placeholder data across all Top Companies sections platform-wide
+  - Expanded Top Companies sidebar from 8 to 20 companies for more comprehensive rankings display
 ```
 
 ## User Preferences
