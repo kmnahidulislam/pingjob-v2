@@ -65,7 +65,7 @@ export function setupAuth(app: Express) {
     console.log('OAuth Callback URL:', callbackURL);
     
     try {
-      passport.use(new GoogleStrategy({
+      passport.use('google', new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: callbackURL
