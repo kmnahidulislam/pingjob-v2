@@ -100,7 +100,7 @@ export async function sendInvitationEmail(
   
   return await sendEmail({
     to: recipientEmail,
-    from: 'krupas@vedsoft.com', // Use verified sender identity
+    from: 'krupashankar@gmail.com', // Use verified sender identity
     subject,
     html: htmlContent,
     text: textContent
