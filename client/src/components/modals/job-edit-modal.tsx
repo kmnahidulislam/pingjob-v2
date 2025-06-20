@@ -26,8 +26,8 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   });
 
   // Fetch company information
-  const { data: company } = useQuery({
-    queryKey: ['/api/companies', job?.companyId],
+  const { data: companyDetails } = useQuery({
+    queryKey: [`/api/companies/${job?.companyId}/details`],
     enabled: !!job?.companyId,
   });
   
@@ -62,7 +62,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         experienceLevel: job.experienceLevel || "entry",
         salary: job.salary || "",
         skills: Array.isArray(job.skills) ? job.skills.join(", ") : (job.skills || ""),
-        categoryId: job.categoryId?.toString() || "",
+        categoryId: job.categoryId?.toString() || "1",
       });
     }
   }, [job]);
@@ -111,7 +111,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
           <div className="text-sm text-gray-600 mt-1">
-            Company: {company?.name || job?.company?.name || 'Loading company...'}
+            Company: {companyDetails?.company?.name || job?.company?.name || 'Loading company...'}
           </div>
         </DialogHeader>
 
