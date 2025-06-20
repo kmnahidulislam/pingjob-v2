@@ -1876,7 +1876,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Generate unique token and set expiry (30 days)
-      const crypto = require('crypto');
+      const crypto = await import('crypto');
       const inviteToken = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
@@ -1886,7 +1886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName,
         lastName,
         message,
-        inviterUserId: req.user.id,
+        inviterUserId: (req.user as any).id,
         inviteToken,
         expiresAt,
       });
@@ -1901,7 +1901,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's external invitations
   app.get("/api/external-invitations", customAuth, async (req, res) => {
     try {
-      const invitations = await storage.getExternalInvitationsByInviter(req.user.id);
+      const invitations = await storage.getExternalInvitationsByInviter((req.user as any).id);
       res.json(invitations);
     } catch (error) {
       console.error("Get external invitations error:", error);
