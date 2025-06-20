@@ -158,17 +158,23 @@ export default function Home() {
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Experience
+              <Button asChild variant="outline" className="w-full justify-start">
+                <Link href={`/profile/${user.id}`}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Experience
+                </Link>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="h-4 w-4 mr-2" />
-                Find Connections
+              <Button asChild variant="outline" className="w-full justify-start">
+                <Link href="/network">
+                  <Users className="h-4 w-4 mr-2" />
+                  Find Connections
+                </Link>
               </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Layers className="h-4 w-4 mr-2" />
-                Create Post
+              <Button asChild variant="outline" className="w-full justify-start">
+                <Link href="/dashboard">
+                  <Layers className="h-4 w-4 mr-2" />
+                  Create Post
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -194,8 +200,10 @@ export default function Home() {
                   <span className="text-sm">
                     {connectionRequests.length} new connection request{connectionRequests.length > 1 ? 's' : ''}
                   </span>
-                  <Button size="sm" variant="outline">
-                    View
+                  <Button asChild size="sm" variant="outline">
+                    <Link href="/network">
+                      View
+                    </Link>
                   </Button>
                 </div>
               )}
