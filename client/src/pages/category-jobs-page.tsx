@@ -232,9 +232,17 @@ export default function CategoryJobsPage() {
             <div className="bg-white rounded-lg shadow-lg border-2 border-blue-100 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Building2 className="h-5 w-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Top Clients in {category.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Top Companies in {category.name}</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">Companies ranked by job count with real vendor data</p>
+              {topCompanies && topCompanies.length > 0 ? (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-xs font-semibold text-yellow-800 mb-1">Live Database Rankings:</p>
+                  <p className="text-xs text-yellow-700">
+                    Top company: {topCompanies[0]?.name} ({topCompanies[0]?.jobCount} jobs, {topCompanies[0]?.vendorCount} vendors)
+                  </p>
+                </div>
+              ) : null}
               {topCompanies && topCompanies.length > 0 ? (
                 <div className="space-y-4">
                   {topCompanies.slice(0, 8).map((company, index) => (
@@ -260,10 +268,10 @@ export default function CategoryJobsPage() {
                           {company.name}
                         </h4>
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="default" className="text-xs bg-green-600 text-white font-bold">
+                          <Badge variant="default" className="text-sm bg-green-700 text-white font-extrabold px-3 py-1 shadow-md">
                             {company.jobCount} JOBS
                           </Badge>
-                          <Badge variant="default" className="text-xs bg-blue-600 text-white font-bold">
+                          <Badge variant="default" className="text-sm bg-blue-700 text-white font-extrabold px-3 py-1 shadow-md">
                             {company.vendorCount} VENDORS
                           </Badge>
                         </div>
