@@ -897,7 +897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const validatedData = insertConnectionSchema.parse({
         ...req.body,
-        requesterId: userId,
+        senderId: userId,
       });
       const connection = await storage.createConnection(validatedData);
       res.json(connection);

@@ -110,12 +110,15 @@ export interface IStorage {
   getConnectionRequests(userId: string): Promise<any[]>;
   createConnection(connection: InsertConnection): Promise<Connection>;
   updateConnectionStatus(id: number, status: string): Promise<Connection>;
+  getUsersByCategory(categoryId: number, excludeUserId?: string): Promise<any[]>;
+  getCategoriesWithUserCounts(): Promise<any[]>;
   
   // Message operations
   getUserMessages(userId: string, otherUserId: string): Promise<Message[]>;
   getConversations(userId: string): Promise<any[]>;
   createMessage(message: InsertMessage): Promise<Message>;
   markMessageAsRead(id: number): Promise<Message>;
+  getUnreadMessageCount(userId: string): Promise<number>;
   
   // Group operations
   getGroups(limit?: number): Promise<Group[]>;
@@ -1161,6 +1164,52 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async getUsersByCategory(categoryId: number, excludeUserId?: string): Promise<any[]> {
+    let whereCondition = eq(users.categoryId, categoryId);
+    
+    if (excludeUserId) {
+      whereCondition = and(eq(users.categoryId, categoryId), sql`${users.id} != ${excludeUserId}`);
+    }
+
+    return await db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        headline: users.headline,
+        summary: users.summary,
+        location: users.location,
+        industry: users.industry,
+        profileImageUrl: users.profileImageUrl,
+        categoryId: users.categoryId,
+        category: {
+          id: categories.id,
+          name: categories.name,
+        },
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .leftJoin(categories, eq(users.categoryId, categories.id))
+      .where(whereCondition)
+      .orderBy(desc(users.createdAt));
+  }
+
+  async getCategoriesWithUserCounts(): Promise<any[]> {
+    return await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        description: categories.description,
+        userCount: sql<number>`COUNT(${users.id})::int`,
+      })
+      .from(categories)
+      .leftJoin(users, eq(categories.id, users.categoryId))
+      .groupBy(categories.id, categories.name, categories.description)
+      .having(sql`COUNT(${users.id}) > 0`)
+      .orderBy(sql`COUNT(${users.id}) DESC`);
+  }
+
   // Message operations
   async getUserMessages(userId: string, otherUserId: string): Promise<Message[]> {
     return await db
@@ -1216,6 +1265,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(messages.id, id))
       .returning();
     return result;
+  }
+
+  async getUnreadMessageCount(userId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`COUNT(*)::int` })
+      .from(messages)
+      .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false)));
+    return result[0]?.count || 0;
   }
 
   // Group operations
