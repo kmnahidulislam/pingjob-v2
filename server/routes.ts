@@ -397,6 +397,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Search endpoint for vendor auto-complete - Must come before /:id route
+  // Real-time search endpoint for home page (accessible to all visitors)
+  app.get('/api/search', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      const limit = parseInt(req.query.limit as string) || 5;
+      
+      if (!query || query.length < 2) {
+        return res.json({ companies: [], jobs: [] });
+      }
+      
+      console.log(`Home page search: "${query}"`);
+      
+      // Search companies (limited results for visitors)
+      const companies = await storage.searchCompanies(query, limit);
+      
+      // Search jobs (limited results for visitors)
+      const jobs = await storage.searchJobsForHomePage(query, limit);
+      
+      res.json({ 
+        companies: companies || [], 
+        jobs: jobs || [] 
+      });
+    } catch (error) {
+      console.error('Error in home page search:', error);
+      res.status(500).json({ error: 'Search failed' });
+    }
+  });
+
   app.get('/api/companies/search', async (req, res) => {
     try {
       const query = req.query.query as string;
