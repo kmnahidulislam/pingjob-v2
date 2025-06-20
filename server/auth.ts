@@ -307,31 +307,40 @@ export function setupAuth(app: Express) {
 
   // Google OAuth routes
   app.get('/api/auth/google', (req, res, next) => {
-    console.log('Google OAuth request initiated');
-    console.log('Google Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
-    console.log('Google Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+    console.log('=== GOOGLE OAUTH REQUEST ===');
+    console.log('Host:', req.get('host'));
     console.log('Request method:', req.method);
     console.log('User agent:', req.get('User-Agent'));
+    console.log('Google Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+    console.log('Google Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
     
     // Debug: Check available strategies at request time
     const strategies = Object.keys((passport as any)._strategies || {});
-    console.log('Available strategies at request time:', strategies);
-    console.log('Looking for strategy: google');
+    console.log('Available strategies:', strategies);
     console.log('Google strategy exists:', !!((passport as any)._strategies?.google));
     
+    // Check if Google OAuth is properly configured
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-      console.error('Google OAuth credentials missing!');
+      console.error('ERROR: Google OAuth credentials missing!');
       return res.status(500).json({ error: 'Google OAuth not configured' });
+    }
+    
+    // Check if Google strategy is registered
+    if (!((passport as any)._strategies?.google)) {
+      console.error('ERROR: Google OAuth strategy not registered!');
+      return res.status(500).json({ error: 'Google OAuth strategy not available' });
     }
     
     // For HEAD requests, just return success if credentials exist
     if (req.method === 'HEAD') {
+      console.log('HEAD request - returning success');
       return res.status(200).end();
     }
     
+    console.log('Proceeding with Google OAuth authentication...');
     next();
   }, (req, res, next) => {
-    console.log('About to call passport.authenticate with google strategy');
+    console.log('Calling passport.authenticate with google strategy');
     passport.authenticate('google', { 
       scope: ['profile', 'email'],
       failureRedirect: '/auth?error=oauth_failed'
