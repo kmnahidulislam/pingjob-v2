@@ -33,7 +33,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
     state: "",
     zipCode: "",
     country: "",
-    jobType: "full_time",
+    employmentType: "full_time",
     experienceLevel: "entry",
     salary: "",
     skills: "",
@@ -51,7 +51,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         state: job.state || "",
         zipCode: job.zipCode || "",
         country: job.country || "",
-        jobType: job.jobType || "full_time",
+        employmentType: job.employmentType || "full_time",
         experienceLevel: job.experienceLevel || "entry",
         salary: job.salary || "",
         skills: Array.isArray(job.skills) ? job.skills.join(", ") : (job.skills || ""),
@@ -103,7 +103,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
           <div className="text-sm text-gray-600 mt-1">
-            Company: {job.company?.name || 'Unknown Company'}
+            Company: {job?.company?.name || 'Loading company...'}
           </div>
         </DialogHeader>
 
@@ -127,7 +127,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
                 <SelectValue placeholder="Select job category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category: any) => (
+                {Array.isArray(categories) && categories.map((category: any) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.name}
                   </SelectItem>
@@ -136,13 +136,13 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
             </Select>
           </div>
 
-          {/* Job Type and Experience Level */}
+          {/* Employment Type and Experience Level */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="jobType">Job Type *</Label>
-              <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
+              <Label htmlFor="employmentType">Employment Type *</Label>
+              <Select value={formData.employmentType} onValueChange={(value) => handleInputChange('employmentType', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select job type" />
+                  <SelectValue placeholder="Select employment type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="full_time">Full Time</SelectItem>

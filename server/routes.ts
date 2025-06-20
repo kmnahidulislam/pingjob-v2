@@ -731,7 +731,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/jobs/:id', isAuthenticated, async (req, res) => {
     try {
       const jobId = parseInt(req.params.id);
-      const jobData = insertJobSchema.parse(req.body);
+      // Use partial schema for updates - don't require all fields
+      const updateSchema = insertJobSchema.partial();
+      const jobData = updateSchema.parse(req.body);
       
       const updatedJob = await storage.updateJob(jobId, jobData);
       res.json(updatedJob);
