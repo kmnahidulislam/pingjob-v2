@@ -52,17 +52,21 @@ function VendorManagement({ companyId }: { companyId: number }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedVendorCompany, setSelectedVendorCompany] = useState<any>(null);
   const [vendorComboOpen, setVendorComboOpen] = useState(false);
+  const [companySearchQuery, setCompanySearchQuery] = useState("");
+  const [showCompanyResults, setShowCompanyResults] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch companies for vendor selection
-  const { data: companies = [] } = useQuery({
-    queryKey: ['/api/companies/top'],
+  // Search companies for vendor selection (all 76,806 companies)
+  const { data: searchResults, isLoading: searchLoading } = useQuery({
+    queryKey: ['/api/companies/search', companySearchQuery],
     queryFn: async () => {
-      const response = await fetch('/api/companies/top');
-      if (!response.ok) throw new Error('Failed to fetch companies');
+      if (!companySearchQuery.trim() || companySearchQuery.length < 2) return [];
+      const response = await fetch(`/api/companies/search?query=${encodeURIComponent(companySearchQuery)}&limit=20`);
+      if (!response.ok) throw new Error('Failed to search companies');
       return response.json();
-    }
+    },
+    enabled: companySearchQuery.length >= 2
   });
 
   // Add vendor mutation
@@ -95,7 +99,7 @@ function VendorManagement({ companyId }: { companyId: number }) {
     if (!selectedVendorCompany) {
       toast({
         title: "Error",
-        description: "Please select a vendor company.",
+        description: "Please search and select a vendor company.",
         variant: "destructive",
       });
       return;
@@ -110,6 +114,13 @@ function VendorManagement({ companyId }: { companyId: number }) {
       description: formData.get('description'),
       status: 'active',
     });
+  };
+
+  const handleCancelForm = () => {
+    setShowAddForm(false);
+    setSelectedVendorCompany(null);
+    setCompanySearchQuery("");
+    setShowCompanyResults(false);
   };
 
   if (!showAddForm) {
@@ -133,34 +144,75 @@ function VendorManagement({ companyId }: { companyId: number }) {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => {
-            setShowAddForm(false);
-            setSelectedVendorCompany(null);
-          }}
+          onClick={handleCancelForm}
         >
           Cancel
         </Button>
       </div>
 
       <form onSubmit={handleAddVendor} className="space-y-4">
-        {/* Vendor Company Selection */}
+        {/* Vendor Company Search and Selection */}
         <div className="space-y-2">
-          <Label htmlFor="vendor-company">Select Vendor Company</Label>
-          <Select onValueChange={(value) => {
-            const company = companies.find((c: any) => c.id.toString() === value);
-            setSelectedVendorCompany(company);
-          }}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a company..." />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.isArray(companies) && companies.map((company: any) => (
-                <SelectItem key={company.id} value={company.id.toString()}>
-                  {company.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor="vendor-company">Search Vendor Company</Label>
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Type to search companies (e.g., IBM, Microsoft, Google)..."
+              value={companySearchQuery}
+              onChange={(e) => {
+                setCompanySearchQuery(e.target.value);
+                setShowCompanyResults(e.target.value.length >= 2);
+              }}
+              className="w-full"
+            />
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            
+            {/* Search Results Dropdown */}
+            {showCompanyResults && searchResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                {searchResults.map((company: any) => (
+                  <div
+                    key={company.id}
+                    onClick={() => {
+                      setSelectedVendorCompany(company);
+                      setCompanySearchQuery(company.name);
+                      setShowCompanyResults(false);
+                    }}
+                    className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+                        {company.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{company.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {company.city && company.state ? `${company.city}, ${company.state}` : company.location}
+                        </div>
+                        {company.website && (
+                          <div className="text-xs text-gray-400">{company.website}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* No Results Message */}
+            {showCompanyResults && searchResults && searchResults.length === 0 && !searchLoading && companySearchQuery.length >= 2 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
+                <div className="text-sm text-gray-500 text-center">No companies found for "{companySearchQuery}"</div>
+              </div>
+            )}
+            
+            {/* Loading State */}
+            {searchLoading && showCompanyResults && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
+                <div className="text-sm text-gray-500 text-center">Searching...</div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Selected Company Preview */}
@@ -236,10 +288,7 @@ function VendorManagement({ companyId }: { companyId: number }) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => {
-              setShowAddForm(false);
-              setSelectedVendorCompany(null);
-            }}
+            onClick={handleCancelForm}
           >
             Cancel
           </Button>
