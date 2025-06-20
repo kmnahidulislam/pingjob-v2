@@ -384,6 +384,12 @@ export default function NetworkPage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="invite" className="space-y-6">
+          <div className="max-w-2xl mx-auto">
+            <InvitationForm />
+          </div>
+        </TabsContent>
+
         <TabsContent value="connections">
           <Card>
             <CardHeader>

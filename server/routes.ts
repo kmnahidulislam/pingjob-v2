@@ -1882,8 +1882,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       expiresAt.setDate(expiresAt.getDate() + 30);
 
       const invitation = await storage.createExternalInvitation({
-        ...validatedData,
-        inviterUserId: req.user.id,
+        email: validatedData.email,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        message: validatedData.message,
+        inviterUserId: req.user!.id,
         inviteToken,
         expiresAt,
       });
@@ -1902,7 +1905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const invitations = await storage.getExternalInvitationsByInviter(req.user.id);
+      const invitations = await storage.getExternalInvitationsByInviter(req.user!.id);
       res.json(invitations);
     } catch (error) {
       console.error("Get external invitations error:", error);
