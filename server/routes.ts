@@ -919,6 +919,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Category-based networking endpoints
+  app.get('/api/categories/with-user-counts', async (req, res) => {
+    try {
+      const categories = await storage.getCategoriesWithUserCounts();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories with user counts:", error);
+      res.status(500).json({ message: "Failed to fetch categories with user counts" });
+    }
+  });
+
+  app.get('/api/categories/:categoryId/users', isAuthenticated, async (req: any, res) => {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      const currentUserId = req.user.id;
+      const users = await storage.getUsersByCategory(categoryId, currentUserId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users by category:", error);
+      res.status(500).json({ message: "Failed to fetch users by category" });
+    }
+  });
+
+  // Messaging endpoints
+  app.get('/api/messages/:otherUserId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const otherUserId = req.params.otherUserId;
+      const messages = await storage.getUserMessages(userId, otherUserId);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const conversations = await storage.getConversations(userId);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+  });
+
+  app.post('/api/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const validatedData = insertMessageSchema.parse({
+        ...req.body,
+        senderId: userId,
+      });
+      const message = await storage.createMessage(validatedData);
+      res.json(message);
+    } catch (error) {
+      console.error("Error creating message:", error);
+      res.status(500).json({ message: "Failed to create message" });
+    }
+  });
+
+  app.put('/api/messages/:id/read', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const message = await storage.markMessageAsRead(id);
+      res.json(message);
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+      res.status(500).json({ message: "Failed to mark message as read" });
+    }
+  });
+
+  app.get('/api/messages/unread/count', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const count = await storage.getUnreadMessageCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error("Error fetching unread message count:", error);
+      res.status(500).json({ message: "Failed to fetch unread message count" });
+    }
+  });
+
   // Import company addresses from CSV
   app.post("/api/companies/import-addresses", isAuthenticated, async (req: any, res) => {
     try {

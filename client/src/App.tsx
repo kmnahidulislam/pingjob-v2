@@ -15,7 +15,7 @@ import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
 import Applications from "@/pages/applications";
-import Network from "@/pages/network";
+import NetworkPage from "@/pages/network-page";
 import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
 import CompanyCreate from "@/pages/company-create";
@@ -102,7 +102,7 @@ function Router() {
           <Route path="/companies" component={Companies} />
           <Route path="/profile/:id?" component={Profile} />
           <Route path="/applications" component={Applications} />
-          <Route path="/network" component={Network} />
+          <Route path="/network" component={NetworkPage} />
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/" component={Home} />
