@@ -540,6 +540,9 @@ export class DatabaseStorage implements IStorage {
         vendor_count: parseInt(row.vendor_count) || 0,
         job_count: parseInt(row.job_count) || 0,
         total_activity: parseInt(row.total_activity) || 0,
+        // Add camelCase versions for frontend compatibility
+        vendorCount: parseInt(row.vendor_count) || 0,
+        jobCount: parseInt(row.job_count) || 0,
         logoUrl: row.logo_url,
         zipCode: row.zip_code,
         userId: row.user_id,
