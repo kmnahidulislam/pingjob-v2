@@ -24,6 +24,12 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   const { data: categories = [] } = useQuery({
     queryKey: ['/api/categories'],
   });
+
+  // Fetch company information
+  const { data: company } = useQuery({
+    queryKey: ['/api/companies', job?.companyId],
+    enabled: !!job?.companyId,
+  });
   
   const [formData, setFormData] = useState({
     title: "",
@@ -43,6 +49,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   // Update form when job changes
   useEffect(() => {
     if (job) {
+      console.log('Job data in modal:', job);
       setFormData({
         title: job.title || "",
         description: job.description || "",
@@ -67,6 +74,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         categoryId: parseInt(jobData.categoryId),
         skills: jobData.skills ? jobData.skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0) : []
       };
+      console.log('Sending job update data:', processedJobData);
       return apiRequest('PUT', `/api/jobs/${job?.id}`, processedJobData);
     },
     onSuccess: () => {
@@ -103,7 +111,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
           <div className="text-sm text-gray-600 mt-1">
-            Company: {job?.company?.name || 'Loading company...'}
+            Company: {company?.name || job?.company?.name || 'Loading company...'}
           </div>
         </DialogHeader>
 
