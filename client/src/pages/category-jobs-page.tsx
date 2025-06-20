@@ -67,6 +67,8 @@ export default function CategoryJobsPage() {
     enabled: !!categoryIdNum,
   });
 
+
+
   if (jobsLoading || categoryLoading || companiesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -227,40 +229,47 @@ export default function CategoryJobsPage() {
 
           {/* Top Clients Sidebar - Right Column */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Clients</h3>
+            <div className="bg-white rounded-lg shadow-lg border-2 border-blue-100 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Top Clients in {category.name}</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">Companies ranked by job count with real vendor data</p>
               {topCompanies && topCompanies.length > 0 ? (
                 <div className="space-y-4">
-                  {topCompanies.slice(0, 10).map((company) => (
-                    <div key={company.id} className="flex items-start gap-3">
-                      <div className="flex-shrink-0">
-                        {company.logoUrl ? (
+                  {topCompanies.slice(0, 8).map((company, index) => (
+                    <div key={company.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div className="flex-shrink-0 relative">
+                        <div className="absolute -top-1 -left-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                          {index + 1}
+                        </div>
+                        {company.logoUrl && company.logoUrl !== "logos/NULL" ? (
                           <img
                             src={`/logos/${company.logoUrl.replace(/ /g, '%20')}`}
                             alt={`${company.name} logo`}
-                            className="h-10 w-12 object-contain rounded"
+                            className="h-12 w-16 object-contain rounded border"
                           />
                         ) : (
-                          <div className="h-10 w-12 bg-gray-100 rounded flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-gray-400" />
+                          <div className="h-12 w-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded border flex items-center justify-center">
+                            <Building2 className="h-6 w-6 text-blue-600" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">
+                        <h4 className="text-sm font-semibold text-gray-900 truncate mb-1">
                           {company.name}
                         </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {company.jobCount} jobs
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="default" className="text-xs bg-green-600 text-white font-bold">
+                            {company.jobCount} JOBS
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {company.vendorCount} vendors
+                          <Badge variant="default" className="text-xs bg-blue-600 text-white font-bold">
+                            {company.vendorCount} VENDORS
                           </Badge>
                         </div>
                         {(company.city || company.state) && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            {[company.city, company.state, company.zipCode].filter(Boolean).join(", ")}
+                          <p className="text-xs text-gray-600 font-medium">
+                            📍 {[company.city, company.state, company.zipCode].filter(Boolean).join(", ")}
                           </p>
                         )}
                       </div>
@@ -273,6 +282,9 @@ export default function CategoryJobsPage() {
                   <p className="text-sm">No companies found for this category</p>
                 </div>
               )}
+              <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+                <p className="text-xs text-gray-500">Data from live database • Updated in real-time</p>
+              </div>
             </div>
           </div>
         </div>
