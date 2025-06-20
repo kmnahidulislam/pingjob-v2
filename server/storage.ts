@@ -1225,32 +1225,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConversations(userId: string): Promise<any[]> {
-    return await db
-      .select({
-        id: messages.id,
-        content: messages.content,
-        isRead: messages.isRead,
-        createdAt: messages.createdAt,
-        otherUser: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          profileImageUrl: users.profileImageUrl,
-        },
-      })
-      .from(messages)
-      .leftJoin(users, or(
-        eq(messages.senderId, users.id),
-        eq(messages.receiverId, users.id)
-      ))
-      .where(
-        or(
-          eq(messages.senderId, userId),
-          eq(messages.receiverId, userId)
-        )
+    // Use raw SQL to match actual database schema (sent_at, read_at instead of created_at, is_read)
+    const query = `
+      SELECT 
+        m.id,
+        m.content,
+        m.read_at IS NOT NULL as "isRead",
+        m.sent_at as "createdAt",
+        jsonb_build_object(
+          'id', u.id,
+          'firstName', u.first_name,
+          'lastName', u.last_name,
+          'profileImageUrl', u.profile_image_url
+        ) as "otherUser"
+      FROM messages m
+      LEFT JOIN users u ON (
+        CASE 
+          WHEN m.sender_id = $1 THEN u.id = m.receiver_id
+          ELSE u.id = m.sender_id
+        END
       )
-      .orderBy(desc(messages.createdAt))
-      .limit(50);
+      WHERE m.sender_id = $1 OR m.receiver_id = $1
+      ORDER BY m.sent_at DESC
+      LIMIT 50
+    `;
+    
+    const result = await pool.query(query, [userId]);
+    return result.rows;
   }
 
   async createMessage(message: InsertMessage): Promise<Message> {
@@ -1268,11 +1269,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUnreadMessageCount(userId: string): Promise<number> {
-    const result = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
-      .from(messages)
-      .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false)));
-    return result[0]?.count || 0;
+    // Use raw SQL to match actual database schema (read_at column instead of is_read)
+    const query = `
+      SELECT COUNT(*)::int as count
+      FROM messages 
+      WHERE receiver_id = $1 AND read_at IS NULL
+    `;
+    
+    const result = await pool.query(query, [userId]);
+    return result.rows[0]?.count || 0;
   }
 
   // Group operations

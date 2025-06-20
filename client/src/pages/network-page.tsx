@@ -181,8 +181,8 @@ export default function NetworkPage() {
   });
 
   const filteredUsers = categoryUsers.filter(user =>
-    user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.headline?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.industry?.toLowerCase().includes(searchTerm.toLowerCase())
   );
