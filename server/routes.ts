@@ -1895,7 +1895,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // External invitation endpoints
-  app.post("/api/external-invitations", customAuth, async (req, res) => {
+  app.post("/api/external-invitations", isAuthenticated, async (req, res) => {
     try {
       const { email, firstName, lastName, message } = req.body;
       
@@ -1927,7 +1927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's external invitations
-  app.get("/api/external-invitations", customAuth, async (req, res) => {
+  app.get("/api/external-invitations", isAuthenticated, async (req, res) => {
     try {
       const invitations = await storage.getExternalInvitationsByInviter((req.user as any).id);
       res.json(invitations);
