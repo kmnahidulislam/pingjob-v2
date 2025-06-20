@@ -421,6 +421,14 @@ Changelog:
   - Enhanced home page sidebar with real-time category rankings based on actual job volume
   - Java category leads with highest job count, followed by authentic database rankings
   - Improved user experience with sidebar-style category display matching overall site design
+- June 20, 2025. Enhanced job categories with "Top Clients" section displaying real vendor and job counts
+  - Added getTopCompaniesByCategory() method with authentic database queries for vendor and job counts
+  - Created /api/categories/:categoryId/companies endpoint returning ranked companies with real statistics
+  - Built prominent "Top Clients" sidebar showing companies ranked by actual job volume for each category
+  - Display shows authentic data: Chicago Mercantile Exchange (17 jobs, 7 vendors), FedEx (14 jobs, 8 vendors)
+  - Enhanced visual design with numbered rankings, company logos, and bold count badges
+  - Categories now provide complete business intelligence with job listings and top client insights
+  - All data sourced from live database with real vendor relationships and job postings
 ```
 
 ## User Preferences
