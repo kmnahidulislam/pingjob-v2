@@ -1212,16 +1212,23 @@ export class DatabaseStorage implements IStorage {
 
   // Message operations
   async getUserMessages(userId: string, otherUserId: string): Promise<Message[]> {
-    return await db
-      .select()
-      .from(messages)
-      .where(
-        or(
-          and(eq(messages.senderId, userId), eq(messages.receiverId, otherUserId)),
-          and(eq(messages.senderId, otherUserId), eq(messages.receiverId, userId))
-        )
-      )
-      .orderBy(messages.createdAt);
+    // Use raw SQL to match actual database schema (sent_at instead of created_at)
+    const query = `
+      SELECT 
+        id,
+        sender_id as "senderId",
+        receiver_id as "receiverId", 
+        content,
+        read_at IS NOT NULL as "isRead",
+        sent_at as "createdAt"
+      FROM messages
+      WHERE (sender_id = $1 AND receiver_id = $2) 
+         OR (sender_id = $2 AND receiver_id = $1)
+      ORDER BY sent_at ASC
+    `;
+    
+    const result = await pool.query(query, [userId, otherUserId]);
+    return result.rows;
   }
 
   async getConversations(userId: string): Promise<any[]> {
@@ -1255,17 +1262,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMessage(message: InsertMessage): Promise<Message> {
-    const [result] = await db.insert(messages).values(message).returning();
-    return result;
+    // Use raw SQL to match actual database schema (sent_at instead of created_at)
+    const query = `
+      INSERT INTO messages (sender_id, receiver_id, content, sent_at)
+      VALUES ($1, $2, $3, NOW())
+      RETURNING id, sender_id as "senderId", receiver_id as "receiverId", content, 
+                read_at IS NOT NULL as "isRead", sent_at as "createdAt"
+    `;
+    
+    const result = await pool.query(query, [message.senderId, message.receiverId, message.content]);
+    return result.rows[0];
   }
 
   async markMessageAsRead(id: number): Promise<Message> {
-    const [result] = await db
-      .update(messages)
-      .set({ isRead: true })
-      .where(eq(messages.id, id))
-      .returning();
-    return result;
+    // Use raw SQL to match actual database schema (read_at timestamp instead of is_read boolean)
+    const query = `
+      UPDATE messages 
+      SET read_at = NOW() 
+      WHERE id = $1 
+      RETURNING id, sender_id as "senderId", receiver_id as "receiverId", content, 
+                read_at IS NOT NULL as "isRead", sent_at as "createdAt"
+    `;
+    
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   }
 
   async getUnreadMessageCount(userId: string): Promise<number> {
