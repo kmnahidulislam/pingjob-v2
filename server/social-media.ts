@@ -73,7 +73,12 @@ export class SocialMediaPoster {
   private async postToFacebook(jobData: JobPostData): Promise<{ id: string }> {
     const message = this.generateFacebookPost(jobData);
     
-    const response = await fetch(`https://graph.facebook.com/v18.0/${this.config.facebook.pageId}/feed`, {
+    // Use personal feed if no valid page ID is configured
+    const endpoint = this.config.facebook.pageId && this.config.facebook.pageId !== 'demo-page-id' 
+      ? `https://graph.facebook.com/v18.0/${this.config.facebook.pageId}/feed`
+      : `https://graph.facebook.com/v18.0/me/feed`;
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
