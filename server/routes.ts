@@ -1865,6 +1865,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Password reset endpoints
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Return success even if user doesn't exist for security
+        return res.json({ message: "If an account with that email exists, a password reset link has been sent." });
+      }
+
+      // Generate reset token
+      const resetToken = Math.random().toString(36).substr(2, 15) + Math.random().toString(36).substr(2, 15);
+      const resetExpiry = new Date();
+      resetExpiry.setHours(resetExpiry.getHours() + 1); // 1 hour expiry
+
+      const success = await storage.setPasswordResetToken(email, resetToken, resetExpiry);
+      
+      if (success) {
+        console.log(`Password reset token for ${email}: ${resetToken}`);
+        res.json({ 
+          message: "If an account with that email exists, a password reset link has been sent.",
+          resetToken // For testing - remove in production
+        });
+      } else {
+        res.status(500).json({ message: "Failed to generate reset token" });
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post('/api/reset-password', async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      const success = await storage.resetPassword(token, newPassword);
+      
+      if (success) {
+        res.json({ message: "Password reset successfully" });
+      } else {
+        res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 
