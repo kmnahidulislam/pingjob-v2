@@ -184,6 +184,21 @@ export const groupMemberships = pgTable("group_memberships", {
   joinedAt: timestamp("joined_at").defaultNow(),
 });
 
+// External User Invitations
+export const externalInvitations = pgTable("external_invitations", {
+  id: serial("id").primaryKey(),
+  inviterUserId: varchar("inviter_user_id").references(() => users.id).notNull(),
+  email: varchar("email").notNull(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  message: text("message"),
+  status: varchar("status", { enum: ["pending", "accepted", "declined", "expired"] }).default("pending"),
+  inviteToken: varchar("invite_token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  acceptedAt: timestamp("accepted_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Services lookup table
 export const services = pgTable("services", {
   id: serial("id").primaryKey(),
@@ -461,6 +476,12 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
   createdAt: true,
 });
 
+export const insertExternalInvitationSchema = createInsertSchema(externalInvitations).omit({
+  id: true,
+  inviteToken: true,
+  createdAt: true,
+});
+
 export const insertVendorSchema = createInsertSchema(vendors).omit({
   id: true,
   createdAt: true,
@@ -509,6 +530,8 @@ export type Group = typeof groups.$inferSelect;
 export type InsertGroup = z.infer<typeof insertGroupSchema>;
 export type Vendor = typeof vendors.$inferSelect;
 export type InsertVendor = z.infer<typeof insertVendorSchema>;
+export type ExternalInvitation = typeof externalInvitations.$inferSelect;
+export type InsertExternalInvitation = z.infer<typeof insertExternalInvitationSchema>;
 export type Country = typeof countries.$inferSelect;
 export type InsertCountry = z.infer<typeof insertCountrySchema>;
 export type State = typeof states.$inferSelect;

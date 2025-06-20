@@ -15,6 +15,7 @@ import {
   countries,
   states,
   cities,
+  externalInvitations,
   type User,
   type UpsertUser,
   type Experience,
@@ -42,6 +43,8 @@ import {
   type Country,
   type State,
   type City,
+  type ExternalInvitation,
+  type InsertExternalInvitation,
 } from "@shared/schema";
 import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
