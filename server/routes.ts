@@ -1915,7 +1915,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName,
         message,
         inviterUserId: (req.user as any).id,
-        inviteToken,
+        inviteToken: inviteToken,
         expiresAt,
       });
 
@@ -1934,12 +1934,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!emailSent) {
         console.error("Failed to send invitation email to:", email);
-        // Still return success since invitation was saved to database
+        
+        // Display invitation details for manual sharing
+        const baseUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://pingjob.com' 
+          : 'http://localhost:5000';
+        const invitationLink = `${baseUrl}/invite/${inviteToken}`;
+        
+        console.log('\n=== MANUAL INVITATION SHARING ===');
+        console.log(`To: ${email}`);
+        console.log(`Name: ${firstName} ${lastName || ''}`.trim());
+        console.log(`From: ${(req.user as any).firstName} ${(req.user as any).lastName}`);
+        console.log(`Message: ${message || 'None'}`);
+        console.log(`Invitation Link: ${invitationLink}`);
+        console.log('================================\n');
+        console.log('Share this link manually while SendGrid verification is pending.');
       }
 
       res.status(201).json({ 
         ...invitation, 
-        emailSent 
+        emailSent,
+        invitationLink: emailSent ? undefined : `https://pingjob.com/invite/${inviteToken}`
       });
     } catch (error) {
       console.error("Create external invitation error:", error);
