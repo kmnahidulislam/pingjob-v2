@@ -146,6 +146,12 @@ export interface IStorage {
   getCountries(): Promise<Country[]>;
   getStatesByCountry(countryId: number): Promise<State[]>;
   getCitiesByState(stateId: number): Promise<City[]>;
+
+  // External invitation operations
+  createExternalInvitation(invitation: InsertExternalInvitation): Promise<ExternalInvitation>;
+  getExternalInvitation(token: string): Promise<ExternalInvitation | undefined>;
+  getExternalInvitationsByInviter(inviterUserId: string): Promise<ExternalInvitation[]>;
+  updateExternalInvitationStatus(id: number, status: string, acceptedAt?: Date): Promise<ExternalInvitation>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1745,6 +1751,29 @@ export class DatabaseStorage implements IStorage {
 
   async getCitiesByState(stateId: number): Promise<City[]> {
     return await db.select().from(cities).where(eq(cities.stateId, stateId)).orderBy(cities.name);
+  }
+
+  async createExternalInvitation(invitation: InsertExternalInvitation): Promise<ExternalInvitation> {
+    const [created] = await db.insert(externalInvitations).values(invitation).returning();
+    return created;
+  }
+
+  async getExternalInvitation(token: string): Promise<ExternalInvitation | undefined> {
+    const [invitation] = await db.select().from(externalInvitations).where(eq(externalInvitations.inviteToken, token));
+    return invitation;
+  }
+
+  async getExternalInvitationsByInviter(inviterUserId: string): Promise<ExternalInvitation[]> {
+    return await db.select().from(externalInvitations).where(eq(externalInvitations.inviterUserId, inviterUserId)).orderBy(desc(externalInvitations.createdAt));
+  }
+
+  async updateExternalInvitationStatus(id: number, status: string, acceptedAt?: Date): Promise<ExternalInvitation> {
+    const updateData: any = { status };
+    if (acceptedAt) {
+      updateData.acceptedAt = acceptedAt;
+    }
+    const [updated] = await db.update(externalInvitations).set(updateData).where(eq(externalInvitations.id, id)).returning();
+    return updated;
   }
 }
 

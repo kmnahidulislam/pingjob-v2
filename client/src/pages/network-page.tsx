@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
-import { Users, MessageCircle, UserPlus, Search, Send } from "lucide-react";
+import { Users, MessageCircle, UserPlus, Search, Send, Mail, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Category {

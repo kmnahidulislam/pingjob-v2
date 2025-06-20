@@ -15,6 +15,7 @@ import {
   insertMessageSchema,
   insertGroupSchema,
   insertVendorSchema,
+  insertExternalInvitationSchema,
 } from "@shared/schema";
 import multer from "multer";
 import path from "path";
@@ -1862,6 +1863,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error uploading company logo:", error);
       res.status(500).json({ message: "Failed to upload logo" });
+    }
+  });
+
+  // External invitation endpoints
+  app.post("/api/external-invitations", async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const validatedData = insertExternalInvitationSchema.parse(req.body);
+      
+      // Generate unique token and set expiry (30 days)
+      const crypto = require('crypto');
+      const inviteToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      const invitation = await storage.createExternalInvitation({
+        ...validatedData,
+        inviterUserId: req.user.id,
+        inviteToken,
+        expiresAt,
+      });
+
+      res.status(201).json(invitation);
+    } catch (error) {
+      console.error("Create external invitation error:", error);
+      res.status(500).json({ message: "Failed to create invitation" });
+    }
+  });
+
+  // Get user's external invitations
+  app.get("/api/external-invitations", async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const invitations = await storage.getExternalInvitationsByInviter(req.user.id);
+      res.json(invitations);
+    } catch (error) {
+      console.error("Get external invitations error:", error);
+      res.status(500).json({ message: "Failed to get invitations" });
+    }
+  });
+
+  // Accept external invitation (public endpoint)
+  app.post("/api/external-invitations/:token/accept", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const invitation = await storage.getExternalInvitation(token);
+
+      if (!invitation) {
+        return res.status(404).json({ message: "Invitation not found" });
+      }
+
+      if (invitation.status !== 'pending') {
+        return res.status(400).json({ message: "Invitation already processed" });
+      }
+
+      if (new Date() > invitation.expiresAt) {
+        return res.status(400).json({ message: "Invitation expired" });
+      }
+
+      // Update invitation status
+      await storage.updateExternalInvitationStatus(invitation.id, 'accepted', new Date());
+      
+      res.json({ message: "Invitation accepted successfully", invitation });
+    } catch (error) {
+      console.error("Accept external invitation error:", error);
+      res.status(500).json({ message: "Failed to accept invitation" });
     }
   });
 
