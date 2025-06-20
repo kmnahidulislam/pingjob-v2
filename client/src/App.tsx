@@ -21,6 +21,7 @@ import Companies from "@/pages/companies";
 import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
+import CategoryJobsPage from "@/pages/category-jobs-page";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -72,6 +73,7 @@ function Router() {
       <div className="min-h-screen bg-gray-50">
         <Switch>
           <Route path="/jobs/:id" component={JobDetails} />
+          <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
@@ -92,6 +94,7 @@ function Router() {
       <ProtectedLayout>
         <Switch>
           <Route path="/jobs/:id" component={JobDetails} />
+          <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/company/create" component={CompanyCreate} />

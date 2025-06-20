@@ -1657,6 +1657,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single category by ID
+  app.get('/api/categories/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid category ID" });
+      }
+      
+      const category = await storage.getCategory(id);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      
+      res.json(category);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+      res.status(500).json({ message: "Failed to fetch category" });
+    }
+  });
+
   // Get categories with job counts (sorted by job count descending)
   app.get('/api/categories/with-counts', async (req, res) => {
     try {
