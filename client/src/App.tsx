@@ -22,6 +22,7 @@ import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
 import CategoryJobsPage from "@/pages/category-jobs-page";
+import InvitationAccept from "@/pages/invitation-accept";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";

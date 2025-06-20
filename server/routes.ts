@@ -1919,7 +1919,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt,
       });
 
-      res.status(201).json(invitation);
+      // Send invitation email
+      const { sendInvitationEmail } = await import('./email');
+      const inviterName = `${(req.user as any).firstName} ${(req.user as any).lastName}`;
+      const recipientName = firstName ? `${firstName} ${lastName || ''}`.trim() : email;
+      
+      const emailSent = await sendInvitationEmail(
+        email,
+        recipientName,
+        inviterName,
+        inviteToken,
+        message
+      );
+
+      if (!emailSent) {
+        console.error("Failed to send invitation email to:", email);
+        // Still return success since invitation was saved to database
+      }
+
+      res.status(201).json({ 
+        ...invitation, 
+        emailSent 
+      });
     } catch (error) {
       console.error("Create external invitation error:", error);
       res.status(500).json({ message: "Failed to create invitation" });
