@@ -479,6 +479,8 @@ export const insertGroupSchema = createInsertSchema(groups).omit({
 export const insertExternalInvitationSchema = createInsertSchema(externalInvitations).omit({
   id: true,
   inviteToken: true,
+  expiresAt: true,
+  inviterUserId: true,
   createdAt: true,
 });
 

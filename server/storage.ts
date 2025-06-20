@@ -1753,7 +1753,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(cities).where(eq(cities.stateId, stateId)).orderBy(cities.name);
   }
 
-  async createExternalInvitation(invitation: InsertExternalInvitation): Promise<ExternalInvitation> {
+  async createExternalInvitation(invitation: any): Promise<ExternalInvitation> {
     const [created] = await db.insert(externalInvitations).values(invitation).returning();
     return created;
   }
