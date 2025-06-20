@@ -831,7 +831,7 @@ export class DatabaseStorage implements IStorage {
           GROUP BY company_id
         ) v ON c.id = v.company_id
         ${whereClause}
-        ORDER BY j.created_at DESC
+        ORDER BY j.updated_at DESC, j.created_at DESC
         LIMIT $${paramIndex}
       `;
       
