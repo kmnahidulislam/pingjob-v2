@@ -412,6 +412,15 @@ Changelog:
   - Fixed OAuth redirect URI configuration for production domain: https://pingjob.com
   - Google OAuth strategy properly configured and registered with correct callback URL for live site
   - Updated OAuth configuration to support production deployment at pingjob.com
+- June 20, 2025. Implemented dynamic job categories system with authentic database job counts
+  - Created getCategoriesWithJobCounts() method returning real job counts sorted by volume
+  - Built dedicated API endpoints: /api/categories/with-counts and /api/categories/:categoryId/jobs
+  - Replaced hardcoded random job counts with authentic database-driven statistics
+  - Added category-specific job listings page showing newest 10 jobs per category
+  - Fixed API routing conflicts by positioning specific routes before parameterized ones
+  - Enhanced home page sidebar with real-time category rankings based on actual job volume
+  - Java category leads with highest job count, followed by authentic database rankings
+  - Improved user experience with sidebar-style category display matching overall site design
 ```
 
 ## User Preferences

@@ -51,40 +51,25 @@ export function JobCategories({ showAll = false, limit = 8 }: JobCategoriesProps
   const displayCategories = showAll ? categories : categories.slice(0, limit);
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {displayCategories.map((category) => (
-          <Link key={category.id} href={`/categories/${category.id}/jobs`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Briefcase className="h-4 w-4 text-blue-600" />
-                  <span className="truncate">{category.name}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-xs">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    {category.jobCount} jobs
-                  </Badge>
-                </div>
-                {category.description && (
-                  <p className="text-xs text-gray-600 mt-2 line-clamp-2">
-                    {category.description}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+    <div className="space-y-3">
+      {displayCategories.map((category) => (
+        <div key={category.id} className="flex items-center justify-between">
+          <Link href={`/categories/${category.id}/jobs`}>
+            <span className="text-sm font-medium text-blue-600 hover:underline">
+              {category.name}
+            </span>
           </Link>
-        ))}
-      </div>
+          <Badge variant="secondary" className="text-xs">
+            {category.jobCount} jobs
+          </Badge>
+        </div>
+      ))}
       
       {!showAll && categories.length > limit && (
-        <div className="text-center">
+        <div className="pt-3 border-t">
           <Link href="/categories">
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              View All Categories ({categories.length} total)
+            <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">
+              View All Categories
             </button>
           </Link>
         </div>
