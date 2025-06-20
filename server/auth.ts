@@ -44,6 +44,29 @@ export function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Passport serialization BEFORE strategy registration
+  passport.serializeUser((user: any, done) => {
+    console.log('Serializing user:', user.id);
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: any, done) => {
+    try {
+      console.log('Deserializing user ID:', id);
+      const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+      if (result.rows.length > 0) {
+        console.log('User found during deserialization:', result.rows[0].email);
+        done(null, result.rows[0]);
+      } else {
+        console.log('User not found during deserialization');
+        done(null, false);
+      }
+    } catch (error) {
+      console.error('Deserialization error:', error);
+      done(error);
+    }
+  });
+
   // Configure Google OAuth Strategy AFTER passport initialization
   console.log('Checking Google OAuth credentials...');
   console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID);
@@ -107,6 +130,10 @@ export function setupAuth(app: Express) {
         }
       }));
       console.log('✓ Google OAuth strategy registered successfully');
+      
+      // Test that the strategy is actually registered
+      const strategies = Object.keys((passport as any)._strategies || {});
+      console.log('Available strategies after registration:', strategies);
     } catch (error) {
       console.error('Error setting up Google OAuth strategy:', error);
     }
@@ -283,6 +310,12 @@ export function setupAuth(app: Express) {
     console.log('Request method:', req.method);
     console.log('User agent:', req.get('User-Agent'));
     
+    // Debug: Check available strategies at request time
+    const strategies = Object.keys((passport as any)._strategies || {});
+    console.log('Available strategies at request time:', strategies);
+    console.log('Looking for strategy: google');
+    console.log('Google strategy exists:', !!((passport as any)._strategies?.google));
+    
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
       console.error('Google OAuth credentials missing!');
       return res.status(500).json({ error: 'Google OAuth not configured' });
@@ -294,7 +327,13 @@ export function setupAuth(app: Express) {
     }
     
     next();
-  }, passport.authenticate('google', { scope: ['profile', 'email'] }));
+  }, (req, res, next) => {
+    console.log('About to call passport.authenticate with google strategy');
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      failureRedirect: '/auth?error=oauth_failed'
+    })(req, res, next);
+  });
 
   app.get('/api/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/auth' }),
