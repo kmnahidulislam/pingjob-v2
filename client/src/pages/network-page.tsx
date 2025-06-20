@@ -13,6 +13,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { Users, MessageCircle, UserPlus, Search, Send, Mail, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { InvitationForm } from "@/components/invitation-form";
 
 interface Category {
   id: number;
@@ -222,10 +223,14 @@ export default function NetworkPage() {
       </div>
 
       <Tabs defaultValue="discover" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="discover" className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             Discover
+          </TabsTrigger>
+          <TabsTrigger value="invite" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Invite
           </TabsTrigger>
           <TabsTrigger value="connections" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
