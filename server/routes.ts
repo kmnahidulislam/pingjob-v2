@@ -1867,13 +1867,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // External invitation endpoints
-  app.post("/api/external-invitations", async (req, res) => {
+  app.post("/api/external-invitations", customAuth, async (req, res) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Not authenticated" });
+      const { email, firstName, lastName, message } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
       }
-
-      const validatedData = insertExternalInvitationSchema.parse(req.body);
       
       // Generate unique token and set expiry (30 days)
       const crypto = require('crypto');
@@ -1882,11 +1882,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       expiresAt.setDate(expiresAt.getDate() + 30);
 
       const invitation = await storage.createExternalInvitation({
-        email: validatedData.email,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
-        message: validatedData.message,
-        inviterUserId: req.user!.id,
+        email,
+        firstName,
+        lastName,
+        message,
+        inviterUserId: req.user.id,
         inviteToken,
         expiresAt,
       });
@@ -1899,13 +1899,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's external invitations
-  app.get("/api/external-invitations", async (req, res) => {
+  app.get("/api/external-invitations", customAuth, async (req, res) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Not authenticated" });
-      }
-
-      const invitations = await storage.getExternalInvitationsByInviter(req.user!.id);
+      const invitations = await storage.getExternalInvitationsByInviter(req.user.id);
       res.json(invitations);
     } catch (error) {
       console.error("Get external invitations error:", error);
