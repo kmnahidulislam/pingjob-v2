@@ -437,6 +437,8 @@ Changelog:
   - Home page sidebar now shows authentic data: J P Morgan Chase & Co (204 jobs, 60 vendors), IBM (171 jobs, 108 vendors)
   - Fixed company logo URLs with proper encoding and path structure
   - Eliminated all placeholder data from home page company listings
+  - Resolved API field mapping issue by adding camelCase versions (jobCount, vendorCount) to backend response
+  - Confirmed complete elimination of placeholder data across all Top Companies sections platform-wide
 ```
 
 ## User Preferences

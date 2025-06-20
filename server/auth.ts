@@ -272,9 +272,17 @@ export function setupAuth(app: Express) {
     console.log('Google OAuth request initiated');
     console.log('Google Client ID exists:', !!process.env.GOOGLE_CLIENT_ID);
     console.log('Google Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+    console.log('Request method:', req.method);
+    console.log('User agent:', req.get('User-Agent'));
     
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      console.error('Google OAuth credentials missing!');
       return res.status(500).json({ error: 'Google OAuth not configured' });
+    }
+    
+    // For HEAD requests, just return success if credentials exist
+    if (req.method === 'HEAD') {
+      return res.status(200).end();
     }
     
     next();
