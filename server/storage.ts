@@ -1476,21 +1476,30 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: Adding vendor with raw SQL:`, vendor);
       
-      // Use raw SQL to avoid Drizzle schema mapping issues
+      // First, get the next available ID to avoid sequence conflicts
+      const maxIdResult = await pool.query('SELECT COALESCE(MAX(id), 0) + 1 as next_id FROM vendors');
+      const nextId = maxIdResult.rows[0].next_id;
+      
+      // Use raw SQL with explicit ID to avoid sequence issues
       const result = await pool.query(`
-        INSERT INTO vendors (company_id, name, email, phone, services, status)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO vendors (id, company_id, name, email, phone, services, status, created_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `, [
+        nextId,
         vendor.companyId,
         vendor.name,
         vendor.email,
         vendor.phone || null,
         vendor.services,
-        "pending" // All new vendors require admin approval
+        vendor.status || "pending", // All new vendors require admin approval
+        vendor.createdBy || "admin"
       ]);
       
-      console.log(`DEBUG: Added vendor successfully:`, result.rows[0]);
+      // Update the sequence to prevent future conflicts
+      await pool.query(`SELECT setval('vendors_id_seq', ${nextId}, true)`);
+      
+      console.log(`DEBUG: Added vendor successfully with ID ${nextId}:`, result.rows[0]);
       return result.rows[0];
     } catch (error) {
       console.error("Error in addVendor:", error);
