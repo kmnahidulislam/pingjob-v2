@@ -26,8 +26,8 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   });
 
   // Fetch company information
-  const { data: companyDetails } = useQuery({
-    queryKey: [`/api/companies/${job?.companyId}/details`],
+  const { data: company } = useQuery({
+    queryKey: [`/api/companies/${job?.companyId}`],
     enabled: !!job?.companyId,
   });
   
@@ -111,7 +111,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
           <div className="text-sm text-gray-600 mt-1">
-            Company: {companyDetails?.company?.name || job?.company?.name || 'Loading company...'}
+            Company: {company?.name || job?.company?.name || 'Loading company...'}
           </div>
         </DialogHeader>
 

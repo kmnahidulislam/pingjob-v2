@@ -735,6 +735,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateSchema = insertJobSchema.partial();
       const jobData = updateSchema.parse(req.body);
       
+      console.log('Updating job with data:', jobData);
+      
       const updatedJob = await storage.updateJob(jobId, jobData);
       res.json(updatedJob);
     } catch (error) {
