@@ -23,6 +23,7 @@ import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
 import CategoryJobsPage from "@/pages/category-jobs-page";
 import InvitationAccept from "@/pages/invitation-accept";
+import SocialMediaTest from "@/pages/social-media-test";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -107,6 +108,7 @@ function Router() {
           <Route path="/network" component={NetworkPage} />
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/" component={Home} />
           <Route>
             {() => {

@@ -764,7 +764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const job = await storage.createJob(validatedData);
       
       // Automatic social media posting if socialMediaPoster is initialized
-      if (socialMediaPoster && job.id) {
+      if (socialMediaPoster && job.id && job.companyId) {
         try {
           // Get company name for social media post
           const company = await storage.getCompany(job.companyId);
@@ -783,11 +783,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('🚀 Posting job to social media platforms...');
           const socialResults = await socialMediaPoster.postJobToAllPlatforms(jobPostData);
           
-          const successCount = socialResults.filter(r => r.success).length;
+          const successCount = socialResults.filter((r: any) => r.success).length;
           console.log(`✓ Social media posting completed: ${successCount}/${socialResults.length} platforms successful`);
           
           // Add social media results to response
-          job.socialMediaResults = socialResults;
+          (job as any).socialMediaResults = socialResults;
         } catch (socialError) {
           console.error('Social media posting failed:', socialError);
           // Don't fail the job creation if social media posting fails
