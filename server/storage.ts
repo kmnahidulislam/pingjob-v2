@@ -1538,6 +1538,70 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
+  // Categories with job counts
+  async getCategoriesWithJobCounts(): Promise<(Category & { jobCount: number })[]> {
+    const result = await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        description: categories.description,
+        createdAt: categories.createdAt,
+        jobCount: sql<number>`COUNT(${jobs.id})::int`
+      })
+      .from(categories)
+      .leftJoin(jobs, eq(categories.id, jobs.categoryId))
+      .groupBy(categories.id, categories.name, categories.description, categories.createdAt)
+      .orderBy(desc(sql`COUNT(${jobs.id})`));
+    
+    return result;
+  }
+
+  // Get latest jobs for a specific category (for unregistered users)
+  async getLatestJobsByCategory(categoryId: number, limit: number = 10): Promise<Job[]> {
+    const result = await db
+      .select({
+        id: jobs.id,
+        companyId: jobs.companyId,
+        recruiterId: jobs.recruiterId,
+        title: jobs.title,
+        description: jobs.description,
+        requirements: jobs.requirements,
+        location: jobs.location,
+        country: jobs.country,
+        state: jobs.state,
+        city: jobs.city,
+        zipCode: jobs.zipCode,
+        salary: jobs.salary,
+        employmentType: jobs.employmentType,
+        experienceLevel: jobs.experienceLevel,
+        categoryId: jobs.categoryId,
+        jobType: jobs.jobType,
+        benefits: jobs.benefits,
+        skills: jobs.skills,
+        isActive: jobs.isActive,
+        createdAt: jobs.createdAt,
+        updatedAt: jobs.updatedAt,
+        applicationCount: jobs.applicationCount,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl,
+          location: companies.location,
+          city: companies.city,
+          state: companies.state,
+          zipCode: companies.zipCode,
+          country: companies.country
+        }
+      })
+      .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .where(and(eq(jobs.categoryId, categoryId), eq(jobs.isActive, true)))
+      .orderBy(desc(jobs.createdAt))
+      .limit(limit);
+
+    return result;
+  }
+
   // Location operations
   async getCountries(): Promise<Country[]> {
     return await db.select({
