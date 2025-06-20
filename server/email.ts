@@ -98,11 +98,25 @@ export async function sendInvitationEmail(
     This invitation will expire in 30 days.
   `;
   
-  return await sendEmail({
-    to: recipientEmail,
-    from: 'krupashankar@gmail.com', // Use verified sender identity
-    subject,
-    html: htmlContent,
-    text: textContent
-  });
+  try {
+    return await sendEmail({
+      to: recipientEmail,
+      from: 'krupashankar@gmail.com', // Use verified sender identity
+      subject,
+      html: htmlContent,
+      text: textContent
+    });
+  } catch (error) {
+    // Log invitation details for manual sharing while email verification is pending
+    console.log('\n=== INVITATION DETAILS FOR MANUAL SHARING ===');
+    console.log(`To: ${recipientEmail}`);
+    console.log(`From: ${inviterName}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Invitation Link: ${inviteUrl}`);
+    console.log(`Custom Message: ${message || 'None'}`);
+    console.log('==========================================\n');
+    
+    // Return false to indicate email delivery failed but invitation was saved
+    return false;
+  }
 }
