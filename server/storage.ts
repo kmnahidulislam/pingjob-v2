@@ -1482,8 +1482,8 @@ export class DatabaseStorage implements IStorage {
       
       // Use raw SQL with explicit ID to avoid sequence issues
       const result = await pool.query(`
-        INSERT INTO vendors (id, company_id, name, email, phone, services, status, created_by)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO vendors (id, company_id, name, email, phone, services, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `, [
         nextId,
@@ -1492,8 +1492,7 @@ export class DatabaseStorage implements IStorage {
         vendor.email,
         vendor.phone || null,
         vendor.services,
-        vendor.status || "pending", // All new vendors require admin approval
-        vendor.createdBy || "admin"
+        vendor.status || "pending" // All new vendors require admin approval
       ]);
       
       // Update the sequence to prevent future conflicts
