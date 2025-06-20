@@ -100,6 +100,7 @@ export interface IStorage {
   updateJob(id: number, job: Partial<InsertJob>): Promise<Job>;
   deleteJob(id: number): Promise<void>;
   searchJobs(query: string, filters?: any): Promise<Job[]>;
+  searchJobsForHomePage(query: string, limit?: number): Promise<any[]>;
   
   // Job Application operations
   getJobApplication(id: number): Promise<JobApplication | undefined>;
@@ -954,6 +955,50 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .orderBy(desc(jobs.createdAt))
       .limit(50);
+  }
+
+  async searchJobsForHomePage(query: string, limit: number = 5): Promise<any[]> {
+    try {
+      console.log(`Home page search for jobs: "${query}" (limit: ${limit})`);
+      
+      // Use raw SQL for better performance and control
+      const searchQuery = `
+        SELECT 
+          j.id,
+          j.title,
+          j.location,
+          j.city,
+          j.state,
+          j.country,
+          j.created_at as "createdAt",
+          jsonb_build_object(
+            'id', c.id,
+            'name', c.name,
+            'logoUrl', c.logo_url
+          ) as company
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        WHERE j.is_active = true
+          AND (
+            j.title ILIKE $1 OR 
+            j.description ILIKE $1 OR
+            j.location ILIKE $1 OR
+            j.city ILIKE $1 OR
+            j.state ILIKE $1 OR
+            c.name ILIKE $1
+          )
+        ORDER BY j.created_at DESC
+        LIMIT $2
+      `;
+      
+      const result = await pool.query(searchQuery, [`%${query}%`, limit]);
+      console.log(`Found ${result.rows.length} jobs for home page search`);
+      
+      return result.rows;
+    } catch (error) {
+      console.error('Error in searchJobsForHomePage:', error);
+      return [];
+    }
   }
 
   // Job Application operations
