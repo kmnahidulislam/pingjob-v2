@@ -1685,6 +1685,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get top companies by category with job and vendor counts
+  app.get('/api/categories/:categoryId/companies', async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.categoryId);
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      if (isNaN(categoryId)) {
+        return res.status(400).json({ error: "Invalid category ID" });
+      }
+
+      const companies = await storage.getTopCompaniesByCategory(categoryId, limit);
+      res.json(companies);
+    } catch (error) {
+      console.error("Failed to get companies by category:", error);
+      res.status(500).json({ error: "Failed to get companies by category" });
+    }
+  });
+
   // Get single category by ID
   app.get('/api/categories/:id', async (req, res) => {
     try {

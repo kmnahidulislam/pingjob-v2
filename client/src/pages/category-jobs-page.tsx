@@ -34,6 +34,20 @@ interface Category {
   description: string | null;
 }
 
+interface TopCompany {
+  id: number;
+  name: string;
+  logoUrl: string | null;
+  location: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  country: string | null;
+  website: string | null;
+  jobCount: number;
+  vendorCount: number;
+}
+
 export default function CategoryJobsPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const categoryIdNum = parseInt(categoryId || "0");
@@ -48,7 +62,12 @@ export default function CategoryJobsPage() {
     enabled: !!categoryIdNum,
   });
 
-  if (jobsLoading || categoryLoading) {
+  const { data: topCompanies, isLoading: companiesLoading } = useQuery<TopCompany[]>({
+    queryKey: [`/api/categories/${categoryIdNum}/companies`],
+    enabled: !!categoryIdNum,
+  });
+
+  if (jobsLoading || categoryLoading || companiesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
@@ -129,77 +148,134 @@ export default function CategoryJobsPage() {
         </div>
       </div>
 
-      {/* Jobs List */}
+      {/* Content Grid */}
       <div className="container mx-auto px-4 py-8">
-        {jobs.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500">
-              <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <h3 className="text-lg font-medium mb-2">No jobs available in this category</h3>
-              <p className="text-sm">Check back later for new opportunities</p>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Jobs List - Left Column */}
+          <div className="lg:col-span-2">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Jobs</h2>
+            {jobs.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="text-gray-500">
+                  <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">No jobs available in this category</h3>
+                  <p className="text-sm">Check back later for new opportunities</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-6">
+                {jobs.map((job) => (
+                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl font-semibold text-gray-900 mb-2">
+                            {job.title}
+                          </CardTitle>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <div className="flex items-center gap-1">
+                              <Building2 className="h-4 w-4" />
+                              <span>{job.company?.name || "Unknown Company"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              <span>{formatLocation(job)}</span>
+                            </div>
+                            {job.createdAt && (
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {job.company?.logoUrl && (
+                            <img
+                              src={`/logos/${job.company.logoUrl.replace(/ /g, '%20')}`}
+                              alt={`${job.company.name} logo`}
+                              className="h-12 w-16 object-contain rounded"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge variant="outline">{job.employmentType.replace('_', ' ')}</Badge>
+                        <Badge variant="outline">{job.experienceLevel}</Badge>
+                      </div>
+                      <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                        {job.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-500">
+                          {job.company && formatCompanyLocation(job.company)}
+                        </div>
+                        <Link href={`/jobs/${job.id}`}>
+                          <Button size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid gap-6">
-            {jobs.map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl font-semibold text-gray-900 mb-2">
-                        {job.title}
-                      </CardTitle>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Building2 className="h-4 w-4" />
-                          <span>{job.company?.name || "Unknown Company"}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{formatLocation(job)}</span>
-                        </div>
-                        {job.createdAt && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>{formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}</span>
+
+          {/* Top Clients Sidebar - Right Column */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Clients</h3>
+              {topCompanies && topCompanies.length > 0 ? (
+                <div className="space-y-4">
+                  {topCompanies.slice(0, 10).map((company) => (
+                    <div key={company.id} className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        {company.logoUrl ? (
+                          <img
+                            src={`/logos/${company.logoUrl.replace(/ /g, '%20')}`}
+                            alt={`${company.name} logo`}
+                            className="h-10 w-12 object-contain rounded"
+                          />
+                        ) : (
+                          <div className="h-10 w-12 bg-gray-100 rounded flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-gray-400" />
                           </div>
                         )}
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 truncate">
+                          {company.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {company.jobCount} jobs
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {company.vendorCount} vendors
+                          </Badge>
+                        </div>
+                        {(company.city || company.state) && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {[company.city, company.state, company.zipCode].filter(Boolean).join(", ")}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {job.company?.logoUrl && (
-                        <img
-                          src={`/logos/${job.company.logoUrl.replace(/ /g, '%20')}`}
-                          alt={`${job.company.name} logo`}
-                          className="h-12 w-16 object-contain rounded"
-                        />
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="outline">{job.employmentType.replace('_', ' ')}</Badge>
-                    <Badge variant="outline">{job.experienceLevel}</Badge>
-                  </div>
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                    {job.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                      {job.company && formatCompanyLocation(job.company)}
-                    </div>
-                    <Link href={`/jobs/${job.id}`}>
-                      <Button size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Building2 className="mx-auto h-8 w-8 mb-2 opacity-50" />
+                  <p className="text-sm">No companies found for this category</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

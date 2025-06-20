@@ -1556,6 +1556,46 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  // Get top companies by category with job and vendor counts
+  async getTopCompaniesByCategory(categoryId: number, limit: number = 10): Promise<Array<{
+    id: number;
+    name: string;
+    logoUrl: string | null;
+    location: string | null;
+    city: string | null;
+    state: string | null;
+    zipCode: string | null;
+    country: string | null;
+    website: string | null;
+    jobCount: number;
+    vendorCount: number;
+  }>> {
+    const result = await db
+      .select({
+        id: companies.id,
+        name: companies.name,
+        logoUrl: companies.logoUrl,
+        location: companies.location,
+        city: companies.city,
+        state: companies.state,
+        zipCode: companies.zipCode,
+        country: companies.country,
+        website: companies.website,
+        jobCount: sql<number>`COUNT(DISTINCT ${jobs.id})::int`,
+        vendorCount: sql<number>`COUNT(DISTINCT ${vendors.id})::int`
+      })
+      .from(companies)
+      .leftJoin(jobs, and(eq(companies.id, jobs.companyId), eq(jobs.categoryId, categoryId)))
+      .leftJoin(vendors, eq(companies.id, vendors.companyId))
+      .groupBy(companies.id, companies.name, companies.logoUrl, companies.location, 
+               companies.city, companies.state, companies.zipCode, companies.country, companies.website)
+      .having(sql`COUNT(DISTINCT ${jobs.id}) > 0`)
+      .orderBy(desc(sql`COUNT(DISTINCT ${jobs.id})`), desc(sql`COUNT(DISTINCT ${vendors.id})`))
+      .limit(limit);
+
+    return result;
+  }
+
   // Get latest jobs for a specific category (for unregistered users)
   async getLatestJobsByCategory(categoryId: number, limit: number = 10): Promise<Job[]> {
     const result = await db
