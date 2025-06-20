@@ -100,7 +100,7 @@ export async function sendInvitationEmail(
   
   return await sendEmail({
     to: recipientEmail,
-    from: 'noreply@pingjob.com',
+    from: 'krupas@vedsoft.com', // Use verified sender identity
     subject,
     html: htmlContent,
     text: textContent
