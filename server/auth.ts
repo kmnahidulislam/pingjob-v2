@@ -85,6 +85,9 @@ export function setupAuth(app: Express) {
       // Default to production domain
       callbackURL = "https://pingjob.com/api/auth/google/callback";
     }
+    
+    console.log('Current environment domain:', process.env.REPLIT_DOMAINS || 'production');
+    console.log('Using callback URL:', callbackURL);
     console.log('OAuth Callback URL:', callbackURL);
     
     try {
