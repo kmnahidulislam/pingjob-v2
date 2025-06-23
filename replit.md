@@ -506,6 +506,14 @@ Changelog:
   - Jobs page features ads between every 5th job listing for optimal engagement
   - Companies page includes banner and content-middle ads for maximum visibility
   - AdSense system ready for production deployment with proper environment configuration
+- June 23, 2025. Implemented search-integrated company editing system for admin users
+  - Removed separate "Edit Companies" section from admin dashboard as requested
+  - Added "Edit Company" buttons to company cards in search results and company grid (admin users only)
+  - Created comprehensive company editing modal with all fields: name, industry, description, website, phone, email, location details, employee count, founded year
+  - Integrated edit functionality into both search results and main company listings
+  - Added proper mutation handling with success notifications and cache invalidation
+  - Edit buttons appear on hover alongside follow buttons for intuitive admin workflow
+  - System allows admins to search for any company and edit it directly from search results
 ```
 
 ## User Preferences

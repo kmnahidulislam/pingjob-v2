@@ -763,6 +763,11 @@ export default function CompaniesPage() {
     setSelectedCompany(company);
   };
 
+  const handleEditCompany = (company: any) => {
+    setEditingCompany(company);
+    setCompanyEditOpen(true);
+  };
+
   const handleFollowCompany = (companyId: number) => {
     followMutation.mutate(companyId);
   };
@@ -813,6 +818,7 @@ export default function CompaniesPage() {
               companies={searchResults?.companies || []}
               onSelectCompany={handleSelectCompany}
               onFollowCompany={handleFollowCompany}
+              onEditCompany={isAdmin ? handleEditCompany : undefined}
             />
           </CardContent>
         </Card>
@@ -852,6 +858,7 @@ export default function CompaniesPage() {
                       company={company}
                       onSelectCompany={handleSelectCompany}
                       onFollowCompany={handleFollowCompany}
+                      onEditCompany={isAdmin ? handleEditCompany : undefined}
                     />
                   ))}
                 </div>
@@ -912,6 +919,165 @@ export default function CompaniesPage() {
         isOpen={!!selectedCompany}
         onClose={() => setSelectedCompany(null)}
       />
+
+      {/* Company Edit Modal */}
+      <Dialog open={companyEditOpen} onOpenChange={setCompanyEditOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Company: {editingCompany?.name}</DialogTitle>
+            <DialogDescription>
+              Update company information and details
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingCompany && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Company Name</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.name}
+                    onChange={(e) => setEditingCompany({...editingCompany, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Industry</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.industry || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, industry: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <textarea
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  defaultValue={editingCompany.description || ''}
+                  onChange={(e) => setEditingCompany({...editingCompany, description: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Website</label>
+                  <input
+                    type="url"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.website || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, website: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Phone</label>
+                  <input
+                    type="tel"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.phone || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, phone: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.email || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, email: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Location</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.location || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, location: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium">City</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.city || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, city: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">State</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.state || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, state: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Country</label>
+                  <input
+                    type="text"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.country || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, country: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Employee Count</label>
+                  <input
+                    type="number"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.employeeCount || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, employeeCount: parseInt(e.target.value) || null})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Founded Year</label>
+                  <input
+                    type="number"
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={editingCompany.foundedYear || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, foundedYear: parseInt(e.target.value) || null})}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setCompanyEditOpen(false);
+                    setEditingCompany(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => companyEditMutation.mutate(editingCompany)}
+                  disabled={companyEditMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {companyEditMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
