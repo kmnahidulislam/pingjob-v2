@@ -493,6 +493,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update company endpoint
+  app.put('/api/companies/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      const updateData = {
+        name: req.body.name,
+        industry: req.body.industry,
+        description: req.body.description,
+        website: req.body.website,
+        phone: req.body.phone,
+        email: req.body.email,
+        location: req.body.location,
+        city: req.body.city,
+        state: req.body.state,
+        country: req.body.country,
+        zipCode: req.body.zipCode,
+        employeeCount: req.body.employeeCount,
+        foundedYear: req.body.foundedYear,
+        logoUrl: req.body.logoUrl
+      };
+      
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if ((updateData as any)[key] === undefined) {
+          delete (updateData as any)[key];
+        }
+      });
+      
+      const updatedCompany = await storage.updateCompany(id, updateData);
+      res.json(updatedCompany);
+    } catch (error) {
+      console.error("Error updating company:", error);
+      res.status(500).json({ message: "Failed to update company" });
+    }
+  });
+
   // Company logo upload route
   app.post('/api/upload/company-logo', imageUpload.single('logo'), async (req: any, res) => {
     try {

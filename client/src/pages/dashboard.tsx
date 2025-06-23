@@ -377,10 +377,17 @@ function AdminDashboard() {
   const [selectedVendorCompany, setSelectedVendorCompany] = useState<any>(null);
   const [vendorComboOpen, setVendorComboOpen] = useState(false);
   const [vendorDialogOpen, setVendorDialogOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
+  const [companyEditOpen, setCompanyEditOpen] = useState(false);
 
   // Fetch pending companies
   const { data: pendingCompanies = [], isLoading: loadingPending } = useQuery({
     queryKey: ['/api/companies/pending'],
+  });
+
+  // Fetch top companies for editing
+  const { data: topCompanies = [] } = useQuery({
+    queryKey: ['/api/companies/top'],
   });
 
 
@@ -407,6 +414,30 @@ function AdminDashboard() {
       toast({
         title: "Error",
         description: "Failed to update company status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Company edit mutation
+  const companyEditMutation = useMutation({
+    mutationFn: async (companyData: any) => {
+      return await apiRequest('PUT', `/api/companies/${companyData.id}`, companyData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
+      setCompanyEditOpen(false);
+      setEditingCompany(null);
+      toast({
+        title: "Company updated",
+        description: "Company information has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update company information.",
         variant: "destructive",
       });
     },
