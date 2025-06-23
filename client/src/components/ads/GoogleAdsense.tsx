@@ -33,15 +33,23 @@ export default function GoogleAdsense({
       // Initialize AdSense if not already done
       if (typeof window !== 'undefined') {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
+        console.log('AdSense ad initialized:', adSlot);
       }
     } catch (error) {
       console.error('AdSense error:', error);
     }
-  }, []);
+  }, [adSlot]);
 
-  // Don't render if AdSense is not configured
+  // Show placeholder if AdSense is not configured
   if (!import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
-    return null;
+    return (
+      <div 
+        className={`bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center ${className}`}
+        style={style}
+      >
+        <span className="text-gray-500 text-sm">AdSense Placeholder</span>
+      </div>
+    );
   }
 
   return (
