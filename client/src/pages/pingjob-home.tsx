@@ -158,8 +158,8 @@ export default function PingJobHome() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to jobs page with search query
-      window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+      // Keep search results visible instead of redirecting
+      setShowSearchResults(true);
     }
   };
 
