@@ -124,6 +124,31 @@ function VendorManagement({ companyId }: { companyId: number }) {
     setShowCompanyResults(false);
   };
 
+  // Company edit mutation
+  const companyEditMutation = useMutation({
+    mutationFn: async (companyData: any) => {
+      return await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/search'] });
+      setCompanyEditOpen(false);
+      setEditingCompany(null);
+      toast({
+        title: "Company updated",
+        description: "Company information has been successfully updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update company information.",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (!showAddForm) {
     return (
       <div className="flex justify-end mb-4">
@@ -938,7 +963,7 @@ export default function CompaniesPage() {
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.name}
+                    value={editingCompany.name || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, name: e.target.value})}
                   />
                 </div>
@@ -947,7 +972,7 @@ export default function CompaniesPage() {
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.industry || ''}
+                    value={editingCompany.industry || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, industry: e.target.value})}
                   />
                 </div>
@@ -958,7 +983,7 @@ export default function CompaniesPage() {
                 <textarea
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
-                  defaultValue={editingCompany.description || ''}
+                  value={editingCompany.description || ''}
                   onChange={(e) => setEditingCompany({...editingCompany, description: e.target.value})}
                 />
               </div>
@@ -969,7 +994,7 @@ export default function CompaniesPage() {
                   <input
                     type="url"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.website || ''}
+                    value={editingCompany.website || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, website: e.target.value})}
                   />
                 </div>
@@ -978,7 +1003,7 @@ export default function CompaniesPage() {
                   <input
                     type="tel"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.phone || ''}
+                    value={editingCompany.phone || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, phone: e.target.value})}
                   />
                 </div>
@@ -990,7 +1015,7 @@ export default function CompaniesPage() {
                   <input
                     type="email"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.email || ''}
+                    value={editingCompany.email || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, email: e.target.value})}
                   />
                 </div>
@@ -999,38 +1024,139 @@ export default function CompaniesPage() {
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.location || ''}
+                    value={editingCompany.location || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, location: e.target.value})}
                   />
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Country</label>
+                  <Select 
+                    value={editingCompany.country || ''} 
+                    onValueChange={(value) => setEditingCompany({
+                      ...editingCompany, 
+                      country: value,
+                      state: '', // Reset state when country changes
+                      city: '',  // Reset city when country changes
+                      zipCode: '' // Reset zip when country changes
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="United States">United States</SelectItem>
+                      <SelectItem value="Canada">Canada</SelectItem>
+                      <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                      <SelectItem value="Australia">Australia</SelectItem>
+                      <SelectItem value="Germany">Germany</SelectItem>
+                      <SelectItem value="France">France</SelectItem>
+                      <SelectItem value="India">India</SelectItem>
+                      <SelectItem value="China">China</SelectItem>
+                      <SelectItem value="Japan">Japan</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">State/Province</label>
+                  <Select 
+                    value={editingCompany.state || ''} 
+                    onValueChange={(value) => setEditingCompany({
+                      ...editingCompany, 
+                      state: value,
+                      city: '',  // Reset city when state changes
+                      zipCode: '' // Reset zip when state changes
+                    })}
+                    disabled={!editingCompany.country}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select state/province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {editingCompany.country === 'United States' && (
+                        <>
+                          <SelectItem value="California">California</SelectItem>
+                          <SelectItem value="New York">New York</SelectItem>
+                          <SelectItem value="Texas">Texas</SelectItem>
+                          <SelectItem value="Florida">Florida</SelectItem>
+                          <SelectItem value="Illinois">Illinois</SelectItem>
+                          <SelectItem value="Pennsylvania">Pennsylvania</SelectItem>
+                          <SelectItem value="Ohio">Ohio</SelectItem>
+                          <SelectItem value="Georgia">Georgia</SelectItem>
+                          <SelectItem value="North Carolina">North Carolina</SelectItem>
+                          <SelectItem value="Michigan">Michigan</SelectItem>
+                          <SelectItem value="New Jersey">New Jersey</SelectItem>
+                          <SelectItem value="Virginia">Virginia</SelectItem>
+                          <SelectItem value="Washington">Washington</SelectItem>
+                          <SelectItem value="Arizona">Arizona</SelectItem>
+                          <SelectItem value="Massachusetts">Massachusetts</SelectItem>
+                          <SelectItem value="Tennessee">Tennessee</SelectItem>
+                          <SelectItem value="Indiana">Indiana</SelectItem>
+                          <SelectItem value="Missouri">Missouri</SelectItem>
+                          <SelectItem value="Maryland">Maryland</SelectItem>
+                          <SelectItem value="Wisconsin">Wisconsin</SelectItem>
+                        </>
+                      )}
+                      {editingCompany.country === 'Canada' && (
+                        <>
+                          <SelectItem value="Ontario">Ontario</SelectItem>
+                          <SelectItem value="Quebec">Quebec</SelectItem>
+                          <SelectItem value="British Columbia">British Columbia</SelectItem>
+                          <SelectItem value="Alberta">Alberta</SelectItem>
+                          <SelectItem value="Manitoba">Manitoba</SelectItem>
+                          <SelectItem value="Saskatchewan">Saskatchewan</SelectItem>
+                        </>
+                      )}
+                      {editingCompany.country === 'United Kingdom' && (
+                        <>
+                          <SelectItem value="England">England</SelectItem>
+                          <SelectItem value="Scotland">Scotland</SelectItem>
+                          <SelectItem value="Wales">Wales</SelectItem>
+                          <SelectItem value="Northern Ireland">Northern Ireland</SelectItem>
+                        </>
+                      )}
+                      {editingCompany.country === 'Australia' && (
+                        <>
+                          <SelectItem value="New South Wales">New South Wales</SelectItem>
+                          <SelectItem value="Victoria">Victoria</SelectItem>
+                          <SelectItem value="Queensland">Queensland</SelectItem>
+                          <SelectItem value="Western Australia">Western Australia</SelectItem>
+                          <SelectItem value="South Australia">South Australia</SelectItem>
+                          <SelectItem value="Tasmania">Tasmania</SelectItem>
+                        </>
+                      )}
+                      {editingCompany.country && editingCompany.country !== 'United States' && editingCompany.country !== 'Canada' && editingCompany.country !== 'United Kingdom' && editingCompany.country !== 'Australia' && (
+                        <SelectItem value="Other">Other</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">City</label>
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.city || ''}
+                    value={editingCompany.city || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, city: e.target.value})}
+                    placeholder="Enter city name"
+                    disabled={!editingCompany.state}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">State</label>
+                  <label className="text-sm font-medium">Zip/Postal Code</label>
                   <input
                     type="text"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.state || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, state: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Country</label>
-                  <input
-                    type="text"
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.country || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, country: e.target.value})}
+                    value={editingCompany.zipCode || editingCompany.zip_code || ''}
+                    onChange={(e) => setEditingCompany({...editingCompany, zipCode: e.target.value})}
+                    placeholder="Enter zip/postal code"
+                    disabled={!editingCompany.city}
                   />
                 </div>
               </div>
@@ -1041,7 +1167,7 @@ export default function CompaniesPage() {
                   <input
                     type="number"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.employeeCount || ''}
+                    value={editingCompany.employeeCount || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, employeeCount: parseInt(e.target.value) || null})}
                   />
                 </div>
@@ -1050,7 +1176,7 @@ export default function CompaniesPage() {
                   <input
                     type="number"
                     className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.foundedYear || ''}
+                    value={editingCompany.foundedYear || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, foundedYear: parseInt(e.target.value) || null})}
                   />
                 </div>
