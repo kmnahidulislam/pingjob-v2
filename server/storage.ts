@@ -588,6 +588,7 @@ export class DatabaseStorage implements IStorage {
             LOWER(c.name) LIKE LOWER($1) OR
             LOWER(c.city) LIKE LOWER($1) OR
             LOWER(c.state) LIKE LOWER($1) OR
+            c.zip_code = $2 OR
             LOWER(c.zip_code) LIKE LOWER($1) OR
             LOWER(c.industry) LIKE LOWER($1) OR
             LOWER(c.description) LIKE LOWER($1) OR
@@ -598,7 +599,8 @@ export class DatabaseStorage implements IStorage {
       `;
       
       const searchTerm = `%${query}%`;
-      const result = await pool.query(searchQuery, [searchTerm]);
+      const exactTerm = query.trim();
+      const result = await pool.query(searchQuery, [searchTerm, exactTerm]);
       console.log(`DEBUG: searchCompanies returned ${result.rows.length} results for "${query}"`);
       
       // Convert vendor_count from string to number and transform snake_case to camelCase
@@ -901,7 +903,7 @@ export class DatabaseStorage implements IStorage {
       const params: any[] = [`%${query}%`];
       let paramIndex = 2;
       
-      // Add keyword search conditions
+      // Add keyword search conditions including zip code with exact and partial matching
       whereClause += ` AND (
         j.title ILIKE $1 OR 
         j.description ILIKE $1 OR 
@@ -911,8 +913,18 @@ export class DatabaseStorage implements IStorage {
         j.state ILIKE $1 OR 
         j.country ILIKE $1 OR
         j.location ILIKE $1 OR
-        c.name ILIKE $1
+        j.zip_code = $${paramIndex} OR
+        j.zip_code ILIKE $1 OR
+        c.name ILIKE $1 OR
+        c.city ILIKE $1 OR
+        c.state ILIKE $1 OR
+        c.zip_code = $${paramIndex} OR
+        c.zip_code ILIKE $1
       )`;
+      
+      // Add exact zip code match parameter
+      params.push(query.trim());
+      paramIndex++;
       
       // Add additional filters
       if (filters.jobType) {
