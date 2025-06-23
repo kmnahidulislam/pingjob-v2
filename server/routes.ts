@@ -537,15 +537,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update company endpoint (PATCH) - for partial updates
-  app.patch('/api/companies/:id', async (req: any, res) => {
+  // Update company endpoint (PATCH) - for partial updates with file upload support
+  app.patch('/api/companies/:id', upload.single('logo'), async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid company ID" });
       }
       
-      const updateData = {
+      const updateData: any = {
         name: req.body.name,
         industry: req.body.industry,
         description: req.body.description,
@@ -557,11 +557,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         state: req.body.state,
         country: req.body.country,
         zipCode: req.body.zipCode,
-        employeeCount: req.body.employeeCount,
-        foundedYear: req.body.foundedYear,
-        logoUrl: req.body.logoUrl,
+        employeeCount: req.body.employeeCount ? parseInt(req.body.employeeCount) : null,
+        foundedYear: req.body.foundedYear ? parseInt(req.body.foundedYear) : null,
         updatedAt: new Date()
       };
+
+      // Handle logo upload if provided
+      if (req.file) {
+        updateData.logoUrl = `logos/${req.file.filename}`;
+      }
       
       // Remove undefined values
       Object.keys(updateData).forEach(key => {

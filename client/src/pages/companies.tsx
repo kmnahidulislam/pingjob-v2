@@ -124,30 +124,7 @@ function VendorManagement({ companyId }: { companyId: number }) {
     setShowCompanyResults(false);
   };
 
-  // Company edit mutation
-  const companyEditMutation = useMutation({
-    mutationFn: async (companyData: any) => {
-      return await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/companies'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/search'] });
-      setCompanyEditOpen(false);
-      setEditingCompany(null);
-      toast({
-        title: "Company updated",
-        description: "Company information has been successfully updated.",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update company information.",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   if (!showAddForm) {
     return (
@@ -778,6 +755,8 @@ export default function CompaniesPage() {
     },
   });
 
+
+
   // Get current page companies
   const currentCompanies = topCompanies.slice(
     (currentPage - 1) * companiesPerPage,
@@ -986,6 +965,37 @@ export default function CompaniesPage() {
                   value={editingCompany.description || ''}
                   onChange={(e) => setEditingCompany({...editingCompany, description: e.target.value})}
                 />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Company Logo</label>
+                <div className="mt-1 space-y-2">
+                  {editingCompany.logoUrl && editingCompany.logoUrl !== 'logos/NULL' && (
+                    <div className="flex items-center space-x-2">
+                      <img 
+                        src={`/${editingCompany.logoUrl.replace(/ /g, '%20')}`} 
+                        alt={`${editingCompany.name} logo`}
+                        className="w-12 h-12 object-contain rounded border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                      <span className="text-sm text-gray-600">Current logo</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setEditingCompany({...editingCompany, logoFile: file});
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-gray-500">Upload a new logo (JPG, PNG, GIF)</p>
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
