@@ -893,68 +893,109 @@ export class DatabaseStorage implements IStorage {
     await db.delete(jobs).where(eq(jobs.id, id));
   }
 
-  async searchJobs(query: string, filters: any = {}): Promise<Job[]> {
+  async searchJobs(query: string, filters: any = {}): Promise<any[]> {
     console.log("DEBUG searchJobs: query =", query, "filters =", filters);
     
-    const conditions = [
-      eq(jobs.isActive, true),
-      or(
-        ilike(jobs.title, `%${query}%`),
-        ilike(jobs.description, `%${query}%`),
-        ilike(jobs.city, `%${query}%`),
-        ilike(jobs.state, `%${query}%`),
-        ilike(jobs.country, `%${query}%`),
-        ilike(jobs.zipCode, `%${query}%`)
-      )
-    ];
-
-    if (filters.jobType) {
-      conditions.push(eq(jobs.jobType, filters.jobType));
+    try {
+      let whereClause = 'WHERE j.is_active = true';
+      const params: any[] = [`%${query}%`];
+      let paramIndex = 2;
+      
+      // Add keyword search conditions
+      whereClause += ` AND (
+        j.title ILIKE $1 OR 
+        j.description ILIKE $1 OR 
+        j.requirements ILIKE $1 OR
+        j.skills ILIKE $1 OR
+        j.city ILIKE $1 OR 
+        j.state ILIKE $1 OR 
+        j.country ILIKE $1 OR
+        j.location ILIKE $1 OR
+        c.name ILIKE $1
+      )`;
+      
+      // Add additional filters
+      if (filters.jobType) {
+        whereClause += ` AND j.job_type = $${paramIndex}`;
+        params.push(filters.jobType);
+        paramIndex++;
+      }
+      if (filters.experienceLevel) {
+        whereClause += ` AND j.experience_level = $${paramIndex}`;
+        params.push(filters.experienceLevel);
+        paramIndex++;
+      }
+      if (filters.location) {
+        whereClause += ` AND j.location ILIKE $${paramIndex}`;
+        params.push(`%${filters.location}%`);
+        paramIndex++;
+      }
+      if (filters.companyId !== undefined) {
+        whereClause += ` AND j.company_id = $${paramIndex}`;
+        params.push(filters.companyId);
+        paramIndex++;
+      }
+      
+      const searchQuery = `
+        SELECT 
+          j.id,
+          j.company_id as "companyId",
+          j.recruiter_id as "recruiterId",
+          j.category_id as "categoryId",
+          j.title,
+          j.description,
+          j.requirements,
+          j.location,
+          j.country,
+          j.state,
+          j.city,
+          j.zip_code as "zipCode",
+          j.job_type as "jobType",
+          j.experience_level as "experienceLevel",
+          j.salary,
+          j.benefits,
+          j.skills,
+          j.is_active as "isActive",
+          j.application_count as "applicationCount",
+          j.created_at as "createdAt",
+          j.updated_at as "updatedAt",
+          COALESCE(v.vendor_count, 0) as "vendorCount",
+          jsonb_build_object(
+            'id', c.id,
+            'name', c.name,
+            'industry', c.industry,
+            'logoUrl', c.logo_url
+          ) as company
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN (
+          SELECT company_id, COUNT(*)::integer as vendor_count 
+          FROM vendors 
+          WHERE status = 'approved'
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
+        ${whereClause}
+        ORDER BY j.updated_at DESC, j.created_at DESC
+        LIMIT 50
+      `;
+      
+      // Use direct pool query for consistent results
+      const { Pool } = await import('pg');
+      const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+      const directPool = new Pool({ 
+        connectionString: NEON_DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      const client = await directPool.connect();
+      const result = await client.query(searchQuery, params);
+      client.release();
+      
+      console.log(`Search returned ${result.rows.length} jobs`);
+      return result.rows;
+    } catch (error) {
+      console.error('Error in searchJobs:', error);
+      return [];
     }
-    if (filters.experienceLevel) {
-      conditions.push(eq(jobs.experienceLevel, filters.experienceLevel));
-    }
-    if (filters.location) {
-      conditions.push(ilike(jobs.location, `%${filters.location}%`));
-    }
-    if (filters.companyId !== undefined) {
-      conditions.push(eq(jobs.companyId, filters.companyId));
-    }
-
-    return await db
-      .select({
-        id: jobs.id,
-        companyId: jobs.companyId,
-        recruiterId: jobs.recruiterId,
-        title: jobs.title,
-        description: jobs.description,
-        requirements: jobs.requirements,
-        location: jobs.location,
-        country: jobs.country,
-        state: jobs.state,
-        city: jobs.city,
-        zipCode: jobs.zipCode,
-        jobType: jobs.jobType,
-        experienceLevel: jobs.experienceLevel,
-        salary: jobs.salary,
-        benefits: jobs.benefits,
-        skills: jobs.skills,
-        isActive: jobs.isActive,
-        applicationCount: jobs.applicationCount,
-        createdAt: jobs.createdAt,
-        updatedAt: jobs.updatedAt,
-        company: {
-          id: companies.id,
-          name: companies.name,
-          industry: companies.industry,
-          logoUrl: companies.logoUrl,
-        }
-      })
-      .from(jobs)
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .where(and(...conditions))
-      .orderBy(desc(jobs.createdAt))
-      .limit(50);
   }
 
   async searchJobsForHomePage(query: string, limit: number = 5): Promise<any[]> {
