@@ -149,6 +149,13 @@ export default function Jobs() {
         </Link>
       </div>
       
+      {/* Top Banner Advertisement */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdBanner slot="BANNER_TOP" />
+        </div>
+      </div>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
             
@@ -375,8 +382,16 @@ export default function Jobs() {
                   </CardContent>
                 </Card>
               ) : (
-                jobs.map((job: any) => (
-                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                <>
+                  {jobs.map((job: any, index: number) => (
+                    <div key={`job-${job.id}-${index}`}>
+                      {/* Insert ad after every 5th job */}
+                      {index > 0 && index % 5 === 0 && (
+                        <div className="my-6">
+                          <AdBanner slot="CONTENT_MIDDLE" />
+                        </div>
+                      )}
+                      <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
@@ -468,9 +483,11 @@ export default function Jobs() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
         </div>
