@@ -514,6 +514,14 @@ Changelog:
   - Added proper mutation handling with success notifications and cache invalidation
   - Edit buttons appear on hover alongside follow buttons for intuitive admin workflow
   - System allows admins to search for any company and edit it directly from search results
+- June 23, 2025. Fixed zip code search functionality across all platform pages
+  - Enhanced job search query to include zip code matching for both job and company location fields
+  - Added exact zip code matching alongside partial matching for improved search accuracy
+  - Fixed parameter indexing issues in searchJobs function that prevented job results from being returned
+  - Company search already included zip code matching and was working correctly
+  - Zip code searches now return both relevant companies and jobs (e.g., "55402" returns 12 jobs + 10 companies)
+  - Search functionality works consistently across home page, companies page, and jobs page
+  - Users can now effectively search by zip code to find local job opportunities and businesses
 ```
 
 ## User Preferences

@@ -913,12 +913,12 @@ export class DatabaseStorage implements IStorage {
         j.state ILIKE $1 OR 
         j.country ILIKE $1 OR
         j.location ILIKE $1 OR
-        j.zip_code = $${paramIndex} OR
+        j.zip_code = $2 OR
         j.zip_code ILIKE $1 OR
         c.name ILIKE $1 OR
         c.city ILIKE $1 OR
         c.state ILIKE $1 OR
-        c.zip_code = $${paramIndex} OR
+        c.zip_code = $2 OR
         c.zip_code ILIKE $1
       )`;
       
