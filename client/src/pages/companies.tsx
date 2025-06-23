@@ -711,8 +711,33 @@ export default function CompaniesPage() {
   // Company edit mutation
   const companyEditMutation = useMutation({
     mutationFn: async (companyData: any) => {
-      const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
-      return response.json();
+      // If there's a logo file, use FormData for file upload
+      if (companyData.logoFile) {
+        const formData = new FormData();
+        formData.append('logo', companyData.logoFile);
+        
+        // Add all other company data
+        Object.keys(companyData).forEach(key => {
+          if (key !== 'logoFile' && companyData[key] !== undefined && companyData[key] !== null) {
+            formData.append(key, companyData[key]);
+          }
+        });
+        
+        const response = await fetch(`/api/companies/${companyData.id}`, {
+          method: 'PATCH',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update company');
+        }
+        
+        return response.json();
+      } else {
+        // Regular JSON update without file upload
+        const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
+        return response.json();
+      }
     },
     onSuccess: () => {
       toast({
