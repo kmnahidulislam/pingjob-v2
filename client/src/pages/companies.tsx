@@ -307,11 +307,14 @@ function VendorManagement({ companyId }: { companyId: number }) {
 }
 
 // Company Card Component
-function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
+function CompanyCard({ company, onSelectCompany, onFollowCompany, onEditCompany }: {
   company: any;
   onSelectCompany: (company: any) => void;
   onFollowCompany: (companyId: number) => void;
+  onEditCompany?: (company: any) => void;
 }) {
+  const { user } = useAuth();
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
   const handleClick = () => {
     console.log("View clicked for company:", company.name);
     onSelectCompany(company);
@@ -377,19 +380,35 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
             )}
           </div>
           
-          {/* Follow Button */}
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onFollowCompany(company.id);
-            }}
-            variant="outline"
-            size="sm"
-            className="w-full mt-auto opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Heart className="h-4 w-4 mr-2" />
-            Follow Company
-          </Button>
+          {/* Action Buttons */}
+          <div className="w-full mt-auto space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {isAdmin && onEditCompany && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditCompany(company);
+                }}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Company
+              </Button>
+            )}
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onFollowCompany(company.id);
+              }}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              <Heart className="h-4 w-4 mr-2" />
+              Follow Company
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -397,10 +416,11 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
 }
 
 // Search Results Component
-function SearchResults({ companies, onSelectCompany, onFollowCompany }: {
+function SearchResults({ companies, onSelectCompany, onFollowCompany, onEditCompany }: {
   companies: any[];
   onSelectCompany: (company: any) => void;
   onFollowCompany: (companyId: number) => void;
+  onEditCompany?: (company: any) => void;
 }) {
   if (companies.length === 0) {
     return (
@@ -420,6 +440,7 @@ function SearchResults({ companies, onSelectCompany, onFollowCompany }: {
           company={company}
           onSelectCompany={onSelectCompany}
           onFollowCompany={onFollowCompany}
+          onEditCompany={onEditCompany}
         />
       ))}
     </div>
@@ -642,7 +663,12 @@ export default function CompaniesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
+  const [companyEditOpen, setCompanyEditOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Check if user is admin
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
   
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -678,6 +704,31 @@ export default function CompaniesPage() {
       return response.json();
     },
     enabled: searchQuery.length >= 2
+  });
+
+  // Company edit mutation
+  const companyEditMutation = useMutation({
+    mutationFn: async (companyData: any) => {
+      const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Company updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/search'] });
+      setCompanyEditOpen(false);
+      setEditingCompany(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update company",
+        variant: "destructive",
+      });
+    },
   });
 
   // Follow company mutation

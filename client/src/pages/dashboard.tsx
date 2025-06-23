@@ -721,59 +721,7 @@ function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Top Companies for Editing */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Companies</CardTitle>
-              <CardDescription>
-                Edit and manage existing companies on the platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {topCompanies.slice(0, 10).map((company: any) => (
-                  <div key={company.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        {company.logoUrl && (
-                          <img
-                            src={`/logos/${company.logoUrl.replace(/ /g, '%20')}`}
-                            alt={`${company.name} logo`}
-                            className="w-12 h-12 object-contain rounded"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{company.name}</h3>
-                          <p className="text-gray-600">{company.industry || 'Technology'}</p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>{company.jobCount} jobs</span>
-                            <span>{company.vendorCount} vendors</span>
-                            <span>{company.location || 'Location not specified'}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditingCompany(company);
-                            setCompanyEditOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+
 
         </TabsContent>
 
