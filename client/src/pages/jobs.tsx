@@ -20,6 +20,7 @@ import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import AdBanner from "@/components/ads/AdBanner";
 
 export default function Jobs() {
   const { user } = useAuth();

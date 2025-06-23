@@ -27,6 +27,7 @@ import SocialMediaTest from "@/pages/social-media-test";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
+import { initializeAdSense } from "./lib/adsense";
 
 
 
@@ -123,12 +124,19 @@ function Router() {
 }
 
 function App() {
-  // Initialize Google Analytics when app loads
+  // Initialize Google Analytics and AdSense when app loads
   useEffect(() => {
     if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
       console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
     } else {
       initGA();
+    }
+
+    // Initialize Google AdSense
+    if (!import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+      console.warn('Missing required Google AdSense client ID: VITE_GOOGLE_ADSENSE_CLIENT_ID');
+    } else {
+      initializeAdSense();
     }
   }, []);
 

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import AdBanner from "@/components/ads/AdBanner";
 
 export default function Home() {
   const { user } = useAuth();
@@ -96,6 +97,13 @@ export default function Home() {
             className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
           />
         </Link>
+      </div>
+      
+      {/* Top Banner Advertisement */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <AdBanner slot="BANNER_TOP" />
+        </div>
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -178,6 +186,9 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
+
+          {/* Advertisement - Sidebar Primary */}
+          <AdBanner slot="SIDEBAR_PRIMARY" className="my-4" />
         </div>
 
         {/* Main Content */}
