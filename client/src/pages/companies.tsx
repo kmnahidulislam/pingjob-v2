@@ -24,6 +24,7 @@ import { z } from "zod";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { getDisplayAddress } from "@/utils/addressUtils";
+import AdBanner from "@/components/ads/AdBanner";
 import {
   Building,
   Search,
@@ -736,7 +737,10 @@ export default function CompaniesPage() {
         </Link>
       </div>
 
-
+      {/* Top Banner Advertisement */}
+      <div className="mb-8">
+        <AdBanner slot="BANNER_TOP" />
+      </div>
 
       {/* Search Results or Company Grid */}
       {searchQuery && searchQuery.length >= 2 ? (
@@ -799,6 +803,11 @@ export default function CompaniesPage() {
                       onFollowCompany={handleFollowCompany}
                     />
                   ))}
+                </div>
+                
+                {/* Advertisement - Content Middle */}
+                <div className="my-8">
+                  <AdBanner slot="CONTENT_MIDDLE" />
                 </div>
                 
                 {/* Pagination */}
