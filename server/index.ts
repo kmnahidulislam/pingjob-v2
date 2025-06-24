@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
+import fs from "fs";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeCleanDatabase } from "./clean-neon";
@@ -59,7 +60,7 @@ app.get('/ads.txt', (req, res) => {
   ];
   
   for (const filePath of adsFilePaths) {
-    if (require('fs').existsSync(filePath)) {
+    if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
     }
   }
