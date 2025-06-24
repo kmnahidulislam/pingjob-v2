@@ -43,7 +43,7 @@ export default function ForgotPassword() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (email && !forgotPasswordMutation.isPending && !isSubmitted) {
       forgotPasswordMutation.mutate(email);
     }
   };
@@ -125,13 +125,15 @@ export default function ForgotPassword() {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={forgotPasswordMutation.isPending}
+                  disabled={forgotPasswordMutation.isPending || isSubmitted}
                 >
                   {forgotPasswordMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Sending reset email...
                     </>
+                  ) : isSubmitted ? (
+                    "Email sent"
                   ) : (
                     "Send reset email"
                   )}
