@@ -1174,26 +1174,34 @@ export default function PingJobHome() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <div className="space-y-2">
-                <Link href="/about">
-                  <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal">
-                    About
-                  </Button>
-                </Link>
-                <Link href="/privacy">
-                  <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal">
-                    Privacy
-                  </Button>
-                </Link>
-                <Link href="/terms">
-                  <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal">
-                    Terms
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal">
-                    Contact
-                  </Button>
-                </Link>
+                <div>
+                  <Link href="/about">
+                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
+                      About
+                    </Button>
+                  </Link>
+                </div>
+                <div>
+                  <Link href="/privacy">
+                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
+                      Privacy
+                    </Button>
+                  </Link>
+                </div>
+                <div>
+                  <Link href="/terms">
+                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
+                      Terms
+                    </Button>
+                  </Link>
+                </div>
+                <div>
+                  <Link href="/contact">
+                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
+                      Contact
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
 
@@ -1202,7 +1210,6 @@ export default function PingJobHome() {
               <h3 className="text-lg font-semibold mb-4">Contact</h3>
               <div className="space-y-2 text-gray-300">
                 <p>support@pingjob.com</p>
-                <p>1-800-PING-JOB</p>
                 <p>San Francisco, CA</p>
               </div>
             </div>
