@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import logo from "@assets/logo_1749581218265.png";
 
 export default function Contact() {
@@ -44,11 +44,6 @@ export default function Contact() {
                   <div className="flex items-center space-x-3">
                     <Mail className="h-5 w-5 text-blue-600" />
                     <span className="text-gray-700">support@pingjob.com</span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Phone className="h-5 w-5 text-blue-600" />
-                    <span className="text-gray-700">+1 (555) 123-4567</span>
                   </div>
                   
                   <div className="flex items-center space-x-3">
