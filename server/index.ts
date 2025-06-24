@@ -50,7 +50,22 @@ app.use(express.urlencoded({ extended: false }));
 // Serve ads.txt file for Google AdSense verification (before Vite middleware)
 app.get('/ads.txt', (req, res) => {
   res.set('Content-Type', 'text/plain');
-  res.sendFile(path.join(process.cwd(), 'ads.txt'));
+  
+  // Try multiple locations for ads.txt file
+  const adsFilePaths = [
+    path.join(process.cwd(), 'ads.txt'),
+    path.join(process.cwd(), 'dist', 'ads.txt'),
+    path.join(process.cwd(), 'dist', 'public', 'ads.txt')
+  ];
+  
+  for (const filePath of adsFilePaths) {
+    if (require('fs').existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+  }
+  
+  // Fallback: serve content directly
+  res.send('google.com, pub-9555763610767023, DIRECT, f08c47fec0942fa0');
 });
 
 // Serve static files from logos directory
