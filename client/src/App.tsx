@@ -60,6 +60,16 @@ function Router() {
   useAnalytics();
 
   console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
+  
+  // Special handling for reset-password route - allow access even without authentication
+  if (location === '/reset-password' || location.startsWith('/reset-password?')) {
+    console.log('Reset password page accessed, showing public page');
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ResetPassword />
+      </div>
+    );
+  }
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {

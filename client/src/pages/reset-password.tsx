@@ -23,6 +23,10 @@ export default function ResetPassword() {
   // Get token from URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
+  
+  console.log('ResetPassword component - Location:', location);
+  console.log('ResetPassword component - Token:', token);
+  console.log('ResetPassword component - Full URL:', window.location.href);
 
   const resetPasswordMutation = useMutation({
     mutationFn: async (data: { token: string; password: string }) => {
