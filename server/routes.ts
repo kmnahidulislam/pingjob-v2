@@ -113,16 +113,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save reset token to user
       await storage.updateUserResetToken(user.id, resetToken, resetExpires);
 
-      // Send password reset email
+      // Generate reset link for testing/fallback
+      const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+      
+      // For now, log the reset link to console for testing
+      console.log(`\n=== PASSWORD RESET REQUEST ===`);
+      console.log(`Email: ${email}`);
+      console.log(`Reset Token: ${resetToken}`);
+      console.log(`Reset Link: ${resetLink}`);
+      console.log(`Expires: ${resetExpires}`);
+      console.log(`================================\n`);
+      
+      // Send password reset email (currently disabled due to SendGrid configuration)
       try {
-        if (process.env.SENDGRID_API_KEY) {
+        if (process.env.SENDGRID_API_KEY && false) { // Temporarily disabled
           sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-          
-          const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
           
           const msg = {
             to: email,
-            from: 'noreply@pingjob.com', // Use your verified sender
+            from: 'krupashankar@gmail.com',
             subject: 'Reset Your PingJob Password',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -146,29 +155,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 </p>
               </div>
             `,
-            text: `
-              Reset Your Password
-              
-              You requested to reset your password for your PingJob account.
-              
-              Click this link to reset your password: ${resetLink}
-              
-              This link will expire in 1 hour.
-              
-              If you didn't request this password reset, please ignore this email.
-            `
+            text: `Reset Your Password - Click this link: ${resetLink} (expires in 1 hour)`
           };
           
           await sgMail.send(msg);
           console.log(`Password reset email sent to ${email}`);
-        } else {
-          // Fallback: log to console if SendGrid not configured
-          console.log(`Password reset token for ${email}: ${resetToken}`);
-          console.log(`Reset link: ${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`);
         }
       } catch (emailError) {
         console.error('Failed to send password reset email:', emailError);
-        // Don't fail the request if email sending fails
+        console.error('Error details:', emailError.response?.body);
       }
 
       res.json({ message: "If an account with that email exists, we've sent password reset instructions." });
