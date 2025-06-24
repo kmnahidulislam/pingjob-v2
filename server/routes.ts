@@ -113,8 +113,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save reset token to user
       await storage.updateUserResetToken(user.id, resetToken, resetExpires);
 
-      // Generate reset link for testing/fallback
-      const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+      // Generate reset link with proper domain
+      const host = req.get('host');
+      const isProduction = process.env.NODE_ENV === 'production' || host?.includes('pingjob.com');
+      const baseUrl = isProduction ? 'https://pingjob.com' : `${req.protocol}://${host}`;
+      const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
       
       // For now, log the reset link to console for testing
       console.log(`\n=== PASSWORD RESET REQUEST ===`);
