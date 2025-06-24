@@ -124,10 +124,13 @@ function Router() {
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
+          <Route path="/checkout" component={Checkout} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
           <Route path="/contact" component={Contact} />
+          <Route path="/contact-sales" component={ContactSales} />
+          <Route path="/pricing" component={Pricing} />
           <Route path="/" component={Home} />
           <Route>
             {() => {

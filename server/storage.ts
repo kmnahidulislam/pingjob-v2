@@ -1881,7 +1881,6 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db.update(externalInvitations).set(updateData).where(eq(externalInvitations.id, id)).returning();
     return updated;
   }
-}
 
   async updateUserStripeInfo(userId: string, stripeInfo: {
     stripeCustomerId?: string;
