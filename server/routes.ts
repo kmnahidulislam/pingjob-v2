@@ -113,11 +113,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save reset token to user
       await storage.updateUserResetToken(user.id, resetToken, resetExpires);
 
-      // Generate reset link with proper domain
-      const host = req.get('host');
-      const isProduction = process.env.NODE_ENV === 'production' || host?.includes('pingjob.com');
-      const baseUrl = isProduction ? 'https://pingjob.com' : `${req.protocol}://${host}`;
-      const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
+      // Generate reset link with pingjob.com domain
+      const resetLink = `https://pingjob.com/reset-password?token=${resetToken}`;
       
       // For now, log the reset link to console for testing
       console.log(`\n=== PASSWORD RESET REQUEST ===`);
@@ -200,7 +197,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Find user by reset token
       const user = await storage.getUserByResetToken(token);
-      if (!user || !user.resetTokenExpires || new Date() > user.resetTokenExpires) {
+      console.log(`Reset password attempt - Token: ${token.substring(0, 10)}...`);
+      console.log(`User found:`, !!user);
+      console.log(`Token expiry:`, user?.resetTokenExpiry);
+      console.log(`Current time:`, new Date());
+      
+      if (!user || !user.resetTokenExpiry || new Date() > user.resetTokenExpiry) {
         return res.status(400).json({ message: "Invalid or expired reset token" });
       }
 
