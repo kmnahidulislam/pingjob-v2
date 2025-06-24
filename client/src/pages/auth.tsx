@@ -266,6 +266,14 @@ export default function Auth() {
                       "Sign In"
                     )}
                   </Button>
+
+                  <div className="text-center mt-4">
+                    <Link href="/forgot-password">
+                      <Button variant="link" className="text-sm text-blue-600 hover:text-blue-800">
+                        Forgot your password?
+                      </Button>
+                    </Link>
+                  </div>
                 </form>
               </TabsContent>
 

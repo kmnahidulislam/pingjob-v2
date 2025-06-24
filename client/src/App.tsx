@@ -32,6 +32,8 @@ import ContactSales from "@/pages/contact-sales";
 import Pricing from "@/pages/pricing";
 import Auth from "@/pages/auth";
 import Checkout from "@/pages/checkout";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -93,6 +95,8 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/contact-sales" component={ContactSales} />
           <Route path="/pricing" component={Pricing} />
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/reset-password" component={ResetPassword} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>

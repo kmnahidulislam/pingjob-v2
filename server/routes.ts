@@ -6,6 +6,8 @@ import { storage, pool } from "./storage";
 import { setupAuth } from "./auth";
 import { initializeSocialMediaPoster } from "./social-media";
 import { z } from "zod";
+import { randomBytes } from "crypto";
+import { hashPassword } from "./auth";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -86,6 +88,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/logos', express.static('logos'));
   
   // Public routes (before auth middleware)
+  
+  // Password reset routes
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if user exists or not for security
+        return res.json({ message: "If an account with that email exists, we've sent password reset instructions." });
+      }
+
+      // Generate reset token
+      const resetToken = randomBytes(32).toString('hex');
+      const resetExpires = new Date(Date.now() + 3600000); // 1 hour from now
+
+      // Save reset token to user
+      await storage.updateUserResetToken(user.id, resetToken, resetExpires);
+
+      // Send email (placeholder for now - you can implement actual email sending)
+      console.log(`Password reset token for ${email}: ${resetToken}`);
+      console.log(`Reset link: ${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`);
+
+      res.json({ message: "If an account with that email exists, we've sent password reset instructions." });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to process request" });
+    }
+  });
+
+  app.post('/api/reset-password', async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      
+      if (!token || !password) {
+        return res.status(400).json({ message: "Token and password are required" });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      }
+
+      // Find user by reset token
+      const user = await storage.getUserByResetToken(token);
+      if (!user || !user.resetTokenExpires || new Date() > user.resetTokenExpires) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      // Hash new password and update user
+      const hashedPassword = await hashPassword(password);
+      await storage.updateUserPassword(user.id, hashedPassword);
+      await storage.clearUserResetToken(user.id);
+
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
 
 
   // Get open jobs and vendors for a company (public endpoint)

@@ -57,6 +57,12 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getTotalUserCount(): Promise<number>;
   
+  // Password reset operations
+  updateUserResetToken(userId: string, token: string, expires: Date): Promise<void>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
+  updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
+  clearUserResetToken(userId: string): Promise<void>;
+  
   // Profile operations
   getUserProfile(id: string): Promise<any>;
   updateUserProfile(id: string, data: Partial<UpsertUser>): Promise<User>;
