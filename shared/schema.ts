@@ -44,6 +44,13 @@ export const users = pgTable("users", {
   instagramUrl: varchar("instagram_url"),
   resetToken: varchar("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
+  // Subscription and payment fields
+  subscriptionPlan: varchar("subscription_plan", { enum: ["free", "recruiter", "enterprise"] }).notNull().default("free"),
+  subscriptionStatus: varchar("subscription_status", { enum: ["active", "trial", "cancelled", "expired"] }).notNull().default("trial"),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  trialEndsAt: timestamp("trial_ends_at"),
+  subscriptionEndsAt: timestamp("subscription_ends_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
