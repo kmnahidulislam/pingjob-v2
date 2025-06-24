@@ -50,7 +50,7 @@ export default function PingJobHome() {
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
-  const [showPricing, setShowPricing] = useState(false);
+
   const [showJobs, setShowJobs] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const jobsPerPage = 20;
@@ -301,7 +301,6 @@ export default function PingJobHome() {
                 onClick={() => {
                   setShowJobs(!showJobs);
                   setShowCompanies(false);
-                  setShowPricing(false);
                 }}
               >
                 Jobs
@@ -310,22 +309,16 @@ export default function PingJobHome() {
                 variant="ghost" 
                 onClick={() => {
                   setShowCompanies(!showCompanies);
-                  setShowPricing(false);
                   setShowJobs(false);
                 }}
               >
                 Companies
               </Button>
-              <Button 
-                variant="ghost"
-                onClick={() => {
-                  setShowPricing(!showPricing);
-                  setShowCompanies(false);
-                  setShowJobs(false);
-                }}
-              >
-                Pricing
-              </Button>
+              <Link href="/pricing">
+                <Button variant="ghost">
+                  Pricing
+                </Button>
+              </Link>
               <Link href="/network">
                 <Button variant="ghost">Network</Button>
               </Link>
@@ -600,129 +593,7 @@ export default function PingJobHome() {
         </section>
       )}
 
-      {/* Pricing Section */}
-      {showPricing && (
-        <section className="bg-white border-b border-gray-200 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Plan</h2>
-              <p className="text-lg text-gray-600">Select the perfect plan for your recruitment needs</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Basic Plan */}
-              <Card className="relative border-2 border-gray-200 hover:border-blue-300 transition-colors">
-                <CardHeader className="text-center pb-8">
-                  <CardTitle className="text-2xl font-bold">Basic</CardTitle>
-                  <div className="text-4xl font-bold text-gray-900 mt-4">
-                    $99
-                    <span className="text-lg font-normal text-gray-600">/month</span>
-                  </div>
-                  <p className="text-gray-600 mt-2">Perfect for small teams</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Up to 10 job postings</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Basic candidate search</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Email support</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Standard analytics</span>
-                  </div>
-                  <Button className="w-full mt-6" variant="outline">
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
 
-              {/* Professional Plan */}
-              <Card className="relative border-2 border-blue-500 shadow-lg scale-105">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-500 text-white px-4 py-1">Most Popular</Badge>
-                </div>
-                <CardHeader className="text-center pb-8">
-                  <CardTitle className="text-2xl font-bold">Professional</CardTitle>
-                  <div className="text-4xl font-bold text-gray-900 mt-4">
-                    $299
-                    <span className="text-lg font-normal text-gray-600">/month</span>
-                  </div>
-                  <p className="text-gray-600 mt-2">Best for growing companies</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Unlimited job postings</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Advanced AI matching</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Priority support</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Advanced analytics</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Vendor management</span>
-                  </div>
-                  <Button className="w-full mt-6">
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Enterprise Plan */}
-              <Card className="relative border-2 border-gray-200 hover:border-purple-300 transition-colors">
-                <CardHeader className="text-center pb-8">
-                  <CardTitle className="text-2xl font-bold">Enterprise</CardTitle>
-                  <div className="text-4xl font-bold text-gray-900 mt-4">
-                    $799
-                    <span className="text-lg font-normal text-gray-600">/month</span>
-                  </div>
-                  <p className="text-gray-600 mt-2">For large organizations</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Everything in Professional</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Custom integrations</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Dedicated account manager</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>Custom reporting</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                    <span>24/7 phone support</span>
-                  </div>
-                  <Button className="w-full mt-6" variant="outline">
-                    Contact Sales
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
@@ -1050,96 +921,7 @@ export default function PingJobHome() {
         </div>
       </div>
 
-      {/* Pricing Section */}
-      <section className="bg-gray-100 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Choose Your Plan
-            </h2>
-            <p className="text-xl text-gray-600">
-              Flexible pricing for job seekers, recruiters, and clients
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Job Seeker Plan */}
-            <Card className="relative">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">Job Seeker</CardTitle>
-                <div className="text-3xl font-bold text-green-600">FREE</div>
-                <p className="text-gray-500">Forever</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Resume Score™ access</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Job Alerts</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Basic Profile</span>
-                </div>
-                <Button className="w-full mt-6">Get Started Free</Button>
-              </CardContent>
-            </Card>
-
-            {/* Recruiter Plan */}
-            <Card className="relative border-2 border-blue-500">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <Badge className="bg-blue-500">Popular</Badge>
-              </div>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">Recruiter</CardTitle>
-                <div className="text-3xl font-bold text-blue-600">$49</div>
-                <p className="text-gray-500">per month</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Advanced candidate matching</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Analytics dashboard</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Priority support</span>
-                </div>
-                <Button className="w-full mt-6">Start Trial</Button>
-              </CardContent>
-            </Card>
-
-            {/* Client Plan */}
-            <Card className="relative">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold">Client</CardTitle>
-                <div className="text-3xl font-bold text-purple-600">$99</div>
-                <p className="text-gray-500">per month</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Bulk job posting</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Top-tier recruiter access</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>Resume repository access</span>
-                </div>
-                <Button className="w-full mt-6">Contact Sales</Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
