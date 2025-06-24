@@ -80,9 +80,16 @@ export default function ResetPassword() {
   };
 
   if (!token) {
+    console.log('No token found in URL, showing invalid link message');
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <Link href="/">
+            <div className="flex justify-center items-center space-x-2 cursor-pointer mb-6">
+              <img src={logo} alt="PingJob" className="h-8 w-8" />
+              <span className="text-2xl font-bold text-gray-900">PingJob</span>
+            </div>
+          </Link>
           <Card>
             <CardHeader>
               <CardTitle>Invalid Reset Link</CardTitle>

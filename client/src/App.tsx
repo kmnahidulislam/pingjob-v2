@@ -70,6 +70,16 @@ function Router() {
       </div>
     );
   }
+  
+  // Special handling for forgot-password route  
+  if (location === '/forgot-password') {
+    console.log('Forgot password page accessed, showing public page');
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ForgotPassword />
+      </div>
+    );
+  }
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
