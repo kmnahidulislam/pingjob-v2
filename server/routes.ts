@@ -8,6 +8,7 @@ import { initializeSocialMediaPoster } from "./social-media";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 import { hashPassword } from "./auth";
+import sgMail from '@sendgrid/mail';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -112,9 +113,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save reset token to user
       await storage.updateUserResetToken(user.id, resetToken, resetExpires);
 
-      // Send email (placeholder for now - you can implement actual email sending)
-      console.log(`Password reset token for ${email}: ${resetToken}`);
-      console.log(`Reset link: ${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`);
+      // Send password reset email
+      try {
+        if (process.env.SENDGRID_API_KEY) {
+          sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+          
+          const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+          
+          const msg = {
+            to: email,
+            from: 'noreply@pingjob.com', // Use your verified sender
+            subject: 'Reset Your PingJob Password',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">Reset Your Password</h2>
+                <p>You requested to reset your password for your PingJob account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${resetLink}" 
+                     style="background-color: #3b82f6; color: white; padding: 12px 24px; 
+                            text-decoration: none; border-radius: 6px; display: inline-block;">
+                    Reset Password
+                  </a>
+                </div>
+                <p>Or copy and paste this link into your browser:</p>
+                <p style="word-break: break-all; color: #666;">${resetLink}</p>
+                <p><strong>This link will expire in 1 hour.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email.</p>
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                <p style="color: #666; font-size: 12px;">
+                  This email was sent by PingJob. If you have questions, please contact support.
+                </p>
+              </div>
+            `,
+            text: `
+              Reset Your Password
+              
+              You requested to reset your password for your PingJob account.
+              
+              Click this link to reset your password: ${resetLink}
+              
+              This link will expire in 1 hour.
+              
+              If you didn't request this password reset, please ignore this email.
+            `
+          };
+          
+          await sgMail.send(msg);
+          console.log(`Password reset email sent to ${email}`);
+        } else {
+          // Fallback: log to console if SendGrid not configured
+          console.log(`Password reset token for ${email}: ${resetToken}`);
+          console.log(`Reset link: ${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`);
+        }
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError);
+        // Don't fail the request if email sending fails
+      }
 
       res.json({ message: "If an account with that email exists, we've sent password reset instructions." });
     } catch (error) {
