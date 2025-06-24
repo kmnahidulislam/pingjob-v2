@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import logo from "@assets/logo_1749581218265.png";
 
 interface AuthFormData {
@@ -193,6 +194,30 @@ export default function Auth() {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsContent value="login">
+                {/* Google Sign In */}
+                <div className="space-y-4 mb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.location.href = '/api/auth/google'}
+                  >
+                    <FcGoogle className="mr-2 h-4 w-4" />
+                    Continue with Google
+                  </Button>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-muted-foreground">
+                        Or continue with email
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <form onSubmit={(e) => handleSubmit(e, "login")} className="space-y-4">
                   <div>
                     <Label htmlFor="email">Email</Label>
@@ -245,6 +270,30 @@ export default function Auth() {
               </TabsContent>
 
               <TabsContent value="register">
+                {/* Google Sign Up */}
+                <div className="space-y-4 mb-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.location.href = `/api/auth/google?plan=${plan}`}
+                  >
+                    <FcGoogle className="mr-2 h-4 w-4" />
+                    Continue with Google
+                  </Button>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-muted-foreground">
+                        Or continue with email
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <form onSubmit={(e) => handleSubmit(e, "register")} className="space-y-4">
                   {plan !== "free" && (
                     <Alert>
