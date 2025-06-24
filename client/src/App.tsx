@@ -24,6 +24,10 @@ import JobDetails from "@/pages/job-details";
 import CategoryJobsPage from "@/pages/category-jobs-page";
 import InvitationAccept from "@/pages/invitation-accept";
 import SocialMediaTest from "@/pages/social-media-test";
+import About from "@/pages/about";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
+import Contact from "@/pages/contact";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -79,6 +83,10 @@ function Router() {
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/about" component={About} />
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/contact" component={Contact} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
@@ -110,6 +118,10 @@ function Router() {
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
+          <Route path="/about" component={About} />
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/contact" component={Contact} />
           <Route path="/" component={Home} />
           <Route>
             {() => {
