@@ -70,7 +70,7 @@ function Router() {
     }
   }, [location, user, navigate]);
 
-  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
+  console.log('Router - User:', user ? `authenticated (${user.email})` : 'not authenticated', 'Loading:', isLoading, 'Location:', location);
   
   // Special handling for public routes that don't require authentication
   const isPublicRoute = location === '/reset-password' || 
