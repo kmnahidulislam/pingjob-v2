@@ -1,10 +1,18 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import Stripe from "stripe";
 import { storage, pool } from "./storage";
 import { setupAuth } from "./auth";
 import { initializeSocialMediaPoster } from "./social-media";
 import { z } from "zod";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
 import { 
   insertExperienceSchema,
   insertEducationSchema,

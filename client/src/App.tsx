@@ -28,6 +28,10 @@ import About from "@/pages/about";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Contact from "@/pages/contact";
+import ContactSales from "@/pages/contact-sales";
+import Pricing from "@/pages/pricing";
+import Auth from "@/pages/auth";
+import Checkout from "@/pages/checkout";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -82,11 +86,13 @@ function Router() {
           <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
-          <Route path="/auth" component={AuthPage} />
+          <Route path="/auth" component={Auth} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
           <Route path="/contact" component={Contact} />
+          <Route path="/contact-sales" component={ContactSales} />
+          <Route path="/pricing" component={Pricing} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>

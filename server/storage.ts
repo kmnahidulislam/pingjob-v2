@@ -1883,6 +1883,42 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
+  async updateUserStripeInfo(userId: string, stripeInfo: {
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    subscriptionPlan?: string;
+    subscriptionStatus?: string;
+    trialEndsAt?: Date;
+    subscriptionEndsAt?: Date;
+  }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...stripeInfo,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserSubscriptionStatus(
+    stripeCustomerId: string,
+    status: string,
+    periodEnd: number | null
+  ): Promise<void> {
+    const endDate = periodEnd ? new Date(periodEnd * 1000) : null;
+    await db
+      .update(users)
+      .set({
+        subscriptionStatus: status as any,
+        subscriptionEndsAt: endDate,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.stripeCustomerId, stripeCustomerId));
+  }
+}
+
 // Initialize database first
 initializeCleanDatabase();
 
