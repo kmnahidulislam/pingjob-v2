@@ -48,24 +48,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Serve ads.txt file for Google AdSense verification (before Vite middleware)
+// Serve ads.txt file for Google AdSense verification (HIGH PRIORITY - before any middleware)
 app.get('/ads.txt', (req, res) => {
-  res.set('Content-Type', 'text/plain');
+  res.setHeader('Content-Type', 'text/plain');
+  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
   
-  // Try multiple locations for ads.txt file
-  const adsFilePaths = [
-    path.join(process.cwd(), 'ads.txt'),
-    path.join(process.cwd(), 'dist', 'ads.txt'),
-    path.join(process.cwd(), 'dist', 'public', 'ads.txt')
-  ];
-  
-  for (const filePath of adsFilePaths) {
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);
-    }
-  }
-  
-  // Fallback: serve content directly
+  // Always serve the AdSense publisher verification content
   res.send('google.com, pub-9555763610767023, DIRECT, f08c47fec0942fa0');
 });
 
