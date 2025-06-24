@@ -1937,7 +1937,27 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByResetToken(token: string): Promise<User | undefined> {
     const [user] = await db
-      .select()
+      .select({
+        id: users.id,
+        email: users.email,
+        password: users.password,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        userType: users.userType,
+        categoryId: users.categoryId,
+        headline: users.headline,
+        summary: users.summary,
+        location: users.location,
+        industry: users.industry,
+        facebookUrl: users.facebookUrl,
+        twitterUrl: users.twitterUrl,
+        instagramUrl: users.instagramUrl,
+        resetToken: users.resetToken,
+        resetTokenExpiry: users.resetTokenExpiry,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt
+      })
       .from(users)
       .where(eq(users.resetToken, token));
     return user;
