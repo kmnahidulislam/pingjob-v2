@@ -59,28 +59,6 @@ function Router() {
   // Track page views when routes change
   useAnalytics();
 
-  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
-  
-  // Special handling for reset-password route - allow access even without authentication
-  if (location === '/reset-password' || location.startsWith('/reset-password?')) {
-    console.log('Reset password page accessed, showing public page');
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <ResetPassword />
-      </div>
-    );
-  }
-  
-  // Special handling for forgot-password route  
-  if (location === '/forgot-password') {
-    console.log('Forgot password page accessed, showing public page');
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <ForgotPassword />
-      </div>
-    );
-  }
-
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
     if (location.startsWith('/api/')) {
@@ -91,6 +69,45 @@ function Router() {
       navigate('/');
     }
   }, [location, user, navigate]);
+
+  console.log('Router - User:', user, 'Loading:', isLoading, 'Location:', location);
+  
+  // Special handling for public routes that don't require authentication
+  const isPublicRoute = location === '/reset-password' || 
+                       location.startsWith('/reset-password?') || 
+                       location === '/forgot-password' ||
+                       location === '/auth' ||
+                       location === '/about' ||
+                       location === '/privacy' ||
+                       location === '/terms' ||
+                       location === '/contact' ||
+                       location === '/contact-sales' ||
+                       location === '/pricing' ||
+                       location.startsWith('/jobs/') ||
+                       location.startsWith('/categories/') ||
+                       location.startsWith('/invite/') ||
+                       location === '/';
+
+  if (isPublicRoute && !user) {
+    // Handle specific public routes
+    if (location === '/reset-password' || location.startsWith('/reset-password?')) {
+      console.log('Reset password page accessed, showing public page');
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <ResetPassword />
+        </div>
+      );
+    }
+    
+    if (location === '/forgot-password') {
+      console.log('Forgot password page accessed, showing public page');
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <ForgotPassword />
+        </div>
+      );
+    }
+  }
 
   if (isLoading) {
     return (
