@@ -124,14 +124,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Expires: ${resetExpires}`);
       console.log(`================================\n`);
       
-      // Send password reset email (currently disabled due to SendGrid configuration)
+      // Send password reset email
       try {
-        if (process.env.SENDGRID_API_KEY && false) { // Temporarily disabled
+        if (process.env.SENDGRID_API_KEY) {
           sgMail.setApiKey(process.env.SENDGRID_API_KEY);
           
           const msg = {
             to: email,
-            from: 'krupashankar@gmail.com',
+            from: process.env.SENDGRID_VERIFIED_SENDER_EMAIL || 'krupashankar@gmail.com',
             subject: 'Reset Your PingJob Password',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -164,6 +164,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (emailError) {
         console.error('Failed to send password reset email:', emailError);
         console.error('Error details:', emailError.response?.body);
+        
+        // If it's a sender verification error, provide helpful guidance
+        if (emailError.response?.body?.errors?.[0]?.field === 'from') {
+          console.log('\n🔧 SENDGRID SETUP REQUIRED:');
+          console.log('1. Go to https://app.sendgrid.com/');
+          console.log('2. Navigate to Settings > Sender Authentication');
+          console.log('3. Click "Verify a Single Sender"');
+          console.log('4. Add and verify your email address');
+          console.log('5. Update SENDGRID_VERIFIED_SENDER_EMAIL with the verified email\n');
+        }
       }
 
       res.json({ message: "If an account with that email exists, we've sent password reset instructions." });
