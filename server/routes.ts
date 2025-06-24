@@ -78,7 +78,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/logos', express.static('logos'));
   
   // Public routes (before auth middleware)
-  
 
 
   // Get open jobs and vendors for a company (public endpoint)

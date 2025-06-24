@@ -46,6 +46,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Serve ads.txt file for Google AdSense verification (before Vite middleware)
+app.get('/ads.txt', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.sendFile(path.join(process.cwd(), 'ads.txt'));
+});
+
 // Serve static files from logos directory
 app.use('/logos', express.static('logos'));
 
