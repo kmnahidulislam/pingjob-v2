@@ -52,16 +52,29 @@ export default function Auth() {
   const loginMutation = useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
       const res = await apiRequest("POST", "/api/login", data);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Login failed");
+      }
       return await res.json();
     },
     onSuccess: (user) => {
+      console.log('Login success in auth page:', user);
+      // Update the query cache immediately
+      queryClient.setQueryData(["/api/user"], user);
+      
       toast({
         title: "Welcome back!",
         description: "You have been successfully logged in.",
       });
-      setLocation("/dashboard");
+      
+      // Navigate to dashboard after ensuring state updates
+      setTimeout(() => {
+        setLocation('/dashboard');
+      }, 100);
     },
     onError: (error: Error) => {
+      console.log('Login error:', error.message);
       toast({
         title: "Login failed",
         description: error.message,

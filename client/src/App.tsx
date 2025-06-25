@@ -66,8 +66,8 @@ function Router() {
       console.log('API route detected, redirecting to home');
       navigate('/');
     } else if (user && location === '/auth') {
-      console.log('Authenticated user on auth page, redirecting to home');
-      navigate('/');
+      console.log('Authenticated user on auth page, redirecting to dashboard');
+      navigate('/dashboard');
     }
   }, [location, user, navigate]);
 
