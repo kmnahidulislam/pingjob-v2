@@ -58,12 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      // Force update the auth state immediately
+      // Update auth state immediately
       queryClient.setQueryData(["/api/user"], user);
-      // Invalidate to trigger a fresh fetch from server
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      // Force a manual refetch to ensure state updates
-      refetchUser();
       
       toast({
         title: "Welcome back!",

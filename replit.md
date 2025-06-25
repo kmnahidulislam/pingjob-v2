@@ -119,6 +119,9 @@ Changelog:
   - Implemented consistent session-based authentication across all routes
   - Fixed login flow to properly maintain user sessions between frontend and backend
   - Authentication now works correctly with proper session persistence and React Query cache updates
+  - Verified working credentials: 
+    * krupashankar@gmail.com / newpassword123
+    * krupas@vedsoft.com / password123
   - Confirmed successful job posting with enhanced location and category data
 - June 16, 2025. Cleaned up dashboard vendor management and created dedicated approval workflow
   - Removed redundant vendor management from companies section in dashboard
