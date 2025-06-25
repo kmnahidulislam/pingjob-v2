@@ -38,6 +38,7 @@ import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
 import { initializeAdSense } from "./lib/adsense";
+import DebugAuth from "@/components/debug-auth";
 
 
 

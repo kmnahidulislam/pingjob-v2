@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false, // Don't retry failed auth requests
+    staleTime: 0, // Always refetch
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const loginMutation = useMutation({
@@ -55,10 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return await res.json();
     },
-    onSuccess: async (user: SelectUser) => {
-      // Set the user data and invalidate queries to trigger refetch
+    onSuccess: (user: SelectUser) => {
+      // Force update the auth state immediately
       queryClient.setQueryData(["/api/user"], user);
-      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Invalidate to trigger a fresh fetch from server
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Force a manual refetch to ensure state updates
+      refetchUser();
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
