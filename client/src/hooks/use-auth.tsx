@@ -57,22 +57,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: async (user: SelectUser) => {
       console.log('Login mutation success:', user);
-      // Update auth state immediately and force refetch
+      // Update auth state immediately
       queryClient.setQueryData(["/api/user"], user);
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      refetchUser();
+      // Force a fresh refetch to ensure consistency
+      await queryClient.refetchQueries({ queryKey: ["/api/user"] });
       
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
       
-      // Force navigation to dashboard after successful login
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 500);
+      // Force page reload to ensure proper state update
+      window.location.reload();
     },
     onError: (error: Error) => {
       toast({
