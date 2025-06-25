@@ -125,6 +125,7 @@ export default function Auth() {
       }
       registerMutation.mutate(formData);
     } else {
+      console.log('Submitting login for:', formData.email);
       loginMutation.mutate({
         email: formData.email,
         password: formData.password
