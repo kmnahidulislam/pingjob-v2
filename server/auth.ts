@@ -162,10 +162,13 @@ export function setupAuth(app: Express) {
     console.log('GET /api/user - Session exists:', !!req.session);
     console.log('GET /api/user - Session user:', !!req.session?.user);
     console.log('GET /api/user - Session ID:', req.sessionID);
+    console.log('GET /api/user - Full session data:', req.session);
     
     if (req.session?.user) {
+      console.log('Returning authenticated user:', req.session.user.email);
       return res.status(200).json(req.session.user);
     }
+    console.log('No authenticated user found in session');
     return res.status(401).json({ message: "Not authenticated" });
   });
 
