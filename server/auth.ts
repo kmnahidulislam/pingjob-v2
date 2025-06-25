@@ -196,7 +196,7 @@ export function setupAuth(app: Express) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
       
-      req.session.user = {
+      const userSession = {
         id: user.id,
         email: user.email,
         firstName: user.first_name,
@@ -204,12 +204,18 @@ export function setupAuth(app: Express) {
         userType: user.user_type
       };
       
-      return res.status(200).json({
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        userType: user.user_type
+      req.session.user = userSession;
+      
+      // Force session save to ensure persistence
+      req.session.save((err: any) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Login failed" });
+        }
+        
+        console.log('Login successful - User stored in session:', user.email);
+        console.log('Session user after save:', req.session.user);
+        res.status(200).json(userSession);
       });
     } catch (error) {
       console.error("Login error:", error);
