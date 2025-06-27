@@ -111,6 +111,16 @@ export interface IStorage {
   searchJobs(query: string, filters?: any): Promise<Job[]>;
   searchJobsForHomePage(query: string, limit?: number): Promise<any[]>;
   
+  // Recruiter functionality
+  getAdminJobs(limit?: number): Promise<Job[]>;
+  getRecruiterJobs(filters?: any, limit?: number): Promise<Job[]>;
+  getRecruiterOwnJobs(recruiterId: string): Promise<Job[]>;
+  autoAssignCandidatesToJob(jobId: number, recruiterId: string): Promise<void>;
+  getJobCandidateAssignments(jobId: number, recruiterId: string): Promise<any[]>;
+  updateAssignmentStatus(assignmentId: number, status: string, notes?: string): Promise<void>;
+  createRecruiterCandidateConnection(recruiterId: string, candidateId: string): Promise<Connection>;
+  getCandidateResumeScore(candidateId: string, jobId: number): Promise<any>;
+  
   // Job Application operations
   getJobApplication(id: number): Promise<JobApplication | undefined>;
   getUserJobApplications(userId: string): Promise<any[]>;
