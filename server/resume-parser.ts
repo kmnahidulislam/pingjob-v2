@@ -356,17 +356,29 @@ function extractCompanies(text: string): string[] {
   const companies: string[] = [];
   const lines = text.split('\n');
   
+  // Enhanced patterns to catch more company formats including PayPal, Google, etc.
   const companyPatterns = [
-    /at\s+([A-Z][a-zA-Z\s&,.]+(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.)?)/g,
-    /worked\s+at\s+([A-Z][a-zA-Z\s&,.]+(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.)?)/g
+    /(?:at|@)\s+([A-Z][a-zA-Z\s&,.]+(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.|Technologies|Tech|Systems|Solutions)?)/gi,
+    /worked\s+(?:at|for)\s+([A-Z][a-zA-Z\s&,.]+(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.|Technologies|Tech|Systems|Solutions)?)/gi,
+    /employed\s+(?:at|by)\s+([A-Z][a-zA-Z\s&,.]+(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.|Technologies|Tech|Systems|Solutions)?)/gi,
+    /(?:^|\s)([A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]*)*)\s*[-–—]\s*(?:Software|Engineer|Developer|Analyst|Manager|Lead|Senior|Junior)/gm,
+    // Specific patterns for well-known companies
+    /\b(PayPal|Google|Microsoft|Amazon|Apple|Facebook|Netflix|Tesla|Adobe|Oracle|IBM|Intel|Cisco|VMware)\b/gi,
+    /\b([A-Z][a-zA-Z]+)\s*(?:Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Co\.|Technologies|Tech|Systems|Solutions)\b/gi
   ];
   
   lines.forEach(line => {
     companyPatterns.forEach(pattern => {
-      const matches = [...line.matchAll(pattern)];
+      const matches = Array.from(line.matchAll(pattern));
       matches.forEach(match => {
-        if (match[1]) {
-          companies.push(match[1].trim());
+        if (match[1] && match[1].trim().length > 2) {
+          const company = match[1].trim()
+            .replace(/[,.\-–—]+$/, '') // Remove trailing punctuation
+            .replace(/^\s*[-–—]+\s*/, ''); // Remove leading dashes
+          
+          if (company.length >= 3 && !company.match(/^\d+$/)) {
+            companies.push(company);
+          }
         }
       });
     });
@@ -504,18 +516,66 @@ function checkCompanyMatch(resume: ParsedResume, jobReqs: JobRequirements): bool
   // Extract company name from job requirements (assuming it's passed in jobReqs)
   const jobCompany = (jobReqs as any).companyName?.toLowerCase() || '';
   
-  if (!jobCompany) return false;
+  console.log('DEBUG Company Match - Job Company:', jobCompany);
+  console.log('DEBUG Company Match - Resume Companies:', resume.companies);
+  
+  if (!jobCompany) {
+    console.log('DEBUG Company Match - No job company provided');
+    return false;
+  }
+  
+  // Normalize company names by removing common suffixes
+  const normalizeCompanyName = (name: string): string => {
+    return name.toLowerCase()
+      .replace(/\s*(inc|llc|corp|corporation|ltd|limited|company|co\.|technologies|tech|systems|solutions)\b/gi, '')
+      .replace(/[.,\-–—]/g, '')
+      .trim();
+  };
+  
+  const normalizedJobCompany = normalizeCompanyName(jobCompany);
   
   // Check if any of the resume companies match the job company
-  return resume.companies.some(company => {
-    const resumeCompany = company.toLowerCase();
-    return resumeCompany.includes(jobCompany) || 
-           jobCompany.includes(resumeCompany) ||
-           // Check for partial matches (at least 3 characters)
-           (resumeCompany.length >= 3 && jobCompany.length >= 3 && 
-            (resumeCompany.includes(jobCompany.substring(0, Math.min(jobCompany.length, 5))) ||
-             jobCompany.includes(resumeCompany.substring(0, Math.min(resumeCompany.length, 5)))));
+  const matchResult = resume.companies.some(company => {
+    const normalizedResumeCompany = normalizeCompanyName(company);
+    console.log('DEBUG Company Match - Comparing:', normalizedResumeCompany, 'vs', normalizedJobCompany);
+    
+    // Direct match after normalization
+    if (normalizedResumeCompany === normalizedJobCompany) {
+      console.log('DEBUG Company Match - Direct match found!');
+      return true;
+    }
+    
+    // Check if one contains the other
+    if (normalizedResumeCompany.includes(normalizedJobCompany) || 
+        normalizedJobCompany.includes(normalizedResumeCompany)) {
+      console.log('DEBUG Company Match - Contains match found!');
+      return true;
+    }
+    
+    // Check for partial matches for longer company names
+    if (normalizedResumeCompany.length >= 4 && normalizedJobCompany.length >= 4) {
+      const resumeWords = normalizedResumeCompany.split(/\s+/);
+      const jobWords = normalizedJobCompany.split(/\s+/);
+      
+      // Check if any significant word matches (length >= 4)
+      const wordMatch = resumeWords.some(resumeWord => 
+        resumeWord.length >= 4 && jobWords.some(jobWord => 
+          jobWord.length >= 4 && (resumeWord === jobWord || 
+          resumeWord.includes(jobWord) || jobWord.includes(resumeWord))
+        )
+      );
+      
+      if (wordMatch) {
+        console.log('DEBUG Company Match - Word match found!');
+        return true;
+      }
+    }
+    
+    return false;
   });
+  
+  console.log('DEBUG Company Match - Final result:', matchResult);
+  return matchResult;
 }
 
 function getMatchedCompanies(resume: ParsedResume, jobReqs: JobRequirements): string[] {
@@ -523,14 +583,41 @@ function getMatchedCompanies(resume: ParsedResume, jobReqs: JobRequirements): st
   
   if (!jobCompany) return [];
   
+  // Use the same normalization logic as checkCompanyMatch
+  const normalizeCompanyName = (name: string): string => {
+    return name.toLowerCase()
+      .replace(/\s*(inc|llc|corp|corporation|ltd|limited|company|co\.|technologies|tech|systems|solutions)\b/gi, '')
+      .replace(/[.,\-–—]/g, '')
+      .trim();
+  };
+  
+  const normalizedJobCompany = normalizeCompanyName(jobCompany);
+  
   return resume.companies.filter(company => {
-    const resumeCompany = company.toLowerCase();
-    return resumeCompany.includes(jobCompany) || 
-           jobCompany.includes(resumeCompany) ||
-           // Check for partial matches (at least 3 characters)
-           (resumeCompany.length >= 3 && jobCompany.length >= 3 && 
-            (resumeCompany.includes(jobCompany.substring(0, Math.min(jobCompany.length, 5))) ||
-             jobCompany.includes(resumeCompany.substring(0, Math.min(resumeCompany.length, 5)))));
+    const normalizedResumeCompany = normalizeCompanyName(company);
+    
+    // Direct match after normalization
+    if (normalizedResumeCompany === normalizedJobCompany) return true;
+    
+    // Check if one contains the other
+    if (normalizedResumeCompany.includes(normalizedJobCompany) || 
+        normalizedJobCompany.includes(normalizedResumeCompany)) return true;
+    
+    // Check for partial matches for longer company names
+    if (normalizedResumeCompany.length >= 4 && normalizedJobCompany.length >= 4) {
+      const resumeWords = normalizedResumeCompany.split(/\s+/);
+      const jobWords = normalizedJobCompany.split(/\s+/);
+      
+      // Check if any significant word matches (length >= 4)
+      return resumeWords.some(resumeWord => 
+        resumeWord.length >= 4 && jobWords.some(jobWord => 
+          jobWord.length >= 4 && (resumeWord === jobWord || 
+          resumeWord.includes(jobWord) || jobWord.includes(resumeWord))
+        )
+      );
+    }
+    
+    return false;
   });
 }
 
