@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, AlertCircle, Trophy, Target, GraduationCap, Briefcase } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, Trophy, Target, GraduationCap, Briefcase, Building } from "lucide-react";
 
 interface ResumeScoreCardProps {
   application: {
@@ -10,8 +10,10 @@ interface ResumeScoreCardProps {
     skillsScore: number;
     experienceScore: number;
     educationScore: number;
+    companyScore?: number;
     isProcessed: boolean;
     processingError?: string;
+    parsedCompanies?: string[];
     job?: {
       title: string;
       company?: {

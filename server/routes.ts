@@ -1272,23 +1272,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userExperiences = await storage.getUserExperiences(application.applicantId);
         const userEducation = await storage.getUserEducation(application.applicantId);
         
-        // Calculate scores based on profile data
-        const skillsScore = calculateSkillsMatch(userSkills, job.skills || [], job.requirements || "");
-        const experienceScore = calculateExperienceMatch(userExperiences, job.experienceLevel, job.requirements || "");
-        const educationScore = calculateEducationMatch(userEducation, job.requirements || "");
-        const totalScore = Math.min(skillsScore + experienceScore + educationScore, 10);
+        // Use enhanced resume parsing algorithm with company matching
+        const { parseResumeContent, extractJobRequirements, calculateMatchingScore } = await import('./resume-parser');
+        
+        // Create resume content from user profile data
+        const resumeText = `
+          Skills: ${userSkills.map((s: any) => s.name).join(', ')}
+          Experience: ${userExperiences.map((e: any) => `${e.position} at ${e.company} (${e.duration || '2-3 years'})`).join('. ')}
+          Education: ${userEducation.map((e: any) => `${e.degree} from ${e.institution} (${e.year || '2020'})`).join('. ')}
+          Companies: ${userExperiences.map((e: any) => e.company).join(', ')}
+        `;
+        
+        // Parse resume content
+        const parsedResume = await parseResumeContent(resumeText);
+        
+        // Get company information for job
+        let jobCompany = null;
+        let companyName = '';
+        if (job.companyId) {
+          jobCompany = await storage.getCompany(job.companyId);
+          companyName = jobCompany ? jobCompany.name : '';
+        }
+        
+        // Extract job requirements including company name
+        const jobRequirements = await extractJobRequirements({
+          title: job.title,
+          description: job.description || '',
+          requirements: job.requirements || '',
+          companyName: companyName
+        });
+        
+        // Calculate comprehensive matching score
+        const matchingScore = calculateMatchingScore(parsedResume, jobRequirements);
         
         scoreData = {
           id: application.id,
-          matchScore: totalScore,
-          skillsScore: skillsScore,
-          experienceScore: experienceScore,
-          educationScore: educationScore,
+          matchScore: matchingScore.totalScore,
+          skillsScore: matchingScore.skillsScore,
+          experienceScore: matchingScore.experienceScore,
+          educationScore: matchingScore.educationScore,
+          companyScore: matchingScore.companyScore,
           isProcessed: true,
           processingError: null,
-          parsedSkills: userSkills.map((s: any) => s.name),
+          parsedSkills: matchingScore.breakdown.skillsMatched,
           parsedExperience: userExperiences.map((e: any) => `${e.position} at ${e.company}`).join(", "),
-          parsedEducation: userEducation.map((e: any) => `${e.degree} from ${e.institution}`).join(", ")
+          parsedEducation: userEducation.map((e: any) => `${e.degree} from ${e.institution}`).join(", "),
+          parsedCompanies: matchingScore.breakdown.companiesMatched
         };
         
         console.log(`Calculated score for application ${applicationId}:`, scoreData);
@@ -1300,11 +1329,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           skillsScore: 0,
           experienceScore: 0,
           educationScore: 0,
+          companyScore: 0,
           isProcessed: false,
           processingError: "Failed to process resume scoring",
           parsedSkills: [],
           parsedExperience: "",
-          parsedEducation: ""
+          parsedEducation: "",
+          parsedCompanies: []
         };
       }
       
