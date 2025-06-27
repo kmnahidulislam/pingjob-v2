@@ -1,5 +1,15 @@
 import { MailService } from '@sendgrid/mail';
 
+function getBaseUrl(): string {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://pingjob.com';
+  }
+  if (process.env.REPLIT_DOMAINS) {
+    return `https://${process.env.REPLIT_DOMAINS}`;
+  }
+  return 'http://localhost:5000';
+}
+
 if (!process.env.SENDGRID_API_KEY) {
   throw new Error("SENDGRID_API_KEY environment variable must be set");
 }
@@ -38,7 +48,7 @@ export async function sendInvitationEmail(
   inviteToken: string,
   message?: string | null
 ): Promise<boolean> {
-  const inviteUrl = `https://pingjob.com/invite/${inviteToken}`;
+  const inviteUrl = `${getBaseUrl()}/invite/${inviteToken}`;
   
   const subject = `${inviterName} invited you to join PingJob`;
   

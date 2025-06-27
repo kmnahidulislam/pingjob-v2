@@ -113,8 +113,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save reset token to user
       await storage.updateUserResetToken(user.id, resetToken, resetExpires);
 
-      // Generate reset link with pingjob.com domain
-      const resetLink = `https://pingjob.com/reset-password?token=${resetToken}`;
+      // Generate reset link based on environment
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const host = process.env.NODE_ENV === 'production' ? 'pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
+      const resetLink = `${protocol}://${host}/reset-password?token=${resetToken}`;
       
       // For now, log the reset link to console for testing
       console.log(`\n=== PASSWORD RESET REQUEST ===`);
@@ -2230,10 +2232,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Failed to send invitation email to:", email);
         
         // Display invitation details for manual sharing
-        const baseUrl = process.env.NODE_ENV === 'production' 
-          ? 'https://pingjob.com' 
-          : 'http://localhost:5000';
-        const invitationLink = `${baseUrl}/invite/${inviteToken}`;
+        const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+        const host = process.env.NODE_ENV === 'production' ? 'pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
+        const invitationLink = `${protocol}://${host}/invite/${inviteToken}`;
         
         console.log('\n=== MANUAL INVITATION SHARING ===');
         console.log(`To: ${email}`);
@@ -2248,7 +2249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json({ 
         ...invitation, 
         emailSent,
-        invitationLink: emailSent ? undefined : `https://pingjob.com/invite/${inviteToken}`
+        invitationLink: emailSent ? undefined : `${protocol}://${host}/invite/${inviteToken}`
       });
     } catch (error) {
       console.error("Create external invitation error:", error);
