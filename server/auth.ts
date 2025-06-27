@@ -89,9 +89,8 @@ export function setupAuth(app: Express) {
     const protocol = host.includes('localhost') ? 'http' : 'https';
     callbackURL = `${protocol}://${host}/api/auth/google/callback`;
     
-    console.log('Current environment domain:', process.env.REPLIT_DOMAINS || 'production');
+    console.log('Current environment:', process.env.NODE_ENV || 'development');
     console.log('Using callback URL:', callbackURL);
-    console.log('OAuth Callback URL:', callbackURL);
     
     try {
       passport.use('google', new GoogleStrategy({

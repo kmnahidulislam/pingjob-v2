@@ -2246,10 +2246,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Share this link manually while SendGrid verification is pending.');
       }
 
+      const responseProtocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const responseHost = process.env.NODE_ENV === 'production' ? 'pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
+      
       res.status(201).json({ 
         ...invitation, 
         emailSent,
-        invitationLink: emailSent ? undefined : `${protocol}://${host}/invite/${inviteToken}`
+        invitationLink: emailSent ? undefined : `${responseProtocol}://${responseHost}/invite/${inviteToken}`
       });
     } catch (error) {
       console.error("Create external invitation error:", error);
