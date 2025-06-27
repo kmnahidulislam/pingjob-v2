@@ -220,6 +220,18 @@ export const externalInvitations = pgTable("external_invitations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Job Candidate Assignments - Auto-assigned job seekers to recruiter jobs
+export const jobCandidateAssignments = pgTable("job_candidate_assignments", {
+  id: serial("id").primaryKey(),
+  jobId: integer("job_id").references(() => jobs.id).notNull(),
+  candidateId: varchar("candidate_id").references(() => users.id).notNull(),
+  recruiterId: varchar("recruiter_id").references(() => users.id).notNull(),
+  status: varchar("status", { enum: ["assigned", "contacted", "interested", "not_interested"] }).default("assigned"),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+  contactedAt: timestamp("contacted_at"),
+  notes: text("notes"),
+});
+
 
 
 // Services lookup table
@@ -524,6 +536,11 @@ export const insertExternalInvitationSchema = createInsertSchema(externalInvitat
   createdAt: true,
 });
 
+export const insertJobCandidateAssignmentSchema = createInsertSchema(jobCandidateAssignments).omit({
+  id: true,
+  assignedAt: true,
+});
+
 export const insertVendorSchema = createInsertSchema(vendors).omit({
   id: true,
   createdAt: true,
@@ -582,3 +599,5 @@ export type City = typeof cities.$inferSelect;
 export type InsertCity = z.infer<typeof insertCitySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type JobCandidateAssignment = typeof jobCandidateAssignments.$inferSelect;
+export type InsertJobCandidateAssignment = z.infer<typeof insertJobCandidateAssignmentSchema>;
