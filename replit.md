@@ -104,21 +104,24 @@ PingJob is a full-stack web application built with React, TypeScript, Express.js
 ```
 Changelog:
 - June 13, 2025. Initial setup
-- June 27, 2025. Implemented comprehensive resume parsing & ranking system
+- June 27, 2025. Implemented comprehensive resume parsing & ranking system with company matching
   - Added text-based resume content extraction using keyword matching algorithm
-  - Built intelligent job-resume matching algorithm with 10-point scoring system
-  - Implemented scoring breakdown: Skills (4 pts), Experience (3 pts), Education (3 pts)
+  - Built intelligent job-resume matching algorithm with enhanced scoring system
+  - Implemented comprehensive scoring breakdown: Skills (4 pts), Experience (3 pts), Education (3 pts), plus Company Match (bonus points)
+  - Enhanced scoring system includes company/client matching as additional scoring factor
+  - Job seekers who previously worked at same company as job posting client receive bonus points
+  - Added company_score field to database schema and application scoring API
+  - Updated resume parsing algorithm to include company matching logic with authentic profile data
   - Created automatic resume processing pipeline triggered on job applications
   - Added resume score display for job seekers (free access to own scores)
   - Built scored applications view for paid users (recruiters/clients)
-  - Added visual score cards with progress bars and recommendations
+  - Added visual score cards with 4-panel display: Skills, Experience, Education, Company Match
+  - Company match panel shows bonus points (+2, +1) and matched company names
   - Integrated PDF and text resume parsing capabilities
   - Enhanced applications page with dedicated scores tab and inline score display
   - Added minimum threshold filtering (scores below 5 filtered out)
   - Implemented background processing to avoid blocking application submissions
-  - Fixed applications page to display resume scores prominently in blue score cards
-  - Added "Resume Scores" tab for dedicated score viewing
-  - Job seekers can now see their match scores (Skills/4, Experience/3, Education/3) for all applications
+  - Job seekers can now see their complete match scores including company matching bonus
 - June 13, 2025. Completed vendor count display system
   - Added vendor_count field to company data with proper SQL JOIN queries
   - Implemented vendor count display in both search results and main company grid

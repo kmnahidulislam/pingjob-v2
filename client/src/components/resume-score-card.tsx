@@ -24,7 +24,7 @@ interface ResumeScoreCardProps {
 }
 
 export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
-  const { matchScore, skillsScore, experienceScore, educationScore, isProcessed, processingError } = application;
+  const { matchScore, skillsScore, experienceScore, educationScore, companyScore = 0, isProcessed, processingError, parsedCompanies = [] } = application;
 
   if (!isProcessed) {
     return (
@@ -130,7 +130,7 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
         </div>
 
         {/* Score Breakdown */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Skills Score */}
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <Target className="h-6 w-6 text-blue-600 mx-auto mb-2" />
@@ -154,6 +154,19 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
             <div className="text-sm text-gray-600">Education</div>
             <Progress value={(educationScore / 3) * 100} className="mt-2 h-2" />
           </div>
+
+          {/* Company Score */}
+          <div className="text-center p-4 bg-orange-50 rounded-lg">
+            <Building className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+            <div className="text-2xl font-bold text-orange-600">{companyScore > 0 ? `+${companyScore}` : companyScore}</div>
+            <div className="text-sm text-gray-600">Company Match</div>
+            <Progress value={companyScore > 0 ? 100 : 0} className="mt-2 h-2" />
+            {parsedCompanies.length > 0 && (
+              <div className="text-xs text-orange-600 mt-1 truncate">
+                {parsedCompanies.slice(0, 2).join(', ')}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Recommendations */}
@@ -171,6 +184,12 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
             )}
             {educationScore < 2 && (
               <li>• Include relevant certifications or educational background</li>
+            )}
+            {companyScore === 0 && application.job?.company && (
+              <li>• Highlight any experience with similar companies or clients</li>
+            )}
+            {companyScore > 0 && (
+              <li>• Excellent! Your experience with similar companies is a strong advantage</li>
             )}
             {matchScore >= 7 && (
               <li>• Great match! Your profile aligns well with this position</li>
