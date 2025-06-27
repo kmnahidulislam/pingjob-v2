@@ -894,7 +894,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Individual job route
+  // ============ RECRUITER FUNCTIONALITY ============
+  // NOTE: Specific routes must come before parameterized routes to avoid conflicts
+
+  // Get admin jobs (for homepage display)
+  app.get('/api/jobs/admin', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const jobs = await storage.getAdminJobs(limit);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching admin jobs:", error);
+      res.status(500).json({ message: "Failed to fetch admin jobs" });
+    }
+  });
+
+  // Get recruiter jobs (for search only)
+  app.get('/api/jobs/recruiter', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const filters = {
+        jobType: req.query.jobType,
+        experienceLevel: req.query.experienceLevel,
+        location: req.query.location,
+        companyId: req.query.companyId ? parseInt(req.query.companyId as string) : undefined
+      };
+      const jobs = await storage.getRecruiterJobs(filters, limit);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching recruiter jobs:", error);
+      res.status(500).json({ message: "Failed to fetch recruiter jobs" });
+    }
+  });
+
+  // Individual job route (must come after specific routes)
   app.get('/api/jobs/:id', async (req, res) => {
     try {
       const jobId = parseInt(req.params.id);

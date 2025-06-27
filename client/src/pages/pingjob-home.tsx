@@ -59,12 +59,12 @@ export default function PingJobHome() {
     logoutMutation.mutate();
   };
 
-  // Fetch jobs with pagination
+  // Fetch admin jobs only for homepage display
   const { data: jobsData, isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs', { page: currentPage, limit: jobsPerPage }],
+    queryKey: ['/api/jobs/admin', { page: currentPage, limit: jobsPerPage }],
     queryFn: async () => {
-      const response = await fetch(`/api/jobs?limit=${jobsPerPage}&offset=${(currentPage - 1) * jobsPerPage}`);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
+      const response = await fetch(`/api/jobs/admin?limit=${jobsPerPage}`);
+      if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
     }
   });
