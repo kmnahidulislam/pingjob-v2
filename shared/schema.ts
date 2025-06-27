@@ -42,6 +42,7 @@ export const users = pgTable("users", {
   facebookUrl: varchar("facebook_url"),
   twitterUrl: varchar("twitter_url"),
   instagramUrl: varchar("instagram_url"),
+  resumeUrl: varchar("resume_url"),
   resetToken: varchar("reset_token"),
   resetTokenExpiry: timestamp("reset_token_expiry"),
   // Subscription and payment fields
@@ -228,6 +229,7 @@ export const vendors = pgTable("vendors", {
   services: text("services"), // Will store service codes or IDs
   status: varchar("status").default("pending"),
   createdBy: varchar("created_by"),
+  addedBy: varchar("added_by").references(() => users.id),
   approvedBy: varchar("approved_by"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

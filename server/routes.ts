@@ -14,7 +14,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-06-20",
 });
 import { 
   insertExperienceSchema,
@@ -163,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await sgMail.send(msg);
           console.log(`Password reset email sent to ${email}`);
         }
-      } catch (emailError) {
+      } catch (emailError: any) {
         console.error('Failed to send password reset email:', emailError);
         console.error('Error details:', emailError.response?.body);
         
@@ -284,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Search companies and jobs in parallel
       const [companies, jobs] = await Promise.all([
         storage.searchCompanies(query, 10),
-        storage.searchJobs(query, {}, 10)
+        storage.searchJobs(query, 10)
       ]);
 
       res.json({
