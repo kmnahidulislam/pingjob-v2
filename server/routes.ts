@@ -2647,6 +2647,147 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ RECRUITER FUNCTIONALITY ============
+
+  // Get admin jobs (for homepage display)
+  app.get('/api/jobs/admin', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const jobs = await storage.getAdminJobs(limit);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching admin jobs:", error);
+      res.status(500).json({ message: "Failed to fetch admin jobs" });
+    }
+  });
+
+  // Get recruiter jobs (for search only)
+  app.get('/api/jobs/recruiter', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const filters = {
+        jobType: req.query.jobType,
+        experienceLevel: req.query.experienceLevel,
+        location: req.query.location,
+        companyId: req.query.companyId ? parseInt(req.query.companyId as string) : undefined
+      };
+      const jobs = await storage.getRecruiterJobs(filters, limit);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching recruiter jobs:", error);
+      res.status(500).json({ message: "Failed to fetch recruiter jobs" });
+    }
+  });
+
+  // Get recruiter's own jobs
+  app.get('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+      
+      const jobs = await storage.getRecruiterOwnJobs(req.user.id);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching recruiter jobs:", error);
+      res.status(500).json({ message: "Failed to fetch recruiter jobs" });
+    }
+  });
+
+  // Create job as recruiter (auto-assigns candidates)
+  app.post('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      const validatedData = insertJobSchema.parse({
+        ...req.body,
+        recruiterId: req.user.id
+      });
+
+      const job = await storage.createJob(validatedData);
+      
+      // Auto-assign candidates by category
+      if (job.categoryId) {
+        await storage.autoAssignCandidatesToJob(job.id, req.user.id);
+      }
+
+      res.status(201).json(job);
+    } catch (error) {
+      console.error("Error creating recruiter job:", error);
+      res.status(500).json({ message: "Failed to create job" });
+    }
+  });
+
+  // Get assigned candidates for a job
+  app.get('/api/recruiter/jobs/:jobId/candidates', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      const jobId = parseInt(req.params.jobId);
+      const assignments = await storage.getJobCandidateAssignments(jobId, req.user.id);
+      res.json(assignments);
+    } catch (error) {
+      console.error("Error fetching job candidates:", error);
+      res.status(500).json({ message: "Failed to fetch job candidates" });
+    }
+  });
+
+  // Update assignment status
+  app.patch('/api/recruiter/assignments/:assignmentId', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      const assignmentId = parseInt(req.params.assignmentId);
+      const { status, notes } = req.body;
+      
+      await storage.updateAssignmentStatus(assignmentId, status, notes);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating assignment status:", error);
+      res.status(500).json({ message: "Failed to update assignment status" });
+    }
+  });
+
+  // Create connection with candidate
+  app.post('/api/recruiter/connect/:candidateId', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      const candidateId = req.params.candidateId;
+      const connection = await storage.createRecruiterCandidateConnection(req.user.id, candidateId);
+      res.status(201).json(connection);
+    } catch (error) {
+      console.error("Error creating connection:", error);
+      res.status(500).json({ message: "Failed to create connection" });
+    }
+  });
+
+  // Get candidate resume score
+  app.get('/api/recruiter/candidate/:candidateId/score/:jobId', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'recruiter') {
+        return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      const candidateId = req.params.candidateId;
+      const jobId = parseInt(req.params.jobId);
+      
+      const score = await storage.getCandidateResumeScore(candidateId, jobId);
+      res.json(score);
+    } catch (error) {
+      console.error("Error fetching candidate score:", error);
+      res.status(500).json({ message: "Failed to fetch candidate score" });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

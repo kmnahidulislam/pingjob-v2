@@ -16,6 +16,7 @@ import {
   states,
   cities,
   externalInvitations,
+  jobCandidateAssignments,
   type User,
   type UpsertUser,
   type Experience,
@@ -45,6 +46,8 @@ import {
   type City,
   type ExternalInvitation,
   type InsertExternalInvitation,
+  type JobCandidateAssignment,
+  type InsertJobCandidateAssignment,
 } from "@shared/schema";
 import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -2116,6 +2119,270 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(users.id, userId));
+  }
+
+  // ============ RECRUITER FUNCTIONALITY ============
+
+  // Auto-assign job seekers to recruiter jobs by category
+  async autoAssignCandidatesToJob(jobId: number, recruiterId: string): Promise<JobCandidateAssignment[]> {
+    // First get the job details to find the category
+    const job = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
+    if (!job.length || !job[0].categoryId) {
+      return [];
+    }
+
+    // Find job seekers with matching category
+    const matchingCandidates = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          eq(users.userType, 'job_seeker'),
+          eq(users.categoryId, job[0].categoryId)
+        )
+      )
+      .limit(50); // Limit to top 50 candidates
+
+    // Create assignments for each matching candidate
+    const assignments: JobCandidateAssignment[] = [];
+    for (const candidate of matchingCandidates) {
+      try {
+        const [assignment] = await db
+          .insert(jobCandidateAssignments)
+          .values({
+            jobId,
+            candidateId: candidate.id,
+            recruiterId,
+            status: 'assigned'
+          })
+          .returning();
+        
+        assignments.push(assignment);
+      } catch (error) {
+        // Skip duplicates or other errors
+        console.log('Assignment already exists or error:', error);
+      }
+    }
+
+    return assignments;
+  }
+
+  // Get assigned candidates for a recruiter's job
+  async getJobCandidateAssignments(jobId: number, recruiterId: string): Promise<any[]> {
+    const result = await db
+      .select({
+        assignment: jobCandidateAssignments,
+        candidate: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          resumeUrl: users.resumeUrl,
+          headline: users.headline,
+          location: users.location
+        }
+      })
+      .from(jobCandidateAssignments)
+      .innerJoin(users, eq(jobCandidateAssignments.candidateId, users.id))
+      .where(
+        and(
+          eq(jobCandidateAssignments.jobId, jobId),
+          eq(jobCandidateAssignments.recruiterId, recruiterId)
+        )
+      )
+      .orderBy(desc(jobCandidateAssignments.assignedAt));
+
+    return result;
+  }
+
+  // Update assignment status
+  async updateAssignmentStatus(assignmentId: number, status: string, notes?: string): Promise<void> {
+    const updateData: any = { status };
+    if (status === 'contacted') {
+      updateData.contactedAt = new Date();
+    }
+    if (notes) {
+      updateData.notes = notes;
+    }
+
+    await db
+      .update(jobCandidateAssignments)
+      .set(updateData)
+      .where(eq(jobCandidateAssignments.id, assignmentId));
+  }
+
+  // Get jobs posted by admin (for homepage)
+  async getAdminJobs(limit: number = 20): Promise<any[]> {
+    const result = await db
+      .select({
+        id: jobs.id,
+        title: jobs.title,
+        description: jobs.description,
+        location: jobs.location,
+        jobType: jobs.jobType,
+        experienceLevel: jobs.experienceLevel,
+        salary: jobs.salary,
+        createdAt: jobs.createdAt,
+        companyId: jobs.companyId,
+        recruiterId: jobs.recruiterId,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl,
+          location: companies.location
+        }
+      })
+      .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .where(
+        and(
+          eq(jobs.isActive, true),
+          or(
+            eq(jobs.recruiterId, 'admin'),
+            eq(jobs.recruiterId, 'admin-krupa')
+          )
+        )
+      )
+      .orderBy(desc(jobs.createdAt))
+      .limit(limit);
+
+    return result;
+  }
+
+  // Get jobs posted by recruiters (for search only)
+  async getRecruiterJobs(filters: any = {}, limit: number = 20): Promise<any[]> {
+    let whereConditions = [
+      eq(jobs.isActive, true),
+      and(
+        sql`${jobs.recruiterId} IS NOT NULL`,
+        sql`${jobs.recruiterId} != 'admin'`,
+        sql`${jobs.recruiterId} != 'admin-krupa'`
+      )
+    ];
+
+    // Add filter conditions
+    if (filters.jobType) {
+      whereConditions.push(eq(jobs.jobType, filters.jobType));
+    }
+    if (filters.experienceLevel) {
+      whereConditions.push(eq(jobs.experienceLevel, filters.experienceLevel));
+    }
+    if (filters.location) {
+      whereConditions.push(ilike(jobs.location, `%${filters.location}%`));
+    }
+    if (filters.companyId) {
+      whereConditions.push(eq(jobs.companyId, filters.companyId));
+    }
+
+    const result = await db
+      .select({
+        id: jobs.id,
+        title: jobs.title,
+        description: jobs.description,
+        location: jobs.location,
+        jobType: jobs.jobType,
+        experienceLevel: jobs.experienceLevel,
+        salary: jobs.salary,
+        createdAt: jobs.createdAt,
+        companyId: jobs.companyId,
+        recruiterId: jobs.recruiterId,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl,
+          location: companies.location
+        }
+      })
+      .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .where(and(...whereConditions))
+      .orderBy(desc(jobs.createdAt))
+      .limit(limit);
+
+    return result;
+  }
+
+  // Get recruiter's jobs
+  async getRecruiterOwnJobs(recruiterId: string): Promise<any[]> {
+    const result = await db
+      .select({
+        id: jobs.id,
+        title: jobs.title,
+        description: jobs.description,
+        location: jobs.location,
+        jobType: jobs.jobType,
+        experienceLevel: jobs.experienceLevel,
+        salary: jobs.salary,
+        createdAt: jobs.createdAt,
+        applicationCount: jobs.applicationCount,
+        companyId: jobs.companyId,
+        company: {
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl
+        }
+      })
+      .from(jobs)
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .where(
+        and(
+          eq(jobs.recruiterId, recruiterId),
+          eq(jobs.isActive, true)
+        )
+      )
+      .orderBy(desc(jobs.createdAt));
+
+    return result;
+  }
+
+  // Create connection between recruiter and candidate
+  async createRecruiterCandidateConnection(recruiterId: string, candidateId: string): Promise<Connection> {
+    const [connection] = await db
+      .insert(connections)
+      .values({
+        senderId: recruiterId,
+        receiverId: candidateId,
+        status: 'pending'
+      })
+      .returning();
+
+    return connection;
+  }
+
+  // Get resume score for candidate (for recruiters)
+  async getCandidateResumeScore(candidateId: string, jobId: number): Promise<any> {
+    // Check if candidate has applied to this job
+    const application = await db
+      .select()
+      .from(jobApplications)
+      .where(
+        and(
+          eq(jobApplications.applicantId, candidateId),
+          eq(jobApplications.jobId, jobId)
+        )
+      )
+      .limit(1);
+
+    if (application.length > 0) {
+      return {
+        matchScore: application[0].matchScore,
+        skillsScore: application[0].skillsScore,
+        experienceScore: application[0].experienceScore,
+        educationScore: application[0].educationScore,
+        companyScore: application[0].companyScore,
+        isProcessed: application[0].isProcessed
+      };
+    }
+
+    // If no application, return default scores
+    return {
+      matchScore: 0,
+      skillsScore: 0,
+      experienceScore: 0,
+      educationScore: 0,
+      companyScore: 0,
+      isProcessed: false
+    };
   }
 }
 
