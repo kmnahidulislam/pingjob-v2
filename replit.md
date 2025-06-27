@@ -104,24 +104,29 @@ PingJob is a full-stack web application built with React, TypeScript, Express.js
 ```
 Changelog:
 - June 13, 2025. Initial setup
-- June 27, 2025. Implemented comprehensive resume parsing & ranking system with company matching
+- June 27, 2025. Implemented comprehensive resume parsing & ranking system with skills-dominant scoring
   - Added text-based resume content extraction using keyword matching algorithm
-  - Built intelligent job-resume matching algorithm with enhanced scoring system
-  - Implemented comprehensive scoring breakdown: Skills (4 pts), Experience (3 pts), Education (3 pts), plus Company Match (bonus points)
-  - Enhanced scoring system includes company/client matching as additional scoring factor
+  - Built intelligent job-resume matching algorithm with skills-weighted scoring system
+  - Implemented skills-dominant scoring breakdown: Skills (6 pts), Experience (2 pts), Education (2 pts), plus Company Match (+2 bonus)
+  - Enhanced scoring system prioritizes technical skills as the primary factor (60% of base score)
+  - Skills with low matches now result in proportionally low overall scores regardless of other factors
   - Job seekers who previously worked at same company as job posting client receive bonus points
   - Added company_score field to database schema and application scoring API
-  - Updated resume parsing algorithm to include company matching logic with authentic profile data
+  - Updated resume parsing algorithm with enhanced company matching using pattern recognition and normalization
+  - Improved company name detection for formats like PayPal, Inc. and various corporate structures
   - Created automatic resume processing pipeline triggered on job applications
   - Added resume score display for job seekers (free access to own scores)
   - Built scored applications view for paid users (recruiters/clients)
-  - Added visual score cards with 4-panel display: Skills, Experience, Education, Company Match
+  - Added visual score cards with 4-panel display showing new scoring weights (Skills/6, Experience/2, Education/2, Company Match bonus)
   - Company match panel shows bonus points (+2, +1) and matched company names
+  - Updated all UI displays to reflect new maximum score of 12 points (10 base + 2 bonus)
+  - Enhanced recommendations system to emphasize skills improvement as highest impact action
   - Integrated PDF and text resume parsing capabilities
   - Enhanced applications page with dedicated scores tab and inline score display
   - Added minimum threshold filtering (scores below 5 filtered out)
   - Implemented background processing to avoid blocking application submissions
-  - Job seekers can now see their complete match scores including company matching bonus
+  - Removed debugging logs for cleaner console output
+  - Job seekers can now see their complete match scores with skills-weighted algorithm
 - June 13, 2025. Completed vendor count display system
   - Added vendor_count field to company data with proper SQL JOIN queries
   - Implemented vendor count display in both search results and main company grid

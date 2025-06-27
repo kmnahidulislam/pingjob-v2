@@ -548,15 +548,7 @@ export class DatabaseStorage implements IStorage {
         LIMIT 100
       `;
       
-      console.log(`DEBUG: Executing getTopCompanies query...`);
       const result = await pool.query(query);
-      console.log(`DEBUG: Query returned ${result.rows.length} rows`);
-      console.log(`DEBUG: First 3 results:`, result.rows.slice(0, 3).map(r => 
-        `ID:${r.id} ${r.name} - Vendors:${r.vendor_count} Jobs:${r.job_count}`));
-      
-      if (result.rows[0]?.vendor_count === 0) {
-        console.log(`WARNING: Top company has 0 vendors - this indicates a problem with the query`);
-      }
       
       return result.rows.map(row => ({
         ...row,
