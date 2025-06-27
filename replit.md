@@ -525,6 +525,8 @@ Changelog:
   - All social media links open to external platforms in new tabs with proper accessibility labels
   - Verified comprehensive security testing shows registration endpoint now properly rejects invalid input
   - Authentication system working correctly with session management and user data persistence
+  - Created paid subscriber test accounts: recruiter@test.com (recruiter type) and enterprise@test.com (client type)
+  - Both test accounts use password123 and are configured for testing advanced paid features
   - Created comprehensive SocialMediaPoster class supporting Facebook, Twitter, and Instagram APIs
   - Added social_media_posts table to database schema for tracking posting results
   - Integrated automatic posting into job creation workflow (/api/jobs endpoint)
