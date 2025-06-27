@@ -41,9 +41,9 @@ export default function Applications() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch user's job applications
-  const { data: applications = [], isLoading } = useQuery({
-    queryKey: ['/api/applications'],
+  // Fetch user's job applications (limit to 10 most recent)
+  const { data: applications = [], isLoading } = useQuery<JobApplication[]>({
+    queryKey: ['/api/applications', { limit: 10 }],
     enabled: !!user
   });
 
@@ -51,11 +51,11 @@ export default function Applications() {
   const { data: applicationScores } = useQuery({
     queryKey: ['/api/applications/scores'],
     queryFn: async () => {
-      if (!applications || applications.length === 0) return {};
+      if (!applications || !Array.isArray(applications) || applications.length === 0) return {};
       
       const scores: Record<number, any> = {};
       await Promise.allSettled(
-        applications.map(async (app: any) => {
+        applications.map(async (app: JobApplication) => {
           try {
             const response = await fetch(`/api/applications/${app.id}/score`);
             if (response.ok) {
@@ -68,7 +68,7 @@ export default function Applications() {
       );
       return scores;
     },
-    enabled: !!applications && applications.length > 0,
+    enabled: !!applications && Array.isArray(applications) && applications.length > 0,
   });
 
   const updateApplicationMutation = useMutation({
@@ -129,13 +129,13 @@ export default function Applications() {
     }
   };
 
-  const filteredApplications = applications.filter((app: JobApplication) => {
+  const filteredApplications = Array.isArray(applications) ? applications.filter((app: JobApplication) => {
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
     const matchesSearch = !searchQuery || 
       app.job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.job.company.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
-  });
+  }) : [];
 
   const applicationsByStatus = {
     applied: filteredApplications.filter((app: JobApplication) => app.status === 'pending' || app.status === 'applied'),
