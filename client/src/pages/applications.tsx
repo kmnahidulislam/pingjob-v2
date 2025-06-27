@@ -260,28 +260,36 @@ export default function Applications() {
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 min-w-[200px]">
                           <div className="text-center">
                             <div className="text-2xl font-bold text-blue-900 mb-2">
-                              {applicationScores[application.id].matchScore}/10
+                              {applicationScores[application.id].matchScore}/12
                             </div>
                             <div className="text-xs font-medium text-blue-700 mb-3">Overall Match Score</div>
                             
-                            <div className="grid grid-cols-3 gap-2 text-xs">
+                            <div className="grid grid-cols-2 gap-2 text-xs mb-2">
                               <div className="text-center">
                                 <div className="font-bold text-blue-800">
-                                  {applicationScores[application.id].skillsScore}/4
+                                  {applicationScores[application.id].skillsScore}/6
                                 </div>
                                 <div className="text-blue-600">Skills</div>
                               </div>
                               <div className="text-center">
                                 <div className="font-bold text-blue-800">
-                                  {applicationScores[application.id].experienceScore}/3
+                                  {applicationScores[application.id].experienceScore}/2
                                 </div>
                                 <div className="text-blue-600">Experience</div>
                               </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
                               <div className="text-center">
                                 <div className="font-bold text-blue-800">
-                                  {applicationScores[application.id].educationScore}/3
+                                  {applicationScores[application.id].educationScore}/2
                                 </div>
                                 <div className="text-blue-600">Education</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-green-800">
+                                  +{applicationScores[application.id].companyScore || 0}
+                                </div>
+                                <div className="text-green-600">Company</div>
                               </div>
                             </div>
                           </div>
@@ -351,12 +359,13 @@ export default function Applications() {
                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 min-w-[140px]">
                               <div className="text-xs font-medium text-blue-700 mb-1">Resume Match Score</div>
                               <div className="text-lg font-bold text-blue-900">
-                                {applicationScores[application.id].matchScore}/10
+                                {applicationScores[application.id].matchScore}/12
                               </div>
                               <div className="text-xs text-blue-600 mt-1">
-                                Skills: {applicationScores[application.id].skillsScore}/4 • 
-                                Experience: {applicationScores[application.id].experienceScore}/3 • 
-                                Education: {applicationScores[application.id].educationScore}/3
+                                Skills: {applicationScores[application.id].skillsScore}/6 • 
+                                Experience: {applicationScores[application.id].experienceScore}/2 • 
+                                Education: {applicationScores[application.id].educationScore}/2 • 
+                                Company: +{applicationScores[application.id].companyScore || 0}
                               </div>
                             </div>
                           )}

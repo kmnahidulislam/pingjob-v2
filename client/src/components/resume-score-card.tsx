@@ -112,7 +112,7 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
         <div className="text-center">
           <div className="flex items-center justify-center gap-3 mb-2">
             <div className={`text-3xl font-bold px-4 py-2 rounded-lg ${getScoreColor(matchScore)}`}>
-              {matchScore}/10
+              {matchScore}/12
             </div>
             <div>
               <Badge variant="secondary" className={getScoreColor(matchScore)}>
@@ -121,10 +121,10 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
             </div>
           </div>
           <Progress 
-            value={matchScore * 10} 
+            value={(matchScore / 12) * 100} 
             className="w-full h-3"
             style={{ 
-              background: `linear-gradient(to right, ${getProgressColor(matchScore)} 0%, ${getProgressColor(matchScore)} ${matchScore * 10}%, #e5e7eb ${matchScore * 10}%, #e5e7eb 100%)`
+              background: `linear-gradient(to right, ${getProgressColor(matchScore)} 0%, ${getProgressColor(matchScore)} ${(matchScore / 12) * 100}%, #e5e7eb ${(matchScore / 12) * 100}%, #e5e7eb 100%)`
             }}
           />
         </div>

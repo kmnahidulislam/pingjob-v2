@@ -153,7 +153,7 @@ export function calculateMatchingScore(resume: ParsedResume, jobReqs: JobRequire
   let educationScore = 0;
   const skillsMatched: string[] = [];
 
-  // Skills matching (40% of total score = 4 points)
+  // Skills matching (60% of total score = 6 points) - DOMINANT FACTOR
   const allJobSkills = [...jobReqs.requiredSkills, ...jobReqs.preferredSkills];
   const normalizedResumeSkills = resume.skills.map(s => s.toLowerCase());
   
@@ -165,28 +165,29 @@ export function calculateMatchingScore(resume: ParsedResume, jobReqs: JobRequire
       skillsMatched.push(skill);
       // Required skills worth more than preferred
       const isRequired = jobReqs.requiredSkills.some(req => req.toLowerCase() === normalizedSkill);
-      skillsScore += isRequired ? 0.3 : 0.2;
+      skillsScore += isRequired ? 0.5 : 0.3;
     }
   }
-  skillsScore = Math.min(skillsScore, 4); // Cap at 4 points
+  skillsScore = Math.min(skillsScore, 6); // Cap at 6 points
 
-  // Experience matching (30% of total score = 3 points)
+  // Experience matching (20% of total score = 2 points)
   const experienceMatch = checkExperienceMatch(resume, jobReqs);
   if (experienceMatch) {
-    experienceScore = 3;
+    experienceScore = 2;
   } else {
     // Partial credit based on experience years
     const experienceRatio = Math.min(resume.totalExperienceYears / getRequiredExperienceYears(jobReqs.experienceLevel), 1);
-    experienceScore = experienceRatio * 3;
+    experienceScore = experienceRatio * 2;
   }
 
-  // Education matching (30% of total score = 3 points)
+  // Education matching (20% of total score = 2 points)
   const educationMatch = checkEducationMatch(resume, jobReqs);
   if (educationMatch) {
-    educationScore = 3;
+    educationScore = 2;
   } else {
-    // Partial credit for higher education
-    educationScore = getEducationPartialScore(resume, jobReqs);
+    // Partial credit for higher education - reduced from 3 to proportional
+    const partialScore = getEducationPartialScore(resume, jobReqs);
+    educationScore = Math.min(partialScore * (2/3), 2); // Scale down to new max
   }
 
   // Company matching (bonus points for same company experience)
