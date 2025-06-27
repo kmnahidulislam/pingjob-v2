@@ -159,6 +159,7 @@ export interface IStorage {
   getExternalInvitation(token: string): Promise<ExternalInvitation | undefined>;
   getExternalInvitationsByInviter(inviterUserId: string): Promise<ExternalInvitation[]>;
   updateExternalInvitationStatus(id: number, status: string, acceptedAt?: Date): Promise<ExternalInvitation>;
+  resetPassword(token: string, hashedPassword: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
