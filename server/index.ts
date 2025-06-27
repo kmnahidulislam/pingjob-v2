@@ -5,32 +5,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeCleanDatabase } from "./clean-neon";
 
-// FORCE COMPLETE DATABASE RESET - NEON.TECH ONLY
-delete process.env.PGDATABASE;
-delete process.env.PGHOST;
-delete process.env.PGUSER;
-delete process.env.PGPASSWORD;
-delete process.env.PGPORT;
-delete process.env.PGSSLMODE;
-delete process.env.PGURL;
-delete process.env.REPLIT_DB_URL;
-delete process.env.DB_URL;
-
-// Force use of new DATABASE_URL credentials
-process.env.DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
-
-console.log("UPDATED NEON.TECH DATABASE CONNECTION:", process.env.DATABASE_URL.substring(0, 50) + "...");
-
-// FORCE REMOVE ALL REPLIT AUTHENTICATION ENVIRONMENT VARIABLES
-delete process.env.REPL_ID;
-delete process.env.REPLIT_DOMAINS;
-delete process.env.REPL_OWNER_ID;
-delete process.env.REPLIT_USER;
-delete process.env.REPL_IDENTITY;
-delete process.env.REPL_IDENTITY_KEY;
-delete process.env.ISSUER_URL;
-
-console.log("FORCED REMOVAL OF ALL REPLIT AUTH AND DATABASE VARIABLES");
+// Production environment setup - use environment variables as-is
+console.log("Production mode - using environment DATABASE_URL");
 
 // Debug OAuth credentials
 console.log('=== OAUTH DEBUG ===');

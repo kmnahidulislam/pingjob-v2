@@ -26,17 +26,24 @@ export function setupAuth(app: Express) {
   // Session configuration
   const MemoryStore = createMemoryStore(session);
 
+  // Set trust proxy for production
+  if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+  }
+
   app.use(session({
-    secret: 'auth-secret-key',
+    secret: process.env.SESSION_SECRET || 'auth-secret-key-dev',
     resave: false,
     saveUninitialized: false,
     store: new MemoryStore({
       checkPeriod: 86400000,
     }),
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      domain: process.env.NODE_ENV === 'production' ? '.pingjob.com' : undefined
     }
   }));
 
@@ -78,13 +85,9 @@ export function setupAuth(app: Express) {
     
     // Determine the correct callback URL based on environment
     let callbackURL;
-    if (process.env.REPLIT_DOMAINS) {
-      // Use Replit domain if available
-      callbackURL = `https://${process.env.REPLIT_DOMAINS}/api/auth/google/callback`;
-    } else {
-      // Default to production domain
-      callbackURL = "https://pingjob.com/api/auth/google/callback";
-    }
+    const host = process.env.NODE_ENV === 'production' ? 'pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    callbackURL = `${protocol}://${host}/api/auth/google/callback`;
     
     console.log('Current environment domain:', process.env.REPLIT_DOMAINS || 'production');
     console.log('Using callback URL:', callbackURL);
