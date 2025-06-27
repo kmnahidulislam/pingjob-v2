@@ -109,6 +109,28 @@ export function setupSimpleAuth(app: Express) {
     try {
       const { email, password, firstName, lastName, userType } = req.body;
       
+      // Input validation
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      // SECURITY: Only allow job_seeker accounts for free registration
+      // Premium accounts (recruiter, client) require payment verification
+      if (userType && userType !== "job_seeker") {
+        return res.status(403).json({ 
+          message: "Premium account types require a paid subscription. Please visit our pricing page to upgrade." 
+        });
+      }
+      
       const existingUser = await getUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ message: "Email already exists" });
@@ -120,7 +142,7 @@ export function setupSimpleAuth(app: Express) {
         password: hashedPassword,
         firstName,
         lastName,
-        userType: userType || "job_seeker",
+        userType: "job_seeker", // Force job_seeker for free registration
       });
 
       req.session.user = user;

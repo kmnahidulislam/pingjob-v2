@@ -512,12 +512,16 @@ export default function AuthPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="job_seeker">Job Seeker</SelectItem>
-                                <SelectItem value="recruiter">Recruiter</SelectItem>
-                                <SelectItem value="client">Client</SelectItem>
+                                <SelectItem value="job_seeker">Job Seeker (Free)</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
+                            <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                              Need a recruiter or enterprise account? 
+                              <Link href="/pricing" className="text-blue-600 hover:text-blue-800 ml-1">
+                                View our premium plans
+                              </Link>
+                            </div>
                           </FormItem>
                         )}
                       />
