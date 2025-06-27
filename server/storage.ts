@@ -2017,6 +2017,46 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.stripeCustomerId, stripeCustomerId));
   }
 
+  async updateUserSubscription(userId: string, updateData: {
+    subscriptionPlan?: string;
+    subscriptionStatus?: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    trialEndsAt?: string;
+    subscriptionEndsAt?: string;
+  }): Promise<User> {
+    const updateFields: any = {
+      updatedAt: new Date(),
+    };
+
+    if (updateData.subscriptionPlan) {
+      updateFields.subscriptionPlan = updateData.subscriptionPlan;
+    }
+    if (updateData.subscriptionStatus) {
+      updateFields.subscriptionStatus = updateData.subscriptionStatus;
+    }
+    if (updateData.stripeCustomerId) {
+      updateFields.stripeCustomerId = updateData.stripeCustomerId;
+    }
+    if (updateData.stripeSubscriptionId) {
+      updateFields.stripeSubscriptionId = updateData.stripeSubscriptionId;
+    }
+    if (updateData.trialEndsAt) {
+      updateFields.trialEndsAt = new Date(updateData.trialEndsAt);
+    }
+    if (updateData.subscriptionEndsAt) {
+      updateFields.subscriptionEndsAt = new Date(updateData.subscriptionEndsAt);
+    }
+
+    const [user] = await db
+      .update(users)
+      .set(updateFields)
+      .where(eq(users.id, userId))
+      .returning();
+    
+    return user;
+  }
+
   // Password reset operations
   async updateUserResetToken(userId: string, token: string, expires: Date): Promise<void> {
     await db

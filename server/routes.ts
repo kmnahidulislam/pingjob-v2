@@ -2267,6 +2267,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin user update endpoint for subscription management
+  app.patch('/api/admin/users/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      // Check if user is admin
+      const userEmail = req.user.email;
+      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const userId = req.params.id;
+      const updateData = req.body;
+      
+      const updatedUser = await storage.updateUserSubscription(userId, updateData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user subscription:", error);
+      res.status(500).json({ message: "Failed to update user subscription" });
+    }
+  });
+
   // Category routes - IMPORTANT: Order matters! Specific routes before parameterized ones
   app.get('/api/categories/with-counts', async (req, res) => {
     try {
