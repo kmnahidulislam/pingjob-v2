@@ -220,6 +220,8 @@ export const externalInvitations = pgTable("external_invitations", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+
+
 // Services lookup table
 export const services = pgTable("services", {
   id: serial("id").primaryKey(),
