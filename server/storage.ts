@@ -327,19 +327,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getUserByResetToken(token: string): Promise<User | null> {
-    try {
-      const result = await pool.query(`
-        SELECT * FROM users 
-        WHERE reset_token = $1 AND reset_token_expiry > NOW()
-      `, [token]);
-      
-      return result.rows[0] || null;
-    } catch (error) {
-      console.error("Error getting user by reset token:", error);
-      return null;
-    }
-  }
+
 
   async resetPassword(token: string, newPassword: string): Promise<boolean> {
     try {
