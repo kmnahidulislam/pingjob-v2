@@ -70,8 +70,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Use IIFE to handle async operations properly
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -101,4 +103,7 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+  } catch (error) {
+    console.error('Server startup error:', error);
+  }
 })();

@@ -27,9 +27,10 @@ interface EmailParams {
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    const fromEmail = params.from || process.env.SENDGRID_VERIFIED_SENDER_EMAIL || 'noreply@pingjob.com';
     await mailService.send({
       to: params.to,
-      from: params.from,
+      from: fromEmail,
       subject: params.subject,
       text: params.text,
       html: params.html,
