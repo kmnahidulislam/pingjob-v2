@@ -26,6 +26,7 @@ export interface JobRequirements {
   education: string;
   jobTitle: string;
   responsibilities: string[];
+  companyName?: string;
 }
 
 export interface MatchingScore {
@@ -134,7 +135,8 @@ export async function extractJobRequirements(jobData: any): Promise<JobRequireme
       experienceLevel,
       education,
       jobTitle: jobData.title,
-      responsibilities: extractResponsibilities(fullText)
+      responsibilities: extractResponsibilities(fullText),
+      companyName: jobData.companyName || jobData.company || '' // Add company name for matching
     };
   } catch (error) {
     console.error('Error extracting job requirements:', error);
@@ -496,6 +498,40 @@ function getEducationPartialScore(resume: ParsedResume, jobReqs: JobRequirements
   if (maxResumeLevel >= requiredLevel) return 3;
   if (maxResumeLevel === requiredLevel - 1) return 1.5;
   return 0;
+}
+
+function checkCompanyMatch(resume: ParsedResume, jobReqs: JobRequirements): boolean {
+  // Extract company name from job requirements (assuming it's passed in jobReqs)
+  const jobCompany = (jobReqs as any).companyName?.toLowerCase() || '';
+  
+  if (!jobCompany) return false;
+  
+  // Check if any of the resume companies match the job company
+  return resume.companies.some(company => {
+    const resumeCompany = company.toLowerCase();
+    return resumeCompany.includes(jobCompany) || 
+           jobCompany.includes(resumeCompany) ||
+           // Check for partial matches (at least 3 characters)
+           (resumeCompany.length >= 3 && jobCompany.length >= 3 && 
+            (resumeCompany.includes(jobCompany.substring(0, Math.min(jobCompany.length, 5))) ||
+             jobCompany.includes(resumeCompany.substring(0, Math.min(resumeCompany.length, 5)))));
+  });
+}
+
+function getMatchedCompanies(resume: ParsedResume, jobReqs: JobRequirements): string[] {
+  const jobCompany = (jobReqs as any).companyName?.toLowerCase() || '';
+  
+  if (!jobCompany) return [];
+  
+  return resume.companies.filter(company => {
+    const resumeCompany = company.toLowerCase();
+    return resumeCompany.includes(jobCompany) || 
+           jobCompany.includes(resumeCompany) ||
+           // Check for partial matches (at least 3 characters)
+           (resumeCompany.length >= 3 && jobCompany.length >= 3 && 
+            (resumeCompany.includes(jobCompany.substring(0, Math.min(jobCompany.length, 5))) ||
+             jobCompany.includes(resumeCompany.substring(0, Math.min(resumeCompany.length, 5)))));
+  });
 }
 
 /**

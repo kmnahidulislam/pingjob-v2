@@ -1202,6 +1202,7 @@ export class DatabaseStorage implements IStorage {
         skillsScore: scoringData.skillsScore,
         experienceScore: scoringData.experienceScore,
         educationScore: scoringData.educationScore,
+        companyScore: scoringData.companyScore || 0,
         isProcessed: true,
         processingError: scoringData.processingError || null,
       })
