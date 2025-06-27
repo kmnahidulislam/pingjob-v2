@@ -49,9 +49,9 @@ function JobSeekerDashboard() {
     enabled: !!user?.id,
   });
 
-  // Fetch user applications
+  // Fetch user applications (limit to 10 most recent)
   const { data: applications = [] } = useQuery({
-    queryKey: ['/api/applications'],
+    queryKey: ['/api/applications', { limit: 10 }],
     enabled: !!user?.id,
   });
 
@@ -1009,15 +1009,16 @@ function AdminDashboard() {
   );
 }
 
-// Main Dashboard Component - Routes based on user role
+// Main Dashboard Component - Routes based on user subscription level
 export default function Dashboard() {
   const { user } = useAuth();
 
-  // Check if user is admin
+  // Check if user is admin or has paid subscription
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+  const hasPaidSubscription = user?.userType === 'admin' || user?.userType === 'recruiter' || user?.userType === 'client';
 
-  // Route to appropriate dashboard based on user role
-  if (isAdmin) {
+  // Route to appropriate dashboard based on subscription level
+  if (isAdmin || hasPaidSubscription) {
     return <AdminDashboard />;
   } else {
     return <JobSeekerDashboard />;

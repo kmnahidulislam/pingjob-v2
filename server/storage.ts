@@ -1065,9 +1065,9 @@ export class DatabaseStorage implements IStorage {
     return application;
   }
 
-  async getUserJobApplications(userId: string): Promise<any[]> {
+  async getUserJobApplications(userId: string, limit?: number): Promise<any[]> {
     try {
-      console.log("getUserJobApplications called with userId:", userId);
+      console.log("getUserJobApplications called with userId:", userId, "limit:", limit);
       
       // Debug: Check what's actually in the job_applications table
       const allApps = await pool.query(`SELECT id, applicant_id, job_id, status, applied_at FROM job_applications LIMIT 10`);
@@ -1077,7 +1077,7 @@ export class DatabaseStorage implements IStorage {
       const testResult = await pool.query(`SELECT COUNT(*) FROM job_applications WHERE applicant_id = $1`, [userId]);
       console.log("Test count query result:", testResult.rows[0]);
       
-      const result = await pool.query(`
+      let queryText = `
         SELECT 
           ja.id,
           ja.job_id,
@@ -1098,7 +1098,15 @@ export class DatabaseStorage implements IStorage {
         LEFT JOIN companies c ON j.company_id = c.id  
         WHERE ja.applicant_id = $1
         ORDER BY ja.applied_at DESC
-      `, [userId]);
+      `;
+      
+      const queryParams = [userId];
+      if (limit) {
+        queryText += ` LIMIT $2`;
+        queryParams.push(limit.toString());
+      }
+      
+      const result = await pool.query(queryText, queryParams);
 
       console.log("Query returned rows:", result.rows.length);
       if (result.rows.length > 0) {

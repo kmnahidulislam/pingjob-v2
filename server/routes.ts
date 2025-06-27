@@ -1066,8 +1066,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/applications', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       console.log("Fetching applications for user:", userId);
-      const applications = await storage.getUserJobApplications(userId);
+      const applications = await storage.getUserJobApplications(userId, limit);
       console.log("Applications found:", applications.length);
       res.json(applications);
     } catch (error) {
