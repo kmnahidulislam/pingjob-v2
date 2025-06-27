@@ -245,11 +245,16 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
       
-      // Validate user type
-      const validUserTypes = ["job_seeker", "recruiter", "client", "admin"];
-      if (userType && !validUserTypes.includes(userType)) {
-        return res.status(400).json({ message: "Invalid user type" });
+      // SECURITY: Only allow job_seeker accounts for free registration
+      // Premium accounts (recruiter, client) require payment verification
+      console.log('Registration attempt - userType:', userType);
+      if (userType && userType !== "job_seeker") {
+        console.log('BLOCKING premium account registration for:', email, 'userType:', userType);
+        return res.status(403).json({ 
+          message: "Premium account types require a paid subscription. Please visit our pricing page to upgrade." 
+        });
       }
+      console.log('Allowing job_seeker registration for:', email);
       
       // Validate name fields
       if (firstName.trim().length === 0 || lastName.trim().length === 0) {
@@ -269,12 +274,12 @@ export function setupAuth(app: Express) {
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Insert new user with validated data
+      // Insert new user with validated data - force job_seeker for free registration
       const insertResult = await pool.query(`
         INSERT INTO users (id, email, password, first_name, last_name, user_type)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id, email, first_name, last_name, user_type
-      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), userType || 'job_seeker']);
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), 'job_seeker']);
       
       const user = insertResult.rows[0];
       
