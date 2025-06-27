@@ -1133,6 +1133,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Resume scoring helper functions
+  function calculateSkillsMatch(userSkills: any[], jobSkills: string[], jobRequirements: string): number {
+    if (!userSkills || userSkills.length === 0) return 0;
+    
+    const userSkillNames = userSkills.map(s => s.name.toLowerCase());
+    const allJobSkills = [...(jobSkills || []), ...extractSkillsFromText(jobRequirements)];
+    
+    let matchCount = 0;
+    const maxScore = 4; // Skills worth up to 4 points
+    
+    for (const jobSkill of allJobSkills) {
+      const skillLower = jobSkill.toLowerCase();
+      if (userSkillNames.some(userSkill => 
+          userSkill.includes(skillLower) || skillLower.includes(userSkill)
+      )) {
+        matchCount++;
+      }
+    }
+    
+    // Score based on percentage of skills matched, up to maxScore
+    const skillMatchRatio = Math.min(matchCount / Math.max(allJobSkills.length, 3), 1);
+    return Math.round(skillMatchRatio * maxScore);
+  }
+
+  function calculateExperienceMatch(userExperiences: any[], jobExperienceLevel: string, jobRequirements: string): number {
+    if (!userExperiences || userExperiences.length === 0) return 0;
+    
+    const totalYears = userExperiences.reduce((total, exp) => {
+      const years = extractYearsFromDuration(exp.duration || "");
+      return total + years;
+    }, 0);
+    
+    const requiredYears = getRequiredYearsForLevel(jobExperienceLevel);
+    const maxScore = 3; // Experience worth up to 3 points
+    
+    if (totalYears >= requiredYears) {
+      return maxScore;
+    } else {
+      // Partial credit based on years ratio
+      return Math.round((totalYears / requiredYears) * maxScore);
+    }
+  }
+
+  function calculateEducationMatch(userEducation: any[], jobRequirements: string): number {
+    if (!userEducation || userEducation.length === 0) return 0;
+    
+    const maxScore = 3; // Education worth up to 3 points
+    const educationKeywords = ["bachelor", "master", "phd", "degree", "computer science", "engineering"];
+    const reqLower = jobRequirements.toLowerCase();
+    
+    // Check if job requires specific education
+    const requiresEducation = educationKeywords.some(keyword => reqLower.includes(keyword));
+    
+    if (!requiresEducation) {
+      return 1; // Give some credit if education not specifically required
+    }
+    
+    // Score based on highest education level
+    const hasAdvanced = userEducation.some(edu => 
+      edu.degree.toLowerCase().includes("master") || 
+      edu.degree.toLowerCase().includes("phd")
+    );
+    
+    const hasBachelor = userEducation.some(edu => 
+      edu.degree.toLowerCase().includes("bachelor")
+    );
+    
+    if (hasAdvanced) return maxScore;
+    if (hasBachelor) return Math.round(maxScore * 0.8);
+    return Math.round(maxScore * 0.4);
+  }
+
+  function extractSkillsFromText(text: string): string[] {
+    const commonSkills = [
+      "javascript", "python", "java", "react", "node.js", "typescript", "css", "html",
+      "sql", "mongodb", "postgresql", "aws", "docker", "kubernetes", "git", "agile",
+      "scrum", "project management", "leadership", "communication", "problem solving"
+    ];
+    
+    const textLower = text.toLowerCase();
+    return commonSkills.filter(skill => textLower.includes(skill));
+  }
+
+  function extractYearsFromDuration(duration: string): number {
+    const yearMatch = duration.match(/(\d+)\s*year/i);
+    const monthMatch = duration.match(/(\d+)\s*month/i);
+    
+    let years = yearMatch ? parseInt(yearMatch[1]) : 0;
+    let months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    
+    return years + (months / 12);
+  }
+
+  function getRequiredYearsForLevel(level: string): number {
+    switch (level?.toLowerCase()) {
+      case "entry": return 0;
+      case "mid": return 3;
+      case "senior": return 5;
+      case "executive": return 10;
+      default: return 2;
+    }
+  }
+
   // Get application score
   app.get('/api/applications/:id/score', isAuthenticated, async (req: any, res) => {
     try {
@@ -1154,23 +1257,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
       
-      // For now, return mock scoring data to test the frontend
-      // This will be replaced with real scoring once database columns are added
-      const mockScore = {
-        id: application.id,
-        matchScore: Math.floor(Math.random() * 10) + 1, // Random score 1-10 for testing
-        skillsScore: Math.floor(Math.random() * 4) + 1, // Random skills score 1-4
-        experienceScore: Math.floor(Math.random() * 3) + 1, // Random experience score 1-3
-        educationScore: Math.floor(Math.random() * 3) + 1, // Random education score 1-3
-        isProcessed: true,
-        processingError: null,
-        parsedSkills: ["JavaScript", "React", "Node.js"],
-        parsedExperience: "Software Developer with 3+ years experience",
-        parsedEducation: "Bachelor's in Computer Science"
-      };
+      // Get the job details to analyze against
+      const job = await storage.getJob(application.jobId);
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
       
-      console.log(`Returning test score for application ${applicationId}:`, mockScore);
-      res.json(mockScore);
+      // Process the resume if not already processed
+      let scoreData;
+      try {
+        // Get user's profile data for scoring
+        const userProfile = await storage.getUser(application.applicantId);
+        const userSkills = await storage.getUserSkills(application.applicantId);
+        const userExperiences = await storage.getUserExperiences(application.applicantId);
+        const userEducation = await storage.getUserEducation(application.applicantId);
+        
+        // Calculate scores based on profile data
+        const skillsScore = calculateSkillsMatch(userSkills, job.skills || [], job.requirements || "");
+        const experienceScore = calculateExperienceMatch(userExperiences, job.experienceLevel, job.requirements || "");
+        const educationScore = calculateEducationMatch(userEducation, job.requirements || "");
+        const totalScore = Math.min(skillsScore + experienceScore + educationScore, 10);
+        
+        scoreData = {
+          id: application.id,
+          matchScore: totalScore,
+          skillsScore: skillsScore,
+          experienceScore: experienceScore,
+          educationScore: educationScore,
+          isProcessed: true,
+          processingError: null,
+          parsedSkills: userSkills.map((s: any) => s.name),
+          parsedExperience: userExperiences.map((e: any) => `${e.position} at ${e.company}`).join(", "),
+          parsedEducation: userEducation.map((e: any) => `${e.degree} from ${e.institution}`).join(", ")
+        };
+        
+        console.log(`Calculated score for application ${applicationId}:`, scoreData);
+      } catch (processingError) {
+        console.error("Error processing resume score:", processingError);
+        scoreData = {
+          id: application.id,
+          matchScore: 0,
+          skillsScore: 0,
+          experienceScore: 0,
+          educationScore: 0,
+          isProcessed: false,
+          processingError: "Failed to process resume scoring",
+          parsedSkills: [],
+          parsedExperience: "",
+          parsedEducation: ""
+        };
+      }
+      
+      res.json(scoreData);
     } catch (error) {
       console.error("Error fetching application score:", error);
       res.status(500).json({ message: "Failed to fetch application score" });
