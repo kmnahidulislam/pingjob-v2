@@ -3,704 +3,225 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   Search, 
   MapPin, 
   Building2, 
   Users, 
-  Eye, 
-  Send,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Facebook,
-  Instagram,
-  Linkedin,
-  Twitter,
-  CheckCircle,
-  Rocket,
-  Target,
-  Bot,
-  BarChart3,
-  LogOut,
-  TrendingUp,
-  Clock,
-  Filter,
   Briefcase,
   Calendar,
   DollarSign,
   Heart,
   Globe,
-  Plus
+  Plus,
+  LogOut,
+  TrendingUp,
+  Clock,
+  Filter,
+  CheckCircle,
+  Rocket,
+  Target,
+  Bot,
+  BarChart3
 } from "lucide-react";
 import { Link } from "wouter";
-import logoPath from "@assets/logo_1749581218265.png";
-import { JobCategories } from "@/components/job-categories";
 
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [companyCount, setCompanyCount] = useState<number>(76806);
-  const [selectedLocation, setSelectedLocation] = useState<string>("");
-  const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
-  const [showCompanies, setShowCompanies] = useState(false);
 
-  const [showJobs, setShowJobs] = useState(false);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const jobsPerPage = 20;
+  // Fetch platform statistics
+  const { data: platformStats } = useQuery({
+    queryKey: ["/api/platform/stats"],
+  });
+
+  // Fetch admin jobs for homepage
+  const { data: jobs, isLoading: jobsLoading } = useQuery({
+    queryKey: ["/api/admin-jobs"],
+  });
+
+  // Fetch top companies
+  const { data: topCompanies } = useQuery({
+    queryKey: ["/api/companies/top"],
+  });
+
+  // Fetch categories
+  const { data: categories } = useQuery({
+    queryKey: ["/api/categories/with-counts"],
+  });
 
   const handleLogout = () => {
     logoutMutation.mutate();
   };
 
-  // Fetch admin jobs only for homepage display
-  const { data: jobsData, isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/admin-jobs', { page: currentPage, limit: jobsPerPage }],
-    queryFn: async () => {
-      const response = await fetch(`/api/admin-jobs?limit=${jobsPerPage}`);
-      if (!response.ok) throw new Error('Failed to fetch admin jobs');
-      return response.json();
-    }
-  });
-
-  // Fetch categories with job counts
-  const { data: categories = [] } = useQuery({
-    queryKey: ['/api/categories'],
-    queryFn: async () => {
-      const response = await fetch('/api/categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      return response.json();
-    }
-  });
-
-  // Fetch top companies ranked by jobs and vendors
-  const { data: topCompanies = [] } = useQuery({
-    queryKey: ['/api/companies/top'],
-    queryFn: async () => {
-      const response = await fetch('/api/companies/top');
-      if (!response.ok) throw new Error('Failed to fetch companies');
-      return response.json();
-    }
-  });
-
-  // Fetch platform statistics for home page
-  const { data: platformStats, isLoading: statsLoading } = useQuery({
-    queryKey: ['/api/platform/stats'],
-    queryFn: async () => {
-      const response = await fetch('/api/platform/stats');
-      if (!response.ok) throw new Error('Failed to fetch platform stats');
-      return response.json();
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 300000 // 5 minutes
-  });
-
-  // Real-time search functionality for home page
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
-    queryKey: ['/api/search', searchQuery],
-    queryFn: async () => {
-      if (!searchQuery.trim() || searchQuery.length < 2) return { companies: [], jobs: [] };
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-      if (!response.ok) throw new Error('Failed to search');
-      return response.json();
-    },
-    enabled: searchQuery.length >= 2,
-    staleTime: 30000 // 30 seconds
-  });
-
-  // Force update company count when data arrives
-  useEffect(() => {
-    if (platformStats?.totalCompanies) {
-      setCompanyCount(platformStats.totalCompanies);
-    }
-  }, [platformStats]);
-
-  const displayStats = {
-    totalUsers: platformStats?.totalUsers || 872,
-    totalCompanies: companyCount,
-    activeJobs: platformStats?.activeJobs || 12
-  };
-
-
-
-
-
-  const jobs = jobsData || [];
-  const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
-  const totalPages = Math.ceil(totalJobs / jobsPerPage);
-
-  // Calculate real-time statistics from platform data
-  const jobStats = {
-    totalJobs: platformStats?.activeJobs || 12,
-    activeCompanies: platformStats?.totalCompanies || 76806,
-    totalCategories: categories.length,
-    todayJobs: Math.floor((platformStats?.activeJobs || 12) * 0.15) // Simulate 15% posted today
-  };
-
-  // Featured job rotation
-  useEffect(() => {
-    if (jobs.length > 0) {
-      const interval = setInterval(() => {
-        const randomJob = jobs[Math.floor(Math.random() * jobs.length)];
-        setFeaturedJobId(randomJob.id);
-      }, 10000); // Change featured job every 10 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [jobs]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Keep search results visible instead of redirecting
-      setShowSearchResults(true);
-    }
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    setShowSearchResults(value.length >= 2);
-  };
-
-  const handleResultClick = () => {
-    setShowSearchResults(false);
-    setSearchQuery("");
-  };
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
+      <header className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
               <Link href="/">
-                <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
-              </Link>
-            </div>
-
-            {/* Search Box with Go Button and Results */}
-            <div className="flex-1 max-w-lg mx-8 relative">
-              <form onSubmit={handleSearch} className="relative flex items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    type="text"
-                    placeholder="Search jobs, companies, or skills..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="pl-10 pr-4 py-2 w-full"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  className="ml-2 px-3"
-                  disabled={!searchQuery.trim()}
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </form>
-
-              {/* Search Results Dropdown */}
-              {showSearchResults && searchResults && (searchResults.companies?.length > 0 || searchResults.jobs?.length > 0) && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-                  {/* Companies Section */}
-                  {searchResults.companies?.length > 0 && (
-                    <div className="p-3">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Companies</h4>
-                      {searchResults.companies.slice(0, 3).map((company: any) => (
-                        <Link 
-                          key={company.id} 
-                          href={`/companies`}
-                          onClick={handleResultClick}
-                          className="block p-2 hover:bg-gray-50 rounded-md"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <Building2 className="h-4 w-4 text-gray-400" />
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{company.name}</div>
-                              <div className="text-xs text-gray-500">
-                                {company.city && company.state ? `${company.city}, ${company.state}` : company.location}
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Jobs Section */}
-                  {searchResults.jobs?.length > 0 && (
-                    <div className="p-3 border-t border-gray-100">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Jobs</h4>
-                      {searchResults.jobs.slice(0, 3).map((job: any) => (
-                        <Link 
-                          key={job.id} 
-                          href={`/jobs/${job.id}`}
-                          onClick={handleResultClick}
-                          className="block p-2 hover:bg-gray-50 rounded-md"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <Briefcase className="h-4 w-4 text-gray-400" />
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                              <div className="text-xs text-gray-500">
-                                {job.company?.name} • {job.location}
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* View All Results */}
-                  <div className="p-3 border-t border-gray-100">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="w-full text-blue-600 hover:text-blue-700"
-                      onClick={() => {
-                        handleSearch({ preventDefault: () => {} } as any);
-                        handleResultClick();
-                      }}
-                    >
-                      View all results for "{searchQuery}"
-                    </Button>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">P</span>
                   </div>
+                  <span className="text-2xl font-bold text-gray-900">PingJob</span>
                 </div>
-              )}
-
-              {/* No Results Message */}
-              {showSearchResults && searchResults && searchResults.companies?.length === 0 && searchResults.jobs?.length === 0 && !searchLoading && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
-                  <div className="text-sm text-gray-500 text-center">No results found for "{searchQuery}"</div>
-                </div>
-              )}
+              </Link>
             </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <Button 
-                variant="ghost"
-                onClick={() => {
-                  setShowJobs(!showJobs);
-                  setShowCompanies(false);
-                }}
-              >
-                Jobs
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => {
-                  setShowCompanies(!showCompanies);
-                  setShowJobs(false);
-                }}
-              >
-                Companies
-              </Button>
-              <Link href="/pricing">
-                <Button variant="ghost">
-                  Pricing
-                </Button>
-              </Link>
-              <Link href="/network">
-                <Button variant="ghost">Network</Button>
-              </Link>
-              <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
+            
+            <nav className="hidden md:flex space-x-8">
+              <Link href="/jobs" className="text-gray-600 hover:text-gray-900">Jobs</Link>
+              <Link href="/companies" className="text-gray-600 hover:text-gray-900">Companies</Link>
+              <Link href="/about" className="text-gray-600 hover:text-gray-900">About</Link>
+              <Link href="/contact" className="text-gray-600 hover:text-gray-900">Contact</Link>
             </nav>
 
-            {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
               {user ? (
-                <>
-                  <span className="text-sm text-gray-600">
-                    Welcome, {user.firstName || user.email}
-                  </span>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">Welcome, {user.firstName || user.email}</span>
+                  <Link href="/dashboard">
+                    <Button variant="outline" size="sm">Dashboard</Button>
+                  </Link>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
+                    size="sm" 
                     onClick={handleLogout}
                     disabled={logoutMutation.isPending}
                   >
-                    <LogOut className="h-4 w-4 mr-1" />
-                    Logout
+                    <LogOut className="h-4 w-4" />
                   </Button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center space-x-2">
                   <Link href="/auth">
-                    <Button variant="outline">Login</Button>
+                    <Button variant="outline" size="sm">Sign In</Button>
                   </Link>
                   <Link href="/auth">
-                    <Button>Sign Up</Button>
+                    <Button size="sm">Get Started</Button>
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Latest Job Opportunities Section */}
-      {showJobs && (
-        <section className="bg-white border-b border-gray-200 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
-              <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
-            </div>
-            
-            {jobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {jobs.slice(0, 9).map((job: any) => (
-                  <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
-                            {job.title}
-                          </CardTitle>
-                          <div className="flex items-center text-sm text-gray-600 mb-2">
-                            <Building2 className="h-4 w-4 mr-1" />
-                            <span>{job.company?.name || 'Company Name'}</span>
-                          </div>
-                          {job.location && (
-                            <div className="flex items-center text-sm text-gray-500">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              <span>{job.location}</span>
-                            </div>
-                          )}
-                        </div>
-                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
-                          <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50 ml-4">
-                            <img 
-                              src={job.company.logoUrl} 
-                              alt={job.company.name}
-                              className="w-full h-full object-contain p-1"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-700 line-clamp-3 mb-4">
-                        {job.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          {job.employment_type && (
-                            <Badge variant="secondary" className="text-xs">
-                              {job.employment_type}
-                            </Badge>
-                          )}
-                          {job.salary_range && (
-                            <div className="flex items-center">
-                              <DollarSign className="h-3 w-3 mr-1" />
-                              <span>{job.salary_range}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
-                        </div>
-                      </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button className="w-full mt-4" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))}
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-5xl font-bold mb-6">
+            Find Your Dream Job with{" "}
+            <span className="text-green-400">PingJob</span>
+          </h1>
+          <p className="text-xl mb-8 text-blue-100">
+            Connect with top companies, showcase your skills, and advance your career
+          </p>
+          
+          {/* Search Bar */}
+          <div className="max-w-4xl mx-auto bg-white rounded-lg p-6 shadow-lg">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Job title, keywords, or company"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Available</h3>
-                <p className="text-gray-600 mb-6">Check back soon for new opportunities</p>
-                <Button className="px-8">
-                  Post a Job
-                  <Plus className="h-4 w-4 ml-2" />
-                </Button>
+              <div className="flex-1">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  />
+                </div>
               </div>
-            )}
-            
-            <div className="text-center mt-8">
               <Link href="/jobs">
                 <Button size="lg" className="px-8">
-                  View All Jobs
-                  <Briefcase className="h-5 w-5 ml-2" />
+                  <Search className="mr-2 h-5 w-5" />
+                  Search Jobs
                 </Button>
               </Link>
             </div>
           </div>
-        </section>
-      )}
 
-      {/* Companies Section */}
-      {showCompanies && (
-        <section className="bg-white border-b border-gray-200 py-8" key={`companies-${displayStats.totalCompanies}-${Date.now()}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4" key={`title-${companyCount}`}>
-                <span>Top Companies (</span>
-                <span id="live-company-count" style={{color: 'red', fontWeight: 'bold', fontSize: '1.2em'}}>
-                  LOADING...
-                </span>
-                <span> total)</span>
-              </h2>
-              <script dangerouslySetInnerHTML={{
-                __html: `
-                  (function() {
-                    function updateCount() {
-                      fetch('/api/platform/stats?t=' + Date.now())
-                        .then(r => r.json())
-                        .then(data => {
-                          const el = document.getElementById('live-company-count');
-                          if (el && data.totalCompanies) {
-                            el.textContent = data.totalCompanies.toLocaleString();
-                            el.style.color = 'black';
-                          }
-                        })
-                        .catch(() => {
-                          const el = document.getElementById('live-company-count');
-                          if (el) {
-                            el.textContent = '76,806';
-                            el.style.color = 'black';
-                          }
-                        });
-                    }
-                    updateCount();
-                    setInterval(updateCount, 1000);
-                  })();
-                `
-              }} />
-              <p className="text-lg text-gray-600">Discover leading companies with active job opportunities and vendor partnerships</p>
-              
-              {/* Platform Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-8">
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <div className="flex items-center justify-center mb-2">
-                    <Users className="h-8 w-8 text-blue-600 mr-2" />
-                    <span className="text-2xl font-bold text-blue-600">{displayStats.totalUsers.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">Platform Members</p>
-                </div>
-                
-                <div className="bg-green-50 p-6 rounded-lg">
-                  <div className="flex items-center justify-center mb-2">
-                    <Briefcase className="h-8 w-8 text-green-600 mr-2" />
-                    <span className="text-2xl font-bold text-green-600">{displayStats.activeJobs}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">Active Jobs</p>
-                </div>
-                
-                <div className="bg-orange-50 p-6 rounded-lg">
-                  <div className="flex items-center justify-center mb-2">
-                    <Building2 className="h-8 w-8 text-orange-600 mr-2" />
-                    <span className="text-2xl font-bold text-orange-600">{displayStats.totalCompanies.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">Companies</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {topCompanies.map((company: any) => (
-                <Card key={company.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group h-full">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {company.logoUrl && company.logoUrl !== "NULL" ? (
-                          <img 
-                            src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={company.name}
-                            className="w-full h-full object-contain p-2"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
-                            {company.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <h3 className="font-semibold text-base text-gray-900 line-clamp-3 min-h-[60px] flex items-center text-center leading-tight">
-                        {company.name}
-                      </h3>
-                      
-                      {company.industry && (
-                        <p className="text-xs text-gray-600 line-clamp-1">
-                          {company.industry}
-                        </p>
-                      )}
-                      
-                      {(company.city || company.state || company.zipCode || company.zip_code || company.country) && (
-                        <div className="flex items-center justify-center text-sm text-gray-500">
-                          <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                          <span className="truncate text-center">
-                            {[company.city, company.state, company.zipCode || company.zip_code, company.country].filter(Boolean).join(', ')}
-                          </span>
-                        </div>
-                      )}
-                      
-                      <div className="flex flex-col items-center space-y-2 w-full">
-                        {(company.job_count || 0) > 0 && (
-                          <div className="flex items-center text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full">
-                            <Briefcase className="h-4 w-4 mr-2" />
-                            <span className="text-sm">{company.job_count} Open Job{company.job_count !== 1 ? 's' : ''}</span>
-                          </div>
-                        )}
-                        {(company.vendor_count || 0) > 0 && (
-                          <div className="flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                            <Users className="h-4 w-4 mr-2" />
-                            <span className="text-sm">{company.vendor_count} Vendor{company.vendor_count !== 1 ? 's' : ''}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="text-center mt-8">
-              <Link href="/companies">
-                <Button size="lg" className="px-8">
-                  View All Companies
-                  <Building2 className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-
-
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Hero Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 pt-8">
-            <div className="flex items-center justify-center space-x-2 text-green-600">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-semibold">100% Client-Only Jobs</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2 text-blue-600">
-              <Rocket className="h-5 w-5" />
-              <span className="font-semibold">10X Recruiter Engagement</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2 text-purple-600">
-              <Target className="h-5 w-5" />
-              <span className="font-semibold">One Clear Goal</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2 text-indigo-600">
-              <Bot className="h-5 w-5" />
-              <span className="font-semibold">AI-Powered Matching</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-            <div className="flex items-center justify-center space-x-2 text-orange-600">
-              <BarChart3 className="h-5 w-5" />
-              <span className="font-semibold">Real-Time Analytics</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2 text-red-600">
-              <Star className="h-5 w-5" />
-              <span className="font-semibold">Resume Score™</span>
-            </div>
-          </div>
-
-          {/* Real-time Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+          {/* Stats */}
+          {platformStats && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Briefcase className="h-6 w-6 text-blue-600" />
+                <div className="text-3xl font-bold text-green-400">
+                  {platformStats.activeJobs?.toLocaleString() || 0}
                 </div>
-                <div className="text-2xl font-bold text-blue-600">{jobStats.totalJobs}</div>
-                <div className="text-sm text-gray-600">Active Jobs</div>
+                <div className="text-blue-100">Active Jobs</div>
               </div>
-            </Card>
-            
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Building2 className="h-6 w-6 text-green-600" />
+                <div className="text-3xl font-bold text-green-400">
+                  {platformStats.totalCompanies?.toLocaleString() || 0}
                 </div>
-                <div className="text-2xl font-bold text-green-600">{jobStats.activeCompanies}</div>
-                <div className="text-sm text-gray-600">Top Companies</div>
+                <div className="text-blue-100">Companies</div>
               </div>
-            </Card>
-            
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                <div className="text-3xl font-bold text-green-400">
+                  {platformStats.totalUsers?.toLocaleString() || 0}
                 </div>
-                <div className="text-2xl font-bold text-purple-600">{jobStats.totalCategories}</div>
-                <div className="text-sm text-gray-600">Categories</div>
+                <div className="text-blue-100">Professionals</div>
               </div>
-            </Card>
-            
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Clock className="h-6 w-6 text-orange-600" />
-                </div>
-                <div className="text-2xl font-bold text-orange-600">{jobStats.todayJobs}</div>
-                <div className="text-sm text-gray-600">Posted Today</div>
-              </div>
-            </Card>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
-
-
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             
-            {/* Top Job Categories */}
+            {/* Job Categories */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Popular Categories
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <JobCategories limit={10} />
+                <div className="space-y-3">
+                  {categories?.slice(0, 8).map((category: any) => (
+                    <Link key={category.id} href={`/categories/${category.id}/jobs`}>
+                      <div className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                        <span className="text-sm font-medium text-gray-700">
+                          {category.name}
+                        </span>
+                        <Badge variant="secondary" className="text-xs">
+                          {category.job_count || 0}
+                        </Badge>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
             {/* Top Companies */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Top Companies
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {topCompanies.slice(0, 20).map((company: any, index) => (
+                  {topCompanies?.slice(0, 10).map((company: any, index) => (
                     <div key={company.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="flex-shrink-0 relative">
                         <div className="absolute -top-1 -left-1 bg-blue-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
@@ -714,18 +235,16 @@ export default function PingJobHome() {
                               className="w-full h-full object-contain p-0.5"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
+                            <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs">
                               {company.name?.[0]?.toUpperCase() || 'C'}
                             </div>
                           )}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/companies/${company.id}`}>
-                          <p className="text-sm font-medium text-gray-900 truncate hover:text-blue-600">
-                            {company.name}
-                          </p>
-                        </Link>
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {company.name}
+                        </p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="default" className="text-xs bg-green-600 text-white">
                             {company.jobCount || 0} jobs
@@ -749,241 +268,186 @@ export default function PingJobHome() {
                 Latest Job Opportunities
               </h2>
               <p className="text-gray-600 mt-2">
-                Showing {jobs.length} of {totalJobs} available positions
+                Discover exciting career opportunities from top companies
               </p>
             </div>
 
             {jobsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid gap-6">
                 {[...Array(6)].map((_, i) => (
                   <Card key={i} className="animate-pulse">
                     <CardContent className="p-6">
-                      <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                      <div className="h-3 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                      <div className="flex gap-2">
-                        <div className="h-8 bg-gray-200 rounded flex-1"></div>
-                        <div className="h-8 bg-gray-200 rounded w-20"></div>
-                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-full"></div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : (
-              <>
-                {/* Job Grid - 2 columns, 10 rows */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {jobs.slice(0, 20).map((job: any) => {
-                    const isFeatured = job.id === featuredJobId;
-                    return (
-                      <Card key={job.id} className={`hover:shadow-lg transition-all duration-300 ${
-                        isFeatured ? 'ring-2 ring-blue-500 shadow-lg scale-105' : ''
-                      }`}>
-                        <CardContent className="p-6">
-                          {isFeatured && (
-                            <div className="flex items-center space-x-1 mb-3">
-                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                              <span className="text-xs font-medium text-blue-600">Featured Job</span>
+              <div className="grid gap-6">
+                {jobs?.slice(0, 12).map((job: any) => (
+                  <Card key={job.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <Link href={`/jobs/${job.id}`}>
+                            <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer">
+                              {job.title}
+                            </h3>
+                          </Link>
+                          <p className="text-gray-600 font-medium">
+                            {job.companyName || "Company"}
+                          </p>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {job.location || "Location not specified"}
                             </div>
-                          )}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                                {job.title}
-                              </h3>
-                              <div className="flex items-center space-x-3 mb-2">
-                                <div className="w-12 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
-                                  {job.company?.logoUrl ? (
-                                    <img 
-                                      src={job.company.logoUrl} 
-                                      alt={job.company.name}
-                                      className="w-full h-full object-contain p-0.5"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
-                                      {job.company?.name?.[0]?.toUpperCase() || 'C'}
-                                    </div>
-                                  )}
-                                </div>
-                                <span className="text-sm font-medium text-gray-700">
-                                  {job.company?.name || `Company ${job.companyId || 'TBD'}`}
-                                </span>
-                                {job.vendorCount > 0 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {job.vendorCount} vendors
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-1 text-sm text-gray-500 mb-3">
-                                <MapPin className="h-4 w-4" />
-                                <span>{job.location}</span>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                                {job.description?.substring(0, 120)}...
-                              </p>
+                            <div className="flex items-center gap-1">
+                              <Briefcase className="h-4 w-4" />
+                              {job.employmentType || "Full-time"}
                             </div>
-                          </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 text-xs text-gray-500">
-                            <div className="flex items-center space-x-1">
-                              <Users className="h-3 w-3" />
-                              <span>{Math.floor(Math.random() * 50) + 5} applied</span>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Recently posted
                             </div>
-                            <Badge variant="secondary">{job.employmentType}</Badge>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => {
-                                console.log('View job clicked:', job.id);
-                                window.open(`/jobs/${job.id}`, '_blank');
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
-                            <Button 
-                              size="sm"
-                              onClick={() => {
-                                console.log('Apply clicked for job:', job.id);
-                                if (!user) {
-                                  window.location.href = '/auth';
-                                  return;
-                                }
-                                // Navigate to job application page
-                                window.location.href = `/jobs/${job.id}`;
-                              }}
-                            >
-                              <Send className="h-4 w-4 mr-1" />
-                              Apply
-                            </Button>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                    );
-                  })}
-                </div>
+                        <div className="flex items-center gap-2">
+                          {!user && (
+                            <Link href="/auth">
+                              <Button variant="outline" size="sm">
+                                <Heart className="h-4 w-4 mr-1" />
+                                Save
+                              </Button>
+                            </Link>
+                          )}
+                          <Link href={`/jobs/${job.id}`}>
+                            <Button size="sm">
+                              View Details
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-700 text-sm line-clamp-2 mb-4">
+                        {job.description ? 
+                          job.description.substring(0, 150) + "..." : 
+                          "Join our team and make an impact in this exciting role."
+                        }
+                      </p>
 
-                {/* Pagination */}
-                <div className="flex items-center justify-center space-x-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center space-x-2">
-                    {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                      const page = i + 1;
-                      return (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </Button>
-                      );
-                    })}
-                    {totalPages > 5 && (
-                      <>
-                        <span className="text-gray-500">...</span>
-                        <Button
-                          variant={currentPage === totalPages ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(totalPages)}
-                        >
-                          {totalPages}
-                        </Button>
-                      </>
-                    )}
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-              </>
+                      <div className="flex flex-wrap gap-2">
+                        {job.requirements && job.requirements.split(',').slice(0, 3).map((skill: string, idx: number) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {skill.trim()}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
+
+            {/* View More Jobs Button */}
+            <div className="mt-8 text-center">
+              <Link href="/jobs">
+                <Button size="lg">
+                  View All Jobs
+                  <TrendingUp className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-
+      {/* Call to Action Section */}
+      <section className="bg-gray-900 text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Take the Next Step?</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Join thousands of professionals who trust PingJob to advance their careers
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {!user ? (
+              <>
+                <Link href="/auth">
+                  <Button size="lg" variant="default">
+                    Create Your Profile
+                  </Button>
+                </Link>
+                <Link href="/jobs">
+                  <Button size="lg" variant="outline">
+                    Explore Jobs
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard">
+                  <Button size="lg" variant="default">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+                <Link href="/jobs">
+                  <Button size="lg" variant="outline">
+                    Find Jobs
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            
-            {/* Logo and Description */}
-            <div className="col-span-1 md:col-span-2">
-              <img src={logoPath} alt="PingJob" className="h-10 w-auto mb-4 brightness-0 invert" />
+            {/* Company Info */}
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">P</span>
+                </div>
+                <span className="text-xl font-bold">PingJob</span>
+              </div>
               <p className="text-gray-300 mb-4">
-                Connecting talent with opportunity through AI-powered matching and vetted recruiters.
+                The premier platform connecting talented professionals with leading companies.
               </p>
-              
-              {/* Social Media */}
               <div className="flex space-x-4">
-                <Button variant="ghost" size="sm" className="text-white hover:text-blue-400">
-                  <Facebook className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-white hover:text-pink-400">
-                  <Instagram className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-white hover:text-blue-500">
-                  <Linkedin className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-white hover:text-blue-400">
-                  <Twitter className="h-5 w-5" />
-                </Button>
+                <Link href="/about">
+                  <Button variant="link" className="text-gray-300 hover:text-white p-0">
+                    About
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button variant="link" className="text-gray-300 hover:text-white p-0">
+                    Contact
+                  </Button>
+                </Link>
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <h3 className="text-lg font-semibold mb-4">For Job Seekers</h3>
               <div className="space-y-2">
-                <div>
-                  <Link href="/about">
-                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
-                      About
-                    </Button>
-                  </Link>
-                </div>
-                <div>
-                  <Link href="/privacy">
-                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
-                      Privacy
-                    </Button>
-                  </Link>
-                </div>
-                <div>
-                  <Link href="/terms">
-                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
-                      Terms
-                    </Button>
-                  </Link>
-                </div>
-                <div>
-                  <Link href="/contact">
-                    <Button variant="ghost" className="text-gray-300 hover:text-white p-0 h-auto font-normal block">
-                      Contact
-                    </Button>
-                  </Link>
-                </div>
+                <Link href="/jobs" className="block text-gray-300 hover:text-white">Browse Jobs</Link>
+                <Link href="/companies" className="block text-gray-300 hover:text-white">Companies</Link>
+                <Link href="/auth" className="block text-gray-300 hover:text-white">Create Profile</Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Legal</h3>
+              <div className="space-y-2">
+                <Link href="/privacy" className="block text-gray-300 hover:text-white">Privacy Policy</Link>
+                <Link href="/terms" className="block text-gray-300 hover:text-white">Terms of Service</Link>
               </div>
             </div>
 
