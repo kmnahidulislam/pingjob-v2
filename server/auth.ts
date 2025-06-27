@@ -229,6 +229,33 @@ export function setupAuth(app: Express) {
     try {
       const { email, password, firstName, lastName, userType } = req.body;
       
+      // Validate required fields
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+      
+      // Validate password length
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+      
+      // Validate user type
+      const validUserTypes = ["job_seeker", "recruiter", "client", "admin"];
+      if (userType && !validUserTypes.includes(userType)) {
+        return res.status(400).json({ message: "Invalid user type" });
+      }
+      
+      // Validate name fields
+      if (firstName.trim().length === 0 || lastName.trim().length === 0) {
+        return res.status(400).json({ message: "First name and last name cannot be empty" });
+      }
+      
       // Check if user exists
       const checkResult = await pool.query(
         'SELECT id FROM users WHERE email = $1',
@@ -242,12 +269,12 @@ export function setupAuth(app: Express) {
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Insert new user
+      // Insert new user with validated data
       const insertResult = await pool.query(`
         INSERT INTO users (id, email, password, first_name, last_name, user_type)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id, email, first_name, last_name, user_type
-      `, [userId, email, hashedPassword, firstName, lastName, userType || 'job_seeker']);
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), userType || 'job_seeker']);
       
       const user = insertResult.rows[0];
       
