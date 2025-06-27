@@ -255,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userFound: !!result,
         userEmail: result?.email || 'not found'
       });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ status: 'error', error: error.message });
     }
   });
@@ -284,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Search companies and jobs in parallel
       const [companies, jobs] = await Promise.all([
         storage.searchCompanies(query, 10),
-        storage.searchJobs(query, 10)
+        storage.searchJobs(query, {})
       ]);
 
       res.json({

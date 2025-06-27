@@ -18,7 +18,9 @@ if (process.env.GOOGLE_CLIENT_ID) {
 console.log('==================');
 
 // Initialize clean Neon.tech database before starting server
-await initializeCleanDatabase();
+initializeCleanDatabase().then(() => {
+  console.log("Database initialized successfully");
+}).catch(console.error);
 
 const app = express();
 app.use(express.json());
