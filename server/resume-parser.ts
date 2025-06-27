@@ -33,10 +33,13 @@ export interface MatchingScore {
   skillsScore: number;
   experienceScore: number;
   educationScore: number;
+  companyScore: number;
   breakdown: {
     skillsMatched: string[];
     experienceMatch: boolean;
     educationMatch: boolean;
+    companyMatch: boolean;
+    companiesMatched: string[];
   };
 }
 
@@ -184,17 +187,29 @@ export function calculateMatchingScore(resume: ParsedResume, jobReqs: JobRequire
     educationScore = getEducationPartialScore(resume, jobReqs);
   }
 
-  const totalScore = Math.round(skillsScore + experienceScore + educationScore);
+  // Company matching (bonus points for same company experience)
+  let companyScore = 0;
+  const companiesMatched: string[] = [];
+  const companyMatch = checkCompanyMatch(resume, jobReqs);
+  if (companyMatch) {
+    companyScore = 2; // 2 bonus points for company match
+    companiesMatched.push(...getMatchedCompanies(resume, jobReqs));
+  }
+
+  const totalScore = Math.round(skillsScore + experienceScore + educationScore + companyScore);
 
   return {
-    totalScore: Math.min(totalScore, 10), // Cap at 10
+    totalScore: Math.min(totalScore, 12), // Cap at 12 (10 base + 2 company bonus)
     skillsScore: Math.round(skillsScore),
     experienceScore: Math.round(experienceScore),
     educationScore: Math.round(educationScore),
+    companyScore: Math.round(companyScore),
     breakdown: {
       skillsMatched,
       experienceMatch,
-      educationMatch
+      educationMatch,
+      companyMatch,
+      companiesMatched
     }
   };
 }

@@ -156,6 +156,7 @@ export const jobApplications = pgTable("job_applications", {
   skillsScore: integer("skills_score").default(0),
   experienceScore: integer("experience_score").default(0),
   educationScore: integer("education_score").default(0),
+  companyScore: integer("company_score").default(0),
   isProcessed: boolean("is_processed").default(false),
   processingError: text("processing_error"),
   parsedSkills: text("parsed_skills").array(),
