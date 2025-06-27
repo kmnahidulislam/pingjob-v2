@@ -247,14 +247,11 @@ export function setupAuth(app: Express) {
       
       // SECURITY: Only allow job_seeker accounts for free registration
       // Premium accounts (recruiter, client) require payment verification
-      console.log('Registration attempt - userType:', userType);
       if (userType && userType !== "job_seeker") {
-        console.log('BLOCKING premium account registration for:', email, 'userType:', userType);
         return res.status(403).json({ 
           message: "Premium account types require a paid subscription. Please visit our pricing page to upgrade." 
         });
       }
-      console.log('Allowing job_seeker registration for:', email);
       
       // Validate name fields
       if (firstName.trim().length === 0 || lastName.trim().length === 0) {

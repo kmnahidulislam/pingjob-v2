@@ -527,6 +527,11 @@ Changelog:
   - Authentication system working correctly with session management and user data persistence
   - Created paid subscriber test accounts: recruiter@test.com (recruiter type) and enterprise@test.com (client type)
   - Both test accounts use password123 and are configured for testing advanced paid features
+  - SECURITY FIX COMPLETED: Registration system now prevents unauthorized premium account creation
+  - Frontend registration form restricts selection to job seeker accounts only with pricing page link
+  - Backend validation blocks all attempts to create recruiter/client accounts without payment verification
+  - Deleted 3 unauthorized recruiter accounts that bypassed initial security implementation
+  - Platform now secure against premium account creation exploits with proper 403 error responses
   - Created comprehensive SocialMediaPoster class supporting Facebook, Twitter, and Instagram APIs
   - Added social_media_posts table to database schema for tracking posting results
   - Integrated automatic posting into job creation workflow (/api/jobs endpoint)
