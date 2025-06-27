@@ -518,6 +518,13 @@ Changelog:
   - Enhanced debug logging confirms strategy registration and credential verification working correctly
   - Production deployment requires Google Cloud Console configuration with current Replit domain redirect URI
 - June 20, 2025. Completed automatic social media posting system implementation and Facebook testing
+- June 27, 2025. Fixed critical security vulnerability in registration endpoint and added footer social media links
+  - Enhanced server-side input validation for registration with proper email format, password length, and user type validation
+  - Added missing social media posts table to database schema to prevent application errors
+  - Implemented functional footer social media links for Facebook, Instagram, LinkedIn, and Twitter
+  - All social media links open to external platforms in new tabs with proper accessibility labels
+  - Verified comprehensive security testing shows registration endpoint now properly rejects invalid input
+  - Authentication system working correctly with session management and user data persistence
   - Created comprehensive SocialMediaPoster class supporting Facebook, Twitter, and Instagram APIs
   - Added social_media_posts table to database schema for tracking posting results
   - Integrated automatic posting into job creation workflow (/api/jobs endpoint)
