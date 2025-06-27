@@ -104,6 +104,18 @@ PingJob is a full-stack web application built with React, TypeScript, Express.js
 ```
 Changelog:
 - June 13, 2025. Initial setup
+- June 27, 2025. Implemented comprehensive resume parsing & ranking system
+  - Added AI-powered resume content extraction using Claude 4.0 Sonnet
+  - Built intelligent job-resume matching algorithm with 10-point scoring system
+  - Implemented scoring breakdown: Skills (4 pts), Experience (3 pts), Education (3 pts)
+  - Created automatic resume processing pipeline triggered on job applications
+  - Added resume score display for job seekers (free access to own scores)
+  - Built scored applications view for paid users (recruiters/clients)
+  - Added visual score cards with progress bars and recommendations
+  - Integrated PDF and text resume parsing capabilities
+  - Enhanced applications page with dedicated scores tab
+  - Added minimum threshold filtering (scores below 5 filtered out)
+  - Implemented background processing to avoid blocking application submissions
 - June 13, 2025. Completed vendor count display system
   - Added vendor_count field to company data with proper SQL JOIN queries
   - Implemented vendor count display in both search results and main company grid
