@@ -34,6 +34,7 @@ import Auth from "@/pages/auth";
 import Checkout from "@/pages/checkout";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
+import RecruiterDashboard from "@/pages/recruiter-dashboard";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
@@ -165,6 +166,7 @@ function Router() {
           <Route path="/network" component={NetworkPage} />
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/recruiter-dashboard" component={RecruiterDashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/about" component={About} />

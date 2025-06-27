@@ -47,27 +47,42 @@ export default function Jobs() {
     }
   }, []);
 
-  // Fetch jobs
+  // Fetch both admin and recruiter jobs for search
   const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['/api/jobs', filters],
+    queryKey: ['/api/all-jobs', filters],
     queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      
-      // Add search parameter if present
-      if (filters.search && filters.search.trim()) {
-        searchParams.append('search', filters.search);
-      }
-      
+      try {
+        // Fetch both admin and recruiter jobs
+        const [adminJobsResponse, recruiterJobsResponse] = await Promise.all([
+          fetch('/api/admin-jobs?limit=50'),
+          fetch('/api/recruiter-jobs?limit=50')
+        ]);
 
-      
-      const url = `/api/jobs${searchParams.toString() ? '?' + searchParams.toString() : ''}`;
-      const response = await fetch(url, { credentials: 'include' });
-      
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
+        if (!adminJobsResponse.ok || !recruiterJobsResponse.ok) {
+          throw new Error('Failed to fetch jobs');
+        }
+
+        const adminJobs = await adminJobsResponse.json();
+        const recruiterJobs = await recruiterJobsResponse.json();
+        
+        // Combine and filter jobs based on search
+        const allJobs = [...adminJobs, ...recruiterJobs];
+        
+        if (filters.search && filters.search.trim()) {
+          const searchTerm = filters.search.toLowerCase();
+          return allJobs.filter(job => 
+            job.title?.toLowerCase().includes(searchTerm) ||
+            job.description?.toLowerCase().includes(searchTerm) ||
+            job.company?.name?.toLowerCase().includes(searchTerm) ||
+            job.location?.toLowerCase().includes(searchTerm)
+          );
+        }
+        
+        return allJobs;
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
       }
-      
-      return response.json();
     },
     enabled: true
   });

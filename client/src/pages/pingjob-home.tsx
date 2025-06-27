@@ -61,9 +61,9 @@ export default function PingJobHome() {
 
   // Fetch admin jobs only for homepage display
   const { data: jobsData, isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs/admin', { page: currentPage, limit: jobsPerPage }],
+    queryKey: ['/api/admin-jobs', { page: currentPage, limit: jobsPerPage }],
     queryFn: async () => {
-      const response = await fetch(`/api/jobs/admin?limit=${jobsPerPage}`);
+      const response = await fetch(`/api/admin-jobs?limit=${jobsPerPage}`);
       if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
     }
