@@ -134,25 +134,25 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
           {/* Skills Score */}
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <Target className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-blue-600">{skillsScore}/4</div>
+            <div className="text-2xl font-bold text-blue-600">{skillsScore}/6</div>
             <div className="text-sm text-gray-600">Skills Match</div>
-            <Progress value={(skillsScore / 4) * 100} className="mt-2 h-2" />
+            <Progress value={(skillsScore / 6) * 100} className="mt-2 h-2" />
           </div>
 
           {/* Experience Score */}
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <Briefcase className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-purple-600">{experienceScore}/3</div>
+            <div className="text-2xl font-bold text-purple-600">{experienceScore}/2</div>
             <div className="text-sm text-gray-600">Experience</div>
-            <Progress value={(experienceScore / 3) * 100} className="mt-2 h-2" />
+            <Progress value={(experienceScore / 2) * 100} className="mt-2 h-2" />
           </div>
 
           {/* Education Score */}
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <GraduationCap className="h-6 w-6 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-green-600">{educationScore}/3</div>
+            <div className="text-2xl font-bold text-green-600">{educationScore}/2</div>
             <div className="text-sm text-gray-600">Education</div>
-            <Progress value={(educationScore / 3) * 100} className="mt-2 h-2" />
+            <Progress value={(educationScore / 2) * 100} className="mt-2 h-2" />
           </div>
 
           {/* Company Score */}
@@ -176,13 +176,13 @@ export default function ResumeScoreCard({ application }: ResumeScoreCardProps) {
             Recommendations
           </h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            {skillsScore < 3 && (
-              <li>• Consider highlighting more relevant technical skills</li>
+            {skillsScore < 4 && (
+              <li>• Focus on highlighting more relevant technical skills (highest impact)</li>
             )}
-            {experienceScore < 2 && (
+            {experienceScore < 1.5 && (
               <li>• Emphasize your relevant work experience and achievements</li>
             )}
-            {educationScore < 2 && (
+            {educationScore < 1.5 && (
               <li>• Include relevant certifications or educational background</li>
             )}
             {companyScore === 0 && application.job?.company && (

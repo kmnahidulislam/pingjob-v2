@@ -517,13 +517,7 @@ function checkCompanyMatch(resume: ParsedResume, jobReqs: JobRequirements): bool
   // Extract company name from job requirements (assuming it's passed in jobReqs)
   const jobCompany = (jobReqs as any).companyName?.toLowerCase() || '';
   
-  console.log('DEBUG Company Match - Job Company:', jobCompany);
-  console.log('DEBUG Company Match - Resume Companies:', resume.companies);
-  
-  if (!jobCompany) {
-    console.log('DEBUG Company Match - No job company provided');
-    return false;
-  }
+  if (!jobCompany) return false;
   
   // Normalize company names by removing common suffixes
   const normalizeCompanyName = (name: string): string => {
@@ -536,22 +530,15 @@ function checkCompanyMatch(resume: ParsedResume, jobReqs: JobRequirements): bool
   const normalizedJobCompany = normalizeCompanyName(jobCompany);
   
   // Check if any of the resume companies match the job company
-  const matchResult = resume.companies.some(company => {
+  return resume.companies.some(company => {
     const normalizedResumeCompany = normalizeCompanyName(company);
-    console.log('DEBUG Company Match - Comparing:', normalizedResumeCompany, 'vs', normalizedJobCompany);
     
     // Direct match after normalization
-    if (normalizedResumeCompany === normalizedJobCompany) {
-      console.log('DEBUG Company Match - Direct match found!');
-      return true;
-    }
+    if (normalizedResumeCompany === normalizedJobCompany) return true;
     
     // Check if one contains the other
     if (normalizedResumeCompany.includes(normalizedJobCompany) || 
-        normalizedJobCompany.includes(normalizedResumeCompany)) {
-      console.log('DEBUG Company Match - Contains match found!');
-      return true;
-    }
+        normalizedJobCompany.includes(normalizedResumeCompany)) return true;
     
     // Check for partial matches for longer company names
     if (normalizedResumeCompany.length >= 4 && normalizedJobCompany.length >= 4) {
@@ -559,24 +546,16 @@ function checkCompanyMatch(resume: ParsedResume, jobReqs: JobRequirements): bool
       const jobWords = normalizedJobCompany.split(/\s+/);
       
       // Check if any significant word matches (length >= 4)
-      const wordMatch = resumeWords.some(resumeWord => 
+      return resumeWords.some(resumeWord => 
         resumeWord.length >= 4 && jobWords.some(jobWord => 
           jobWord.length >= 4 && (resumeWord === jobWord || 
           resumeWord.includes(jobWord) || jobWord.includes(resumeWord))
         )
       );
-      
-      if (wordMatch) {
-        console.log('DEBUG Company Match - Word match found!');
-        return true;
-      }
     }
     
     return false;
   });
-  
-  console.log('DEBUG Company Match - Final result:', matchResult);
-  return matchResult;
 }
 
 function getMatchedCompanies(resume: ParsedResume, jobReqs: JobRequirements): string[] {
