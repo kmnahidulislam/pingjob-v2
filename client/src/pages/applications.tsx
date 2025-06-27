@@ -225,13 +225,79 @@ export default function Applications() {
 
       {/* Applications List */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="scores">Resume Scores</TabsTrigger>
           <TabsTrigger value="applied">Applied ({applicationsByStatus.applied.length})</TabsTrigger>
           <TabsTrigger value="under_review">Review ({applicationsByStatus.under_review.length})</TabsTrigger>
           <TabsTrigger value="interview">Interview ({applicationsByStatus.interview.length})</TabsTrigger>
           <TabsTrigger value="accepted">Accepted ({applicationsByStatus.accepted.length})</TabsTrigger>
           <TabsTrigger value="rejected">Rejected ({applicationsByStatus.rejected.length})</TabsTrigger>
         </TabsList>
+
+        {/* Resume Scores Tab */}
+        <TabsContent value="scores" className="space-y-4">
+          {applications.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <div className="text-gray-500">No applications found</div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {applications.map((application: JobApplication) => (
+                <Card key={application.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{application.job.title}</h3>
+                        <p className="text-gray-600">{application.job.company.name}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Applied {format(new Date(application.appliedAt), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                      
+                      {applicationScores && applicationScores[application.id] ? (
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 min-w-[200px]">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-900 mb-2">
+                              {applicationScores[application.id].matchScore}/10
+                            </div>
+                            <div className="text-xs font-medium text-blue-700 mb-3">Overall Match Score</div>
+                            
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <div className="font-bold text-blue-800">
+                                  {applicationScores[application.id].skillsScore}/4
+                                </div>
+                                <div className="text-blue-600">Skills</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-blue-800">
+                                  {applicationScores[application.id].experienceScore}/3
+                                </div>
+                                <div className="text-blue-600">Experience</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-bold text-blue-800">
+                                  {applicationScores[application.id].educationScore}/3
+                                </div>
+                                <div className="text-blue-600">Education</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-[200px] text-center">
+                          <div className="text-gray-500">Score calculating...</div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
         {Object.entries(applicationsByStatus).map(([status, apps]) => (
           <TabsContent key={status} value={status} className="space-y-4">
@@ -280,6 +346,21 @@ export default function Applications() {
                             {application.status.replace('_', ' ').toUpperCase()}
                           </Badge>
                           
+                          {/* Resume Score Display */}
+                          {applicationScores && applicationScores[application.id] && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 min-w-[140px]">
+                              <div className="text-xs font-medium text-blue-700 mb-1">Resume Match Score</div>
+                              <div className="text-lg font-bold text-blue-900">
+                                {applicationScores[application.id].matchScore}/10
+                              </div>
+                              <div className="text-xs text-blue-600 mt-1">
+                                Skills: {applicationScores[application.id].skillsScore}/4 • 
+                                Experience: {applicationScores[application.id].experienceScore}/3 • 
+                                Education: {applicationScores[application.id].educationScore}/3
+                              </div>
+                            </div>
+                          )}
+                          
                           <div className="flex gap-2">
                             {application.resumeUrl && (
                               <Button variant="outline" size="sm">
@@ -314,6 +395,49 @@ export default function Applications() {
                                       <p className="text-sm bg-gray-50 p-3 rounded">
                                         {application.coverLetter}
                                       </p>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Resume Score Details */}
+                                  {applicationScores && applicationScores[application.id] && (
+                                    <div>
+                                      <h4 className="font-semibold">Resume Match Analysis</h4>
+                                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                                        <div className="flex justify-between items-center">
+                                          <span className="font-medium">Overall Match Score:</span>
+                                          <span className="text-xl font-bold text-blue-900">
+                                            {applicationScores[application.id].matchScore}/10
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                          <div className="flex justify-between">
+                                            <span>Skills Match:</span>
+                                            <span className="font-medium">{applicationScores[application.id].skillsScore}/4</span>
+                                          </div>
+                                          <div className="flex justify-between">
+                                            <span>Experience Match:</span>
+                                            <span className="font-medium">{applicationScores[application.id].experienceScore}/3</span>
+                                          </div>
+                                          <div className="flex justify-between">
+                                            <span>Education Match:</span>
+                                            <span className="font-medium">{applicationScores[application.id].educationScore}/3</span>
+                                          </div>
+                                        </div>
+                                        
+                                        {applicationScores[application.id].parsedSkills && Array.isArray(applicationScores[application.id].parsedSkills) && (
+                                          <div>
+                                            <span className="text-sm font-medium">Matched Skills:</span>
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                              {applicationScores[application.id].parsedSkills.slice(0, 8).map((skill: string, index: number) => (
+                                                <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                                  {skill}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   )}
                                   
