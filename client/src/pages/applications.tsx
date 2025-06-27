@@ -37,7 +37,7 @@ interface JobApplication {
 export default function Applications() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("applied");
+  const [activeTab, setActiveTab] = useState("applications");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -45,6 +45,30 @@ export default function Applications() {
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/applications'],
     enabled: !!user
+  });
+
+  // Get application scores for each application
+  const { data: applicationScores } = useQuery({
+    queryKey: ['/api/applications/scores'],
+    queryFn: async () => {
+      if (!applications || applications.length === 0) return {};
+      
+      const scores: Record<number, any> = {};
+      await Promise.allSettled(
+        applications.map(async (app: any) => {
+          try {
+            const response = await fetch(`/api/applications/${app.id}/score`);
+            if (response.ok) {
+              scores[app.id] = await response.json();
+            }
+          } catch (error) {
+            console.error(`Failed to fetch score for application ${app.id}:`, error);
+          }
+        })
+      );
+      return scores;
+    },
+    enabled: !!applications && applications.length > 0,
   });
 
   const updateApplicationMutation = useMutation({

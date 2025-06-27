@@ -114,6 +114,9 @@ export interface IStorage {
   getJobApplications(jobId: number): Promise<any[]>;
   createJobApplication(application: InsertJobApplication): Promise<JobApplication>;
   updateJobApplicationStatus(id: number, status: string): Promise<JobApplication>;
+  updateJobApplicationScoring(id: number, scoringData: any): Promise<JobApplication>;
+  getJobApplicationsWithScores(jobId: number): Promise<any[]>;
+  getApplicationsAboveThreshold(threshold?: number): Promise<any[]>;
   
   // Connection operations
   getUserConnections(userId: string): Promise<any[]>;
@@ -1184,6 +1187,95 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(jobApplications.id, id))
       .returning();
+    return result;
+  }
+
+  async updateJobApplicationScoring(id: number, scoringData: any): Promise<JobApplication> {
+    const [application] = await db
+      .update(jobApplications)
+      .set({
+        parsedSkills: scoringData.parsedSkills,
+        parsedExperience: scoringData.parsedExperience,
+        parsedEducation: scoringData.parsedEducation,
+        parsedCompanies: scoringData.parsedCompanies,
+        matchScore: scoringData.matchScore,
+        skillsScore: scoringData.skillsScore,
+        experienceScore: scoringData.experienceScore,
+        educationScore: scoringData.educationScore,
+        isProcessed: true,
+        processingError: scoringData.processingError || null,
+      })
+      .where(eq(jobApplications.id, id))
+      .returning();
+    return application;
+  }
+
+  async getJobApplicationsWithScores(jobId: number): Promise<any[]> {
+    const result = await db
+      .select({
+        id: jobApplications.id,
+        applicantId: jobApplications.applicantId,
+        status: jobApplications.status,
+        appliedAt: jobApplications.appliedAt,
+        matchScore: jobApplications.matchScore,
+        skillsScore: jobApplications.skillsScore,
+        experienceScore: jobApplications.experienceScore,
+        educationScore: jobApplications.educationScore,
+        parsedSkills: jobApplications.parsedSkills,
+        isProcessed: jobApplications.isProcessed,
+        applicant: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          profileImageUrl: users.profileImageUrl,
+          headline: users.headline,
+        }
+      })
+      .from(jobApplications)
+      .leftJoin(users, eq(jobApplications.applicantId, users.id))
+      .where(eq(jobApplications.jobId, jobId))
+      .orderBy(desc(jobApplications.matchScore));
+
+    return result;
+  }
+
+  async getApplicationsAboveThreshold(threshold: number = 5): Promise<any[]> {
+    const result = await db
+      .select({
+        id: jobApplications.id,
+        jobId: jobApplications.jobId,
+        applicantId: jobApplications.applicantId,
+        matchScore: jobApplications.matchScore,
+        skillsScore: jobApplications.skillsScore,
+        experienceScore: jobApplications.experienceScore,
+        educationScore: jobApplications.educationScore,
+        appliedAt: jobApplications.appliedAt,
+        job: {
+          id: jobs.id,
+          title: jobs.title,
+          company: {
+            name: companies.name,
+            logoUrl: companies.logoUrl,
+          }
+        },
+        applicant: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        }
+      })
+      .from(jobApplications)
+      .leftJoin(jobs, eq(jobApplications.jobId, jobs.id))
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .leftJoin(users, eq(jobApplications.applicantId, users.id))
+      .where(and(
+        eq(jobApplications.isProcessed, true),
+        sql`${jobApplications.matchScore} >= ${threshold}`
+      ))
+      .orderBy(desc(jobApplications.matchScore));
+
     return result;
   }
 
