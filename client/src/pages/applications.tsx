@@ -236,7 +236,7 @@ export default function Applications() {
 
         {/* Resume Scores Tab */}
         <TabsContent value="scores" className="space-y-4">
-          {applications.length === 0 ? (
+          {!Array.isArray(applications) || applications.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="text-gray-500">No applications found</div>
@@ -244,7 +244,7 @@ export default function Applications() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {applications.map((application: JobApplication) => (
+              {Array.isArray(applications) && applications.map((application: JobApplication) => (
                 <Card key={application.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-center">

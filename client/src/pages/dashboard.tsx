@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
-// Job Seeker Dashboard Component
+// Simplified Job Seeker Dashboard Component (Free Users)
 function JobSeekerDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -49,7 +49,7 @@ function JobSeekerDashboard() {
     enabled: !!user?.id,
   });
 
-  // Fetch user applications (limit to 10 most recent)
+  // Fetch user applications (limit to 10 most recent for free users)
   const { data: applications = [] } = useQuery({
     queryKey: ['/api/applications', { limit: 10 }],
     enabled: !!user?.id,
