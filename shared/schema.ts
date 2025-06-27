@@ -150,9 +150,18 @@ export const jobApplications = pgTable("job_applications", {
   resumeUrl: varchar("resume_url"),
   coverLetter: text("cover_letter"),
   status: varchar("status", { enum: ["pending", "reviewed", "interview", "rejected", "hired"] }).default("pending"),
-  // rank: decimal("rank", { precision: 3, scale: 2 }), // Temporarily commented out due to DB schema mismatch
   appliedAt: timestamp("applied_at").defaultNow(),
-  // updatedAt: timestamp("updated_at").defaultNow(), // Temporarily commented out due to DB schema mismatch
+  // Resume scoring columns
+  matchScore: integer("match_score").default(0),
+  skillsScore: integer("skills_score").default(0),
+  experienceScore: integer("experience_score").default(0),
+  educationScore: integer("education_score").default(0),
+  isProcessed: boolean("is_processed").default(false),
+  processingError: text("processing_error"),
+  parsedSkills: text("parsed_skills").array(),
+  parsedExperience: text("parsed_experience"),
+  parsedEducation: text("parsed_education"),
+  parsedCompanies: text("parsed_companies").array(),
 });
 
 // Connections

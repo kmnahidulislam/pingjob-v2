@@ -1133,6 +1133,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get application score
+  app.get('/api/applications/:id/score', isAuthenticated, async (req: any, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: "Invalid application ID" });
+      }
+      
+      // Get the application with basic data
+      const application = await storage.getJobApplication(applicationId);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      // Verify user owns this application
+      if (application.applicantId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      // For now, return mock scoring data to test the frontend
+      // This will be replaced with real scoring once database columns are added
+      const mockScore = {
+        id: application.id,
+        matchScore: Math.floor(Math.random() * 10) + 1, // Random score 1-10 for testing
+        skillsScore: Math.floor(Math.random() * 4) + 1, // Random skills score 1-4
+        experienceScore: Math.floor(Math.random() * 3) + 1, // Random experience score 1-3
+        educationScore: Math.floor(Math.random() * 3) + 1, // Random education score 1-3
+        isProcessed: true,
+        processingError: null,
+        parsedSkills: ["JavaScript", "React", "Node.js"],
+        parsedExperience: "Software Developer with 3+ years experience",
+        parsedEducation: "Bachelor's in Computer Science"
+      };
+      
+      console.log(`Returning test score for application ${applicationId}:`, mockScore);
+      res.json(mockScore);
+    } catch (error) {
+      console.error("Error fetching application score:", error);
+      res.status(500).json({ message: "Failed to fetch application score" });
+    }
+  });
+
   // Approve all vendors endpoint
   app.post('/api/vendors/approve-all', async (req: any, res) => {
     try {
