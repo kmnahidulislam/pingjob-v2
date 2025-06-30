@@ -591,6 +591,12 @@ Changelog:
   - Added proper error handling and URL encoding for logo file names with spaces
   - Company creation with logo upload now works properly with logos displaying correctly on home page
   - Cleaned up debugging code and streamlined form submission process
+- June 30, 2025. Enhanced job editing system for platform admin visibility
+  - Modified job editing API endpoint to mark admin-edited jobs for home page display
+  - When platform admin edits any job, it automatically sets recruiterId to 'admin-krupa'
+  - This ensures admin-edited jobs appear in the home page "Latest Job Opportunities" section
+  - Removed duplicate job update endpoint to prevent API conflicts
+  - Admin-edited jobs now gain prominent visibility alongside admin-created content
 ```
 
 ## User Preferences

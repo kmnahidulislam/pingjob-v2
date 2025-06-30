@@ -1094,16 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/jobs/:id', isAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const job = await storage.updateJob(id, req.body);
-      res.json(job);
-    } catch (error) {
-      console.error("Error updating job:", error);
-      res.status(500).json({ message: "Failed to update job" });
-    }
-  });
+
 
   app.delete('/api/jobs/:id', isAuthenticated, async (req, res) => {
     try {
