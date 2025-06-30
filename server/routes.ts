@@ -727,11 +727,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
+      // Ensure logos directory exists
+      const logosDir = path.join(process.cwd(), 'logos');
+      if (!fs.existsSync(logosDir)) {
+        fs.mkdirSync(logosDir, { recursive: true });
+      }
+
       // Generate unique filename with timestamp
       const timestamp = Date.now();
       const ext = path.extname(req.file.originalname);
       const filename = `company-logo-${timestamp}${ext}`;
-      const logoUrl = `/logos/${filename}`;
+      const logoUrl = `logos/${filename}`;
 
       // Rename file to have proper extension
       const oldPath = req.file.path;
@@ -748,13 +754,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/companies', async (req: any, res) => {
     try {
+      console.log("=== COMPANY CREATION DEBUG ===");
+      console.log("Request body:", req.body);
+      
       // Use admin user for testing
       const userId = "admin-krupa";
-      const validatedData = insertCompanySchema.parse({ ...req.body, userId });
+      const companyData = { ...req.body, userId };
+      
+      console.log("Company data before validation:", companyData);
+      
+      const validatedData = insertCompanySchema.parse(companyData);
+      console.log("Validated data:", validatedData);
+      
       const company = await storage.createCompany(validatedData);
+      console.log("Created company:", company);
+      
       res.json(company);
     } catch (error) {
-      console.error("Error creating company:", error);
+      console.error("=== COMPANY CREATION ERROR ===");
+      console.error("Full error:", error);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+      
+      if (error.name === 'ZodError') {
+        console.error("Validation errors:", error.errors);
+        return res.status(400).json({ 
+          message: "Validation failed", 
+          errors: error.errors 
+        });
+      }
+      
       res.status(500).json({ message: "Failed to create company" });
     }
   });
@@ -2440,20 +2469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload endpoint for company logos
-  app.post('/api/upload/company-logo', isAuthenticated, imageUpload.single('logo'), async (req: any, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
 
-      const logoUrl = `/uploads/${req.file.filename}`;
-      res.json({ logoUrl });
-    } catch (error) {
-      console.error("Error uploading company logo:", error);
-      res.status(500).json({ message: "Failed to upload logo" });
-    }
-  });
 
   // External invitation endpoints
   app.post("/api/external-invitations", isAuthenticated, async (req, res) => {
