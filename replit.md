@@ -583,6 +583,14 @@ Changelog:
   - Zip code searches now return both relevant companies and jobs (e.g., "55402" returns 12 jobs + 10 companies)
   - Search functionality works consistently across home page, companies page, and jobs page
   - Users can now effectively search by zip code to find local job opportunities and businesses
+- June 30, 2025. Fixed company creation with logo upload functionality
+  - Resolved form validation issue where userId field was required but not provided in frontend form
+  - Fixed duplicate company logo upload routes that were causing server conflicts
+  - Enhanced logo upload endpoint to automatically create logos directory if missing
+  - Corrected logo URL formatting inconsistencies across home page company displays
+  - Added proper error handling and URL encoding for logo file names with spaces
+  - Company creation with logo upload now works properly with logos displaying correctly on home page
+  - Cleaned up debugging code and streamlined form submission process
 ```
 
 ## User Preferences

@@ -754,30 +754,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/companies', async (req: any, res) => {
     try {
-      console.log("=== COMPANY CREATION DEBUG ===");
-      console.log("Request body:", req.body);
-      
       // Use admin user for testing
       const userId = "admin-krupa";
       const companyData = { ...req.body, userId };
       
-      console.log("Company data before validation:", companyData);
-      
       const validatedData = insertCompanySchema.parse(companyData);
-      console.log("Validated data:", validatedData);
-      
       const company = await storage.createCompany(validatedData);
-      console.log("Created company:", company);
       
       res.json(company);
     } catch (error: any) {
-      console.error("=== COMPANY CREATION ERROR ===");
-      console.error("Full error:", error);
-      console.error("Error message:", error?.message);
-      console.error("Error stack:", error?.stack);
+      console.error("Error creating company:", error?.message);
       
       if (error?.name === 'ZodError') {
-        console.error("Validation errors:", error.errors);
         return res.status(400).json({ 
           message: "Validation failed", 
           errors: error.errors 
