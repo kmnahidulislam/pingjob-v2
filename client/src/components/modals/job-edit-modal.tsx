@@ -114,7 +114,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Job Posting</DialogTitle>
           <div className="text-sm text-gray-600 mt-1">
-            Company: {company?.name || job?.company?.name || 'Loading company...'}
+            Company: {(company as any)?.name || (job?.company as any)?.name || 'Loading company...'}
           </div>
         </DialogHeader>
 

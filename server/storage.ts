@@ -2233,6 +2233,7 @@ export class DatabaseStorage implements IStorage {
         experienceLevel: jobs.experienceLevel,
         salary: jobs.salary,
         createdAt: jobs.createdAt,
+        updatedAt: jobs.updatedAt,
         companyId: jobs.companyId,
         recruiterId: jobs.recruiterId,
         company: {
@@ -2253,7 +2254,7 @@ export class DatabaseStorage implements IStorage {
           )
         )
       )
-      .orderBy(desc(jobs.createdAt))
+      .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt))
       .limit(limit);
 
     return result;
