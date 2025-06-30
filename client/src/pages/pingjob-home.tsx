@@ -569,11 +569,18 @@ export default function PingJobHome() {
                       )}
                       
                       {(company.city || company.state || company.zipCode || company.zip_code || company.country) && (
-                        <div className="flex items-center justify-center text-sm text-gray-500">
-                          <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-                          <span className="truncate text-center">
-                            {[company.city, company.state, company.zipCode || company.zip_code, company.country].filter(Boolean).join(', ')}
-                          </span>
+                        <div className="flex flex-col items-center justify-center text-sm text-gray-500 space-y-1">
+                          <div className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
+                            <span className="text-center">
+                              {[company.city, company.state].filter(Boolean).join(', ')}
+                            </span>
+                          </div>
+                          {(company.zipCode || company.zip_code || company.country) && (
+                            <div className="text-xs text-center">
+                              {[company.zipCode || company.zip_code, company.country].filter(Boolean).join(', ')}
+                            </div>
+                          )}
                         </div>
                       )}
                       

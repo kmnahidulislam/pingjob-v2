@@ -616,6 +616,11 @@ Changelog:
   - Fixed TypeScript errors in job edit modal for proper company name display
   - Verified admin job update workflow: edit job → set recruiterId to admin-krupa → appear at top of home page
   - Confirmed job editing preserves exact user input without adding automatic text modifications
+- June 30, 2025. Fixed company location display formatting to prevent overlapping
+  - Modified company card location display to show on two lines instead of one continuous line
+  - Line 1: City, State with location icon; Line 2: Zip code, Country in smaller text
+  - Applied fix to both companies page main grid and home page company listings
+  - Prevents long location text from overlapping with adjacent company cards
 ```
 
 ## User Preferences
