@@ -1005,12 +1005,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/jobs/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
     try {
       const jobId = parseInt(req.params.id);
-      // Use partial schema for updates - don't require all fields
       const updateSchema = insertJobSchema.partial();
       const jobData = updateSchema.parse(req.body);
+      
+      // If platform admin is editing the job, mark it to appear on home page
+      if (req.user?.userType === 'admin' || req.user?.id === 'admin-krupa') {
+        jobData.recruiterId = 'admin-krupa'; // This will make it appear in home page
+      }
       
       console.log('Updating job with data:', jobData);
       

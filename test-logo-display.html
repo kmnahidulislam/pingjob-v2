@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logo Display Test</title>
+</head>
+<body>
+    <h1>Logo Display Test</h1>
+    
+    <h2>Direct Logo URLs</h2>
+    <div>
+        <p>J P Morgan Chase & Co:</p>
+        <img src="/logos/J P Morgan Chase & Co.jpg" alt="JPMorgan" style="width: 100px; height: 80px; border: 1px solid #ccc;">
+        <img src="/logos/J%20P%20Morgan%20Chase%20%26%20Co.jpg" alt="JPMorgan Encoded" style="width: 100px; height: 80px; border: 1px solid #ccc;">
+    </div>
+    
+    <div>
+        <p>3M Company:</p>
+        <img src="/logos/3M Company.png" alt="3M" style="width: 100px; height: 80px; border: 1px solid #ccc;">
+        <img src="/logos/3M%20Company.png" alt="3M Encoded" style="width: 100px; height: 80px; border: 1px solid #ccc;">
+    </div>
+    
+    <div>
+        <p>IBM Corporation:</p>
+        <img src="/logos/ibm.png" alt="IBM" style="width: 100px; height: 80px; border: 1px solid #ccc;">
+    </div>
+
+    <script>
+        // Log image load events
+        document.querySelectorAll('img').forEach(img => {
+            img.onload = function() {
+                console.log('Loaded:', this.src);
+            };
+            img.onerror = function() {
+                console.log('Failed to load:', this.src);
+            };
+        });
+    </script>
+</body>
+</html>
