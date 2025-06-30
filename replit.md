@@ -615,6 +615,7 @@ Changelog:
   - Admin-edited jobs now automatically gain home page visibility in "Latest Job Opportunities" section
   - Fixed TypeScript errors in job edit modal for proper company name display
   - Verified admin job update workflow: edit job → set recruiterId to admin-krupa → appear at top of home page
+  - Confirmed job editing preserves exact user input without adding automatic text modifications
 ```
 
 ## User Preferences
