@@ -15,7 +15,10 @@ import { insertCompanySchema } from "@shared/schema";
 import { z } from "zod";
 import { Building, X, Upload } from "lucide-react";
 
-const companyFormSchema = insertCompanySchema.extend({
+const companyFormSchema = insertCompanySchema.omit({ 
+  userId: true,
+  updatedAt: true 
+}).extend({
   name: z.string().min(1, "Company name is required"),
   industry: z.string().min(1, "Industry is required"),
   description: z.string().min(1, "Description is required"),
