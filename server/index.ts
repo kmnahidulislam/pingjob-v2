@@ -23,17 +23,16 @@ initializeCleanDatabase().then(() => {
 }).catch(console.error);
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-// Serve ads.txt file for Google AdSense verification (HIGH PRIORITY - before any middleware)
+// Serve ads.txt file for Google AdSense verification (HIGHEST PRIORITY)
 app.get('/ads.txt', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
-  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-  
-  // Always serve the AdSense publisher verification content
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send('google.com, pub-9555763610767023, DIRECT, f08c47fec0942fa0');
 });
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Serve static files from logos directory
 app.use('/logos', express.static('logos'));
