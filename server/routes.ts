@@ -2803,6 +2803,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve ads.txt file for Google AdSense
+  app.get('/ads.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.send('google.com, pub-9555763610767023, DIRECT, f08c47fec0942fa0');
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

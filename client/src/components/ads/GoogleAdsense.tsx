@@ -24,7 +24,8 @@ export default function GoogleAdsense({
   className = ''
 }: GoogleAdsenseProps) {
   useEffect(() => {
-    if (!import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+    const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
+    if (!clientId) {
       console.warn('Google AdSense client ID not configured');
       return;
     }
@@ -32,16 +33,30 @@ export default function GoogleAdsense({
     try {
       // Initialize AdSense if not already done
       if (typeof window !== 'undefined') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log('AdSense ad initialized:', adSlot);
+        // Ensure adsbygoogle array exists
+        window.adsbygoogle = window.adsbygoogle || [];
+        
+        // Push the ad configuration
+        const timeout = setTimeout(() => {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            console.log('AdSense ad initialized:', adSlot);
+          } catch (error) {
+            console.error('AdSense push error:', error);
+          }
+        }, 100);
+
+        return () => clearTimeout(timeout);
       }
     } catch (error) {
-      console.error('AdSense error:', error);
+      console.error('AdSense initialization error:', error);
     }
   }, [adSlot]);
 
+  const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
+
   // Show placeholder if AdSense is not configured
-  if (!import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+  if (!clientId) {
     return (
       <div 
         className={`bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center ${className}`}
@@ -56,7 +71,7 @@ export default function GoogleAdsense({
     <ins
       className={`adsbygoogle ${className}`}
       style={style}
-      data-ad-client={import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID}
+      data-ad-client={clientId}
       data-ad-slot={adSlot}
       data-ad-format={adFormat}
       data-ad-layout={adLayout}
