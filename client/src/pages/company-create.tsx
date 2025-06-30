@@ -252,7 +252,14 @@ export default function CompanyCreate() {
           </CardHeader>
           <CardContent>
             <Form {...companyForm}>
-              <form onSubmit={companyForm.handleSubmit(handleSubmit)} className="space-y-6">
+              <form 
+                onSubmit={(e) => {
+                  console.log("=== FORM ONSUBMIT TRIGGERED ===");
+                  console.log("Event:", e);
+                  companyForm.handleSubmit(handleSubmit)(e);
+                }} 
+                className="space-y-6"
+              >
                 {/* Logo Upload Section */}
                 <div className="space-y-3">
                   <FormLabel>Company Logo</FormLabel>
@@ -522,7 +529,13 @@ export default function CompanyCreate() {
                     type="submit"
                     disabled={createCompanyMutation.isPending}
                     className="bg-blue-600 hover:bg-blue-700"
-
+                    onClick={(e) => {
+                      console.log("=== BUTTON CLICKED ===");
+                      console.log("Event:", e);
+                      console.log("Form valid:", companyForm.formState.isValid);
+                      console.log("Form errors:", companyForm.formState.errors);
+                      console.log("Form values:", companyForm.getValues());
+                    }}
                   >
                     {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
                   </Button>
