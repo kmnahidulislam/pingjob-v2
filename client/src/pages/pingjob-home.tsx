@@ -532,13 +532,13 @@ export default function PingJobHome() {
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-4">
                       <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {company.logoUrl && company.logoUrl !== "NULL" ? (
+                        {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl.trim() !== "" ? (
                           <img 
                             src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                             alt={company.name}
                             className="w-full h-full object-contain p-2"
                             onError={(e) => {
-                              console.log('Logo load error for:', company.name, 'URL:', `/${company.logoUrl.replace(/ /g, '%20')}`);
+                              console.log('Logo load error for:', company.name, 'logoUrl field:', company.logoUrl, 'final URL:', `/${company.logoUrl.replace(/ /g, '%20')}`);
                               e.currentTarget.style.display = 'none';
                             }}
                             onLoad={() => {

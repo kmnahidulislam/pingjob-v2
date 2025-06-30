@@ -4,36 +4,43 @@
     <title>Logo Display Test</title>
 </head>
 <body>
-    <h1>Logo Display Test</h1>
+    <h1>Logo Display Test - Direct from API</h1>
     
-    <h2>Direct Logo URLs</h2>
-    <div>
-        <p>J P Morgan Chase & Co:</p>
-        <img src="/logos/J P Morgan Chase & Co.jpg" alt="JPMorgan" style="width: 100px; height: 80px; border: 1px solid #ccc;">
-        <img src="/logos/J%20P%20Morgan%20Chase%20%26%20Co.jpg" alt="JPMorgan Encoded" style="width: 100px; height: 80px; border: 1px solid #ccc;">
-    </div>
-    
-    <div>
-        <p>3M Company:</p>
-        <img src="/logos/3M Company.png" alt="3M" style="width: 100px; height: 80px; border: 1px solid #ccc;">
-        <img src="/logos/3M%20Company.png" alt="3M Encoded" style="width: 100px; height: 80px; border: 1px solid #ccc;">
-    </div>
-    
-    <div>
-        <p>IBM Corporation:</p>
-        <img src="/logos/ibm.png" alt="IBM" style="width: 100px; height: 80px; border: 1px solid #ccc;">
-    </div>
+    <div id="results"></div>
 
     <script>
-        // Log image load events
-        document.querySelectorAll('img').forEach(img => {
-            img.onload = function() {
-                console.log('Loaded:', this.src);
-            };
-            img.onerror = function() {
-                console.log('Failed to load:', this.src);
-            };
-        });
+        async function testLogos() {
+            try {
+                const response = await fetch('/api/companies/top');
+                const companies = await response.json();
+                
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<h2>API Response Test</h2>';
+                
+                companies.slice(0, 5).forEach(company => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '20px';
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    
+                    const logoUrl = company.logoUrl ? `/${company.logoUrl.replace(/ /g, '%20')}` : null;
+                    
+                    div.innerHTML = `
+                        <h3>${company.name}</h3>
+                        <p>Raw logoUrl: ${company.logoUrl || 'NULL'}</p>
+                        <p>Processed URL: ${logoUrl || 'NULL'}</p>
+                        ${logoUrl ? `<img src="${logoUrl}" alt="${company.name}" style="width: 100px; height: 80px; border: 1px solid #000;" onload="console.log('Loaded: ${company.name}')" onerror="console.log('Failed: ${company.name}, URL: ${logoUrl}')">` : '<p>No logo URL</p>'}
+                    `;
+                    
+                    resultsDiv.appendChild(div);
+                });
+            } catch (error) {
+                console.error('API test failed:', error);
+                document.getElementById('results').innerHTML = '<p>Failed to fetch API data</p>';
+            }
+        }
+        
+        testLogos();
     </script>
 </body>
 </html>
