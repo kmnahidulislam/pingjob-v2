@@ -26,7 +26,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   });
 
   // Fetch company information
-  const { data: company } = useQuery({
+  const { data: company } = useQuery<any>({
     queryKey: [`/api/companies/${job?.companyId}`],
     enabled: !!job?.companyId,
   });
@@ -83,7 +83,10 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         description: "The job posting has been updated"
       });
       onClose();
+      // Invalidate both job endpoints to ensure home page updates
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/recruiter-jobs'] });
     },
     onError: (error: any) => {
       toast({

@@ -1026,11 +1026,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If platform admin is editing the job, mark it to appear on home page
       if (req.user?.userType === 'admin' || req.user?.id === 'admin-krupa') {
         jobData.recruiterId = 'admin-krupa'; // This will make it appear in home page
+        console.log(`Admin user ${req.user?.id} updating job ${jobId} - setting recruiterId to admin-krupa`);
       }
       
       console.log('Updating job with data:', jobData);
       
       const updatedJob = await storage.updateJob(jobId, jobData);
+      console.log('Updated job result:', { id: updatedJob.id, recruiterId: updatedJob.recruiterId, title: updatedJob.title });
+      
       res.json(updatedJob);
     } catch (error) {
       console.error('Error updating job:', error);
