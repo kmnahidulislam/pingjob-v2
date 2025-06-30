@@ -609,6 +609,12 @@ Changelog:
   - Fixed logo display issues across both main company grid and sidebar sections
   - Implemented proper debugging for logo load tracking and troubleshooting
   - Enhanced visual consistency with proper fallback styling for missing logos
+- June 30, 2025. Fixed admin job updates to appear on home page with proper ordering
+  - Modified getAdminJobs query to order by updatedAt then createdAt for recently updated jobs to appear first
+  - Enhanced job edit modal cache invalidation to refresh admin-jobs, recruiter-jobs, and jobs endpoints
+  - Admin-edited jobs now automatically gain home page visibility in "Latest Job Opportunities" section
+  - Fixed TypeScript errors in job edit modal for proper company name display
+  - Verified admin job update workflow: edit job → set recruiterId to admin-krupa → appear at top of home page
 ```
 
 ## User Preferences
