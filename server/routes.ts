@@ -676,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update company endpoint (PATCH) - for partial updates with file upload support
-  app.patch('/api/companies/:id', upload.single('logo'), async (req: any, res) => {
+  app.patch('/api/companies/:id', imageUpload.single('logo'), async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -702,7 +702,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Handle logo upload if provided
       if (req.file) {
-        updateData.logoUrl = `logos/${req.file.filename}`;
+        // Ensure logos directory exists
+        const logosDir = path.join(process.cwd(), 'logos');
+        if (!fs.existsSync(logosDir)) {
+          fs.mkdirSync(logosDir, { recursive: true });
+        }
+        
+        // Move file from uploads to logos directory
+        const originalExt = path.extname(req.file.originalname);
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}${originalExt}`;
+        const newPath = path.join('logos', filename);
+        
+        fs.renameSync(req.file.path, newPath);
+        updateData.logoUrl = `logos/${filename}`;
       }
       
       // Remove undefined values

@@ -597,6 +597,12 @@ Changelog:
   - This ensures admin-edited jobs appear in the home page "Latest Job Opportunities" section
   - Removed duplicate job update endpoint to prevent API conflicts
   - Admin-edited jobs now gain prominent visibility alongside admin-created content
+- June 30, 2025. Fixed company editing functionality with logo upload support
+  - Corrected multer configuration to use imageUpload for company logo files instead of document upload filter
+  - Enhanced company PATCH endpoint to properly handle image file uploads (JPG, JPEG, PNG, GIF)
+  - Added proper file handling with automatic directory creation and file organization
+  - Company editing now supports logo updates with proper file validation and storage
+  - Fixed "Failed to update company" error that was preventing company profile edits
 ```
 
 ## User Preferences
