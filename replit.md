@@ -627,6 +627,12 @@ Changelog:
   - Fixed AdSense component initialization with proper timing and error handling
   - Resolved ads.txt authorization issue for Google AdSense crawler verification
   - AdSense ads now properly configured across banner, sidebar, and content placement areas
+- June 30, 2025. Implemented domain-restricted ads.txt serving for production-only access
+  - Configured ads.txt route to serve only on pingjob.com and www.pingjob.com domains
+  - Blocked ads.txt access on development URLs (localhost and Replit domains) to prevent Google AdSense confusion
+  - Added logging to track ads.txt requests and verify domain restrictions
+  - Created static ads.txt file in client/public for production deployment fallback
+  - Ensured Google AdSense will only detect authorized publisher ID on production domain
 ```
 
 ## User Preferences
