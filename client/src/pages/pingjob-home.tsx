@@ -534,22 +534,28 @@ export default function PingJobHome() {
                       <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                         {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl.trim() !== "" ? (
                           <img 
-                            src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                            src={company.logoUrl.startsWith('http') ? company.logoUrl : `/${company.logoUrl.replace(/ /g, '%20')}`}
                             alt={company.name}
                             className="w-full h-full object-contain p-2"
                             onError={(e) => {
-                              console.log('Logo load error for:', company.name, 'logoUrl field:', company.logoUrl, 'final URL:', `/${company.logoUrl.replace(/ /g, '%20')}`);
-                              e.currentTarget.style.display = 'none';
+                              console.log('Logo load error for:', company.name, 'logoUrl:', company.logoUrl);
+                              // Hide the broken image and show fallback
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
                             }}
                             onLoad={() => {
-                              console.log('Logo loaded successfully for:', company.name);
+                              console.log('Logo loaded for:', company.name);
                             }}
                           />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
-                            {company.name.charAt(0)}
-                          </div>
-                        )}
+                        ) : null}
+                        <div 
+                          className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg"
+                          style={{display: company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl.trim() !== "" ? 'none' : 'flex'}}
+                        >
+                          {company.name.charAt(0)}
+                        </div>
                       </div>
                       
                       <h3 className="font-semibold text-base text-gray-900 line-clamp-3 min-h-[60px] flex items-center text-center leading-tight">
@@ -719,15 +725,23 @@ export default function PingJobHome() {
                         <div className="w-10 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50">
                           {company.logoUrl && company.logoUrl !== "NULL" ? (
                             <img 
-                              src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                              src={company.logoUrl.startsWith('http') ? company.logoUrl : `/${company.logoUrl.replace(/ /g, '%20')}`}
                               alt={company.name}
                               className="w-full h-full object-contain p-0.5"
+                              onError={(e) => {
+                                const target = e.currentTarget as HTMLImageElement;
+                                target.style.display = 'none';
+                                const fallback = target.nextElementSibling as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
                             />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
-                              {company.name?.[0]?.toUpperCase() || 'C'}
-                            </div>
-                          )}
+                          ) : null}
+                          <div 
+                            className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs"
+                            style={{display: company.logoUrl && company.logoUrl !== "NULL" ? 'none' : 'flex'}}
+                          >
+                            {company.name?.[0]?.toUpperCase() || 'C'}
+                          </div>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
