@@ -537,6 +537,9 @@ export default function PingJobHome() {
                             src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                             alt={company.name}
                             className="w-full h-full object-contain p-2"
+                            onError={(e) => {
+                              console.log('Logo load error for:', company.name, 'URL:', `/${company.logoUrl.replace(/ /g, '%20')}`);
+                            }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white font-bold text-lg">
