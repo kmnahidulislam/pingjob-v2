@@ -86,32 +86,51 @@ export default function CompanyCreate() {
 
   const createCompanyMutation = useMutation({
     mutationFn: async (companyData: z.infer<typeof companyFormSchema>) => {
+      console.log("=== FRONTEND COMPANY CREATION START ===");
+      console.log("Company data:", companyData);
+      console.log("Logo file:", logoFile);
+      console.log("User:", user);
+      
       let logoUrl = "";
       
       // Upload logo first if one is selected
       if (logoFile) {
+        console.log("Uploading logo file...");
         const formData = new FormData();
         formData.append('logo', logoFile);
         
+        console.log("Making logo upload request to /api/upload/company-logo");
         const logoResponse = await fetch('/api/upload/company-logo', {
           method: 'POST',
           body: formData,
         });
         
+        console.log("Logo upload response status:", logoResponse.status);
+        
         if (logoResponse.ok) {
           const logoResult = await logoResponse.json();
+          console.log("Logo upload result:", logoResult);
           logoUrl = logoResult.logoUrl;
         } else {
-          throw new Error('Failed to upload logo');
+          const errorText = await logoResponse.text();
+          console.error("Logo upload failed:", errorText);
+          throw new Error(`Failed to upload logo: ${errorText}`);
         }
       }
       
       // Create company with logo URL and userId
-      return apiRequest('POST', '/api/companies', {
+      const finalCompanyData = {
         ...companyData,
         userId: user?.id || 'admin',
         logoUrl
-      });
+      };
+      
+      console.log("Creating company with data:", finalCompanyData);
+      console.log("Making company creation request to /api/companies");
+      
+      const result = await apiRequest('POST', '/api/companies', finalCompanyData);
+      console.log("Company creation result:", result);
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -180,6 +199,7 @@ export default function CompanyCreate() {
     console.log("Form is valid:", companyForm.formState.isValid);
     console.log("Form state:", companyForm.formState);
     console.log("Logo file:", logoFile);
+    console.log("Mutation is pending:", createCompanyMutation.isPending);
     
     // Check for validation errors
     const errors = companyForm.formState.errors;
@@ -193,8 +213,18 @@ export default function CompanyCreate() {
       return;
     }
     
+    // Prevent double submission
+    if (createCompanyMutation.isPending) {
+      console.log("MUTATION ALREADY PENDING - Preventing double submission");
+      return;
+    }
+    
     console.log("VALIDATION PASSED - Calling mutation");
-    createCompanyMutation.mutate(data);
+    try {
+      createCompanyMutation.mutate(data);
+    } catch (error) {
+      console.error("Error calling mutation:", error);
+    }
   };
 
   if (!user) {

@@ -770,13 +770,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Created company:", company);
       
       res.json(company);
-    } catch (error) {
+    } catch (error: any) {
       console.error("=== COMPANY CREATION ERROR ===");
       console.error("Full error:", error);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
+      console.error("Error message:", error?.message);
+      console.error("Error stack:", error?.stack);
       
-      if (error.name === 'ZodError') {
+      if (error?.name === 'ZodError') {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ 
           message: "Validation failed", 
