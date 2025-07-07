@@ -30,6 +30,42 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
     queryKey: [`/api/companies/${job?.companyId}`],
     enabled: !!job?.companyId,
   });
+
+  // Location dropdown states
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
+
+  // Location data queries
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    queryFn: async () => {
+      if (!selectedCountryId) return [];
+      const response = await fetch(`/api/states/${selectedCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountryId
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedStateId],
+    queryFn: async () => {
+      if (!selectedStateId) return [];
+      const response = await fetch(`/api/cities/${selectedStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedStateId
+  });
   
   const [formData, setFormData] = useState({
     title: "",
@@ -66,6 +102,25 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
       });
     }
   }, [job]);
+
+  // Update location dropdown states when form data changes
+  useEffect(() => {
+    if (formData.country && countries) {
+      const countryObj = countries.find((c: any) => c.name === formData.country);
+      if (countryObj) {
+        setSelectedCountryId(countryObj.id);
+      }
+    }
+  }, [formData.country, countries]);
+
+  useEffect(() => {
+    if (formData.state && states) {
+      const stateObj = states.find((s: any) => s.name === formData.state);
+      if (stateObj) {
+        setSelectedStateId(stateObj.id);
+      }
+    }
+  }, [formData.state, states]);
 
   const updateJobMutation = useMutation({
     mutationFn: (jobData: typeof formData) => {
@@ -183,27 +238,82 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
           {/* Location */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="city">City *</Label>
-              <Input
-                id="city"
-                placeholder="Enter city"
-                value={formData.city}
-                onChange={(e) => handleInputChange('city', e.target.value)}
-              />
+              <Label htmlFor="country">Country *</Label>
+              <Select 
+                value={formData.country} 
+                onValueChange={(value) => {
+                  const countryObj = countries?.find((c: any) => c.name === value);
+                  if (countryObj) {
+                    setSelectedCountryId(countryObj.id);
+                    setSelectedStateId(null);
+                    handleInputChange('country', value);
+                    handleInputChange('state', '');
+                    handleInputChange('city', '');
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries?.map((country: any) => (
+                    <SelectItem key={country.id} value={country.name}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <Label htmlFor="state">State *</Label>
-              <Input
-                id="state"
-                placeholder="Enter state"
-                value={formData.state}
-                onChange={(e) => handleInputChange('state', e.target.value)}
-              />
+              <Select 
+                value={formData.state} 
+                onValueChange={(value) => {
+                  const stateObj = states?.find((s: any) => s.name === value);
+                  if (stateObj) {
+                    setSelectedStateId(stateObj.id);
+                    handleInputChange('state', value);
+                    handleInputChange('city', '');
+                  }
+                }}
+                disabled={!selectedCountryId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={selectedCountryId ? "Select state" : "Select country first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {states?.map((state: any) => (
+                    <SelectItem key={state.id} value={state.name}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="city">City *</Label>
+              <Select 
+                value={formData.city} 
+                onValueChange={(value) => handleInputChange('city', value)}
+                disabled={!selectedStateId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities?.map((city: any) => (
+                    <SelectItem key={city.id} value={city.name}>
+                      {city.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label htmlFor="zipCode">Zip Code</Label>
               <Input
@@ -211,16 +321,6 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
                 placeholder="Enter zip code"
                 value={formData.zipCode}
                 onChange={(e) => handleInputChange('zipCode', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="country">Country *</Label>
-              <Input
-                id="country"
-                placeholder="Enter country"
-                value={formData.country}
-                onChange={(e) => handleInputChange('country', e.target.value)}
               />
             </div>
           </div>
