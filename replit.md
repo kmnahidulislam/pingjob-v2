@@ -633,6 +633,14 @@ Changelog:
   - Added logging to track ads.txt requests and verify domain restrictions
   - Created static ads.txt file in client/public for production deployment fallback
   - Ensured Google AdSense will only detect authorized publisher ID on production domain
+- July 1, 2025. Enhanced job editing system with cascading location dropdowns and fixed home page visibility
+  - Implemented cascading dropdown selectors for Country, State, and City fields in job editing modal to match platform standards
+  - Added location dropdown queries with proper state management for selectedCountryId and selectedStateId
+  - Replaced simple input fields with Select components featuring disabled states until parent selections are made
+  - Fixed cache invalidation issue where edited jobs weren't appearing as latest on home page
+  - Enhanced cache invalidation with predicate-based query matching to refresh all admin-jobs queries regardless of parameters
+  - Verified backend updateJob method correctly sets updatedAt timestamp and ordering by updatedAt then createdAt works properly
+  - Job editing now provides consistent professional location selection experience across all platform forms
 ```
 
 ## User Preferences

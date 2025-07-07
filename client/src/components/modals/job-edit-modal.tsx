@@ -138,10 +138,14 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         description: "The job posting has been updated"
       });
       onClose();
-      // Invalidate both job endpoints to ensure home page updates
+      // Invalidate all job-related queries to ensure home page and other pages update
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/recruiter-jobs'] });
+      // Force refresh of home page admin jobs with all possible query key variations
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === '/api/admin-jobs'
+      });
     },
     onError: (error: any) => {
       toast({
