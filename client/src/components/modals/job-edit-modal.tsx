@@ -167,6 +167,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
       });
       
       // Emit custom event to force home page refresh
+      console.log('Emitting jobUpdated event to force home page refresh');
       window.dispatchEvent(new CustomEvent('jobUpdated'));
     },
     onError: (error: any) => {

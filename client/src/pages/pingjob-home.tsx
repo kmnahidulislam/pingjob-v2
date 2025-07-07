@@ -159,16 +159,28 @@ export default function PingJobHome() {
   // Listen for job updates and force refresh
   useEffect(() => {
     const handleJobUpdate = () => {
-      // Force refetch the admin jobs query
+      console.log('Home page received jobUpdated event - forcing admin jobs refetch');
+      
+      // Multiple aggressive cache invalidation strategies
+      queryClient.removeQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === '/api/admin-jobs';
+        }
+      });
+      
       queryClient.refetchQueries({ 
         queryKey: ['/api/admin-jobs'],
         exact: false
       });
+      
+      // Force complete cache refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
     };
 
     window.addEventListener('jobUpdated', handleJobUpdate);
     return () => window.removeEventListener('jobUpdated', handleJobUpdate);
-  }, []);
+  }, [queryClient]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
