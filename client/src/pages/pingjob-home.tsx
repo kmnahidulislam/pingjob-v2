@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,7 @@ import { JobCategories } from "@/components/job-categories";
 
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -154,6 +155,20 @@ export default function PingJobHome() {
       return () => clearInterval(interval);
     }
   }, [jobs]);
+
+  // Listen for job updates and force refresh
+  useEffect(() => {
+    const handleJobUpdate = () => {
+      // Force refetch the admin jobs query
+      queryClient.refetchQueries({ 
+        queryKey: ['/api/admin-jobs'],
+        exact: false
+      });
+    };
+
+    window.addEventListener('jobUpdated', handleJobUpdate);
+    return () => window.removeEventListener('jobUpdated', handleJobUpdate);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

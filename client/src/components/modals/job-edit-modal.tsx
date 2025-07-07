@@ -138,14 +138,36 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         description: "The job posting has been updated"
       });
       onClose();
-      // Invalidate all job-related queries to ensure home page and other pages update
+      
+      // Complete cache clear and refresh strategy
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['/api/recruiter-jobs'] });
-      // Force refresh of home page admin jobs with all possible query key variations
-      queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === '/api/admin-jobs'
+      
+      // Remove all admin-jobs cache entries completely
+      queryClient.removeQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === '/api/admin-jobs';
+        }
       });
+      
+      // Force immediate refetch with all variations
+      queryClient.refetchQueries({ 
+        queryKey: ['/api/admin-jobs'],
+        exact: false
+      });
+      
+      // Additional forced refresh for home page
+      queryClient.refetchQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === '/api/admin-jobs';
+        }
+      });
+      
+      // Emit custom event to force home page refresh
+      window.dispatchEvent(new CustomEvent('jobUpdated'));
     },
     onError: (error: any) => {
       toast({
@@ -310,7 +332,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
                 </SelectTrigger>
                 <SelectContent>
                   {cities?.map((city: any) => (
-                    <SelectItem key={city.id} value={city.name}>
+                    <SelectItem key={`${city.id}-${city.name}`} value={city.name}>
                       {city.name}
                     </SelectItem>
                   ))}

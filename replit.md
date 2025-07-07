@@ -641,6 +641,14 @@ Changelog:
   - Enhanced cache invalidation with predicate-based query matching to refresh all admin-jobs queries regardless of parameters
   - Verified backend updateJob method correctly sets updatedAt timestamp and ordering by updatedAt then createdAt works properly
   - Job editing now provides consistent professional location selection experience across all platform forms
+- July 7, 2025. Implemented comprehensive cache invalidation and real-time job update system
+  - Fixed React duplicate key warnings by using unique compound keys for city selections (id-name format)
+  - Enhanced cache invalidation with complete query removal and multiple refetch strategies for immediate updates
+  - Added custom event system (jobUpdated) for cross-component communication between job editing and home page
+  - Implemented window event listeners in home page to force refresh admin jobs query when jobs are edited
+  - Enhanced job editing modal with aggressive cache clearing using removeQueries and refetchQueries
+  - Verified backend API correctly returns updated jobs with proper timestamp ordering (most recent first)
+  - Job editing system now provides instant visibility of updates on home page Latest Job Opportunities section
 ```
 
 ## User Preferences
