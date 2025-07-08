@@ -67,7 +67,11 @@ export default function PingJobHome() {
       const response = await fetch(`/api/admin-jobs?limit=${jobsPerPage}`);
       if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
-    }
+    },
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache data
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   // Fetch categories with job counts
@@ -169,6 +173,7 @@ export default function PingJobHome() {
         }
       });
       
+      // Force immediate refetch with all cache clearing
       queryClient.refetchQueries({ 
         queryKey: ['/api/admin-jobs'],
         exact: false
@@ -176,6 +181,14 @@ export default function PingJobHome() {
       
       // Force complete cache refresh
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      
+      // Force a state update to trigger re-render
+      setTimeout(() => {
+        queryClient.refetchQueries({ 
+          queryKey: ['/api/admin-jobs', { page: currentPage, limit: jobsPerPage }],
+          exact: true
+        });
+      }, 100);
       
       console.log('Admin jobs cache cleared and refetch triggered');
     };
