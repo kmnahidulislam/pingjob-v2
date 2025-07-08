@@ -71,19 +71,32 @@ export default function Jobs() {
     queryFn: async () => {
       try {
         const searchParams = new URLSearchParams();
-        if (filters.search) {
-          searchParams.append('q', filters.search);
-        }
-        if (filters.location) {
-          searchParams.append('location', filters.location);
-        }
         
-        const response = await fetch(`/api/search?${searchParams.toString()}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch search results');
+        // If no search filters, get all jobs
+        if (filters.search || filters.location) {
+          if (filters.search) {
+            searchParams.append('q', filters.search);
+          }
+          if (filters.location) {
+            searchParams.append('location', filters.location);
+          }
+          
+          const response = await fetch(`/api/search?${searchParams.toString()}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch search results');
+          }
+          
+          return response.json();
+        } else {
+          // Get all jobs when no search filters
+          const response = await fetch('/api/jobs?limit=500');
+          if (!response.ok) {
+            throw new Error('Failed to fetch jobs');
+          }
+          
+          const jobs = await response.json();
+          return { companies: [], jobs };
         }
-        
-        return response.json();
       } catch (error) {
         console.error('Error fetching search results:', error);
         return { companies: [], jobs: [] };
