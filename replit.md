@@ -673,6 +673,13 @@ Changelog:
   - Enhanced jobs page to handle both search and location URL parameters from header search
   - Fixed header search functionality to work consistently with dedicated jobs page search interface
   - Location parsing handles 50+ common US states, cities, and abbreviations for accurate query separation
+- July 7, 2025. Fixed job search result sorting and implemented search term highlighting system
+  - Fixed search results to display most current jobs first by implementing client-side sorting fallback
+  - Added comprehensive search term highlighting in job titles, descriptions, requirements, and company names
+  - Implemented yellow background highlighting for matching search terms using regex-based text processing
+  - Fixed sorting issue where database timestamps were undefined by adding JavaScript-based date sorting
+  - Search results now display with proper chronological order (newest first) and visual keyword highlighting
+  - Enhanced user experience with highlighted search terms making it easier to identify relevant matches
 ```
 
 ## User Preferences

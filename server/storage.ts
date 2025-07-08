@@ -984,7 +984,7 @@ export class DatabaseStorage implements IStorage {
           GROUP BY company_id
         ) v ON c.id = v.company_id
         ${whereClause}
-        ORDER BY j.updated_at DESC, j.created_at DESC
+        ORDER BY COALESCE(j.updated_at, j.created_at, j.posted_at) DESC
         LIMIT 500
       `;
       
@@ -996,11 +996,19 @@ export class DatabaseStorage implements IStorage {
         ssl: { rejectUnauthorized: false }
       });
       const client = await directPool.connect();
+      
       const result = await client.query(searchQuery, params);
       client.release();
       
       console.log(`Search returned ${result.rows.length} jobs`);
-      return result.rows;
+      
+      // Sort by updatedAt descending as fallback if database timestamps are undefined
+      const sortedResults = result.rows.sort((a, b) => {
+        const aUpdate = a.updatedAt || a.createdAt;
+        const bUpdate = b.updatedAt || b.createdAt;
+        return new Date(bUpdate).getTime() - new Date(aUpdate).getTime();
+      });
+      return sortedResults;
     } catch (error) {
       console.error('Error in searchJobs:', error);
       return [];

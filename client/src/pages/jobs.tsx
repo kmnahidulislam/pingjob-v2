@@ -22,6 +22,20 @@ import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import AdBanner from "@/components/ads/AdBanner";
 
+// Helper function to highlight search terms
+const highlightSearchTerms = (text: string, searchTerm: string) => {
+  if (!searchTerm || !text) return text;
+  
+  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => 
+    regex.test(part) ? 
+      <span key={index} className="bg-yellow-200 font-medium">{part}</span> : 
+      part
+  );
+};
+
 export default function Jobs() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -455,10 +469,10 @@ export default function Jobs() {
                           
                           <div className="flex-1 min-w-0">
                             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                              {job.title}
+                              {highlightSearchTerms(job.title, filters.search)}
                             </h3>
                             <p className="text-linkedin-blue font-medium mb-2">
-                              {job.company?.name || 'Company Name'}
+                              {highlightSearchTerms(job.company?.name || 'Company Name', filters.search)}
                             </p>
                             
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
@@ -483,11 +497,11 @@ export default function Jobs() {
                             </div>
                             
                             <div className="text-gray-700 text-sm mb-3">
-                              <p className="mb-2">{job.description}</p>
+                              <p className="mb-2">{highlightSearchTerms(job.description, filters.search)}</p>
                               {job.requirements && (
                                 <div>
                                   <strong className="text-gray-900">Requirements:</strong>
-                                  <p className="mt-1">{job.requirements}</p>
+                                  <p className="mt-1">{highlightSearchTerms(job.requirements, filters.search)}</p>
                                 </div>
                               )}
                             </div>
