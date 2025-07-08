@@ -927,9 +927,17 @@ export class DatabaseStorage implements IStorage {
         paramIndex++;
       }
       if (filters.location) {
-        whereClause += ` AND j.location ILIKE $${paramIndex}`;
+        whereClause += ` AND (
+          j.location ILIKE $${paramIndex} OR 
+          j.city ILIKE $${paramIndex} OR 
+          j.state ILIKE $${paramIndex} OR 
+          j.country ILIKE $${paramIndex} OR
+          j.zip_code = $${paramIndex + 1} OR
+          j.zip_code ILIKE $${paramIndex}
+        )`;
         params.push(`%${filters.location}%`);
-        paramIndex++;
+        params.push(filters.location.trim());
+        paramIndex += 2;
       }
       if (filters.companyId !== undefined) {
         whereClause += ` AND j.company_id = $${paramIndex}`;

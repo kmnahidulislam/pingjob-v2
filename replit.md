@@ -659,6 +659,13 @@ Changelog:
   - Fixed search API to accept location parameter and pass it to searchJobs method with proper filters
   - Jobs page now displays search results from all 14,478 jobs in database with real-time filtering
   - Verified search functionality works correctly: .NET (500 jobs), Python (500 jobs), Java (500 jobs), developer+Denver (0 jobs - correct)
+- July 7, 2025. Fixed location-based job search filtering to search across all location fields
+  - Enhanced location filtering to search across j.city, j.state, j.country, j.location, and j.zip_code fields instead of just j.location
+  - Added exact zip code matching alongside partial matching for improved location accuracy
+  - Fixed mainframe job search with location filters - "mainframe + new york" now returns 13 jobs instead of 0
+  - Location search now properly handles city names, state names, country names, and zip codes
+  - Verified comprehensive location filtering: developer+Illinois (1 job), mainframe+York (1 job), mainframe+NY (1 job)
+  - Search functionality now works correctly for both keyword and location-based queries across all location data fields
 ```
 
 ## User Preferences
