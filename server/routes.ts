@@ -271,18 +271,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Global search endpoint
+  // Global search endpoint with location support
   app.get('/api/search', async (req, res) => {
     try {
       const query = (req.query.q || req.query.query) as string;
-      if (!query || query.trim().length < 3) {
+      const location = req.query.location as string;
+      
+      if (!query || query.trim().length < 1) {
         return res.json({ companies: [], jobs: [] });
+      }
+
+      // Build filters object for job search
+      const filters: any = {};
+      if (location && location.trim()) {
+        filters.location = location.trim();
       }
 
       // Search companies and jobs in parallel
       const [companies, jobs] = await Promise.all([
         storage.searchCompanies(query, 10),
-        storage.searchJobs(query, {})
+        storage.searchJobs(query, filters)
       ]);
 
       res.json({

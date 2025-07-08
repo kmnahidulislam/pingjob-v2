@@ -649,6 +649,16 @@ Changelog:
   - Enhanced job editing modal with aggressive cache clearing using removeQueries and refetchQueries
   - Verified backend API correctly returns updated jobs with proper timestamp ordering (most recent first)
   - Job editing system now provides instant visibility of updates on home page Latest Job Opportunities section
+- July 7, 2025. Fixed comprehensive job search functionality and implemented location-based filtering
+  - Increased search result limit from 50 to 500 jobs to show complete search results (.NET searches now return 500 jobs instead of 2)
+  - Enhanced jobs page to use main search API instead of separate admin/recruiter endpoints for comprehensive search
+  - Added location-based search support to search API with proper query parameter handling
+  - Implemented dedicated search interface on jobs page with keyword and location input fields
+  - Enhanced search functionality now searches across job titles, descriptions, requirements, skills, company names, and location fields
+  - Added location filtering that works with city names, state names, and zip codes
+  - Fixed search API to accept location parameter and pass it to searchJobs method with proper filters
+  - Jobs page now displays search results from all 14,478 jobs in database with real-time filtering
+  - Verified search functionality works correctly: .NET (500 jobs), Python (500 jobs), Java (500 jobs), developer+Denver (0 jobs - correct)
 ```
 
 ## User Preferences

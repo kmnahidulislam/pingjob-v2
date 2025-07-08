@@ -977,7 +977,7 @@ export class DatabaseStorage implements IStorage {
         ) v ON c.id = v.company_id
         ${whereClause}
         ORDER BY j.updated_at DESC, j.created_at DESC
-        LIMIT 50
+        LIMIT 500
       `;
       
       // Use direct pool query for consistent results

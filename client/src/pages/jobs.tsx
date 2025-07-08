@@ -32,7 +32,8 @@ export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   
   const [filters, setFilters] = useState({
-    search: ""
+    search: "",
+    location: ""
   });
 
   // Read search parameter from URL on page load
@@ -47,45 +48,34 @@ export default function Jobs() {
     }
   }, []);
 
-  // Fetch both admin and recruiter jobs for search
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['/api/all-jobs', filters],
+  // Use the main search API for comprehensive job searching
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['/api/search', filters],
     queryFn: async () => {
       try {
-        // Fetch both admin and recruiter jobs
-        const [adminJobsResponse, recruiterJobsResponse] = await Promise.all([
-          fetch('/api/admin-jobs?limit=50'),
-          fetch('/api/recruiter-jobs?limit=50')
-        ]);
-
-        if (!adminJobsResponse.ok || !recruiterJobsResponse.ok) {
-          throw new Error('Failed to fetch jobs');
+        const searchParams = new URLSearchParams();
+        if (filters.search) {
+          searchParams.append('q', filters.search);
         }
-
-        const adminJobs = await adminJobsResponse.json();
-        const recruiterJobs = await recruiterJobsResponse.json();
-        
-        // Combine and filter jobs based on search
-        const allJobs = [...adminJobs, ...recruiterJobs];
-        
-        if (filters.search && filters.search.trim()) {
-          const searchTerm = filters.search.toLowerCase();
-          return allJobs.filter(job => 
-            job.title?.toLowerCase().includes(searchTerm) ||
-            job.description?.toLowerCase().includes(searchTerm) ||
-            job.company?.name?.toLowerCase().includes(searchTerm) ||
-            job.location?.toLowerCase().includes(searchTerm)
-          );
+        if (filters.location) {
+          searchParams.append('location', filters.location);
         }
         
-        return allJobs;
+        const response = await fetch(`/api/search?${searchParams.toString()}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch search results');
+        }
+        
+        return response.json();
       } catch (error) {
-        console.error('Error fetching jobs:', error);
-        throw error;
+        console.error('Error fetching search results:', error);
+        return { companies: [], jobs: [] };
       }
-    },
-    enabled: true
+    }
   });
+
+  // Extract jobs from search results
+  const jobs = searchResults?.jobs || [];
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
@@ -173,6 +163,42 @@ export default function Jobs() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+            
+            {/* Search Interface */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Search Jobs</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <Input
+                      placeholder="Job title, keywords, skills, or company name..."
+                      value={filters.search}
+                      onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Location (city, state, or zip code)"
+                      value={filters.location}
+                      onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+                {(filters.search || filters.location) && (
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setFilters({ search: "", location: "" })}
+                    >
+                      Clear Search
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
             
             {/* Admin Actions */}
             {user?.userType === 'admin' && (
