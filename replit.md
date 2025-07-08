@@ -666,6 +666,13 @@ Changelog:
   - Location search now properly handles city names, state names, country names, and zip codes
   - Verified comprehensive location filtering: developer+Illinois (1 job), mainframe+York (1 job), mainframe+NY (1 job)
   - Search functionality now works correctly for both keyword and location-based queries across all location data fields
+- July 7, 2025. Enhanced header search box with intelligent location parsing for unified search experience
+  - Updated navigation header search to intelligently separate location terms from keywords in search queries
+  - Added comprehensive location indicators list including states, cities, and common location abbreviations
+  - Header search now automatically parses "mainframe new york" into search="mainframe" and location="new york"
+  - Enhanced jobs page to handle both search and location URL parameters from header search
+  - Fixed header search functionality to work consistently with dedicated jobs page search interface
+  - Location parsing handles 50+ common US states, cities, and abbreviations for accurate query separation
 ```
 
 ## User Preferences

@@ -36,14 +36,17 @@ export default function Jobs() {
     location: ""
   });
 
-  // Read search parameter from URL on page load
+  // Read search and location parameters from URL on page load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search');
-    if (searchParam) {
+    const locationParam = urlParams.get('location');
+    
+    if (searchParam || locationParam) {
       setFilters(prev => ({
         ...prev,
-        search: searchParam
+        search: searchParam || "",
+        location: locationParam || ""
       }));
     }
   }, []);

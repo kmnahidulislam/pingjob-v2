@@ -61,7 +61,40 @@ export default function Navigation() {
         window.location.href = `/companies?search=${encodeURIComponent(searchQuery)}`;
       } else {
         // Default to jobs search for all other pages
-        window.location.href = `/jobs?search=${encodeURIComponent(searchQuery)}`;
+        // Try to intelligently separate location from keywords
+        const query = searchQuery.trim();
+        const words = query.split(' ');
+        
+        // Common location patterns - check if last 1-2 words are location
+        const locationIndicators = ['ny', 'ca', 'tx', 'fl', 'il', 'pa', 'oh', 'michigan', 'california', 'texas', 'florida', 'new york', 'los angeles', 'chicago', 'houston', 'philadelphia', 'detroit', 'denver', 'seattle', 'atlanta', 'boston', 'dallas', 'miami', 'phoenix', 'san francisco', 'new jersey', 'virginia', 'north carolina', 'south carolina', 'washington', 'oregon', 'nevada', 'utah', 'colorado', 'arizona', 'maryland', 'massachusetts', 'connecticut', 'louisiana', 'alabama', 'georgia', 'tennessee', 'kentucky', 'indiana', 'missouri', 'minnesota', 'wisconsin', 'iowa', 'kansas', 'nebraska', 'south dakota', 'north dakota', 'montana', 'wyoming', 'idaho', 'arkansas', 'mississippi', 'oklahoma', 'new mexico', 'alaska', 'hawaii', 'maine', 'new hampshire', 'vermont', 'rhode island', 'delaware', 'west virginia'];
+        
+        let searchTerm = query;
+        let locationTerm = '';
+        
+        // Check if query contains location indicators
+        const lowerQuery = query.toLowerCase();
+        const foundLocation = locationIndicators.find(loc => lowerQuery.includes(loc.toLowerCase()));
+        
+        if (foundLocation) {
+          // Split the query into search term and location
+          const locationIndex = lowerQuery.indexOf(foundLocation.toLowerCase());
+          if (locationIndex > 0) {
+            searchTerm = query.substring(0, locationIndex).trim();
+            locationTerm = query.substring(locationIndex).trim();
+          } else {
+            // Location is at the beginning, use the whole query as location
+            searchTerm = '';
+            locationTerm = query;
+          }
+        }
+        
+        // Build URL with separated search and location parameters
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('search', searchTerm);
+        if (locationTerm) params.set('location', locationTerm);
+        if (!searchTerm && !locationTerm) params.set('search', query);
+        
+        window.location.href = `/jobs?${params.toString()}`;
       }
     }
   };
