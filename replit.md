@@ -680,6 +680,13 @@ Changelog:
   - Fixed sorting issue where database timestamps were undefined by adding JavaScript-based date sorting
   - Search results now display with proper chronological order (newest first) and visual keyword highlighting
   - Enhanced user experience with highlighted search terms making it easier to identify relevant matches
+- July 8, 2025. Implemented auto-approval system for paid subscriber company creation
+  - Modified company creation endpoint to automatically approve companies created by recruiters and clients
+  - Added user type checking to grant immediate approval for paid subscribers (recruiter/client user types)
+  - Enhanced authentication middleware to ensure proper user identification in company creation
+  - Updated frontend success messages to inform paid users of immediate approval status
+  - Job seekers and other user types still require admin approval for company creation
+  - Recruiters and clients can now start posting jobs immediately after company creation without waiting for admin approval
 ```
 
 ## User Preferences

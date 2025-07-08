@@ -772,11 +772,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/companies', async (req: any, res) => {
+  app.post('/api/companies', isAuthenticated, async (req: any, res) => {
     try {
-      // Use admin user for testing
-      const userId = "admin-krupa";
-      const companyData = { ...req.body, userId };
+      const user = req.user;
+      const companyData = { ...req.body, userId: user.id };
+      
+      // Auto-approve companies created by paid subscribers (recruiters and clients)
+      if (user.userType === 'recruiter' || user.userType === 'client') {
+        companyData.status = 'approved';
+        companyData.approvedBy = user.id;
+        console.log(`Auto-approving company for paid subscriber: ${user.email} (${user.userType})`);
+      } else {
+        // Default to pending for job seekers and others
+        companyData.status = 'pending';
+        console.log(`Company creation pending approval for: ${user.email} (${user.userType})`);
+      }
       
       const validatedData = insertCompanySchema.parse(companyData);
       const company = await storage.createCompany(validatedData);

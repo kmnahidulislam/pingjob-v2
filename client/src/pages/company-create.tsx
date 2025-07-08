@@ -136,9 +136,14 @@ export default function CompanyCreate() {
       return result;
     },
     onSuccess: () => {
+      // Show different messages based on user type
+      const isPayingUser = user?.userType === 'recruiter' || user?.userType === 'client';
+      
       toast({
         title: "Company created successfully",
-        description: "Your company has been submitted for approval"
+        description: isPayingUser 
+          ? "Your company has been approved and you can start posting jobs immediately"
+          : "Your company has been submitted for approval"
       });
       companyForm.reset();
       setLogoFile(null);
