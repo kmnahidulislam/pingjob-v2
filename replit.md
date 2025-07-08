@@ -687,6 +687,14 @@ Changelog:
   - Updated frontend success messages to inform paid users of immediate approval status
   - Job seekers and other user types still require admin approval for company creation
   - Recruiters and clients can now start posting jobs immediately after company creation without waiting for admin approval
+- July 8, 2025. Enhanced recruiter job creation system with limits and home page exclusion
+  - Added authentication middleware to main job creation endpoint (/api/jobs) to prevent unauthorized access
+  - Implemented 10-job limit for recruiters in both main and recruiter-specific job creation endpoints
+  - Added getJobCountByRecruiter method to track active job count per recruiter
+  - Enforced job limit validation with clear error messages when limit is exceeded
+  - Confirmed getAdminJobs method properly excludes recruiter jobs from home page display
+  - Recruiter jobs are only accessible through search functionality, never displayed on home page
+  - System maintains separation between admin jobs (home page) and recruiter jobs (search only)
 ```
 
 ## User Preferences

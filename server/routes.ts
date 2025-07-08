@@ -1059,17 +1059,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/jobs', async (req: any, res) => {
+  app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
     try {
-      // Use admin user for testing
-      const userId = "admin-krupa";
+      const user = req.user;
       console.log("Creating job with data:", req.body);
-      console.log("User ID:", userId);
+      console.log("User:", user);
+      
+      // Check if recruiter has reached the 10-job limit
+      if (user.userType === 'recruiter') {
+        const jobCount = await storage.getJobCountByRecruiter(user.id);
+        if (jobCount >= 10) {
+          return res.status(400).json({ 
+            message: "Job limit reached. Recruiters can create a maximum of 10 jobs." 
+          });
+        }
+      }
       
       // Auto-generate location from city, state, country and map jobType to employmentType
       const jobData = { 
         ...req.body, 
-        recruiterId: userId,
+        recruiterId: user.id,
         employmentType: req.body.jobType || "full_time" // Map jobType to employmentType for database
       };
       if (jobData.city && jobData.state && jobData.country) {
@@ -2732,6 +2741,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       if (req.user.userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
+      }
+
+      // Check if recruiter has reached the 10-job limit
+      const jobCount = await storage.getJobCountByRecruiter(req.user.id);
+      if (jobCount >= 10) {
+        return res.status(400).json({ 
+          message: "Job limit reached. Recruiters can create a maximum of 10 jobs." 
+        });
       }
 
       const validatedData = insertJobSchema.parse({

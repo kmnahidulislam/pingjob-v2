@@ -866,6 +866,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(jobs.createdAt));
   }
 
+  async getJobCountByRecruiter(recruiterId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql`COUNT(*)` })
+      .from(jobs)
+      .where(and(eq(jobs.recruiterId, recruiterId), eq(jobs.isActive, true)));
+    return Number(result[0].count);
+  }
+
   async createJob(job: InsertJob): Promise<Job> {
     const [result] = await db.insert(jobs).values(job).returning();
     return result;
