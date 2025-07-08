@@ -758,7 +758,8 @@ export class DatabaseStorage implements IStorage {
 
   async getJobs(filters: any = {}, limit = 50): Promise<any[]> {
     try {
-      let whereClause = 'WHERE j.is_active = true';
+      // Only show admin jobs - exclude recruiter jobs
+      let whereClause = 'WHERE j.is_active = true AND (j.recruiter_id = \'admin\' OR j.recruiter_id = \'admin-krupa\')';
       const params: any[] = [];
       let paramIndex = 1;
       

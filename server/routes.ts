@@ -991,7 +991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Job routes
+  // Job routes - Only admin jobs for jobs tab and home page
   app.get('/api/jobs', async (req, res) => {
     try {
       const filters = {
@@ -1003,21 +1003,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
       console.log('Jobs API called with filters:', filters, 'limit:', limit);
-      
-      if (req.query.search) {
-        console.log('Searching jobs with query:', req.query.search);
-        const jobs = await storage.searchJobs(req.query.search as string, filters);
-        console.log('Search returned', jobs.length, 'jobs');
-        res.json(jobs);
-      } else {
-        console.log('Getting all jobs with filters');
-        const jobs = await storage.getJobs(filters, limit);
-        console.log('getJobs returned', jobs.length, 'jobs');
-        res.json(jobs);
-      }
+      console.log('Getting admin jobs only (no recruiter jobs)');
+      const jobs = await storage.getJobs(filters, limit);
+      console.log('getJobs returned', jobs.length, 'admin jobs');
+      res.json(jobs);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       res.status(500).json({ message: "Failed to fetch jobs" });
+    }
+  });
+
+  // Search endpoint - Combines admin and recruiter jobs for search functionality
+  app.get('/api/search/jobs', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      const filters = {
+        jobType: req.query.jobType as string,
+        experienceLevel: req.query.experienceLevel as string,
+        location: req.query.location as string,
+        companyId: req.query.companyId ? parseInt(req.query.companyId as string) : undefined,
+      };
+      
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      
+      console.log('Searching all jobs (admin + recruiter) with query:', query);
+      const jobs = await storage.searchJobs(query, filters);
+      console.log('Search returned', jobs.length, 'jobs');
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error searching jobs:", error);
+      res.status(500).json({ message: "Failed to search jobs" });
     }
   });
 
