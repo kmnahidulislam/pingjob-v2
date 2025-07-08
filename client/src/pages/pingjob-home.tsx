@@ -176,6 +176,8 @@ export default function PingJobHome() {
       
       // Force complete cache refresh
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      
+      console.log('Admin jobs cache cleared and refetch triggered');
     };
 
     window.addEventListener('jobUpdated', handleJobUpdate);
