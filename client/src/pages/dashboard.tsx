@@ -1016,8 +1016,14 @@ export default function Dashboard() {
   // Check if user is admin (specific admin emails get full admin access)
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
   
-  // Check if user has paid subscription (recruiters and clients get admin features)
-  const hasPaidSubscription = user?.userType === 'recruiter' || user?.userType === 'client';
+  // Redirect recruiters to their dedicated dashboard
+  if (user?.userType === 'recruiter') {
+    window.location.href = '/recruiter-dashboard';
+    return null;
+  }
+  
+  // Check if user has paid subscription (clients get admin features)
+  const hasPaidSubscription = user?.userType === 'client';
 
   // Route to appropriate dashboard based on subscription level
   // Only specific admins and paid subscribers get AdminDashboard
