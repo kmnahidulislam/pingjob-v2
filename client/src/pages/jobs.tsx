@@ -204,6 +204,13 @@ export default function Jobs() {
                       placeholder="Job title, keywords, skills, or company name..."
                       value={filters.search}
                       onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          // Trigger search by updating filters (search is reactive)
+                          setFilters(prev => ({ ...prev }));
+                        }
+                      }}
                       className="w-full"
                     />
                   </div>
@@ -212,6 +219,13 @@ export default function Jobs() {
                       placeholder="Location (city, state, or zip code)"
                       value={filters.location}
                       onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          // Trigger search by updating filters (search is reactive)
+                          setFilters(prev => ({ ...prev }));
+                        }
+                      }}
                       className="w-full"
                     />
                   </div>
