@@ -2217,7 +2217,8 @@ export class DatabaseStorage implements IStorage {
       if (checkAssignments.rows[0].count === 0) {
         // No assignments found, let's try to auto-assign now
         console.log('No assignments found, attempting auto-assignment...');
-        await this.autoAssignCandidatesToJob(jobId, recruiterId);
+        const assignments = await this.autoAssignCandidatesToJob(jobId, recruiterId);
+        console.log(`Auto-assignment created ${assignments.length} assignments`);
       }
       
       // Use raw SQL to handle column naming issues
@@ -2247,16 +2248,11 @@ export class DatabaseStorage implements IStorage {
       console.log(`Query returned ${result.rows.length} candidate assignments`);
 
       return result.rows.map(row => ({
-        assignment: {
-          id: row.assignment_id,
-          jobId: row.job_id,
-          candidateId: row.candidate_id,
-          recruiterId: row.recruiter_id,
-          status: row.status,
-          assignedAt: row.assigned_at,
-          contactedAt: row.contacted_at,
-          notes: row.notes
-        },
+        id: row.assignment_id,
+        status: row.status,
+        assignedAt: row.assigned_at,
+        contactedAt: row.contacted_at,
+        notes: row.notes,
         candidate: {
           id: row.user_id,
           firstName: row.first_name,
