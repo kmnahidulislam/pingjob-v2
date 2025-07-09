@@ -160,6 +160,7 @@ export interface IStorage {
   updateVendor(id: number, vendor: Partial<InsertVendor>): Promise<Vendor>;
   updateVendorStatus(id: number, status: string, approvedBy?: string): Promise<Vendor>;
   getPendingVendors(): Promise<any[]>;
+  checkVendorExists(companyId: number, vendorCompanyId: number): Promise<boolean>;
   
   // Category operations
   getCategories(): Promise<Category[]>;
@@ -1909,6 +1910,28 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error in approveAllVendors:", error);
       throw error;
+    }
+  }
+
+  async checkVendorExists(companyId: number, vendorCompanyId: number): Promise<boolean> {
+    try {
+      console.log(`DEBUG: Checking if vendor exists for company ${companyId} and vendor company ${vendorCompanyId}`);
+      
+      // Check if vendor already exists by matching company_id and vendor company name
+      const result = await pool.query(`
+        SELECT v.id 
+        FROM vendors v
+        LEFT JOIN companies vendor_co ON LOWER(vendor_co.name) = LOWER(v.name)
+        WHERE v.company_id = $1 AND vendor_co.id = $2
+        LIMIT 1
+      `, [companyId, vendorCompanyId]);
+      
+      const exists = result.rows.length > 0;
+      console.log(`DEBUG: Vendor exists check result: ${exists}`);
+      return exists;
+    } catch (error) {
+      console.error("Error checking vendor existence:", error);
+      return false;
     }
   }
 

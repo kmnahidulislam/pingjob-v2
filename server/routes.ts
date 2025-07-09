@@ -2145,6 +2145,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/vendors', isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertVendorSchema.parse(req.body);
+      
+      // Check for duplicate vendor before creating
+      // The vendor name should correspond to a company in the companies table
+      // Check if this vendor name already exists for this client company
+      const vendorCompanies = await storage.searchCompanies(validatedData.name, 1);
+      if (vendorCompanies.length > 0) {
+        const vendorCompanyId = vendorCompanies[0].id;
+        const vendorExists = await storage.checkVendorExists(validatedData.companyId, vendorCompanyId);
+        if (vendorExists) {
+          return res.status(400).json({ message: "This vendor already exists for this company" });
+        }
+      }
+      
       const vendor = await storage.addVendor({
         ...validatedData,
         addedBy: req.user.id,
