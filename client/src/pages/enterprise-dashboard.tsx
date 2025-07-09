@@ -32,6 +32,9 @@ export default function EnterpriseDashboard() {
   const [editingJob, setEditingJob] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("jobs");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isViewCandidatesOpen, setIsViewCandidatesOpen] = useState(false);
+  const [viewingCandidates, setViewingCandidates] = useState<any[]>([]);
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
   const [newJob, setNewJob] = useState({
     title: "",
     description: "",
@@ -229,6 +232,31 @@ export default function EnterpriseDashboard() {
     }
   };
 
+  // View candidates for a job
+  const viewCandidates = async (jobId: number, jobTitle: string) => {
+    try {
+      const response = await apiRequest('GET', `/api/enterprise/jobs/${jobId}/candidates`);
+      const candidates = await response.json();
+      
+      setViewingCandidates(candidates);
+      setSelectedJobTitle(jobTitle);
+      setIsViewCandidatesOpen(true);
+      
+      if (candidates.length === 0) {
+        toast({
+          title: "Info",
+          description: "No candidates have been assigned to this job yet.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load candidates",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter job seekers based on search query
   const filteredJobSeekers = allJobSeekers.filter((seeker: any) => {
     const query = searchQuery.toLowerCase();
@@ -416,6 +444,14 @@ export default function EnterpriseDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => viewCandidates(job.id, job.title)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Candidates
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEditJob(job)}
                             >
                               <Edit className="h-4 w-4 mr-1" />
@@ -472,32 +508,38 @@ export default function EnterpriseDashboard() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredJobSeekers.map((seeker: any) => (
-                      <div key={seeker.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-medium text-lg">
-                              {seeker.firstName} {seeker.lastName}
-                            </h3>
-                            <p className="text-sm text-gray-600 mt-1">{seeker.email}</p>
-                            {seeker.headline && (
-                              <p className="text-sm text-gray-500 mt-1">{seeker.headline}</p>
-                            )}
-                            {seeker.location && (
-                              <p className="text-xs text-gray-400 mt-1">{seeker.location}</p>
-                            )}
+                    {filteredJobSeekers.map((seeker: any) => {
+                      const categoryName = categories.find((cat: any) => cat.id === seeker.categoryId)?.name || 'Unknown Category';
+                      return (
+                        <div key={seeker.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium text-lg">
+                                {seeker.firstName} {seeker.lastName}
+                              </h3>
+                              <p className="text-sm text-gray-600 mt-1">{seeker.email}</p>
+                              <Badge variant="secondary" className="mt-2 text-xs">
+                                {categoryName}
+                              </Badge>
+                              {seeker.headline && (
+                                <p className="text-sm text-gray-500 mt-1">{seeker.headline}</p>
+                              )}
+                              {seeker.location && (
+                                <p className="text-xs text-gray-400 mt-1">{seeker.location}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={`mailto:${seeker.email}`}>
+                                <Mail className="h-4 w-4 mr-1" />
+                                Contact
+                              </a>
+                            </Button>
                           </div>
                         </div>
-                        <div className="mt-3 flex justify-end">
-                          <Button variant="outline" size="sm" asChild>
-                            <a href={`mailto:${seeker.email}`}>
-                              <Mail className="h-4 w-4 mr-1" />
-                              Contact
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -595,6 +637,50 @@ export default function EnterpriseDashboard() {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* View Candidates Dialog */}
+        <Dialog open={isViewCandidatesOpen} onOpenChange={setIsViewCandidatesOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Candidates for: {selectedJobTitle}</DialogTitle>
+              <DialogDescription>
+                Category-matched candidates assigned to this job
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-96 overflow-y-auto">
+              {viewingCandidates.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No candidates assigned</h3>
+                  <p className="mt-1 text-sm text-gray-500">Candidates are auto-assigned when creating jobs with categories.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {viewingCandidates.map((candidate: any) => (
+                    <div key={candidate.candidateId} className="border rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-lg">
+                            {candidate.candidateName}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">{candidate.candidateEmail}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`mailto:${candidate.candidateEmail}`}>
+                            <Mail className="h-4 w-4 mr-1" />
+                            Contact
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </DialogContent>
         </Dialog>
       </div>
