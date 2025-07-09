@@ -860,11 +860,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJobsByRecruiter(recruiterId: string): Promise<Job[]> {
-    return await db
-      .select()
-      .from(jobs)
-      .where(eq(jobs.recruiterId, recruiterId))
-      .orderBy(desc(jobs.createdAt));
+    try {
+      const query = `
+        SELECT 
+          j.id,
+          j.company_id as "companyId",
+          j.recruiter_id as "recruiterId",
+          j.category_id as "categoryId",
+          j.title,
+          j.description,
+          j.requirements,
+          j.location,
+          j.country,
+          j.state,
+          j.city,
+          j.zip_code as "zipCode",
+          j.job_type as "jobType",
+          j.experience_level as "experienceLevel",
+          j.salary,
+          j.benefits,
+          j.skills,
+          j.is_active as "isActive",
+          j.application_count as "applicationCount",
+          j.created_at as "createdAt",
+          j.updated_at as "updatedAt",
+          c.name as "companyName",
+          cat.name as "categoryName"
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN categories cat ON j.category_id = cat.id
+        WHERE j.recruiter_id = $1
+        ORDER BY j.created_at DESC
+      `;
+      
+      const result = await pool.query(query, [recruiterId]);
+      console.log(`getJobsByRecruiter returned ${result.rows.length} jobs for recruiter ${recruiterId}`);
+      return result.rows;
+    } catch (error) {
+      console.error('Error in getJobsByRecruiter:', error);
+      return [];
+    }
   }
 
   async getJobCountByRecruiter(recruiterId: string): Promise<number> {
@@ -2187,12 +2222,21 @@ export class DatabaseStorage implements IStorage {
       const assignments: JobCandidateAssignment[] = [];
       for (const candidate of candidatesResult.rows) {
         try {
+          // Check if assignment already exists
+          const existingAssignment = await pool.query(`
+            SELECT id FROM job_candidate_assignments 
+            WHERE job_id = $1 AND candidate_id = $2 AND recruiter_id = $3
+          `, [jobId, candidate.id, recruiterId]);
+          
+          if (existingAssignment.rows.length > 0) {
+            console.log(`Assignment already exists for candidate ${candidate.email}`);
+            continue;
+          }
+          
+          // Create new assignment
           const result = await pool.query(`
             INSERT INTO job_candidate_assignments (job_id, candidate_id, recruiter_id, status)
             VALUES ($1, $2, $3, 'assigned')
-            ON CONFLICT (job_id, candidate_id, recruiter_id) DO UPDATE SET
-            status = EXCLUDED.status,
-            assigned_at = NOW()
             RETURNING *
           `, [jobId, candidate.id, recruiterId]);
           

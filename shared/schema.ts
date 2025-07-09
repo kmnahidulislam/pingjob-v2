@@ -230,7 +230,10 @@ export const jobCandidateAssignments = pgTable("job_candidate_assignments", {
   assignedAt: timestamp("assigned_at").defaultNow(),
   contactedAt: timestamp("contacted_at"),
   notes: text("notes"),
-});
+}, (table) => ({
+  // Unique constraint to prevent duplicate assignments
+  uniqueAssignment: index("job_candidate_assignments_unique").on(table.jobId, table.candidateId, table.recruiterId),
+}));
 
 
 
