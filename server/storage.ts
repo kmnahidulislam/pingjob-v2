@@ -2134,51 +2134,92 @@ export class DatabaseStorage implements IStorage {
 
   // Auto-assign job seekers to recruiter jobs by category
   async autoAssignCandidatesToJob(jobId: number, recruiterId: string): Promise<JobCandidateAssignment[]> {
-    // First get the job details to find the category
-    const job = await db.select().from(jobs).where(eq(jobs.id, jobId)).limit(1);
-    if (!job.length || !job[0].categoryId) {
+    try {
+      console.log(`Auto-assigning candidates for job ${jobId} by recruiter ${recruiterId}`);
+      
+      // First create the table if it doesn't exist
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS job_candidate_assignments (
+          id SERIAL PRIMARY KEY,
+          job_id INTEGER REFERENCES jobs(id) NOT NULL,
+          candidate_id VARCHAR REFERENCES users(id) NOT NULL,
+          recruiter_id VARCHAR REFERENCES users(id) NOT NULL,
+          status VARCHAR DEFAULT 'assigned' CHECK (status IN ('assigned', 'contacted', 'interested', 'not_interested')),
+          assigned_at TIMESTAMP DEFAULT NOW(),
+          contacted_at TIMESTAMP,
+          notes TEXT,
+          UNIQUE(job_id, candidate_id, recruiter_id)
+        );
+      `);
+      
+      // Get the job details to find the category
+      const jobResult = await pool.query('SELECT * FROM jobs WHERE id = $1', [jobId]);
+      if (!jobResult.rows.length || !jobResult.rows[0].category_id) {
+        console.log('Job not found or no category_id');
+        return [];
+      }
+
+      const job = jobResult.rows[0];
+      console.log(`Job category: ${job.category_id}`);
+
+      // Find job seekers with matching category
+      const candidatesResult = await pool.query(`
+        SELECT * FROM users 
+        WHERE user_type = 'job_seeker' 
+        AND category_id = $1 
+        LIMIT 50
+      `, [job.category_id]);
+
+      console.log(`Found ${candidatesResult.rows.length} matching candidates`);
+
+      // Create assignments for each matching candidate
+      const assignments: JobCandidateAssignment[] = [];
+      for (const candidate of candidatesResult.rows) {
+        try {
+          const result = await pool.query(`
+            INSERT INTO job_candidate_assignments (job_id, candidate_id, recruiter_id, status)
+            VALUES ($1, $2, $3, 'assigned')
+            ON CONFLICT (job_id, candidate_id, recruiter_id) DO NOTHING
+            RETURNING *
+          `, [jobId, candidate.id, recruiterId]);
+          
+          if (result.rows.length > 0) {
+            assignments.push(result.rows[0]);
+            console.log(`Assigned candidate ${candidate.email} to job ${jobId}`);
+          }
+        } catch (error) {
+          console.log('Assignment error:', error.message);
+        }
+      }
+
+      console.log(`Created ${assignments.length} assignments`);
+      return assignments;
+    } catch (error) {
+      console.error('Error in autoAssignCandidatesToJob:', error);
       return [];
     }
-
-    // Find job seekers with matching category
-    const matchingCandidates = await db
-      .select()
-      .from(users)
-      .where(
-        and(
-          eq(users.userType, 'job_seeker'),
-          eq(users.categoryId, job[0].categoryId)
-        )
-      )
-      .limit(50); // Limit to top 50 candidates
-
-    // Create assignments for each matching candidate
-    const assignments: JobCandidateAssignment[] = [];
-    for (const candidate of matchingCandidates) {
-      try {
-        const [assignment] = await db
-          .insert(jobCandidateAssignments)
-          .values({
-            jobId,
-            candidateId: candidate.id,
-            recruiterId,
-            status: 'assigned'
-          })
-          .returning();
-        
-        assignments.push(assignment);
-      } catch (error) {
-        // Skip duplicates or other errors
-        console.log('Assignment already exists or error:', error);
-      }
-    }
-
-    return assignments;
   }
 
   // Get assigned candidates for a recruiter's job
   async getJobCandidateAssignments(jobId: number, recruiterId: string): Promise<any[]> {
     try {
+      console.log(`Fetching candidates for job ${jobId} by recruiter ${recruiterId}`);
+      
+      // First check if job_candidate_assignments table exists and has data
+      const checkAssignments = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM job_candidate_assignments 
+        WHERE job_id = $1 AND recruiter_id = $2
+      `, [jobId, recruiterId]);
+      
+      console.log(`Found ${checkAssignments.rows[0].count} assignments for job ${jobId}`);
+      
+      if (checkAssignments.rows[0].count === 0) {
+        // No assignments found, let's try to auto-assign now
+        console.log('No assignments found, attempting auto-assignment...');
+        await this.autoAssignCandidatesToJob(jobId, recruiterId);
+      }
+      
       // Use raw SQL to handle column naming issues
       const result = await pool.query(`
         SELECT 
@@ -2190,11 +2231,10 @@ export class DatabaseStorage implements IStorage {
           jca.assigned_at,
           jca.contacted_at,
           jca.notes,
-          u.id as candidate_id,
+          u.id as user_id,
           u.first_name,
           u.last_name,
           u.email,
-          u.resume_url,
           u.headline,
           u.location,
           u.category_id
@@ -2203,6 +2243,8 @@ export class DatabaseStorage implements IStorage {
         WHERE jca.job_id = $1 AND jca.recruiter_id = $2
         ORDER BY jca.assigned_at DESC
       `, [jobId, recruiterId]);
+
+      console.log(`Query returned ${result.rows.length} candidate assignments`);
 
       return result.rows.map(row => ({
         assignment: {
@@ -2216,11 +2258,10 @@ export class DatabaseStorage implements IStorage {
           notes: row.notes
         },
         candidate: {
-          id: row.candidate_id,
+          id: row.user_id,
           firstName: row.first_name,
           lastName: row.last_name,
           email: row.email,
-          resumeUrl: row.resume_url,
           headline: row.headline,
           location: row.location,
           categoryId: row.category_id
@@ -2234,18 +2275,27 @@ export class DatabaseStorage implements IStorage {
 
   // Update assignment status
   async updateAssignmentStatus(assignmentId: number, status: string, notes?: string): Promise<void> {
-    const updateData: any = { status };
-    if (status === 'contacted') {
-      updateData.contactedAt = new Date();
+    try {
+      let query = 'UPDATE job_candidate_assignments SET status = $1';
+      let params = [status];
+      
+      if (status === 'contacted') {
+        query += ', contacted_at = NOW()';
+      }
+      
+      if (notes) {
+        query += ', notes = $' + (params.length + 1);
+        params.push(notes);
+      }
+      
+      query += ' WHERE id = $' + (params.length + 1);
+      params.push(assignmentId);
+      
+      await pool.query(query, params);
+      console.log(`Updated assignment ${assignmentId} status to ${status}`);
+    } catch (error) {
+      console.error('Error updating assignment status:', error);
     }
-    if (notes) {
-      updateData.notes = notes;
-    }
-
-    await db
-      .update(jobCandidateAssignments)
-      .set(updateData)
-      .where(eq(jobCandidateAssignments.id, assignmentId));
   }
 
   // Get jobs posted by admin (for homepage)
