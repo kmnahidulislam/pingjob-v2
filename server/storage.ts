@@ -926,11 +926,23 @@ export class DatabaseStorage implements IStorage {
 
   async deleteJob(id: number): Promise<void> {
     try {
-      // First delete all candidate assignments for this job
-      await pool.query('DELETE FROM job_candidate_assignments WHERE job_id = $1', [id]);
+      // First delete all candidate assignments for this job using direct pool connection
+      const { Pool } = await import('pg');
+      const NEON_DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+      const directPool = new Pool({ 
+        connectionString: NEON_DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+      const client = await directPool.connect();
+      
+      // Delete assignments first
+      await client.query('DELETE FROM job_candidate_assignments WHERE job_id = $1', [id]);
       
       // Then delete the job
-      await db.delete(jobs).where(eq(jobs.id, id));
+      await client.query('DELETE FROM jobs WHERE id = $1', [id]);
+      
+      client.release();
+      console.log(`Successfully deleted job ${id} and all its assignments`);
     } catch (error) {
       console.error('Error deleting job:', error);
       throw error;
