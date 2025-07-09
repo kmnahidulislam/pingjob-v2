@@ -2178,30 +2178,58 @@ export class DatabaseStorage implements IStorage {
 
   // Get assigned candidates for a recruiter's job
   async getJobCandidateAssignments(jobId: number, recruiterId: string): Promise<any[]> {
-    const result = await db
-      .select({
-        assignment: jobCandidateAssignments,
-        candidate: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-          resumeUrl: users.resumeUrl,
-          headline: users.headline,
-          location: users.location
-        }
-      })
-      .from(jobCandidateAssignments)
-      .innerJoin(users, eq(jobCandidateAssignments.candidateId, users.id))
-      .where(
-        and(
-          eq(jobCandidateAssignments.jobId, jobId),
-          eq(jobCandidateAssignments.recruiterId, recruiterId)
-        )
-      )
-      .orderBy(desc(jobCandidateAssignments.assignedAt));
+    try {
+      // Use raw SQL to handle column naming issues
+      const result = await pool.query(`
+        SELECT 
+          jca.id as assignment_id,
+          jca.job_id,
+          jca.candidate_id,
+          jca.recruiter_id,
+          jca.status,
+          jca.assigned_at,
+          jca.contacted_at,
+          jca.notes,
+          u.id as candidate_id,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.resume_url,
+          u.headline,
+          u.location,
+          u.category_id
+        FROM job_candidate_assignments jca
+        INNER JOIN users u ON jca.candidate_id = u.id
+        WHERE jca.job_id = $1 AND jca.recruiter_id = $2
+        ORDER BY jca.assigned_at DESC
+      `, [jobId, recruiterId]);
 
-    return result;
+      return result.rows.map(row => ({
+        assignment: {
+          id: row.assignment_id,
+          jobId: row.job_id,
+          candidateId: row.candidate_id,
+          recruiterId: row.recruiter_id,
+          status: row.status,
+          assignedAt: row.assigned_at,
+          contactedAt: row.contacted_at,
+          notes: row.notes
+        },
+        candidate: {
+          id: row.candidate_id,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          email: row.email,
+          resumeUrl: row.resume_url,
+          headline: row.headline,
+          location: row.location,
+          categoryId: row.category_id
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching job candidates:', error);
+      return [];
+    }
   }
 
   // Update assignment status
