@@ -214,20 +214,23 @@ export default function RecruiterDashboard() {
     }
   };
 
-  const viewCandidates = async (jobId: number) => {
+  const [viewingCandidates, setViewingCandidates] = useState<any[]>([]);
+  const [isViewCandidatesOpen, setIsViewCandidatesOpen] = useState(false);
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
+
+  const viewCandidates = async (jobId: number, jobTitle: string) => {
     try {
       const response = await apiRequest('GET', `/api/recruiter/jobs/${jobId}/candidates`);
       const candidates = await response.json();
+      
+      setViewingCandidates(candidates);
+      setSelectedJobTitle(jobTitle);
+      setIsViewCandidatesOpen(true);
       
       if (candidates.length === 0) {
         toast({
           title: "Info",
           description: "No candidates have been assigned to this job yet.",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `${candidates.length} candidates found for this job`,
         });
       }
     } catch (error) {
@@ -412,7 +415,7 @@ export default function RecruiterDashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => viewCandidates(job.id)}
+                          onClick={() => viewCandidates(job.id, job.title)}
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View Candidates
@@ -441,6 +444,57 @@ export default function RecruiterDashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* View Candidates Dialog */}
+        <Dialog open={isViewCandidatesOpen} onOpenChange={setIsViewCandidatesOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Candidates for: {selectedJobTitle}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {viewingCandidates.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No candidates have been assigned to this job yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {viewingCandidates.map((candidate: any) => (
+                    <div key={candidate.user_id} className="border rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-lg">
+                            {candidate.first_name} {candidate.last_name}
+                          </h3>
+                          <p className="text-sm text-gray-600">{candidate.email}</p>
+                          {candidate.headline && (
+                            <p className="text-sm text-gray-500 mt-1">{candidate.headline}</p>
+                          )}
+                          {candidate.location && (
+                            <p className="text-sm text-gray-500">{candidate.location}</p>
+                          )}
+                          <div className="flex items-center space-x-2 mt-2">
+                            <Badge variant="outline">{candidate.status}</Badge>
+                            <span className="text-sm text-gray-500">
+                              Assigned {new Date(candidate.assigned_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button variant="outline" size="sm">
+                            Contact
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            View Profile
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Job Dialog */}
         <Dialog open={isEditJobOpen} onOpenChange={setIsEditJobOpen}>

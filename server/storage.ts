@@ -925,7 +925,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteJob(id: number): Promise<void> {
-    await db.delete(jobs).where(eq(jobs.id, id));
+    try {
+      // First delete all candidate assignments for this job
+      await pool.query('DELETE FROM job_candidate_assignments WHERE job_id = $1', [id]);
+      
+      // Then delete the job
+      await db.delete(jobs).where(eq(jobs.id, id));
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      throw error;
+    }
   }
 
   async searchJobs(query: string, filters: any = {}): Promise<any[]> {
