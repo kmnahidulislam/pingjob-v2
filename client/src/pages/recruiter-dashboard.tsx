@@ -29,8 +29,9 @@ export default function RecruiterDashboard() {
     description: "",
     requirements: "",
     location: "",
-    jobType: "full-time",
-    experienceLevel: "mid-level",
+    jobType: "full_time",
+    employmentType: "full_time",
+    experienceLevel: "mid",
     salary: "",
     companyId: "",
     categoryId: ""
@@ -90,8 +91,9 @@ export default function RecruiterDashboard() {
         description: "",
         requirements: "",
         location: "",
-        jobType: "full-time",
-        experienceLevel: "mid-level",
+        jobType: "full_time",
+        employmentType: "full_time",
+        experienceLevel: "mid",
         salary: "",
         companyId: "",
         categoryId: ""
@@ -351,6 +353,37 @@ export default function RecruiterDashboard() {
                       onChange={(e) => setNewJob({ ...newJob, location: e.target.value })}
                       placeholder="e.g., New York, NY"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Job Type</label>
+                    <Select value={newJob.jobType} onValueChange={(value) => setNewJob({ ...newJob, jobType: value, employmentType: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select job type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="full_time">Full Time</SelectItem>
+                        <SelectItem value="part_time">Part Time</SelectItem>
+                        <SelectItem value="contract">Contract</SelectItem>
+                        <SelectItem value="remote">Remote</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Experience Level</label>
+                    <Select value={newJob.experienceLevel} onValueChange={(value) => setNewJob({ ...newJob, experienceLevel: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select experience level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="entry">Entry Level</SelectItem>
+                        <SelectItem value="mid">Mid Level</SelectItem>
+                        <SelectItem value="senior">Senior Level</SelectItem>
+                        <SelectItem value="executive">Executive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
