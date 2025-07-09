@@ -44,6 +44,7 @@ export default function Navigation() {
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
     ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
+    ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
     ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
   ];
 

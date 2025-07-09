@@ -59,6 +59,7 @@ export interface IStorage {
   createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   getTotalUserCount(): Promise<number>;
+  getAllJobSeekers(): Promise<User[]>;
   
   // Password reset operations
   updateUserResetToken(userId: string, token: string, expires: Date): Promise<void>;
@@ -257,6 +258,29 @@ export class DatabaseStorage implements IStorage {
       WHERE status IS NULL OR status != 'closed'
     `);
     return parseInt(result.rows[0].count);
+  }
+
+  async getAllJobSeekers(): Promise<User[]> {
+    const result = await pool.query(`
+      SELECT id, email, first_name, last_name, headline, location, category_id, user_type, created_at, updated_at
+      FROM users 
+      WHERE user_type = 'job_seeker' 
+      ORDER BY first_name ASC, last_name ASC
+    `);
+    
+    // Transform the results to match the expected structure
+    return result.rows.map(row => ({
+      id: row.id,
+      email: row.email,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      headline: row.headline,
+      location: row.location,
+      categoryId: row.category_id,
+      userType: row.user_type,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    }));
   }
 
   // Profile operations

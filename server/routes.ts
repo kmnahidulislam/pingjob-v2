@@ -2870,6 +2870,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ENTERPRISE ROUTES - Similar to recruiter but with unlimited job posting and access to all job seekers
+  
+  // Get enterprise's own jobs (unlimited)
+  app.get('/api/enterprise/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'client') {
+        return res.status(403).json({ message: "Access denied. Enterprise role required." });
+      }
+      
+      const jobs = await storage.getRecruiterOwnJobs(req.user.id);
+      res.json(jobs);
+    } catch (error) {
+      console.error("Error fetching enterprise jobs:", error);
+      res.status(500).json({ message: "Failed to fetch enterprise jobs" });
+    }
+  });
+
+  // Create job as enterprise (unlimited)
+  app.post('/api/enterprise/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'client') {
+        return res.status(403).json({ message: "Access denied. Enterprise role required." });
+      }
+
+      // No job limit for enterprise users
+      const validatedData = insertJobSchema.parse({
+        ...req.body,
+        recruiterId: req.user.id
+      });
+
+      const job = await storage.createJob(validatedData);
+      
+      // Auto-assign candidates by category (same as recruiter)
+      if (job.categoryId) {
+        await storage.autoAssignCandidatesToJob(job.id, req.user.id);
+      }
+
+      res.status(201).json(job);
+    } catch (error) {
+      console.error("Error creating enterprise job:", error);
+      res.status(500).json({ message: "Failed to create job" });
+    }
+  });
+
+  // Get ALL job seekers for enterprise access
+  app.get('/api/enterprise/job-seekers', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'client') {
+        return res.status(403).json({ message: "Access denied. Enterprise role required." });
+      }
+
+      const allJobSeekers = await storage.getAllJobSeekers();
+      res.json(allJobSeekers);
+    } catch (error) {
+      console.error("Error fetching all job seekers:", error);
+      res.status(500).json({ message: "Failed to fetch job seekers" });
+    }
+  });
+
+  // Get assigned candidates for an enterprise job
+  app.get('/api/enterprise/jobs/:jobId/candidates', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'client') {
+        return res.status(403).json({ message: "Access denied. Enterprise role required." });
+      }
+
+      const jobId = parseInt(req.params.jobId);
+      const assignments = await storage.getJobCandidateAssignments(jobId, req.user.id);
+      res.json(assignments);
+    } catch (error) {
+      console.error("Error fetching job candidates:", error);
+      res.status(500).json({ message: "Failed to fetch job candidates" });
+    }
+  });
+
   // Debug endpoints to help fix candidate assignment issues
   app.get('/api/debug/categories-with-users', isAuthenticated, async (req: any, res) => {
     try {
