@@ -34,7 +34,7 @@ export default function Navigation() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const isAdmin = true; // Temporarily enable admin features for testing
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'recruiter' || user?.userType === 'client';
 
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
