@@ -2154,23 +2154,34 @@ export class DatabaseStorage implements IStorage {
       
       // Get the job details to find the category
       const jobResult = await pool.query('SELECT * FROM jobs WHERE id = $1', [jobId]);
-      if (!jobResult.rows.length || !jobResult.rows[0].category_id) {
-        console.log('Job not found or no category_id');
+      if (!jobResult.rows.length) {
+        console.log('Job not found');
         return [];
       }
 
       const job = jobResult.rows[0];
-      console.log(`Job category: ${job.category_id}`);
+      console.log(`Job found: ${job.title}, Category ID: ${job.category_id}`);
+      
+      if (!job.category_id) {
+        console.log('Job has no category_id - cannot auto-assign');
+        return [];
+      }
 
       // Find job seekers with matching category
       const candidatesResult = await pool.query(`
-        SELECT * FROM users 
+        SELECT id, email, first_name, last_name, category_id, user_type 
+        FROM users 
         WHERE user_type = 'job_seeker' 
         AND category_id = $1 
         LIMIT 50
       `, [job.category_id]);
 
-      console.log(`Found ${candidatesResult.rows.length} matching candidates`);
+      console.log(`Found ${candidatesResult.rows.length} matching candidates for category ${job.category_id}`);
+      
+      // Log first few candidates for debugging
+      candidatesResult.rows.slice(0, 3).forEach(candidate => {
+        console.log(`- Candidate: ${candidate.first_name} ${candidate.last_name} (${candidate.email})`);
+      });
 
       // Create assignments for each matching candidate
       const assignments: JobCandidateAssignment[] = [];
@@ -2205,7 +2216,22 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`Fetching candidates for job ${jobId} by recruiter ${recruiterId}`);
       
-      // First check if job_candidate_assignments table exists and has data
+      // First ensure the table exists
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS job_candidate_assignments (
+          id SERIAL PRIMARY KEY,
+          job_id INTEGER REFERENCES jobs(id) NOT NULL,
+          candidate_id VARCHAR REFERENCES users(id) NOT NULL,
+          recruiter_id VARCHAR REFERENCES users(id) NOT NULL,
+          status VARCHAR DEFAULT 'assigned' CHECK (status IN ('assigned', 'contacted', 'interested', 'not_interested')),
+          assigned_at TIMESTAMP DEFAULT NOW(),
+          contacted_at TIMESTAMP,
+          notes TEXT,
+          UNIQUE(job_id, candidate_id, recruiter_id)
+        );
+      `);
+      
+      // Check if job_candidate_assignments table exists and has data
       const checkAssignments = await pool.query(`
         SELECT COUNT(*) as count 
         FROM job_candidate_assignments 
@@ -2214,7 +2240,7 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`Found ${checkAssignments.rows[0].count} assignments for job ${jobId}`);
       
-      if (checkAssignments.rows[0].count === 0) {
+      if (parseInt(checkAssignments.rows[0].count) === 0) {
         // No assignments found, let's try to auto-assign now
         console.log('No assignments found, attempting auto-assignment...');
         const assignments = await this.autoAssignCandidatesToJob(jobId, recruiterId);
