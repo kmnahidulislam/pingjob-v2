@@ -706,6 +706,15 @@ Changelog:
   - Built recruiter-candidate connection system for direct communication with matched candidates
   - Enhanced job creation success notification to confirm auto-assignment of candidates by category
   - System automatically finds up to 50 job seekers with matching category and assigns them to new recruiter jobs
+- July 9, 2025. Enhanced candidate assignment display system for recruiter communication
+  - Fixed database UNIQUE constraint issue in job_candidate_assignments table that was preventing assignments
+  - Successfully created working candidate assignment system with 10 .NET developers assigned to test job
+  - Enhanced candidate viewing modal to display clean, prominent candidate information
+  - Candidate display now shows only essential information: candidate name (large bold text) and email address
+  - Removed status badges and category match indicators for simplified, focused display
+  - Added prominent "Contact Candidate" button that opens email client for direct communication
+  - Fixed React key warnings and accessibility issues in candidate viewing modal
+  - Recruiters can now easily view and contact category-matched candidates assigned to their jobs
 ```
 
 ## User Preferences

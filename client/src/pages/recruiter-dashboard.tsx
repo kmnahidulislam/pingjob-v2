@@ -508,20 +508,10 @@ export default function RecruiterDashboard() {
                     <div key={`${candidate.user_id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="mb-3">
-                            <h3 className="font-bold text-xl text-blue-900 mb-1">
-                              {candidate.first_name} {candidate.last_name || ""}
-                            </h3>
-                            <p className="text-lg text-gray-800 font-semibold">{candidate.email}</p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                              ✓ Category Match
-                            </Badge>
-                            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
-                              {candidate.status}
-                            </Badge>
-                          </div>
+                          <h3 className="font-bold text-2xl text-blue-900 mb-2">
+                            {candidate.first_name} {candidate.last_name || ""}
+                          </h3>
+                          <p className="text-xl text-gray-800 font-semibold">{candidate.email}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-700">
