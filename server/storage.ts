@@ -2190,7 +2190,9 @@ export class DatabaseStorage implements IStorage {
           const result = await pool.query(`
             INSERT INTO job_candidate_assignments (job_id, candidate_id, recruiter_id, status)
             VALUES ($1, $2, $3, 'assigned')
-            ON CONFLICT (job_id, candidate_id, recruiter_id) DO NOTHING
+            ON CONFLICT (job_id, candidate_id, recruiter_id) DO UPDATE SET
+            status = EXCLUDED.status,
+            assigned_at = NOW()
             RETURNING *
           `, [jobId, candidate.id, recruiterId]);
           

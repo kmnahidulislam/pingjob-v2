@@ -2870,6 +2870,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoints to help fix candidate assignment issues
+  app.get('/api/debug/categories-with-users', isAuthenticated, async (req: any, res) => {
+    try {
+      const { cleanPool } = await import('./clean-neon');
+      const result = await cleanPool.query(`
+        SELECT u.category_id, c.name, COUNT(u.id) as user_count
+        FROM users u
+        JOIN categories c ON u.category_id = c.id
+        WHERE u.user_type = 'job_seeker'
+        GROUP BY u.category_id, c.name
+        ORDER BY user_count DESC
+        LIMIT 10
+      `);
+      
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to get categories' });
+    }
+  });
+
+  // Quick fix: Update job to use category 1 (which should have job seekers)
+  app.post('/api/debug/fix-job-category', isAuthenticated, async (req: any, res) => {
+    try {
+      const { cleanPool } = await import('./clean-neon');
+      
+      // First check what categories have job seekers
+      const categoriesResult = await cleanPool.query(`
+        SELECT u.category_id, c.name, COUNT(u.id) as user_count
+        FROM users u
+        JOIN categories c ON u.category_id = c.id
+        WHERE u.user_type = 'job_seeker'
+        GROUP BY u.category_id, c.name
+        ORDER BY user_count DESC
+        LIMIT 1
+      `);
+      
+      if (categoriesResult.rows.length === 0) {
+        return res.status(400).json({ error: 'No categories with job seekers found' });
+      }
+      
+      const bestCategory = categoriesResult.rows[0];
+      
+      // Update the recruiter's job to use this category
+      const updateResult = await cleanPool.query(`
+        UPDATE jobs 
+        SET category_id = $1
+        WHERE recruiter_id = $2
+        RETURNING id, title, category_id
+      `, [bestCategory.category_id, req.user.id]);
+      
+      if (updateResult.rows.length === 0) {
+        return res.status(404).json({ error: 'No jobs found for this recruiter' });
+      }
+      
+      res.json({
+        success: true,
+        message: `Updated job to use category ${bestCategory.category_id} (${bestCategory.name}) which has ${bestCategory.user_count} job seekers`,
+        updatedJob: updateResult.rows[0],
+        category: bestCategory
+      });
+    } catch (error) {
+      console.error('Error fixing job category:', error);
+      res.status(500).json({ error: 'Failed to fix job category' });
+    }
+  });
+
+  // Update job category for testing
+  app.patch('/api/debug/job/:jobId/category/:categoryId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { jobId, categoryId } = req.params;
+      const { cleanPool } = await import('./clean-neon');
+      const result = await cleanPool.query(`
+        UPDATE jobs 
+        SET category_id = $1
+        WHERE id = $2 AND recruiter_id = $3
+        RETURNING *
+      `, [categoryId, jobId, req.user.id]);
+      
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error('Error updating job category:', error);
+      res.status(500).json({ error: 'Failed to update job category' });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

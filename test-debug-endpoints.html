@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Endpoints Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Debug Endpoints Test</h1>
+    
+    <button onclick="checkCategories()">Check Categories with Users</button>
+    <button onclick="updateJobCategory()">Update Job Category to Category 1</button>
+    <button onclick="testCandidateAssignment()">Test Candidate Assignment</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        async function checkCategories() {
+            try {
+                const response = await fetch('/api/debug/categories-with-users');
+                const data = await response.json();
+                log(`Categories with users: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function updateJobCategory() {
+            try {
+                const response = await fetch('/api/debug/job/83571/category/1', {
+                    method: 'PATCH'
+                });
+                const data = await response.json();
+                log(`Job updated: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCandidateAssignment() {
+            try {
+                const response = await fetch('/api/recruiter/jobs/83571/candidates');
+                const data = await response.json();
+                log(`Candidates assigned: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
