@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -493,6 +493,9 @@ export default function RecruiterDashboard() {
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Candidates for: {selectedJobTitle}</DialogTitle>
+              <DialogDescription>
+                Category-matched candidates available for this position. Click "Contact Candidate" to send an email.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               {viewingCandidates.length === 0 ? (
@@ -505,22 +508,26 @@ export default function RecruiterDashboard() {
                     <div key={`${candidate.user_id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-medium text-lg">
-                            {candidate.first_name} {candidate.last_name || ""}
-                          </h3>
-                          <p className="text-sm text-gray-600 font-medium">{candidate.email}</p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                              Category Match
+                          <div className="mb-3">
+                            <h3 className="font-bold text-xl text-blue-900 mb-1">
+                              {candidate.first_name} {candidate.last_name || ""}
+                            </h3>
+                            <p className="text-lg text-gray-800 font-semibold">{candidate.email}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                              ✓ Category Match
                             </Badge>
-                            <Badge variant="outline">{candidate.status}</Badge>
+                            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+                              {candidate.status}
+                            </Badge>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm" asChild>
+                          <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-700">
                             <a href={`mailto:${candidate.email}`}>
                               <Mail className="h-4 w-4 mr-1" />
-                              Email
+                              Contact Candidate
                             </a>
                           </Button>
                         </div>
