@@ -695,6 +695,17 @@ Changelog:
   - Confirmed getAdminJobs method properly excludes recruiter jobs from home page display
   - Recruiter jobs are only accessible through search functionality, never displayed on home page
   - System maintains separation between admin jobs (home page) and recruiter jobs (search only)
+- July 9, 2025. Implemented comprehensive recruiter job tracking system and candidate assignment display
+  - Added real-time job tracking display in recruiter dashboard header showing "X of 10 jobs posted"
+  - Enhanced Create Job button to disable when 10-job limit is reached with visual feedback
+  - Improved job creation validation with dual checks: client-side disabled state and server-side limit enforcement
+  - Added gradient-styled job limit tracker with remaining count display in dashboard header
+  - Enhanced candidate assignment system to show category-matched job seekers with contact information
+  - Implemented auto-assignment workflow that matches candidates to jobs based on category_id
+  - Added candidate status tracking: assigned → contacted → interested/not_interested
+  - Built recruiter-candidate connection system for direct communication with matched candidates
+  - Enhanced job creation success notification to confirm auto-assignment of candidates by category
+  - System automatically finds up to 50 job seekers with matching category and assigns them to new recruiter jobs
 ```
 
 ## User Preferences

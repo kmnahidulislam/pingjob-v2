@@ -56,6 +56,11 @@ export default function RecruiterDashboard() {
     enabled: user?.userType === 'recruiter'
   });
 
+  // Calculate job statistics
+  const jobsPosted = recruiterJobs.length;
+  const jobsRemaining = Math.max(0, 10 - jobsPosted);
+  const canCreateJob = jobsRemaining > 0;
+
   // Fetch companies for job creation
   const { data: companies = [] } = useQuery({
     queryKey: ['/api/companies/search'],
@@ -88,6 +93,10 @@ export default function RecruiterDashboard() {
   const createJobMutation = useMutation({
     mutationFn: async (jobData: any) => {
       const response = await apiRequest('POST', '/api/recruiter/jobs', jobData);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create job');
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -109,11 +118,11 @@ export default function RecruiterDashboard() {
         categoryId: ""
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create job",
-        variant: "destructive",
+        title: "Job Creation Failed",
+        description: error.message,
+        variant: "destructive"
       });
     }
   });
@@ -162,6 +171,15 @@ export default function RecruiterDashboard() {
   });
 
   const handleCreateJob = () => {
+    if (!canCreateJob) {
+      toast({
+        title: "Job Limit Reached",
+        description: "You have reached the maximum of 10 job postings. Please contact support for additional limits.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!newJob.title || !newJob.companyId || !newJob.categoryId) {
       toast({
         title: "Missing Information",
@@ -207,8 +225,21 @@ export default function RecruiterDashboard() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
-        <p className="text-gray-600 mt-2">Manage your job postings and candidate assignments</p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage your job postings and candidate assignments</p>
+          </div>
+          <div className="text-right">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg px-4 py-3">
+              <div className="text-sm font-medium text-blue-900">Job Posting Limit</div>
+              <div className="text-2xl font-bold text-blue-700">{jobsPosted} / 10</div>
+              <div className="text-sm text-blue-600">
+                {jobsRemaining > 0 ? `${jobsRemaining} remaining` : 'Limit reached'}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Tabs defaultValue="jobs" className="space-y-6">
@@ -223,9 +254,10 @@ export default function RecruiterDashboard() {
             <h2 className="text-2xl font-semibold">Job Postings</h2>
             <Dialog open={isCreateJobOpen} onOpenChange={setIsCreateJobOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button disabled={!canCreateJob}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create New Job
+                  {!canCreateJob && " (Limit Reached)"}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
