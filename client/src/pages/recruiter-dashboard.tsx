@@ -53,9 +53,9 @@ export default function RecruiterDashboard() {
 
   // Fetch companies for job creation
   const { data: companies = [] } = useQuery({
-    queryKey: ['/api/companies/search'],
+    queryKey: ['/api/companies'],
     queryFn: async () => {
-      const response = await fetch('/api/companies/search?q=');
+      const response = await fetch('/api/companies?limit=1000');
       return response.json();
     }
   });
@@ -309,13 +309,22 @@ export default function RecruiterDashboard() {
                         <SelectValue placeholder="Select company" />
                       </SelectTrigger>
                       <SelectContent>
-                        {companies.map((company: any) => (
-                          <SelectItem key={company.id} value={company.id.toString()}>
-                            {company.name}
+                        {companies.length > 0 ? (
+                          companies.map((company: any) => (
+                            <SelectItem key={company.id} value={company.id.toString()}>
+                              {company.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="loading" disabled>
+                            Loading companies...
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {companies.length} companies loaded
+                    </p>
                   </div>
                 </div>
 
