@@ -504,18 +504,18 @@ export default function RecruiterDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {viewingCandidates.map((candidate: any, index: number) => (
-                    <div key={`${candidate.user_id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {viewingCandidates.map((assignment: any, index: number) => (
+                    <div key={`${assignment.candidate.id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-bold text-2xl text-blue-900 mb-2">
-                            {candidate.first_name} {candidate.last_name || ""}
+                            {assignment.candidate.firstName} {assignment.candidate.lastName || ""}
                           </h3>
-                          <p className="text-xl text-gray-800 font-semibold">{candidate.email}</p>
+                          <p className="text-xl text-gray-800 font-semibold">{assignment.candidate.email}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-700">
-                            <a href={`mailto:${candidate.email}`}>
+                            <a href={`mailto:${assignment.candidate.email}`}>
                               <Mail className="h-4 w-4 mr-1" />
                               Contact Candidate
                             </a>
