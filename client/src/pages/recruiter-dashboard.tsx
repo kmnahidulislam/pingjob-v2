@@ -15,7 +15,8 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye
+  Eye,
+  Mail
 } from "lucide-react";
 
 export default function RecruiterDashboard() {
@@ -500,33 +501,27 @@ export default function RecruiterDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {viewingCandidates.map((candidate: any) => (
-                    <div key={candidate.user_id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {viewingCandidates.map((candidate: any, index: number) => (
+                    <div key={`${candidate.user_id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-medium text-lg">
-                            {candidate.first_name} {candidate.last_name}
+                            {candidate.first_name} {candidate.last_name || ""}
                           </h3>
-                          <p className="text-sm text-gray-600">{candidate.email}</p>
-                          {candidate.headline && (
-                            <p className="text-sm text-gray-500 mt-1">{candidate.headline}</p>
-                          )}
-                          {candidate.location && (
-                            <p className="text-sm text-gray-500">{candidate.location}</p>
-                          )}
+                          <p className="text-sm text-gray-600 font-medium">{candidate.email}</p>
                           <div className="flex items-center space-x-2 mt-2">
+                            <Badge variant="outline" className="bg-green-50 text-green-700">
+                              Category Match
+                            </Badge>
                             <Badge variant="outline">{candidate.status}</Badge>
-                            <span className="text-sm text-gray-500">
-                              Assigned {new Date(candidate.assigned_at).toLocaleDateString()}
-                            </span>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
-                            Contact
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            View Profile
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={`mailto:${candidate.email}`}>
+                              <Mail className="h-4 w-4 mr-1" />
+                              Email
+                            </a>
                           </Button>
                         </div>
                       </div>
