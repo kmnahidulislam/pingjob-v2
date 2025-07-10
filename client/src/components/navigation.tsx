@@ -40,12 +40,10 @@ export default function Navigation() {
     { name: "Home", href: "/", icon: Home },
     { name: "Network", href: "/network", icon: Users },
     { name: "Jobs", href: "/jobs", icon: Briefcase },
-    { name: "Applications", href: "/applications", icon: FileText },
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
-    ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
-    ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
-    ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
+    // Single Dashboard for all user types
+    ...(user ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
   ];
 
   const isActive = (href: string) => {
