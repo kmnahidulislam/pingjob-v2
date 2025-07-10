@@ -2647,6 +2647,15 @@ export class DatabaseStorage implements IStorage {
       const result = await pool.query(queryText);
       console.log(`Found ${result.rows.length} applications for ${userType} access`);
       
+      // Debug: Show sample of applications found
+      if (result.rows.length > 0) {
+        console.log('Sample application data:', result.rows[0]);
+      } else {
+        // Check if there are any applications at all
+        const totalCheck = await pool.query('SELECT COUNT(*) as count FROM job_applications');
+        console.log(`Total applications in database: ${totalCheck.rows[0].count}`);
+      }
+      
       return result.rows.map(row => ({
         id: row.id,
         jobId: row.job_id,
