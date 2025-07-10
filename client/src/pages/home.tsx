@@ -283,11 +283,17 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentJobs.slice(0, 4).map((job: any) => {
-                    // Debug first job data structure
-                    if (job.id === 1863) {
-                      console.log('Home page - First job data:', JSON.stringify(job, null, 2));
+                  {recentJobs.slice(0, 4).map((job: any, index: number) => {
+                    // Debug all job data
+                    console.log(`Job ${index + 1} (ID: ${job.id}):`, JSON.stringify(job, null, 2));
+                    
+                    // Debug the company vendor count specifically
+                    if (job.company && job.company.vendorCount !== undefined) {
+                      console.log(`✓ Job ${job.id} has vendor count: ${job.company.vendorCount}`);
+                    } else {
+                      console.log(`✗ Job ${job.id} missing vendor count:`, job.company);
                     }
+                    
                     return <JobCard key={job.id} job={job} compact showCompany={true} />;
                   })}
                 </div>

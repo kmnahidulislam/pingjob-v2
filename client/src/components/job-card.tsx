@@ -154,9 +154,9 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
+                <div className="flex items-center gap-1 text-xs text-red-600 font-bold border border-red-500 px-2 py-1 bg-red-50">
                   <Users className="h-3 w-3" />
-                  <span>{job.company?.vendorCount || 0} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                  <span>TEST: {job.company?.vendorCount || 0} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
                 </div>
               </div>
             )}
