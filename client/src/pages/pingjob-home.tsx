@@ -136,7 +136,23 @@ export default function PingJobHome() {
 
 
 
+  // Debug jobsData to jobs assignment
+  console.log('=== JOBS DATA ASSIGNMENT DEBUG ===');
+  console.log('Raw jobsData:', jobsData);
+  console.log('jobsData type:', typeof jobsData);
+  console.log('jobsData length:', jobsData?.length);
+  if (jobsData && jobsData.length > 0) {
+    console.log('First job in jobsData:', JSON.stringify(jobsData[0], null, 2));
+  }
+  
   const jobs = jobsData || [];
+  console.log('Final jobs variable:', jobs);
+  console.log('Final jobs length:', jobs.length);
+  if (jobs.length > 0) {
+    console.log('First job in jobs variable:', JSON.stringify(jobs[0], null, 2));
+  }
+  console.log('===================================');
+  
   const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
