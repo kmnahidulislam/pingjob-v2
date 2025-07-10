@@ -1218,6 +1218,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all job applications for recruiters and enterprise users
+  app.get('/api/job-applications/for-recruiters', isAuthenticated, async (req: any, res) => {
+    try {
+      const userType = req.user.userType;
+      
+      // Only allow recruiters and enterprise users
+      if (userType !== 'recruiter' && userType !== 'client') {
+        return res.status(403).json({ message: "Access denied. Recruiter or enterprise role required." });
+      }
+
+      const applications = await storage.getJobApplicationsForRecruiters(userType);
+      
+      // Transform data to match frontend expectations
+      const transformedApplications = applications.map(app => ({
+        id: app.id,
+        jobId: app.jobId,
+        applicantId: app.applicantId,
+        status: app.status,
+        appliedAt: app.appliedAt,
+        coverLetter: app.coverLetter,
+        resumeUrl: app.resumeUrl,
+        matchScore: app.matchScore,
+        skillsScore: app.skillsScore,
+        experienceScore: app.experienceScore,
+        educationScore: app.educationScore,
+        companyScore: app.companyScore,
+        isProcessed: app.isProcessed,
+        jobTitle: app.job?.title || 'Unknown Job',
+        companyName: app.job?.company?.name || 'Unknown Company',
+        applicantName: `${app.applicant?.firstName || ''} ${app.applicant?.lastName || ''}`.trim(),
+        applicantEmail: app.applicant?.email || 'No email'
+      }));
+      
+      res.json(transformedApplications);
+    } catch (error) {
+      console.error("Error fetching job applications for recruiters:", error);
+      res.status(500).json({ message: "Failed to fetch job applications" });
+    }
+  });
+
   app.post('/api/applications', isAuthenticated, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;

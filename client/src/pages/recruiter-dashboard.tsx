@@ -16,8 +16,104 @@ import {
   Edit,
   Trash2,
   Eye,
-  Mail
+  Mail,
+  FileText,
+  Download
 } from "lucide-react";
+
+// Job Applications Component for Recruiters
+function JobApplicationsSection() {
+  const { data: applications = [], isLoading } = useQuery({
+    queryKey: ['/api/job-applications/for-recruiters'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/job-applications/for-recruiters');
+      return response.json();
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p className="mt-2 text-sm text-gray-600">Loading applications...</p>
+      </div>
+    );
+  }
+
+  if (applications.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <FileText className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">No applications yet</h3>
+        <p className="mt-1 text-sm text-gray-500">Job applications will appear here when job seekers apply.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">All Job Applications ({applications.length})</h3>
+        <Badge variant="secondary">{applications.length} Total Resumes</Badge>
+      </div>
+      
+      <div className="grid gap-4">
+        {applications.map((app: any) => (
+          <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-3 mb-2">
+                  <h4 className="font-semibold text-lg">{app.applicantName}</h4>
+                  <Badge variant="outline">{app.status}</Badge>
+                  {app.matchScore > 0 && (
+                    <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p><strong>Job:</strong> {app.jobTitle}</p>
+                  <p><strong>Company:</strong> {app.companyName}</p>
+                  <p><strong>Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
+                  <p><strong>Email:</strong> {app.applicantEmail}</p>
+                </div>
+                
+                {app.coverLetter && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-700">Cover Letter:</p>
+                    <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded mt-1">
+                      {app.coverLetter.length > 150 
+                        ? `${app.coverLetter.substring(0, 150)}...` 
+                        : app.coverLetter
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex flex-col space-y-2 ml-4">
+                {app.resumeUrl && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`/uploads/${app.resumeUrl}`} target="_blank" rel="noopener noreferrer">
+                      <FileText className="h-4 w-4 mr-1" />
+                      View Resume
+                    </a>
+                  </Button>
+                )}
+                
+                <Button variant="outline" size="sm" asChild>
+                  <a href={`mailto:${app.applicantEmail}`}>
+                    <Mail className="h-4 w-4 mr-1" />
+                    Contact
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function RecruiterDashboard() {
   const { user } = useAuth();
@@ -277,6 +373,17 @@ export default function RecruiterDashboard() {
             </span>
           </div>
         </div>
+
+        {/* Job Applications Access */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Job Applications & Resumes</CardTitle>
+            <p className="text-sm text-gray-600">Access all job applications and resumes from job seekers</p>
+          </CardHeader>
+          <CardContent>
+            <JobApplicationsSection />
+          </CardContent>
+        </Card>
 
         {/* Create Job Button */}
         <div className="mb-8">
