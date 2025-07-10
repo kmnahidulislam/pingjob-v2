@@ -296,28 +296,18 @@ export default function Home() {
           {/* Recent Jobs Grid */}
           <Card className="dashboard-card">
             <CardHeader>
-              <CardTitle>Latest Job Opportunities (DEBUG: {adminJobs?.length || 0} admin jobs)</CardTitle>
+              <CardTitle>Latest Job Opportunities</CardTitle>
             </CardHeader>
             <CardContent>
               {adminJobs && adminJobs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {adminJobs.slice(0, 4).map((job: any, index: number) => {
-                    // Debug all job data
-                    console.log(`Admin Job ${index + 1} (ID: ${job.id}):`, JSON.stringify(job, null, 2));
-                    
-                    // Debug the company vendor count specifically
-                    if (job.company && job.company.vendorCount !== undefined) {
-                      console.log(`✓ Admin Job ${job.id} has vendor count: ${job.company.vendorCount}`);
-                    } else {
-                      console.log(`✗ Admin Job ${job.id} missing vendor count:`, job.company);
-                    }
-                    
                     return <JobCard key={job.id} job={job} compact showCompany={true} />;
                   })}
                 </div>
               ) : (
-                <div className="text-red-600 font-bold p-4 border border-red-500 bg-red-50">
-                  DEBUG: No admin jobs found. adminJobs = {JSON.stringify(adminJobs)}
+                <div className="text-gray-500 text-center py-8">
+                  No job opportunities available at the moment. Check back later!
                 </div>
               )}
             </CardContent>
