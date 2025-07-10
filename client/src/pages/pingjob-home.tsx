@@ -867,30 +867,32 @@ export default function PingJobHome() {
                                 {job.title}
                               </h3>
                               <div className="flex items-center space-x-3 mb-2">
-                                <div className="w-12 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                                <div className="w-16 h-12 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
                                   {job.company?.logoUrl ? (
                                     <img 
                                       src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
                                       alt={job.company.name}
-                                      className="w-full h-full object-contain p-0.5"
+                                      className="w-full h-full object-contain p-1"
                                       onError={(e) => {
                                         e.currentTarget.style.display = 'none';
                                       }}
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">
+                                    <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-sm font-medium">
                                       {job.company?.name?.[0]?.toUpperCase() || 'C'}
                                     </div>
                                   )}
                                 </div>
-                                <span className="text-sm font-medium text-gray-700">
-                                  {job.company?.name || `Company ${job.companyId || 'TBD'}`}
-                                </span>
-                                {job.company?.vendorCount > 0 && (
-                                  <Badge variant="outline" className="text-xs text-blue-600 border-blue-200">
-                                    {job.company.vendorCount} vendors
-                                  </Badge>
-                                )}
+                                <div className="flex-1">
+                                  <span className="text-sm font-medium text-gray-700 block">
+                                    {job.company?.name || `Company ${job.companyId || 'TBD'}`}
+                                  </span>
+                                  {job.company?.vendorCount > 0 && (
+                                    <Badge variant="default" className="text-xs bg-blue-600 text-white mt-1">
+                                      {job.company.vendorCount} vendors
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center space-x-1 text-sm text-gray-500 mb-3">
                                 <MapPin className="h-4 w-4" />
