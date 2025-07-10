@@ -1560,8 +1560,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Application not found" });
       }
       
-      // Verify user owns this application
-      if (application.applicantId !== userId) {
+      // Verify access - job seeker owns application OR recruiter/client can view any
+      const userType = req.user.userType;
+      if (userType === 'job_seeker') {
+        if (application.applicantId !== userId) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      } else if (userType !== 'recruiter' && userType !== 'client' && userType !== 'admin') {
         return res.status(403).json({ message: "Access denied" });
       }
       

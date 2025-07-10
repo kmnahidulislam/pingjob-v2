@@ -126,8 +126,8 @@ function JobApplicationsSection() {
                 {app.resumeUrl && (
                   <Button variant="outline" size="sm" asChild>
                     <a href={`/api/resume/${app.resumeUrl.replace('/uploads/', '').replace('uploads/', '')}`} target="_blank" rel="noopener noreferrer">
-                      <FileText className="h-4 w-4 mr-1" />
-                      View Resume
+                      <Download className="h-4 w-4 mr-1" />
+                      Download Resume
                     </a>
                   </Button>
                 )}
