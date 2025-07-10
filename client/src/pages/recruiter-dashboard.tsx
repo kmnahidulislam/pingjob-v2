@@ -87,7 +87,14 @@ function JobApplicationsSection() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">All Job Applications ({applications.length})</h3>
-        <Badge variant="secondary">{applications.length} Total Resumes</Badge>
+        <div className="flex items-center space-x-3">
+          <Badge variant="secondary">{applications.length} Total Resumes</Badge>
+          {/* Debug button always visible */}
+          <Button onClick={createTestApplication} variant="outline" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Test Application (Debug)
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-4">
@@ -127,16 +134,29 @@ function JobApplicationsSection() {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => {
+                    onClick={async () => {
                       const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
                       const downloadUrl = `/api/resume/${filename}`;
                       console.log(`Attempting to download resume: ${downloadUrl}`);
+                      console.log(`Original resume URL: ${app.resumeUrl}`);
                       
-                      // Try to download, but handle errors gracefully
-                      const link = document.createElement('a');
-                      link.href = downloadUrl;
-                      link.download = `resume-${app.firstName}-${app.lastName}`;
-                      link.click();
+                      try {
+                        // First check if file exists
+                        const checkResponse = await fetch(downloadUrl, { method: 'HEAD' });
+                        if (checkResponse.ok) {
+                          // File exists, proceed with download
+                          const link = document.createElement('a');
+                          link.href = downloadUrl;
+                          link.download = `resume-${app.firstName}-${app.lastName}`;
+                          link.click();
+                        } else {
+                          console.error(`Resume file not found: ${filename}`);
+                          alert(`Resume file not found. This application has an invalid resume URL: ${app.resumeUrl}`);
+                        }
+                      } catch (error) {
+                        console.error('Error downloading resume:', error);
+                        alert(`Error downloading resume: ${error.message}`);
+                      }
                     }}
                   >
                     <Download className="h-4 w-4 mr-1" />
