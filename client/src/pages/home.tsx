@@ -276,12 +276,12 @@ export default function Home() {
           )}
 
           {/* Recent Jobs Grid */}
-          {recentJobs && recentJobs.length > 0 && (
-            <Card className="dashboard-card">
-              <CardHeader>
-                <CardTitle>Latest Job Opportunities</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card className="dashboard-card">
+            <CardHeader>
+              <CardTitle>Latest Job Opportunities (DEBUG: {recentJobs?.length || 0} jobs)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {recentJobs && recentJobs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {recentJobs.slice(0, 4).map((job: any, index: number) => {
                     // Debug all job data
@@ -297,9 +297,13 @@ export default function Home() {
                     return <JobCard key={job.id} job={job} compact showCompany={true} />;
                   })}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <div className="text-red-600 font-bold p-4 border border-red-500 bg-red-50">
+                  DEBUG: No recent jobs found. recentJobs = {JSON.stringify(recentJobs)}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
       </div>

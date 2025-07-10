@@ -151,6 +151,9 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
         <CardContent className="p-4">
           <div className="space-y-2">
             <h3 className="font-semibold text-sm line-clamp-2">{job.title}</h3>
+            <div className="bg-red-200 border border-red-400 p-2 text-xs">
+              COMPACT MODE DEBUG: showCompany={showCompany?.toString()}, vendorCount={job.company?.vendorCount}
+            </div>
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
