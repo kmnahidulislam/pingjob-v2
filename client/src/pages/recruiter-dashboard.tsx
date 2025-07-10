@@ -93,7 +93,7 @@ function JobApplicationsSection() {
               <div className="flex flex-col space-y-2 ml-4">
                 {app.resumeUrl && (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={`/uploads/${app.resumeUrl}`} target="_blank" rel="noopener noreferrer">
+                    <a href={app.resumeUrl.startsWith('/uploads/') ? app.resumeUrl : `/uploads/${app.resumeUrl}`} target="_blank" rel="noopener noreferrer">
                       <FileText className="h-4 w-4 mr-1" />
                       View Resume
                     </a>
