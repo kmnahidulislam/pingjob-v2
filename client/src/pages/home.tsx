@@ -283,9 +283,13 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentJobs.slice(0, 4).map((job: any) => (
-                    <JobCard key={job.id} job={job} compact />
-                  ))}
+                  {recentJobs.slice(0, 4).map((job: any) => {
+                    // Debug first job data structure
+                    if (job.id === 1863) {
+                      console.log('Home page - First job data:', JSON.stringify(job, null, 2));
+                    }
+                    return <JobCard key={job.id} job={job} compact showCompany={true} />;
+                  })}
                 </div>
               </CardContent>
             </Card>

@@ -141,7 +141,9 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     
     // Force alert for first job to debug
     if (job.id === 1863) {
-      alert(`DEBUG: Job ${job.title} - Company: ${job.company?.name} - Vendor Count: ${job.company?.vendorCount}`);
+      setTimeout(() => {
+        alert(`VENDOR COUNT DEBUG:\nJob: ${job.title}\nCompany: ${job.company?.name}\nVendor Count: ${job.company?.vendorCount}\nShow Company: ${showCompany}`);
+      }, 1000);
     }
     
     return (
