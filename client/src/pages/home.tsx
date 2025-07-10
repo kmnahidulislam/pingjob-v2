@@ -30,13 +30,31 @@ export default function Home() {
     enabled: !!user?.id
   });
 
-  const { data: recentJobs } = useQuery({
+  const { data: recentJobs, isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['/api/jobs'],
     queryFn: async () => {
       const res = await fetch('/api/jobs?limit=4');
       return res.json();
     }
   });
+
+  // Also fetch admin jobs for the Latest Job Opportunities section
+  const { data: adminJobs, isLoading: adminJobsLoading, error: adminJobsError } = useQuery({
+    queryKey: ['/api/admin-jobs'],
+    enabled: true
+  });
+
+  // Debug all jobs data
+  console.log('=== HOME PAGE JOBS DEBUG ===');
+  console.log('Recent jobs (API jobs) loading:', jobsLoading);
+  console.log('Recent jobs (API jobs) error:', jobsError);
+  console.log('Recent jobs (API jobs) data:', recentJobs);
+  console.log('Recent jobs (API jobs) length:', recentJobs?.length);
+  console.log('Admin jobs loading:', adminJobsLoading);
+  console.log('Admin jobs error:', adminJobsError);
+  console.log('Admin jobs data:', adminJobs);
+  console.log('Admin jobs length:', adminJobs?.length);
+  console.log('=============================');
 
   const { data: connections } = useQuery({
     queryKey: ['/api/connections'],
@@ -278,20 +296,20 @@ export default function Home() {
           {/* Recent Jobs Grid */}
           <Card className="dashboard-card">
             <CardHeader>
-              <CardTitle>Latest Job Opportunities (DEBUG: {recentJobs?.length || 0} jobs)</CardTitle>
+              <CardTitle>Latest Job Opportunities (DEBUG: {adminJobs?.length || 0} admin jobs)</CardTitle>
             </CardHeader>
             <CardContent>
-              {recentJobs && recentJobs.length > 0 ? (
+              {adminJobs && adminJobs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentJobs.slice(0, 4).map((job: any, index: number) => {
+                  {adminJobs.slice(0, 4).map((job: any, index: number) => {
                     // Debug all job data
-                    console.log(`Job ${index + 1} (ID: ${job.id}):`, JSON.stringify(job, null, 2));
+                    console.log(`Admin Job ${index + 1} (ID: ${job.id}):`, JSON.stringify(job, null, 2));
                     
                     // Debug the company vendor count specifically
                     if (job.company && job.company.vendorCount !== undefined) {
-                      console.log(`✓ Job ${job.id} has vendor count: ${job.company.vendorCount}`);
+                      console.log(`✓ Admin Job ${job.id} has vendor count: ${job.company.vendorCount}`);
                     } else {
-                      console.log(`✗ Job ${job.id} missing vendor count:`, job.company);
+                      console.log(`✗ Admin Job ${job.id} missing vendor count:`, job.company);
                     }
                     
                     return <JobCard key={job.id} job={job} compact showCompany={true} />;
@@ -299,7 +317,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="text-red-600 font-bold p-4 border border-red-500 bg-red-50">
-                  DEBUG: No recent jobs found. recentJobs = {JSON.stringify(recentJobs)}
+                  DEBUG: No admin jobs found. adminJobs = {JSON.stringify(adminJobs)}
                 </div>
               )}
             </CardContent>
