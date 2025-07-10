@@ -715,6 +715,14 @@ Changelog:
   - Added prominent "Contact Candidate" button that opens email client for direct communication
   - Fixed React key warnings and accessibility issues in candidate viewing modal
   - Recruiters can now easily view and contact category-matched candidates assigned to their jobs
+- July 10, 2025. Fixed recruiter dashboard job creation by replacing broken company selection dialog
+  - Replaced malfunctioning job creation dialog in recruiter dashboard with Link to working /job-create page
+  - Removed broken company selection dropdown that was causing form submission issues
+  - Streamlined recruiter job creation to use same working system as admin dashboard job management
+  - Maintained 10-job limit enforcement with visual progress tracking and disabled state when limit reached
+  - Added helpful messaging when job limit reached explaining how to create space for new jobs
+  - Recruiter dashboard now uses proven job creation workflow with proper company search and selection
+  - Cleaned up unused code from old broken form implementation while preserving job editing functionality
 ```
 
 ## User Preferences

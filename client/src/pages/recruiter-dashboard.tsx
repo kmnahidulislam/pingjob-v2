@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Link } from "wouter";
 import { 
   Briefcase, 
   Plus,
@@ -182,21 +183,8 @@ function JobApplicationsSection() {
 export default function RecruiterDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isCreateJobOpen, setIsCreateJobOpen] = useState(false);
   const [isEditJobOpen, setIsEditJobOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<any>(null);
-  const [newJob, setNewJob] = useState({
-    title: "",
-    description: "",
-    requirements: "",
-    location: "",
-    jobType: "full_time",
-    employmentType: "full_time",
-    experienceLevel: "mid",
-    salary: "",
-    companyId: "",
-    categoryId: ""
-  });
 
   // Fetch recruiter's own jobs
   const { data: recruiterJobs = [], isLoading: jobsLoading } = useQuery({
@@ -231,44 +219,7 @@ export default function RecruiterDashboard() {
     }
   });
 
-  // Create job mutation
-  const createJobMutation = useMutation({
-    mutationFn: async (jobData: any) => {
-      const response = await apiRequest('POST', '/api/recruiter/jobs', jobData);
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create job');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Job created successfully",
-      });
-      setIsCreateJobOpen(false);
-      setNewJob({
-        title: "",
-        description: "",
-        requirements: "",
-        location: "",
-        jobType: "full_time",
-        employmentType: "full_time",
-        experienceLevel: "mid",
-        salary: "",
-        companyId: "",
-        categoryId: ""
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/recruiter/jobs'] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create job",
-        variant: "destructive",
-      });
-    }
-  });
+
 
   // Edit job mutation
   const editJobMutation = useMutation({
@@ -324,24 +275,7 @@ export default function RecruiterDashboard() {
     }
   });
 
-  const handleCreateJob = async () => {
-    if (!newJob.title || !newJob.description || !newJob.companyId || !newJob.categoryId) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    const jobData = {
-      ...newJob,
-      companyId: parseInt(newJob.companyId),
-      categoryId: parseInt(newJob.categoryId)
-    };
-
-    createJobMutation.mutate(jobData);
-  };
 
   const handleEditJob = (job: any) => {
     setEditingJob({
@@ -451,145 +385,21 @@ export default function RecruiterDashboard() {
 
         {/* Create Job Button */}
         <div className="mb-8">
-          <Dialog open={isCreateJobOpen} onOpenChange={setIsCreateJobOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                size="lg"
-                disabled={!canCreateJob}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Create New Job
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Create New Job</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Job Title</label>
-                    <Input
-                      value={newJob.title}
-                      onChange={(e) => setNewJob({ ...newJob, title: e.target.value })}
-                      placeholder="e.g., Senior Software Engineer"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Company</label>
-                    <Select value={newJob.companyId} onValueChange={(value) => setNewJob({ ...newJob, companyId: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.length > 0 ? (
-                          companies.map((company: any) => (
-                            <SelectItem key={company.id} value={company.id.toString()}>
-                              {company.name}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="loading" disabled>
-                            Loading companies...
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {companies.length} companies loaded
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Category</label>
-                    <Select value={newJob.categoryId} onValueChange={(value) => setNewJob({ ...newJob, categoryId: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category: any) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Location</label>
-                    <Input
-                      value={newJob.location}
-                      onChange={(e) => setNewJob({ ...newJob, location: e.target.value })}
-                      placeholder="e.g., New York, NY"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Job Type</label>
-                    <Select value={newJob.jobType} onValueChange={(value) => setNewJob({ ...newJob, jobType: value, employmentType: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select job type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="full_time">Full Time</SelectItem>
-                        <SelectItem value="part_time">Part Time</SelectItem>
-                        <SelectItem value="contract">Contract</SelectItem>
-                        <SelectItem value="remote">Remote</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Experience Level</label>
-                    <Select value={newJob.experienceLevel} onValueChange={(value) => setNewJob({ ...newJob, experienceLevel: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select experience level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="entry">Entry Level</SelectItem>
-                        <SelectItem value="mid">Mid Level</SelectItem>
-                        <SelectItem value="senior">Senior Level</SelectItem>
-                        <SelectItem value="executive">Executive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Job Description</label>
-                  <Textarea
-                    value={newJob.description}
-                    onChange={(e) => setNewJob({ ...newJob, description: e.target.value })}
-                    placeholder="Describe the role and responsibilities..."
-                    rows={4}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Requirements</label>
-                  <Textarea
-                    value={newJob.requirements}
-                    onChange={(e) => setNewJob({ ...newJob, requirements: e.target.value })}
-                    placeholder="List required skills and qualifications..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <Button variant="outline" onClick={() => setIsCreateJobOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateJob} disabled={createJobMutation.isPending}>
-                    {createJobMutation.isPending ? "Creating..." : "Create Job"}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Link href="/job-create">
+            <Button 
+              size="lg"
+              disabled={!canCreateJob}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Create New Job
+            </Button>
+          </Link>
+          {!canCreateJob && (
+            <p className="text-sm text-gray-500 mt-2">
+              You have reached the maximum limit of 10 jobs. Delete some jobs to create new ones.
+            </p>
+          )}
         </div>
 
         {/* Jobs List */}
