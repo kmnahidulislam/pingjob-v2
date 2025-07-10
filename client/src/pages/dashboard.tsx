@@ -37,8 +37,6 @@ import {
   ChevronsUpDown
 } from "lucide-react";
 import { Link } from "wouter";
-import RecruiterDashboard from './recruiter-dashboard';
-import EnterpriseDashboard from './enterprise-dashboard';
 
 // Simplified Job Seeker Dashboard Component (Free Users)
 function JobSeekerDashboard() {
@@ -1011,36 +1009,22 @@ function AdminDashboard() {
   );
 }
 
-// Main Dashboard Component - Routes based on user type
+// Main Dashboard Component - Routes based on user subscription level
 export default function Dashboard() {
   const { user } = useAuth();
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-          <p className="text-gray-600">Please log in to access your dashboard.</p>
-        </div>
-      </div>
-    );
-  }
+  // Check if user is admin (specific admin emails get full admin access)
+  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+  
+  // Check if user has paid subscription (clients and recruiters get admin features)
+  const hasPaidSubscription = user?.userType === 'client' || user?.userType === 'recruiter';
 
-  // Route to appropriate dashboard based on user type
-  if (user.userType === 'recruiter') {
-    return <RecruiterDashboard />;
-  }
-  
-  if (user.userType === 'client') {
-    return <EnterpriseDashboard />;
-  }
-  
-  // Admin users get the admin dashboard
-  const isAdmin = user.email === 'krupas@vedsoft.com' || user.email === 'krupashankar@gmail.com';
-  if (isAdmin) {
+  // Route to appropriate dashboard based on subscription level
+  // Only specific admins and paid subscribers get AdminDashboard
+  // All other users (including general job_seekers) get simplified JobSeekerDashboard
+  if (isAdmin || hasPaidSubscription) {
     return <AdminDashboard />;
+  } else {
+    return <JobSeekerDashboard />;
   }
-  
-  // Default to job seeker dashboard
-  return <JobSeekerDashboard />;
 }

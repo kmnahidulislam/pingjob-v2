@@ -163,13 +163,12 @@ function Router() {
           <Route path="/companies/create" component={CompanyCreate} />
           <Route path="/companies" component={Companies} />
           <Route path="/profile/:id?" component={Profile} />
+          <Route path="/applications" component={Applications} />
           <Route path="/network" component={NetworkPage} />
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
-          {/* Legacy routes that redirect to main dashboard */}
-          <Route path="/recruiter-dashboard">{() => <Redirect to="/dashboard" />}</Route>
-          <Route path="/enterprise-dashboard">{() => <Redirect to="/dashboard" />}</Route>
-          <Route path="/applications">{() => <Redirect to="/dashboard" />}</Route>
+          <Route path="/recruiter-dashboard" component={RecruiterDashboard} />
+          <Route path="/enterprise-dashboard" component={EnterpriseDashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/about" component={About} />
