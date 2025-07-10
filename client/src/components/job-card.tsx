@@ -132,6 +132,13 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     (job.skills ? job.skills.split(',').map(s => s.trim()) : []);
 
   if (compact) {
+    // Debug logging to see what data we have
+    console.log('JobCard compact - job data:', {
+      title: job.title,
+      company: job.company,
+      vendorCount: job.company?.vendorCount
+    });
+    
     return (
       <Card className="job-card hover:shadow-md transition-all duration-200">
         <CardContent className="p-4">
@@ -140,12 +147,10 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                {job.company?.vendorCount !== undefined && (
-                  <div className="flex items-center gap-1 text-xs text-gray-600">
-                    <Users className="h-3 w-3" />
-                    <span>{job.company.vendorCount} vendor{job.company.vendorCount !== 1 ? 's' : ''}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
+                  <Users className="h-3 w-3" />
+                  <span>{job.company?.vendorCount || 0} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                </div>
               </div>
             )}
             <div className="flex items-center text-xs text-gray-500">
