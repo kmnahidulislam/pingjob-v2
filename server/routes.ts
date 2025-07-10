@@ -1253,27 +1253,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const applications = await storage.getJobApplicationsForRecruiters(userType);
+      console.log(`Found ${applications.length} applications for recruiter dashboard`);
       
       // Transform data to match frontend expectations
-      const transformedApplications = applications.map(app => ({
-        id: app.id,
-        jobId: app.jobId,
-        applicantId: app.applicantId,
-        status: app.status,
-        appliedAt: app.appliedAt,
-        coverLetter: app.coverLetter,
-        resumeUrl: app.resumeUrl,
-        matchScore: app.matchScore,
-        skillsScore: app.skillsScore,
-        experienceScore: app.experienceScore,
-        educationScore: app.educationScore,
-        companyScore: app.companyScore,
-        isProcessed: app.isProcessed,
-        jobTitle: app.job?.title || 'Unknown Job',
-        companyName: app.job?.company?.name || 'Unknown Company',
-        applicantName: `${app.applicant?.firstName || ''} ${app.applicant?.lastName || ''}`.trim(),
-        applicantEmail: app.applicant?.email || 'No email'
-      }));
+      const transformedApplications = applications.map(app => {
+        // Clean up resume URL for proper serving
+        let cleanResumeUrl = app.resumeUrl;
+        if (cleanResumeUrl) {
+          // Remove any /uploads/ prefix and just use the filename
+          cleanResumeUrl = cleanResumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
+          console.log(`Application ${app.id}: Original resumeUrl="${app.resumeUrl}", Cleaned="${cleanResumeUrl}"`);
+        }
+        
+        return {
+          id: app.id,
+          jobId: app.jobId,
+          applicantId: app.applicantId,
+          status: app.status,
+          appliedAt: app.appliedAt,
+          coverLetter: app.coverLetter,
+          resumeUrl: cleanResumeUrl,
+          matchScore: app.matchScore,
+          skillsScore: app.skillsScore,
+          experienceScore: app.experienceScore,
+          educationScore: app.educationScore,
+          companyScore: app.companyScore,
+          isProcessed: app.isProcessed,
+          jobTitle: app.job?.title || 'Unknown Job',
+          companyName: app.job?.company?.name || 'Unknown Company',
+          applicantName: `${app.applicant?.firstName || ''} ${app.applicant?.lastName || ''}`.trim(),
+          applicantEmail: app.applicant?.email || 'No email'
+        };
+      });
       
       res.json(transformedApplications);
     } catch (error) {
