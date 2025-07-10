@@ -136,22 +136,7 @@ export default function PingJobHome() {
 
 
 
-  // Debug jobsData to jobs assignment
-  console.log('=== JOBS DATA ASSIGNMENT DEBUG ===');
-  console.log('Raw jobsData:', jobsData);
-  console.log('jobsData type:', typeof jobsData);
-  console.log('jobsData length:', jobsData?.length);
-  if (jobsData && jobsData.length > 0) {
-    console.log('First job in jobsData:', JSON.stringify(jobsData[0], null, 2));
-  }
-  
   const jobs = jobsData || [];
-  console.log('Final jobs variable:', jobs);
-  console.log('Final jobs length:', jobs.length);
-  if (jobs.length > 0) {
-    console.log('First job in jobs variable:', JSON.stringify(jobs[0], null, 2));
-  }
-  console.log('===================================');
   
   const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
@@ -865,13 +850,6 @@ export default function PingJobHome() {
                   {jobs.slice(0, 20).map((job: any, index: number) => {
                     const isFeatured = job.id === featuredJobId;
                     
-                    // Debug vendor count for this job
-                    console.log(`=== PingJobHome Job ${index + 1} (ID: ${job.id}) ===`);
-                    console.log('Full job data:', JSON.stringify(job, null, 2));
-                    console.log('Job vendor count (job.vendorCount):', job.vendorCount);
-                    console.log('Company vendor count (job.company?.vendorCount):', job.company?.vendorCount);
-                    console.log('Company data:', job.company);
-                    console.log('===============================');
                     return (
                       <Card key={job.id} className={`hover:shadow-lg transition-all duration-300 ${
                         isFeatured ? 'ring-2 ring-blue-500 shadow-lg scale-105' : ''
@@ -908,13 +886,9 @@ export default function PingJobHome() {
                                 <span className="text-sm font-medium text-gray-700">
                                   {job.company?.name || `Company ${job.companyId || 'TBD'}`}
                                 </span>
-                                {/* Debug vendor count display */}
-                                <div className="bg-red-500 text-white text-xs p-2 rounded border-2 border-red-700">
-                                  DEBUG: job.vendorCount={job.vendorCount} | job.company?.vendorCount={job.company?.vendorCount}
-                                </div>
-                                {(job.vendorCount > 0 || job.company?.vendorCount > 0) && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {job.company?.vendorCount || job.vendorCount} vendors
+                                {job.company?.vendorCount > 0 && (
+                                  <Badge variant="outline" className="text-xs text-blue-600 border-blue-200">
+                                    {job.company.vendorCount} vendors
                                   </Badge>
                                 )}
                               </div>

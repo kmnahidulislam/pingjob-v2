@@ -723,6 +723,14 @@ Changelog:
   - Added helpful messaging when job limit reached explaining how to create space for new jobs
   - Recruiter dashboard now uses proven job creation workflow with proper company search and selection
   - Cleaned up unused code from old broken form implementation while preserving job editing functionality
+- July 10, 2025. Successfully implemented vendor count display in job listings across home page
+  - Confirmed backend API correctly returns vendor count data with companies (Davita Inc: 9 vendors, NBA: 5 vendors, Royal Caribbean: 5 vendors, Morgan Stanley: 18 vendors)
+  - Fixed frontend data mapping issue where vendor count wasn't displaying in job cards despite being present in API response
+  - Added vendor count badges to job listings showing "X vendors" for companies with vendors
+  - Implemented proper conditional display (only shows for companies with 1+ vendors)
+  - Enhanced job cards with blue-themed vendor count badges positioned next to company names
+  - Removed debugging code and cleaned up console output for production readiness
+  - Vendor count functionality now working across PingJobHome component job listings
 ```
 
 ## User Preferences
