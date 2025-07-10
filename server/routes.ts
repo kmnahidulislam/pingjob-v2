@@ -1365,31 +1365,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobSeeker = jobSeekers[0];
       console.log(`Using job seeker: ${jobSeeker.firstName} ${jobSeeker.lastName}`);
       
-      // Create test application using direct database query
-      const testApplication = await pool.query(`
-        INSERT INTO job_applications 
-        (job_id, applicant_id, resume_url, cover_letter, status, match_score, skills_score, experience_score, education_score, company_score, is_processed)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id
-      `, [
-        targetJob.id,
-        jobSeeker.id,
-        'sample_resume.pdf',
-        'This is a test application with cover letter content for testing purposes.',
-        'pending',
-        8, // Match score out of 12
-        5, // Skills score out of 6
-        2, // Experience score out of 2
-        1, // Education score out of 2
-        0, // Company score (bonus)
-        true
-      ]);
+      // Create test application using storage method
+      const testApplication = await storage.createJobApplication({
+        jobId: targetJob.id,
+        applicantId: jobSeeker.id,
+        resumeUrl: 'test_resume.txt',
+        coverLetter: 'This is a test application with cover letter content for testing the resume download functionality.',
+        status: 'pending',
+        matchScore: 8,
+        skillsScore: 5,
+        experienceScore: 2,
+        educationScore: 1,
+        companyScore: 0,
+        isProcessed: true
+      });
       
-      console.log(`Created test application with ID: ${testApplication.rows[0].id}`);
+      console.log(`Created test application with ID: ${testApplication.id}`);
       
       res.json({ 
         message: 'Test application created successfully',
-        applicationId: testApplication.rows[0].id,
+        applicationId: testApplication.id,
         jobId: targetJob.id,
         applicantId: jobSeeker.id
       });
