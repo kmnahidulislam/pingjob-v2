@@ -103,9 +103,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Resume file not found' });
       }
       
-      // Set appropriate headers for PDF
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${filename}.pdf"`);
+      // Read first few bytes to detect file type
+      const buffer = fs.readFileSync(filePath, { start: 0, end: 10 });
+      const firstBytes = buffer.toString('hex');
+      
+      let contentType = 'application/octet-stream';
+      let fileExtension = '.bin';
+      
+      // Detect file type by magic bytes
+      if (firstBytes.startsWith('255044462d')) { // %PDF-
+        contentType = 'application/pdf';
+        fileExtension = '.pdf';
+      } else if (firstBytes.startsWith('504b0304') || firstBytes.startsWith('504b0506') || firstBytes.startsWith('504b0708')) { // ZIP-based (DOCX)
+        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        fileExtension = '.docx';
+      } else if (firstBytes.startsWith('d0cf11e0a1b11ae1')) { // DOC
+        contentType = 'application/msword';
+        fileExtension = '.doc';
+      }
+      
+      console.log(`File type detected: ${contentType}, extension: ${fileExtension}`);
+      
+      // Set appropriate headers
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="resume-${filename}${fileExtension}"`);
       
       // Stream the file
       const stream = fs.createReadStream(filePath);
