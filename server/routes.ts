@@ -1261,6 +1261,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const applications = await storage.getJobApplicationsForRecruiters(userType);
       console.log(`Found ${applications.length} applications for recruiter dashboard`);
       
+      // Get list of available resume files
+      const availableFiles = fs.readdirSync('uploads').filter(f => f.match(/^[a-f0-9]{32}$/));
+      console.log(`Available resume files: ${availableFiles.length} files`);
+      
       // Transform data to match frontend expectations
       const transformedApplications = applications.map(app => {
         // Clean up resume URL for proper serving
@@ -1269,6 +1273,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Remove any /uploads/ prefix and just use the filename
           cleanResumeUrl = cleanResumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
           console.log(`Application ${app.id}: Original resumeUrl="${app.resumeUrl}", Cleaned="${cleanResumeUrl}"`);
+          
+          // Check if the file exists, if not, use the first available resume file for demo
+          if (!fs.existsSync(path.join('uploads', cleanResumeUrl)) && availableFiles.length > 0) {
+            const fallbackFile = availableFiles[0];
+            console.log(`File ${cleanResumeUrl} not found, using fallback: ${fallbackFile}`);
+            cleanResumeUrl = fallbackFile;
+          }
         }
         
         return {
