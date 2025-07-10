@@ -139,6 +139,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       vendorCount: job.company?.vendorCount
     });
     
+    // Force alert for first job to debug
+    if (job.id === 1863) {
+      alert(`DEBUG: Job ${job.title} - Company: ${job.company?.name} - Vendor Count: ${job.company?.vendorCount}`);
+    }
+    
     return (
       <Card className="job-card hover:shadow-md transition-all duration-200">
         <CardContent className="p-4">
