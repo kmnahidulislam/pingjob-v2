@@ -86,6 +86,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve static files from logos directory
   app.use('/logos', express.static('logos'));
   
+  // Resume serving route for files without extensions
+  app.get('/api/resume/:filename', (req, res) => {
+    try {
+      const filename = req.params.filename;
+      const filePath = path.join('uploads', filename);
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Resume file not found' });
+      }
+      
+      // Set appropriate headers for PDF
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${filename}.pdf"`);
+      
+      // Stream the file
+      const stream = fs.createReadStream(filePath);
+      stream.pipe(res);
+    } catch (error) {
+      console.error('Error serving resume:', error);
+      res.status(500).json({ error: 'Failed to serve resume' });
+    }
+  });
+  
   // Public routes (before auth middleware)
   
   // Password reset routes
