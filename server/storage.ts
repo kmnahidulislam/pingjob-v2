@@ -2633,7 +2633,7 @@ export class DatabaseStorage implements IStorage {
           u.email,
           u.headline,
           u.profile_image_url,
-          u.resume_url as user_resume_url,
+          u."resumeUrl" as user_resume_url,
           cat.name as category_name
         FROM job_applications ja
         LEFT JOIN jobs j ON ja.job_id = j.id
