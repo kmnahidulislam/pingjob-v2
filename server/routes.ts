@@ -1365,12 +1365,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jobSeeker = jobSeekers[0];
       console.log(`Using job seeker: ${jobSeeker.firstName} ${jobSeeker.lastName}`);
       
+      // Find an actual resume file that exists in uploads
+      const fs = require('fs');
+      const availableFiles = fs.readdirSync('uploads').filter((f: string) => f.match(/^[a-f0-9]{32}$/));
+      const resumeUrl = availableFiles.length > 0 ? `/uploads/${availableFiles[0]}` : '/uploads/test_resume.txt';
+      
+      console.log(`Using resume file: ${resumeUrl}`);
+      console.log(`Available hash files: ${availableFiles.slice(0, 3)}`);
+
       // Create test application using storage method
       const testApplication = await storage.createJobApplication({
         jobId: targetJob.id,
         applicantId: jobSeeker.id,
-        resumeUrl: 'test_resume.txt',
-        coverLetter: 'This is a test application with cover letter content for testing the resume download functionality.',
+        resumeUrl: resumeUrl,
+        coverLetter: 'This is a test application with a working resume file for download testing.',
         status: 'pending',
         matchScore: 8,
         skillsScore: 5,

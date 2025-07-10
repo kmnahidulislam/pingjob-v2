@@ -124,11 +124,23 @@ function JobApplicationsSection() {
               
               <div className="flex flex-col space-y-2 ml-4">
                 {app.resumeUrl && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={`/api/resume/${app.resumeUrl.replace('/uploads/', '').replace('uploads/', '')}`} target="_blank" rel="noopener noreferrer">
-                      <Download className="h-4 w-4 mr-1" />
-                      Download Resume
-                    </a>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
+                      const downloadUrl = `/api/resume/${filename}`;
+                      console.log(`Attempting to download resume: ${downloadUrl}`);
+                      
+                      // Try to download, but handle errors gracefully
+                      const link = document.createElement('a');
+                      link.href = downloadUrl;
+                      link.download = `resume-${app.firstName}-${app.lastName}`;
+                      link.click();
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download Resume
                   </Button>
                 )}
                 
