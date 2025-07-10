@@ -2602,6 +2602,22 @@ export class DatabaseStorage implements IStorage {
     return connection;
   }
 
+  // Get users by type
+  async getUsersByType(userType: string): Promise<any[]> {
+    try {
+      const usersByType = await db
+        .select()
+        .from(users)
+        .where(eq(users.userType, userType))
+        .limit(10);
+      
+      return usersByType;
+    } catch (error) {
+      console.error(`Error getting users by type ${userType}:`, error);
+      throw error;
+    }
+  }
+
   // Get all job applications for recruiters and enterprise users
   async getJobApplicationsForRecruiters(userType: string): Promise<any[]> {
     try {

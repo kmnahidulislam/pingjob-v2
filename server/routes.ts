@@ -1272,6 +1272,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all job applications for recruiters and enterprise users
   app.get('/api/job-applications/for-recruiters', isAuthenticated, async (req: any, res) => {
     try {
+      console.log(`===== JOB APPLICATIONS REQUEST =====`);
+      console.log(`User: ${req.user.email} (${req.user.userType})`);
       const userType = req.user.userType;
       
       // Only allow recruiters and enterprise users
@@ -1281,6 +1283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const applications = await storage.getJobApplicationsForRecruiters(userType);
       console.log(`Found ${applications.length} applications for recruiter dashboard`);
+      console.log(`Raw applications data:`, applications.slice(0, 2)); // Show first 2 for debugging
       
       // Transform data to match frontend expectations
       const transformedApplications = applications.map(app => {
@@ -1336,6 +1339,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching job applications for recruiters:", error);
       res.status(500).json({ message: "Failed to fetch job applications" });
+    }
+  });
+
+  // Test endpoint to create sample job application
+  app.post('/api/test/create-application', isAuthenticated, async (req: any, res) => {
+    try {
+      console.log('Creating test job application...');
+      
+      // Find an admin job
+      const adminJobs = await storage.getAdminJobs();
+      if (adminJobs.length === 0) {
+        return res.status(400).json({ message: 'No admin jobs found to apply to' });
+      }
+      
+      const targetJob = adminJobs[0];
+      console.log(`Using job: ${targetJob.title} (ID: ${targetJob.id})`);
+      
+      // Find a job seeker
+      const jobSeekers = await storage.getUsersByType('job_seeker');
+      if (jobSeekers.length === 0) {
+        return res.status(400).json({ message: 'No job seekers found' });
+      }
+      
+      const jobSeeker = jobSeekers[0];
+      console.log(`Using job seeker: ${jobSeeker.firstName} ${jobSeeker.lastName}`);
+      
+      // Create test application using direct database query
+      const testApplication = await pool.query(`
+        INSERT INTO job_applications 
+        (job_id, applicant_id, resume_url, cover_letter, status, match_score, skills_score, experience_score, education_score, company_score, is_processed)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING id
+      `, [
+        targetJob.id,
+        jobSeeker.id,
+        'sample_resume.pdf',
+        'This is a test application with cover letter content for testing purposes.',
+        'pending',
+        8, // Match score out of 12
+        5, // Skills score out of 6
+        2, // Experience score out of 2
+        1, // Education score out of 2
+        0, // Company score (bonus)
+        true
+      ]);
+      
+      console.log(`Created test application with ID: ${testApplication.rows[0].id}`);
+      
+      res.json({ 
+        message: 'Test application created successfully',
+        applicationId: testApplication.rows[0].id,
+        jobId: targetJob.id,
+        applicantId: jobSeeker.id
+      });
+      
+    } catch (error) {
+      console.error('Error creating test application:', error);
+      res.status(500).json({ message: 'Failed to create test application' });
     }
   });
 
