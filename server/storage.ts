@@ -2463,41 +2463,102 @@ export class DatabaseStorage implements IStorage {
 
   // Get jobs posted by admin (for homepage)
   async getAdminJobs(limit: number = 20): Promise<any[]> {
-    const result = await db
-      .select({
-        id: jobs.id,
-        title: jobs.title,
-        description: jobs.description,
-        location: jobs.location,
-        jobType: jobs.jobType,
-        experienceLevel: jobs.experienceLevel,
-        salary: jobs.salary,
-        createdAt: jobs.createdAt,
-        updatedAt: jobs.updatedAt,
-        companyId: jobs.companyId,
-        recruiterId: jobs.recruiterId,
+    try {
+      // Use raw SQL to include vendor count information
+      const query = `
+        SELECT 
+          j.id,
+          j.title,
+          j.description,
+          j.location,
+          j.job_type as "jobType",
+          j.experience_level as "experienceLevel",
+          j.salary,
+          j.created_at as "createdAt",
+          j.updated_at as "updatedAt",
+          j.company_id as "companyId",
+          j.recruiter_id as "recruiterId",
+          c.id as company_id,
+          c.name as company_name,
+          c.logo_url as company_logo_url,
+          c.location as company_location,
+          COALESCE(v.vendor_count, 0)::integer as vendor_count
+        FROM jobs j
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN (
+          SELECT company_id, COUNT(*)::integer as vendor_count 
+          FROM vendors 
+          GROUP BY company_id
+        ) v ON c.id = v.company_id
+        WHERE j.is_active = true 
+          AND (j.recruiter_id = 'admin' OR j.recruiter_id = 'admin-krupa')
+        ORDER BY j.updated_at DESC, j.created_at DESC
+        LIMIT $1
+      `;
+      
+      const result = await pool.query(query, [limit]);
+      
+      // Transform the flat result into the expected nested structure
+      return result.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        location: row.location,
+        jobType: row.jobType,
+        experienceLevel: row.experienceLevel,
+        salary: row.salary,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        companyId: row.companyId,
+        recruiterId: row.recruiterId,
         company: {
-          id: companies.id,
-          name: companies.name,
-          logoUrl: companies.logoUrl,
-          location: companies.location
+          id: row.company_id,
+          name: row.company_name,
+          logoUrl: row.company_logo_url,
+          location: row.company_location,
+          vendorCount: row.vendor_count
         }
-      })
-      .from(jobs)
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .where(
-        and(
-          eq(jobs.isActive, true),
-          or(
-            eq(jobs.recruiterId, 'admin'),
-            eq(jobs.recruiterId, 'admin-krupa')
+      }));
+    } catch (error) {
+      console.error('Error in getAdminJobs with vendor counts:', error);
+      
+      // Fallback to original Drizzle query without vendor counts
+      const result = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          jobType: jobs.jobType,
+          experienceLevel: jobs.experienceLevel,
+          salary: jobs.salary,
+          createdAt: jobs.createdAt,
+          updatedAt: jobs.updatedAt,
+          companyId: jobs.companyId,
+          recruiterId: jobs.recruiterId,
+          company: {
+            id: companies.id,
+            name: companies.name,
+            logoUrl: companies.logoUrl,
+            location: companies.location
+          }
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .where(
+          and(
+            eq(jobs.isActive, true),
+            or(
+              eq(jobs.recruiterId, 'admin'),
+              eq(jobs.recruiterId, 'admin-krupa')
+            )
           )
         )
-      )
-      .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt))
-      .limit(limit);
+        .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt))
+        .limit(limit);
 
-    return result;
+      return result;
+    }
   }
 
   // Get jobs posted by recruiters (for search only)

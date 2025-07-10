@@ -138,7 +138,14 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
           <div className="space-y-2">
             <h3 className="font-semibold text-sm line-clamp-2">{job.title}</h3>
             {showCompany && (
-              <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
+                {job.company?.vendorCount > 0 && (
+                  <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                    {job.company.vendorCount} vendor{job.company.vendorCount !== 1 ? 's' : ''}
+                  </Badge>
+                )}
+              </div>
             )}
             <div className="flex items-center text-xs text-gray-500">
               <MapPin className="h-3 w-3 mr-1" />
