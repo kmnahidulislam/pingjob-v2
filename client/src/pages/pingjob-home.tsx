@@ -846,8 +846,16 @@ export default function PingJobHome() {
               <>
                 {/* Job Grid - 2 columns, 10 rows */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {jobs.slice(0, 20).map((job: any) => {
+                  {jobs.slice(0, 20).map((job: any, index: number) => {
                     const isFeatured = job.id === featuredJobId;
+                    
+                    // Debug vendor count for this job
+                    console.log(`=== PingJobHome Job ${index + 1} (ID: ${job.id}) ===`);
+                    console.log('Full job data:', JSON.stringify(job, null, 2));
+                    console.log('Job vendor count (job.vendorCount):', job.vendorCount);
+                    console.log('Company vendor count (job.company?.vendorCount):', job.company?.vendorCount);
+                    console.log('Company data:', job.company);
+                    console.log('===============================');
                     return (
                       <Card key={job.id} className={`hover:shadow-lg transition-all duration-300 ${
                         isFeatured ? 'ring-2 ring-blue-500 shadow-lg scale-105' : ''
@@ -884,9 +892,13 @@ export default function PingJobHome() {
                                 <span className="text-sm font-medium text-gray-700">
                                   {job.company?.name || `Company ${job.companyId || 'TBD'}`}
                                 </span>
-                                {job.vendorCount > 0 && (
+                                {/* Debug vendor count display */}
+                                <div className="bg-red-500 text-white text-xs p-2 rounded border-2 border-red-700">
+                                  DEBUG: job.vendorCount={job.vendorCount} | job.company?.vendorCount={job.company?.vendorCount}
+                                </div>
+                                {(job.vendorCount > 0 || job.company?.vendorCount > 0) && (
                                   <Badge variant="outline" className="text-xs">
-                                    {job.vendorCount} vendors
+                                    {job.company?.vendorCount || job.vendorCount} vendors
                                   </Badge>
                                 )}
                               </div>
