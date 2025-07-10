@@ -64,7 +64,6 @@ function JobApplicationsSection() {
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
                   <h4 className="font-semibold text-lg">{app.applicantName}</h4>
-                  <Badge variant="outline">{app.status}</Badge>
                   {app.matchScore > 0 && (
                     <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
                   )}

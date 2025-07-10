@@ -1282,10 +1282,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const applications = await storage.getJobApplicationsForRecruiters(userType);
       console.log(`Found ${applications.length} applications for recruiter dashboard`);
       
-      // Get list of available resume files
-      const availableFiles = fs.readdirSync('uploads').filter(f => f.match(/^[a-f0-9]{32}$/));
-      console.log(`Available resume files: ${availableFiles.length} files`);
-      
       // Transform data to match frontend expectations
       const transformedApplications = applications.map(app => {
         // Clean up resume URL for proper serving
@@ -1295,11 +1291,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cleanResumeUrl = cleanResumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
           console.log(`Application ${app.id}: Original resumeUrl="${app.resumeUrl}", Cleaned="${cleanResumeUrl}"`);
           
-          // Check if the file exists, if not, use the first available resume file for demo
-          if (!fs.existsSync(path.join('uploads', cleanResumeUrl)) && availableFiles.length > 0) {
-            const fallbackFile = availableFiles[0];
-            console.log(`File ${cleanResumeUrl} not found, using fallback: ${fallbackFile}`);
-            cleanResumeUrl = fallbackFile;
+          // Check if the file exists - if not, look for the user's actual resume
+          if (!fs.existsSync(path.join('uploads', cleanResumeUrl))) {
+            console.log(`File ${cleanResumeUrl} not found for application ${app.id}`);
+            // Try to find the user's actual resume file by checking their profile
+            if (app.applicant?.resumeUrl) {
+              const userResumeUrl = app.applicant.resumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
+              if (fs.existsSync(path.join('uploads', userResumeUrl))) {
+                console.log(`Using user's profile resume: ${userResumeUrl}`);
+                cleanResumeUrl = userResumeUrl;
+              } else {
+                console.log(`User's profile resume also not found: ${userResumeUrl}`);
+                cleanResumeUrl = null; // Don't show resume if not found
+              }
+            } else {
+              console.log(`No resume found for applicant ${app.applicantId}`);
+              cleanResumeUrl = null;
+            }
           }
         }
         

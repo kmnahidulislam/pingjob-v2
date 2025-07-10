@@ -2633,6 +2633,7 @@ export class DatabaseStorage implements IStorage {
           u.email,
           u.headline,
           u.profile_image_url,
+          u.resume_url as user_resume_url,
           cat.name as category_name
         FROM job_applications ja
         LEFT JOIN jobs j ON ja.job_id = j.id
@@ -2678,6 +2679,7 @@ export class DatabaseStorage implements IStorage {
           email: row.email,
           headline: row.headline,
           profileImageUrl: row.profile_image_url,
+          resumeUrl: row.user_resume_url,
           category: row.category_name || 'Unknown Category'
         }
       }));
