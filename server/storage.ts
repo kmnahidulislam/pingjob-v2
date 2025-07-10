@@ -185,7 +185,11 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     // Use raw SQL to bypass schema caching issues
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0] as User | undefined;
+    const user = result.rows[0] as User | undefined;
+    if (user) {
+      console.log(`Retrieved user ${id} with category: ${user.category_id || user.categoryId}`);
+    }
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -1259,14 +1263,35 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db.insert(jobApplications).values(application).returning();
     console.log('Job application created successfully:', result);
     
-    // Increment application count
+    // Get the job details to check for category
+    const job = await db
+      .select({ categoryId: jobs.categoryId })
+      .from(jobs)
+      .where(eq(jobs.id, application.jobId))
+      .limit(1);
+    
+    if (job.length > 0 && job[0].categoryId) {
+      // Update user's category if they don't have one or if applying to a different category
+      console.log('Updating user category to match job category:', job[0].categoryId);
+      
+      // Use raw SQL to ensure the update happens
+      await pool.query(
+        'UPDATE users SET category_id = $1, updated_at = $2 WHERE id = $3',
+        [job[0].categoryId, new Date(), application.applicantId]
+      );
+      
+      console.log('User category updated successfully for user:', application.applicantId);
+    }
+    
+    // Increment application count for the job
     await db
       .update(jobs)
       .set({ 
-        applicationCount: sql`${jobs.applicationCount} + 1`
-        // updatedAt: new Date() // Removed - column doesn't exist in current DB schema
+        applicationCount: sql`COALESCE(${jobs.applicationCount}, 0) + 1`
       })
       .where(eq(jobs.id, application.jobId));
+    
+    console.log('Application count incremented for job ID:', application.jobId);
     
     return result;
   }
@@ -1383,10 +1408,11 @@ export class DatabaseStorage implements IStorage {
       await db
         .update(jobs)
         .set({ 
-          applicationCount: sql`GREATEST(${jobs.applicationCount} - 1, 0)`,
-          updatedAt: new Date()
+          applicationCount: sql`GREATEST(COALESCE(${jobs.applicationCount}, 0) - 1, 0)`
         })
         .where(eq(jobs.id, application.jobId));
+      
+      console.log('Application count decremented for job ID:', application.jobId);
     }
   }
 
@@ -2574,6 +2600,91 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return connection;
+  }
+
+  // Get all job applications for recruiters and enterprise users
+  async getJobApplicationsForRecruiters(userType: string): Promise<any[]> {
+    try {
+      // Enterprise users get access to ALL applications
+      // Recruiters get access to applications for their jobs only
+      let queryText = `
+        SELECT 
+          ja.id,
+          ja.job_id,
+          ja.applicant_id,
+          ja.status,
+          ja.applied_at,
+          ja.cover_letter,
+          ja.resume_url,
+          ja.match_score,
+          ja.skills_score,
+          ja.experience_score,
+          ja.education_score,
+          ja.company_score,
+          ja.is_processed,
+          j.title as job_title,
+          j.location as job_location,
+          j.employment_type,
+          j.salary,
+          c.name as company_name,
+          c.logo_url as company_logo_url,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.headline,
+          u.profile_image_url,
+          cat.name as category_name
+        FROM job_applications ja
+        LEFT JOIN jobs j ON ja.job_id = j.id
+        LEFT JOIN companies c ON j.company_id = c.id
+        LEFT JOIN users u ON ja.applicant_id = u.id
+        LEFT JOIN categories cat ON u.category_id = cat.id
+        ORDER BY ja.applied_at DESC
+        LIMIT 1000
+      `;
+      
+      const result = await pool.query(queryText);
+      console.log(`Found ${result.rows.length} applications for ${userType} access`);
+      
+      return result.rows.map(row => ({
+        id: row.id,
+        jobId: row.job_id,
+        applicantId: row.applicant_id,
+        status: row.status,
+        appliedAt: row.applied_at,
+        coverLetter: row.cover_letter,
+        resumeUrl: row.resume_url,
+        matchScore: row.match_score || 0,
+        skillsScore: row.skills_score || 0,
+        experienceScore: row.experience_score || 0,
+        educationScore: row.education_score || 0,
+        companyScore: row.company_score || 0,
+        isProcessed: row.is_processed || false,
+        job: {
+          id: row.job_id,
+          title: row.job_title,
+          location: row.job_location,
+          employmentType: row.employment_type,
+          salary: row.salary,
+          company: {
+            name: row.company_name,
+            logoUrl: row.company_logo_url
+          }
+        },
+        applicant: {
+          id: row.applicant_id,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          email: row.email,
+          headline: row.headline,
+          profileImageUrl: row.profile_image_url,
+          category: row.category_name || 'Unknown Category'
+        }
+      }));
+    } catch (error) {
+      console.error("Error in getJobApplicationsForRecruiters:", error);
+      throw error;
+    }
   }
 
   // Get resume score for candidate (for recruiters)

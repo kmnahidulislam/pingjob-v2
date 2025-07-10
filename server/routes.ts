@@ -1185,11 +1185,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/applications', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      const userType = req.user.userType;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-      console.log("Fetching applications for user:", userId);
-      const applications = await storage.getUserJobApplications(userId, limit);
-      console.log("Applications found:", applications.length);
-      res.json(applications);
+      
+      console.log(`Fetching applications for ${userType}: ${req.user.email}`);
+      
+      // Recruiters and enterprise users get access to all applications with resume access
+      if (userType === 'recruiter' || userType === 'client') {
+        const applications = await storage.getJobApplicationsForRecruiters(userType);
+        console.log(`Returning ${applications.length} applications for ${userType}: ${req.user.email}`);
+        res.json(applications);
+      } else {
+        // Job seekers get their own applications
+        const applications = await storage.getUserJobApplications(userId, limit);
+        console.log("Applications found:", applications.length);
+        res.json(applications);
+      }
     } catch (error) {
       console.error("Error fetching applications:", error);
       res.status(500).json({ message: "Failed to fetch applications" });
