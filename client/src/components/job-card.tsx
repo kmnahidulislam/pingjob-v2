@@ -140,10 +140,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                {job.company?.vendorCount > 0 && (
-                  <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                    {job.company.vendorCount} vendor{job.company.vendorCount !== 1 ? 's' : ''}
-                  </Badge>
+                {job.company?.vendorCount !== undefined && (
+                  <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <Users className="h-3 w-3" />
+                    <span>{job.company.vendorCount} vendor{job.company.vendorCount !== 1 ? 's' : ''}</span>
+                  </div>
                 )}
               </div>
             )}
