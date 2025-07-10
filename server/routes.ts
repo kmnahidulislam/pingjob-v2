@@ -92,8 +92,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const filename = req.params.filename;
       const filePath = path.join('uploads', filename);
       
+      console.log(`Resume request: filename="${filename}"`);
+      console.log(`Looking for file at: ${filePath}`);
+      console.log(`File exists: ${fs.existsSync(filePath)}`);
+      
       // Check if file exists
       if (!fs.existsSync(filePath)) {
+        console.log(`Resume file not found: ${filename}`);
+        console.log(`Available files in uploads:`, fs.readdirSync('uploads').filter(f => f.match(/^[a-f0-9]{32}$/)));
         return res.status(404).json({ error: 'Resume file not found' });
       }
       
