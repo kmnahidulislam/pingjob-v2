@@ -469,14 +469,7 @@ export default function Jobs() {
               ) : (
                 <>
                   {jobs.map((job: any, index: number) => (
-                    <div key={`job-${job.id}-${index}`}>
-                      {/* Insert ad after every 5th job */}
-                      {index > 0 && index % 5 === 0 && (
-                        <div className="my-6">
-                          <AdBanner slot="CONTENT_MIDDLE" />
-                        </div>
-                      )}
-                      <Card className="hover:shadow-md transition-shadow">
+                    <Card key={`job-${job.id}-${index}`} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
@@ -570,7 +563,6 @@ export default function Jobs() {
                       </div>
                       </CardContent>
                       </Card>
-                    </div>
                   ))}
                 </>
               )}
