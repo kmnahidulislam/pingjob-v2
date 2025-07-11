@@ -28,6 +28,7 @@ const companyFormSchema = insertCompanySchema.omit({
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
   zipCode: z.string().optional(),
+  location: z.string().optional(),
 });
 
 export default function CompanyCreate() {
@@ -83,6 +84,7 @@ export default function CompanyCreate() {
       state: "",
       country: "",
       zipCode: "",
+      location: "",
       size: "1-10",
     },
   });
@@ -498,6 +500,20 @@ export default function CompanyCreate() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={companyForm.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Street Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 123 Main Street, Suite 100" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={companyForm.control}
