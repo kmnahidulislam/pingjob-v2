@@ -1,21 +1,32 @@
 # Production Deployment Guide for PingJob
 
-## Quick Deployment Steps
+## URGENT: Fix White Screen at pingjob.com
 
-### 1. Build the Application
-```bash
-npm run build
-```
+### Critical Issue
+The white screen at pingjob.com is caused by production build issues and console.log errors.
 
-### 2. Fix Build Files for Production (CRITICAL)
-```bash
-node fix-build.js
-```
+### Immediate Fix Required
 
-### 3. Start Production Server
-```bash
-NODE_ENV=production node dist/index.js
-```
+**On your cloud platform deployment (where pingjob.com is hosted):**
+
+1. **Stop the current server**
+
+2. **Rebuild with all fixes:**
+   ```bash
+   npm run build
+   node fix-build.js
+   ```
+
+3. **Start production server:**
+   ```bash
+   NODE_ENV=production node dist/index.js
+   ```
+
+### Why This Fixes the White Screen
+- ✅ All console.log statements now wrapped with development checks
+- ✅ Build files will be copied to correct directory
+- ✅ React error boundary catches any runtime errors
+- ✅ Google Analytics/AdSense won't crash in production
 
 ## Environment Variables Required
 

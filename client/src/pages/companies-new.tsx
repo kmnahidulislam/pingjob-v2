@@ -52,7 +52,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
   onFollowCompany: (companyId: number) => void;
 }) {
   const handleClick = () => {
-    console.log("View clicked for company:", company.name);
+    if (import.meta.env.DEV) console.log("View clicked for company:", company.name);
     onSelectCompany(company);
   };
 

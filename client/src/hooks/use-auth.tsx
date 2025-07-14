@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      console.log('Login mutation success:', user);
+      if (import.meta.env.DEV) console.log('Login mutation success:', user);
       // Update auth state immediately
       queryClient.setQueryData(["/api/user"], user);
       

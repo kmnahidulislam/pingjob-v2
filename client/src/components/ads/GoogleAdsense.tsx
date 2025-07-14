@@ -40,7 +40,7 @@ export default function GoogleAdsense({
         const timeout = setTimeout(() => {
           try {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
-            console.log('AdSense ad initialized:', adSlot);
+            if (import.meta.env.DEV) console.log('AdSense ad initialized:', adSlot);
           } catch (error) {
             console.error('AdSense push error:', error);
           }

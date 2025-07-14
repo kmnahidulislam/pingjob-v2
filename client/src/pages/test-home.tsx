@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 export default function TestHome() {
   const { user } = useAuth();
   
-  console.log('TestHome component rendering, user:', user);
+  if (import.meta.env.DEV) console.log('TestHome component rendering, user:', user);
   
   return (
     <div style={{

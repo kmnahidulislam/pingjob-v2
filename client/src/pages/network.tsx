@@ -110,7 +110,7 @@ export default function Network() {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Implement search functionality
-      console.log('Searching for:', searchQuery);
+      if (import.meta.env.DEV) console.log('Searching for:', searchQuery);
     }
   };
 

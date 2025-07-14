@@ -133,7 +133,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   if (compact) {
     // Debug logging to see what data we have
-    console.log('JobCard compact - job data:', {
+    if (import.meta.env.DEV) console.log('JobCard compact - job data:', {
       title: job.title,
       company: job.company,
       vendorCount: job.company?.vendorCount

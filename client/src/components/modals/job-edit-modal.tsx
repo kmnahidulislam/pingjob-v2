@@ -85,7 +85,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
   // Update form when job changes
   useEffect(() => {
     if (job) {
-      console.log('Job data in modal:', job);
+      if (import.meta.env.DEV) console.log('Job data in modal:', job);
       setFormData({
         title: job.title || "",
         description: job.description || "",
@@ -129,7 +129,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
         categoryId: parseInt(jobData.categoryId),
         skills: jobData.skills ? jobData.skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0) : []
       };
-      console.log('Sending job update data:', processedJobData);
+      if (import.meta.env.DEV) console.log('Sending job update data:', processedJobData);
       return apiRequest('PUT', `/api/jobs/${job?.id}`, processedJobData);
     },
     onSuccess: () => {
@@ -167,7 +167,7 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
       });
       
       // Emit custom event to force home page refresh
-      console.log('Emitting jobUpdated event to force home page refresh');
+      if (import.meta.env.DEV) console.log('Emitting jobUpdated event to force home page refresh');
       window.dispatchEvent(new CustomEvent('jobUpdated'));
     },
     onError: (error: any) => {
