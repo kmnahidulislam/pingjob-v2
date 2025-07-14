@@ -65,15 +65,18 @@ function Router() {
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
     if (location.startsWith('/api/')) {
-      console.log('API route detected, redirecting to home');
+      if (import.meta.env.DEV) console.log('API route detected, redirecting to home');
       navigate('/');
     } else if (user && location === '/auth') {
-      console.log('Authenticated user on auth page, redirecting to dashboard');
+      if (import.meta.env.DEV) console.log('Authenticated user on auth page, redirecting to dashboard');
       navigate('/dashboard');
     }
   }, [location, user, navigate]);
 
-  console.log('Router - User:', user ? `authenticated (${user.email})` : 'not authenticated', 'Loading:', isLoading, 'Location:', location);
+  // Debug logging only in development
+  if (import.meta.env.DEV) {
+    console.log('Router - User:', user ? `authenticated (${user.email})` : 'not authenticated', 'Loading:', isLoading, 'Location:', location);
+  }
   
   // Special handling for public routes that don't require authentication
   const isPublicRoute = location === '/reset-password' || 
@@ -94,7 +97,7 @@ function Router() {
   if (isPublicRoute && !user) {
     // Handle specific public routes
     if (location === '/reset-password' || location.startsWith('/reset-password?')) {
-      console.log('Reset password page accessed, showing public page');
+      if (import.meta.env.DEV) console.log('Reset password page accessed, showing public page');
       return (
         <div className="min-h-screen bg-gray-50">
           <ResetPassword />
@@ -103,7 +106,7 @@ function Router() {
     }
     
     if (location === '/forgot-password') {
-      console.log('Forgot password page accessed, showing public page');
+      if (import.meta.env.DEV) console.log('Forgot password page accessed, showing public page');
       return (
         <div className="min-h-screen bg-gray-50">
           <ForgotPassword />
@@ -121,7 +124,7 @@ function Router() {
   }
 
   if (!user) {
-    console.log('No user, showing public pages');
+    if (import.meta.env.DEV) console.log('No user, showing public pages');
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
@@ -144,7 +147,7 @@ function Router() {
     );
   }
 
-  console.log('User authenticated, showing protected routes for location:', location);
+  if (import.meta.env.DEV) console.log('User authenticated, showing protected routes for location:', location);
   
   // Don't render protected routes if we're still on /auth page (redirect is happening)
   if (location === '/auth') {

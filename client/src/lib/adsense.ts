@@ -4,7 +4,9 @@ export const initializeAdSense = () => {
   const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
   
   if (!clientId) {
-    console.warn('Google AdSense client ID not configured');
+    if (import.meta.env.DEV) {
+      console.warn('Google AdSense client ID not configured');
+    }
     return;
   }
 
@@ -28,7 +30,9 @@ export const refreshAds = () => {
     try {
       (window.adsbygoogle as any).push({});
     } catch (error) {
-      console.error('Error refreshing ads:', error);
+      if (import.meta.env.DEV) {
+        console.error('Error refreshing ads:', error);
+      }
     }
   }
 };

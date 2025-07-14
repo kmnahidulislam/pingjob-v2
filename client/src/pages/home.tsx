@@ -44,17 +44,19 @@ export default function Home() {
     enabled: true
   });
 
-  // Debug all jobs data
-  console.log('=== HOME PAGE JOBS DEBUG ===');
-  console.log('Recent jobs (API jobs) loading:', jobsLoading);
-  console.log('Recent jobs (API jobs) error:', jobsError);
-  console.log('Recent jobs (API jobs) data:', recentJobs);
-  console.log('Recent jobs (API jobs) length:', recentJobs?.length);
-  console.log('Admin jobs loading:', adminJobsLoading);
-  console.log('Admin jobs error:', adminJobsError);
-  console.log('Admin jobs data:', adminJobs);
-  console.log('Admin jobs length:', adminJobs?.length);
-  console.log('=============================');
+  // Debug logging only in development
+  if (import.meta.env.DEV) {
+    console.log('=== HOME PAGE JOBS DEBUG ===');
+    console.log('Recent jobs (API jobs) loading:', jobsLoading);
+    console.log('Recent jobs (API jobs) error:', jobsError);
+    console.log('Recent jobs (API jobs) data:', recentJobs);
+    console.log('Recent jobs (API jobs) length:', recentJobs?.length);
+    console.log('Admin jobs loading:', adminJobsLoading);
+    console.log('Admin jobs error:', adminJobsError);
+    console.log('Admin jobs data:', adminJobs);
+    console.log('Admin jobs length:', adminJobs?.length);
+    console.log('=============================');
+  }
 
   const { data: connections } = useQuery({
     queryKey: ['/api/connections'],
