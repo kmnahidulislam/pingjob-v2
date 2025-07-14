@@ -52,7 +52,7 @@ export default function PingJobHome() {
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
 
-  const [showJobs, setShowJobs] = useState(false);
+  const [showJobs, setShowJobs] = useState(true);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
@@ -144,8 +144,26 @@ export default function PingJobHome() {
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = jobs.slice(startIndex, endIndex);
   
+  // Debug pagination
+  if (import.meta.env.DEV) {
+    console.log('=== PAGINATION DEBUG ===');
+    console.log('Current page:', currentJobPage);
+    console.log('Jobs per page:', jobsPerPage);
+    console.log('Start index:', startIndex);
+    console.log('End index:', endIndex);
+    console.log('Total jobs:', jobs.length);
+    console.log('Current jobs:', currentJobs.length);
+    console.log('Current job IDs:', currentJobs.map(j => j.id).slice(0, 5));
+    console.log('========================');
+  }
+  
   // Handle job pagination
   const handleJobPageChange = (page: number) => {
+    if (import.meta.env.DEV) {
+      console.log('=== PAGE CHANGE DEBUG ===');
+      console.log('Changing from page', currentJobPage, 'to page', page);
+      console.log('==========================');
+    }
     setCurrentJobPage(page);
     // Scroll to jobs section when page changes
     const jobsSection = document.getElementById('jobs-section');
