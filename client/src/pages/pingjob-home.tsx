@@ -315,6 +315,103 @@ export default function PingJobHome() {
         </div>
       </section>
 
+      {/* Main Content Area with Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Top Job Categories */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <JobCategories limit={10} />
+              </CardContent>
+            </Card>
+
+            {/* Top Companies */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {topCompanies.slice(0, 20).map((company: any, index: number) => (
+                  <div key={company.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-blue-600">{index + 1}</span>
+                    </div>
+                    
+                    <div className="flex-shrink-0 w-10 h-8 border border-gray-200 rounded overflow-hidden bg-white">
+                      {company.logoUrl && company.logoUrl !== "NULL" ? (
+                        <img 
+                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                          alt={company.name}
+                          className="w-full h-full object-contain p-1"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">${company.name.charAt(0)}</div>`;
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">
+                          {company.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm text-gray-900 truncate">
+                        {company.name}
+                      </h3>
+                      <div className="flex items-center space-x-3 mt-1">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <Briefcase className="h-3 w-3 mr-1" />
+                          {company.jobCount || 0}
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <Users className="h-3 w-3 mr-1" />
+                          {company.vendorCount || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">Welcome to PingJob</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">
+                  Connect with top companies and discover your next career opportunity. 
+                  Our platform offers comprehensive job listings with detailed company information and vendor networks.
+                </p>
+                <div className="flex space-x-4">
+                  <Link href="/jobs">
+                    <Button>Browse Jobs</Button>
+                  </Link>
+                  <Link href="/companies">
+                    <Button variant="outline">View Companies</Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
       {/* Latest Job Opportunities Section */}
       <section id="jobs-section" className="bg-white border-b border-gray-200 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -459,102 +556,7 @@ export default function PingJobHome() {
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            
-            {/* Top Job Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <JobCategories limit={10} />
-              </CardContent>
-            </Card>
 
-            {/* Top Companies */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {topCompanies.slice(0, 20).map((company: any, index: number) => (
-                  <div key={company.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-bold text-blue-600">{index + 1}</span>
-                    </div>
-                    
-                    <div className="flex-shrink-0 w-10 h-8 border border-gray-200 rounded overflow-hidden bg-white">
-                      {company.logoUrl && company.logoUrl !== "NULL" ? (
-                        <img 
-                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
-                          alt={company.name}
-                          className="w-full h-full object-contain p-1"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">${company.name.charAt(0)}</div>`;
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">
-                          {company.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900 truncate">
-                        {company.name}
-                      </h3>
-                      <div className="flex items-center space-x-3 mt-1">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <Briefcase className="h-3 w-3 mr-1" />
-                          {company.jobCount || 0}
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <Users className="h-3 w-3 mr-1" />
-                          {company.vendorCount || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold">Welcome to PingJob</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Connect with top companies and discover your next career opportunity. 
-                  Our platform offers comprehensive job listings with detailed company information and vendor networks.
-                </p>
-                <div className="flex space-x-4">
-                  <Link href="/jobs">
-                    <Button>Browse Jobs</Button>
-                  </Link>
-                  <Link href="/companies">
-                    <Button variant="outline">View Companies</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
