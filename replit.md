@@ -738,6 +738,19 @@ Changelog:
   - Added proper spacing and padding for cleaner professional presentation
   - Removed all debug text and console logging for production-ready clean interface
   - Logo and vendor count now prominently displayed with professional styling across all job listings
+- July 11, 2025. Added location field to company creation form
+  - Enhanced company creation form with Street Address field for complete business information
+  - Added location field to schema validation and form default values
+  - Positioned location field after city/zip code selection for logical form flow
+  - Field includes helpful placeholder text: "e.g., 123 Main Street, Suite 100"
+- July 11, 2025. Implemented cloud deployment readiness and error handling improvements
+  - Modified server to use process.env.PORT || 5000 for flexible cloud platform deployment
+  - Added GET / health check route returning "OK" for cloud platform monitoring
+  - Enhanced STRIPE_SECRET_KEY handling to log warning instead of crashing when missing
+  - Server now gracefully handles missing Stripe credentials with continued operation
+  - Removed problematic AdBanner components causing empty panels in job listings
+  - Fixed syntax errors in jobs page and restored clean job card display
+  - Platform ready for deployment to any cloud provider with proper health checks
 ```
 
 ## User Preferences

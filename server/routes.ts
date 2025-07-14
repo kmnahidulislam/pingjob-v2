@@ -10,10 +10,13 @@ import { randomBytes } from "crypto";
 import { hashPassword } from "./auth";
 import sgMail from '@sendgrid/mail';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe only if secret key is available
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('⚠️  STRIPE_SECRET_KEY not found - Stripe functionality will be disabled');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 import { 
   insertExperienceSchema,
   insertEducationSchema,
@@ -66,6 +69,11 @@ const imageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check route for cloud deployments
+  app.get('/health', (req, res) => {
+    res.send('OK');
+  });
+
   // Setup authentication FIRST before any other routes
   setupAuth(app);
 
