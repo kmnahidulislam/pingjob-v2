@@ -45,7 +45,7 @@ export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentJobPage, setCurrentJobPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [companyCount, setCompanyCount] = useState<number>(76806);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
@@ -55,16 +55,17 @@ export default function PingJobHome() {
   const [showJobs, setShowJobs] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const jobsPerPage = 20;
+  const totalJobsToShow = 100;
 
   const handleLogout = () => {
     logoutMutation.mutate();
   };
 
-  // Fetch admin jobs only for homepage display
+  // Fetch admin jobs only for homepage display (100 jobs total for pagination)
   const { data: jobsData, isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/admin-jobs', { page: currentPage, limit: jobsPerPage }],
+    queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
     queryFn: async () => {
-      const response = await fetch(`/api/admin-jobs?limit=${jobsPerPage}`);
+      const response = await fetch(`/api/admin-jobs?limit=${totalJobsToShow}`);
       if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
     },
@@ -138,7 +139,22 @@ export default function PingJobHome() {
 
   const jobs = jobsData || [];
   
-  const totalJobs = Math.min(jobs.length, 500); // Max 500 jobs
+  // Calculate pagination for jobs
+  const startIndex = (currentJobPage - 1) * jobsPerPage;
+  const endIndex = startIndex + jobsPerPage;
+  const currentJobs = jobs.slice(startIndex, endIndex);
+  
+  // Handle job pagination
+  const handleJobPageChange = (page: number) => {
+    setCurrentJobPage(page);
+    // Scroll to jobs section when page changes
+    const jobsSection = document.getElementById('jobs-section');
+    if (jobsSection) {
+      jobsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
+  const totalJobs = Math.min(jobs.length, totalJobsToShow); // Max 100 jobs for pagination
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
   // Calculate real-time statistics from platform data
@@ -186,7 +202,7 @@ export default function PingJobHome() {
       // Force a state update to trigger re-render
       setTimeout(() => {
         queryClient.refetchQueries({ 
-          queryKey: ['/api/admin-jobs', { page: currentPage, limit: jobsPerPage }],
+          queryKey: ['/api/admin-jobs', { page: currentJobPage, limit: jobsPerPage }],
           exact: true
         });
       }, 100);
@@ -219,7 +235,7 @@ export default function PingJobHome() {
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      setCurrentJobPage(page);
     }
   };
 
@@ -403,16 +419,21 @@ export default function PingJobHome() {
 
       {/* Latest Job Opportunities Section */}
       {showJobs && (
-        <section className="bg-white border-b border-gray-200 py-8">
+        <section id="jobs-section" className="bg-white border-b border-gray-200 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
               <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
+              <div className="flex justify-center items-center mt-4">
+                <span className="text-sm text-gray-500">
+                  Page {currentJobPage} of {totalPages} • Showing {currentJobs.length} of {totalJobs} jobs
+                </span>
+              </div>
             </div>
             
-            {jobs.length > 0 ? (
+            {currentJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {jobs.slice(0, 9).map((job: any) => (
+                {currentJobs.map((job: any) => (
                   <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
@@ -485,6 +506,42 @@ export default function PingJobHome() {
                 <Button className="px-8">
                   Post a Job
                   <Plus className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            )}
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleJobPageChange(currentJobPage - 1)}
+                  disabled={currentJobPage === 1}
+                  className="px-3 py-2"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentJobPage === page ? "default" : "outline"}
+                    onClick={() => handleJobPageChange(page)}
+                    className="px-3 py-2 min-w-[2.5rem]"
+                  >
+                    {page}
+                  </Button>
+                ))}
+                
+                <Button
+                  variant="outline"
+                  onClick={() => handleJobPageChange(currentJobPage + 1)}
+                  disabled={currentJobPage === totalPages}
+                  className="px-3 py-2"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             )}
@@ -951,8 +1008,8 @@ export default function PingJobHome() {
                 <div className="flex items-center justify-center space-x-4">
                   <Button
                     variant="outline"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
+                    onClick={() => handleJobPageChange(currentJobPage - 1)}
+                    disabled={currentJobPage === 1}
                   >
                     <ChevronLeft className="h-4 w-4 mr-1" />
                     Previous
@@ -964,9 +1021,9 @@ export default function PingJobHome() {
                       return (
                         <Button
                           key={page}
-                          variant={currentPage === page ? "default" : "outline"}
+                          variant={currentJobPage === page ? "default" : "outline"}
                           size="sm"
-                          onClick={() => handlePageChange(page)}
+                          onClick={() => handleJobPageChange(page)}
                         >
                           {page}
                         </Button>
@@ -976,9 +1033,9 @@ export default function PingJobHome() {
                       <>
                         <span className="text-gray-500">...</span>
                         <Button
-                          variant={currentPage === totalPages ? "default" : "outline"}
+                          variant={currentJobPage === totalPages ? "default" : "outline"}
                           size="sm"
-                          onClick={() => handlePageChange(totalPages)}
+                          onClick={() => handleJobPageChange(totalPages)}
                         >
                           {totalPages}
                         </Button>
@@ -988,8 +1045,8 @@ export default function PingJobHome() {
 
                   <Button
                     variant="outline"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    onClick={() => handleJobPageChange(currentJobPage + 1)}
+                    disabled={currentJobPage === totalPages}
                   >
                     Next
                     <ChevronRight className="h-4 w-4 ml-1" />
