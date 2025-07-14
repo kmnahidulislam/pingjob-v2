@@ -144,26 +144,10 @@ export default function PingJobHome() {
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = jobs.slice(startIndex, endIndex);
   
-  // Debug pagination
-  if (import.meta.env.DEV) {
-    console.log('=== PAGINATION DEBUG ===');
-    console.log('Current page:', currentJobPage);
-    console.log('Jobs per page:', jobsPerPage);
-    console.log('Start index:', startIndex);
-    console.log('End index:', endIndex);
-    console.log('Total jobs:', jobs.length);
-    console.log('Current jobs:', currentJobs.length);
-    console.log('Current job IDs:', currentJobs.map(j => j.id).slice(0, 5));
-    console.log('========================');
-  }
+  // Debug pagination (removed for production)
   
   // Handle job pagination
   const handleJobPageChange = (page: number) => {
-    if (import.meta.env.DEV) {
-      console.log('=== PAGE CHANGE DEBUG ===');
-      console.log('Changing from page', currentJobPage, 'to page', page);
-      console.log('==========================');
-    }
     setCurrentJobPage(page);
     // Scroll to jobs section when page changes
     const jobsSection = document.getElementById('jobs-section');
@@ -450,7 +434,7 @@ export default function PingJobHome() {
             </div>
             
             {currentJobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {currentJobs.map((job: any) => (
                   <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader className="pb-4">
