@@ -75,11 +75,11 @@ export default function JobCreate() {
     queryFn: async () => {
       if (debouncedSearch && debouncedSearch.length >= 2) {
         // Search mode - load matching companies
-        console.log('Searching for companies with query:', debouncedSearch);
+        if (import.meta.env.DEV) console.log('Searching for companies with query:', debouncedSearch);
         const response = await fetch(`/api/companies?q=${encodeURIComponent(debouncedSearch)}&limit=1000`);
         if (!response.ok) throw new Error('Failed to fetch companies');
         const results = await response.json();
-        console.log('Search results:', results);
+        if (import.meta.env.DEV) console.log('Search results:', results);
         return results;
       } else {
         // Initial load - show popular/recent companies
@@ -95,10 +95,10 @@ export default function JobCreate() {
   const companies = companiesData || [];
   
   // Debug logging
-  console.log('Debug - companySearch:', companySearch);
-  console.log('Debug - debouncedSearch:', debouncedSearch);
-  console.log('Debug - companies:', companies);
-  console.log('Debug - companiesLoading:', companiesLoading);
+  if (import.meta.env.DEV) console.log('Debug - companySearch:', companySearch);
+  if (import.meta.env.DEV) console.log('Debug - debouncedSearch:', debouncedSearch);
+  if (import.meta.env.DEV) console.log('Debug - companies:', companies);
+  if (import.meta.env.DEV) console.log('Debug - companiesLoading:', companiesLoading);
 
 
 
@@ -192,16 +192,16 @@ export default function JobCreate() {
   });
 
   const handleSubmit = (data: JobFormData) => {
-    console.log("Job form submitted with data:", data);
-    console.log("Selected company:", selectedCompany);
-    console.log("Form errors:", jobForm.formState.errors);
+    if (import.meta.env.DEV) console.log("Job form submitted with data:", data);
+    if (import.meta.env.DEV) console.log("Selected company:", selectedCompany);
+    if (import.meta.env.DEV) console.log("Form errors:", jobForm.formState.errors);
     
     // Ensure companyId is set
     if (!data.companyId && selectedCompany) {
       data.companyId = selectedCompany.id;
     }
     
-    console.log("Final data being sent:", data);
+    if (import.meta.env.DEV) console.log("Final data being sent:", data);
     createJobMutation.mutate(data);
   };
 

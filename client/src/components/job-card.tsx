@@ -139,28 +139,23 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       vendorCount: job.company?.vendorCount
     });
     
-    // Force alert for first job to debug
-    if (job.id === 1863) {
-      setTimeout(() => {
-        alert(`VENDOR COUNT DEBUG:\nJob: ${job.title}\nCompany: ${job.company?.name}\nVendor Count: ${job.company?.vendorCount}\nShow Company: ${showCompany}`);
-      }, 1000);
-    }
+
     
     return (
       <Card className="job-card hover:shadow-md transition-all duration-200">
         <CardContent className="p-4">
           <div className="space-y-2">
             <h3 className="font-semibold text-sm line-clamp-2">{job.title}</h3>
-            <div className="bg-red-200 border border-red-400 p-2 text-xs">
-              COMPACT MODE DEBUG: showCompany={showCompany?.toString()}, vendorCount={job.company?.vendorCount}
-            </div>
+
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                <div className="flex items-center gap-1 text-xs text-red-600 font-bold border border-red-500 px-2 py-1 bg-red-50">
-                  <Users className="h-3 w-3" />
-                  <span>TEST: {job.company?.vendorCount || 0} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
-                </div>
+                {(job.company?.vendorCount || 0) > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
+                    <Users className="h-3 w-3" />
+                    <span>{job.company?.vendorCount} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
               </div>
             )}
             <div className="flex items-center text-xs text-gray-500">

@@ -319,8 +319,8 @@ export default function JobDetails() {
                       alt={job.company.name}
                       className="w-full h-full object-contain p-1"
                       onError={(e) => {
-                        console.log('Image failed to load:', job.company?.logoUrl);
-                        console.log('Trying absolute path:', `/${job.company?.logoUrl?.replace(/ /g, '%20')}`);
+                        if (import.meta.env.DEV) console.log('Image failed to load:', job.company?.logoUrl);
+                        if (import.meta.env.DEV) console.log('Trying absolute path:', `/${job.company?.logoUrl?.replace(/ /g, '%20')}`);
                         e.currentTarget.style.display = 'none';
                       }}
                     />

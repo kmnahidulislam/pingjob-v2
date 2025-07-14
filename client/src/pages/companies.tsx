@@ -318,7 +318,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany, onEditCompany 
   const { user } = useAuth();
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
   const handleClick = () => {
-    console.log("View clicked for company:", company.name);
+    if (import.meta.env.DEV) console.log("View clicked for company:", company.name);
     onSelectCompany(company);
   };
 

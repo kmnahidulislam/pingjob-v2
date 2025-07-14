@@ -91,30 +91,30 @@ export default function CompanyCreate() {
 
   const createCompanyMutation = useMutation({
     mutationFn: async (companyData: z.infer<typeof companyFormSchema>) => {
-      console.log("=== FRONTEND COMPANY CREATION START ===");
-      console.log("Company data:", companyData);
-      console.log("Logo file:", logoFile);
-      console.log("User:", user);
+      if (import.meta.env.DEV) console.log("=== FRONTEND COMPANY CREATION START ===");
+      if (import.meta.env.DEV) console.log("Company data:", companyData);
+      if (import.meta.env.DEV) console.log("Logo file:", logoFile);
+      if (import.meta.env.DEV) console.log("User:", user);
       
       let logoUrl = "";
       
       // Upload logo first if one is selected
       if (logoFile) {
-        console.log("Uploading logo file...");
+        if (import.meta.env.DEV) console.log("Uploading logo file...");
         const formData = new FormData();
         formData.append('logo', logoFile);
         
-        console.log("Making logo upload request to /api/upload/company-logo");
+        if (import.meta.env.DEV) console.log("Making logo upload request to /api/upload/company-logo");
         const logoResponse = await fetch('/api/upload/company-logo', {
           method: 'POST',
           body: formData,
         });
         
-        console.log("Logo upload response status:", logoResponse.status);
+        if (import.meta.env.DEV) console.log("Logo upload response status:", logoResponse.status);
         
         if (logoResponse.ok) {
           const logoResult = await logoResponse.json();
-          console.log("Logo upload result:", logoResult);
+          if (import.meta.env.DEV) console.log("Logo upload result:", logoResult);
           logoUrl = logoResult.logoUrl;
         } else {
           const errorText = await logoResponse.text();
@@ -130,11 +130,11 @@ export default function CompanyCreate() {
         logoUrl
       };
       
-      console.log("Creating company with data:", finalCompanyData);
-      console.log("Making company creation request to /api/companies");
+      if (import.meta.env.DEV) console.log("Creating company with data:", finalCompanyData);
+      if (import.meta.env.DEV) console.log("Making company creation request to /api/companies");
       
       const result = await apiRequest('POST', '/api/companies', finalCompanyData);
-      console.log("Company creation result:", result);
+      if (import.meta.env.DEV) console.log("Company creation result:", result);
       return result;
     },
     onSuccess: () => {
@@ -203,18 +203,18 @@ export default function CompanyCreate() {
   };
 
   const handleSubmit = (data: z.infer<typeof companyFormSchema>) => {
-    console.log("=== COMPANY FORM SUBMISSION ===");
-    console.log("Form submitted with data:", data);
-    console.log("Form errors:", companyForm.formState.errors);
-    console.log("Form is valid:", companyForm.formState.isValid);
-    console.log("Form state:", companyForm.formState);
-    console.log("Logo file:", logoFile);
-    console.log("Mutation is pending:", createCompanyMutation.isPending);
+    if (import.meta.env.DEV) console.log("=== COMPANY FORM SUBMISSION ===");
+    if (import.meta.env.DEV) console.log("Form submitted with data:", data);
+    if (import.meta.env.DEV) console.log("Form errors:", companyForm.formState.errors);
+    if (import.meta.env.DEV) console.log("Form is valid:", companyForm.formState.isValid);
+    if (import.meta.env.DEV) console.log("Form state:", companyForm.formState);
+    if (import.meta.env.DEV) console.log("Logo file:", logoFile);
+    if (import.meta.env.DEV) console.log("Mutation is pending:", createCompanyMutation.isPending);
     
     // Check for validation errors
     const errors = companyForm.formState.errors;
     if (Object.keys(errors).length > 0) {
-      console.log("VALIDATION FAILED - Errors:", errors);
+      if (import.meta.env.DEV) console.log("VALIDATION FAILED - Errors:", errors);
       toast({
         title: "Validation Error",
         description: `Please check required fields: ${Object.keys(errors).join(', ')}`,
@@ -225,11 +225,11 @@ export default function CompanyCreate() {
     
     // Prevent double submission
     if (createCompanyMutation.isPending) {
-      console.log("MUTATION ALREADY PENDING - Preventing double submission");
+      if (import.meta.env.DEV) console.log("MUTATION ALREADY PENDING - Preventing double submission");
       return;
     }
     
-    console.log("VALIDATION PASSED - Calling mutation");
+    if (import.meta.env.DEV) console.log("VALIDATION PASSED - Calling mutation");
     try {
       createCompanyMutation.mutate(data);
     } catch (error) {

@@ -152,11 +152,11 @@ function JobApplicationsSection() {
                           link.click();
                         } else {
                           console.error(`Resume file not found: ${filename}`);
-                          alert(`Resume file not found. This application has an invalid resume URL: ${app.resumeUrl}`);
+                          if (import.meta.env.DEV) alert(`Resume file not found. This application has an invalid resume URL: ${app.resumeUrl}`);
                         }
                       } catch (error) {
                         console.error('Error downloading resume:', error);
-                        alert(`Error downloading resume: ${error.message}`);
+                        if (import.meta.env.DEV) alert(`Error downloading resume: ${error.message}`);
                       }
                     }}
                   >

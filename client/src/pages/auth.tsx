@@ -59,7 +59,7 @@ export default function Auth() {
       return await res.json();
     },
     onSuccess: (user) => {
-      console.log('Login success in auth page:', user);
+      if (import.meta.env.DEV) console.log('Login success in auth page:', user);
       // Update the query cache immediately
       queryClient.setQueryData(["/api/user"], user);
       
@@ -74,7 +74,7 @@ export default function Auth() {
       }, 100);
     },
     onError: (error: Error) => {
-      console.log('Login error:', error.message);
+      if (import.meta.env.DEV) console.log('Login error:', error.message);
       toast({
         title: "Login failed",
         description: error.message,
@@ -138,7 +138,7 @@ export default function Auth() {
       }
       registerMutation.mutate(formData);
     } else {
-      console.log('Submitting login for:', formData.email);
+      if (import.meta.env.DEV) console.log('Submitting login for:', formData.email);
       loginMutation.mutate({
         email: formData.email,
         password: formData.password

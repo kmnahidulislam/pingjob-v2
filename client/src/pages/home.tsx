@@ -46,7 +46,7 @@ export default function Home() {
 
   // Debug logging only in development
   if (import.meta.env.DEV) {
-    console.log('=== HOME PAGE JOBS DEBUG ===');
+    if (import.meta.env.DEV) console.log('=== HOME PAGE JOBS DEBUG ===');
     console.log('Recent jobs (API jobs) loading:', jobsLoading);
     console.log('Recent jobs (API jobs) error:', jobsError);
     console.log('Recent jobs (API jobs) data:', recentJobs);
