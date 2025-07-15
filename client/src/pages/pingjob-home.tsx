@@ -213,32 +213,58 @@ export default function PingJobHome() {
               </form>
             </div>
 
-            {/* User Actions */}
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <span className="text-sm text-gray-600">
-                    Welcome, {user.firstName || user.email}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                  >
-                    <LogOut className="h-4 w-4 mr-1" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth">
-                    <Button variant="outline">Login</Button>
-                  </Link>
-                  <Link href="/auth">
-                    <Button>Sign Up</Button>
-                  </Link>
-                </>
-              )}
+            {/* Navigation & User Actions */}
+            <div className="flex items-center space-x-6">
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center space-x-4">
+                <Link href="/jobs" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Jobs
+                </Link>
+                <Link href="/companies" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Companies
+                </Link>
+                {user && (
+                  <>
+                    <Link href="/network" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                      Network
+                    </Link>
+                    <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                      Dashboard
+                    </Link>
+                    <Link href="/profile" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                      Profile
+                    </Link>
+                  </>
+                )}
+              </nav>
+
+              {/* User Actions */}
+              <div className="flex items-center space-x-4">
+                {user ? (
+                  <>
+                    <span className="text-sm text-gray-600">
+                      Welcome, {user.firstName || user.email}
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLogout}
+                      disabled={logoutMutation.isPending}
+                    >
+                      <LogOut className="h-4 w-4 mr-1" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/auth">
+                      <Button variant="outline">Login</Button>
+                    </Link>
+                    <Link href="/auth">
+                      <Button>Sign Up</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
