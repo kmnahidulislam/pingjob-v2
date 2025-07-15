@@ -464,12 +464,10 @@ export default function PingJobHome() {
                               <span>{job.salary_range}</span>
                             </div>
                           )}
-                          {job.applicationCount !== undefined && (
-                            <div className="flex items-center">
-                              <Users className="h-3 w-3 mr-1" />
-                              <span>{job.applicationCount} applicants</span>
-                            </div>
-                          )}
+                          <div className="flex items-center">
+                            <Users className="h-3 w-3 mr-1" />
+                            <span>{job.applicationCount || 0} applicants</span>
+                          </div>
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                           <Calendar className="h-3 w-3 mr-1" />
