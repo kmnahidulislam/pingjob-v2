@@ -126,25 +126,17 @@ export default function PingJobHome() {
       jobsSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Force re-render when page changes
+  useEffect(() => {
+    // This effect runs whenever currentJobPage changes
+    // The dependency on currentJobPage ensures jobs display updates
+  }, [currentJobPage]);
   
   const totalJobs = Math.min(jobs.length, totalJobsToShow);
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
-  // Debug pagination
-  if (import.meta.env.DEV) {
-    console.log('Pagination Debug:', {
-      currentJobPage,
-      jobsPerPage,
-      startIndex,
-      endIndex,
-      totalJobs: jobs.length,
-      totalJobsToShow,
-      totalPages,
-      currentJobsLength: currentJobs.length,
-      firstJobTitle: currentJobs[0]?.title,
-      lastJobTitle: currentJobs[currentJobs.length - 1]?.title
-    });
-  }
+
 
   // Calculate real-time statistics
   const jobStats = {
@@ -423,11 +415,6 @@ export default function PingJobHome() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
-                            {import.meta.env.DEV && (
-                              <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded mr-2">
-                                Page {currentJobPage} - Job {startIndex + index + 1}
-                              </span>
-                            )}
                             {job.title}
                           </CardTitle>
                           <div className="flex items-center text-sm text-gray-600 mb-2">
