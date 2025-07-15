@@ -416,13 +416,18 @@ export default function PingJobHome() {
             </div>
             
             {currentJobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {currentJobs.map((job: any) => (
-                  <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
+              <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentJobs.map((job: any, index: number) => (
+                  <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
+                            {import.meta.env.DEV && (
+                              <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded mr-2">
+                                Page {currentJobPage} - Job {startIndex + index + 1}
+                              </span>
+                            )}
                             {job.title}
                           </CardTitle>
                           <div className="flex items-center text-sm text-gray-600 mb-2">
