@@ -130,6 +130,22 @@ export default function PingJobHome() {
   const totalJobs = Math.min(jobs.length, totalJobsToShow);
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
+  // Debug pagination
+  if (import.meta.env.DEV) {
+    console.log('Pagination Debug:', {
+      currentJobPage,
+      jobsPerPage,
+      startIndex,
+      endIndex,
+      totalJobs: jobs.length,
+      totalJobsToShow,
+      totalPages,
+      currentJobsLength: currentJobs.length,
+      firstJobTitle: currentJobs[0]?.title,
+      lastJobTitle: currentJobs[currentJobs.length - 1]?.title
+    });
+  }
+
   // Calculate real-time statistics
   const jobStats = {
     totalJobs: platformStats?.activeJobs || 12,
