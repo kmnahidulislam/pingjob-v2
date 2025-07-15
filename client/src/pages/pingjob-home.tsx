@@ -315,7 +315,7 @@ export default function PingJobHome() {
         </div>
       </section>
 
-      {/* Main Content Area with Sidebar */}
+      {/* Main Content Area with Sidebar and Jobs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
@@ -387,174 +387,149 @@ export default function PingJobHome() {
             </Card>
           </div>
           
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold">Welcome to PingJob</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">
-                  Connect with top companies and discover your next career opportunity. 
-                  Our platform offers comprehensive job listings with detailed company information and vendor networks.
-                </p>
-                <div className="flex space-x-4">
-                  <Link href="/jobs">
-                    <Button>Browse Jobs</Button>
-                  </Link>
-                  <Link href="/companies">
-                    <Button variant="outline">View Companies</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Latest Job Opportunities Section */}
+          <div id="jobs-section" className="lg:col-span-3">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
+              <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
+              <div className="flex justify-center items-center mt-4">
+                <span className="text-sm text-gray-500">
+                  Page {currentJobPage} of {totalPages} • Showing {currentJobs.length} of {totalJobs} jobs
+                </span>
+              </div>
+            </div>
+            
+            {currentJobs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {currentJobs.map((job: any) => (
+                  <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
+                            {job.title}
+                          </CardTitle>
+                          <div className="flex items-center text-sm text-gray-600 mb-2">
+                            <Building2 className="h-4 w-4 mr-1" />
+                            <span>{job.company?.name || 'Company Name'}</span>
+                            {job.company?.vendorCount && job.company.vendorCount > 0 && (
+                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {job.company.vendorCount} vendors
+                              </span>
+                            )}
+                          </div>
+                          {job.location && (
+                            <div className="flex items-center text-sm text-gray-500">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <span>{job.location}</span>
+                            </div>
+                          )}
+                        </div>
+                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
+                          <div className="w-16 h-12 border border-gray-200 rounded overflow-hidden bg-gray-50 ml-4">
+                            <img 
+                              src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                              alt={job.company.name}
+                              className="w-full h-full object-contain p-1"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-700 line-clamp-3 mb-4">
+                        {job.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          {job.employment_type && (
+                            <Badge variant="secondary" className="text-xs">
+                              {job.employment_type}
+                            </Badge>
+                          )}
+                          {job.salary_range && (
+                            <div className="flex items-center">
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              <span>{job.salary_range}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
+                        </div>
+                      </div>
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button className="w-full mt-4" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Available</h3>
+                <p className="text-gray-600 mb-6">Check back soon for new opportunities</p>
+                <Button className="px-8">
+                  Post a Job
+                  <Plus className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            )}
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleJobPageChange(currentJobPage - 1)}
+                  disabled={currentJobPage === 1}
+                  className="px-3 py-2"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentJobPage === page ? "default" : "outline"}
+                    onClick={() => handleJobPageChange(page)}
+                    className="px-3 py-2 min-w-[2.5rem]"
+                  >
+                    {page}
+                  </Button>
+                ))}
+                
+                <Button
+                  variant="outline"
+                  onClick={() => handleJobPageChange(currentJobPage + 1)}
+                  disabled={currentJobPage === totalPages}
+                  className="px-3 py-2"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
+            
+            <div className="text-center mt-8">
+              <Link href="/jobs">
+                <Button size="lg" className="px-8">
+                  View All Jobs
+                  <Briefcase className="h-5 w-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Latest Job Opportunities Section */}
-      <section id="jobs-section" className="bg-white border-b border-gray-200 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
-            <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
-            <div className="flex justify-center items-center mt-4">
-              <span className="text-sm text-gray-500">
-                Page {currentJobPage} of {totalPages} • Showing {currentJobs.length} of {totalJobs} jobs
-              </span>
-            </div>
-          </div>
-          
-          {currentJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {currentJobs.map((job: any) => (
-                <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
-                          {job.title}
-                        </CardTitle>
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <Building2 className="h-4 w-4 mr-1" />
-                          <span>{job.company?.name || 'Company Name'}</span>
-                          {job.company?.vendorCount && job.company.vendorCount > 0 && (
-                            <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {job.company.vendorCount} vendors
-                            </span>
-                          )}
-                        </div>
-                        {job.location && (
-                          <div className="flex items-center text-sm text-gray-500">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>{job.location}</span>
-                          </div>
-                        )}
-                      </div>
-                      {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
-                        <div className="w-16 h-12 border border-gray-200 rounded overflow-hidden bg-gray-50 ml-4">
-                          <img 
-                            src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={job.company.name}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-700 line-clamp-3 mb-4">
-                      {job.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        {job.employment_type && (
-                          <Badge variant="secondary" className="text-xs">
-                            {job.employment_type}
-                          </Badge>
-                        )}
-                        {job.salary_range && (
-                          <div className="flex items-center">
-                            <DollarSign className="h-3 w-3 mr-1" />
-                            <span>{job.salary_range}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
-                      </div>
-                    </div>
-                    <Link href={`/jobs/${job.id}`}>
-                      <Button className="w-full mt-4" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Available</h3>
-              <p className="text-gray-600 mb-6">Check back soon for new opportunities</p>
-              <Button className="px-8">
-                Post a Job
-                <Plus className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-          )}
-          
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-8 space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => handleJobPageChange(currentJobPage - 1)}
-                disabled={currentJobPage === 1}
-                className="px-3 py-2"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </Button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentJobPage === page ? "default" : "outline"}
-                  onClick={() => handleJobPageChange(page)}
-                  className="px-3 py-2 min-w-[2.5rem]"
-                >
-                  {page}
-                </Button>
-              ))}
-              
-              <Button
-                variant="outline"
-                onClick={() => handleJobPageChange(currentJobPage + 1)}
-                disabled={currentJobPage === totalPages}
-                className="px-3 py-2"
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          )}
-          
-          <div className="text-center mt-8">
-            <Link href="/jobs">
-              <Button size="lg" className="px-8">
-                View All Jobs
-                <Briefcase className="h-5 w-5 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
 
 
     </div>
