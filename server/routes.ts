@@ -3359,6 +3359,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe Payment Integration
+  app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe not configured" });
+      }
+
+      const { plan } = req.body;
+      const userId = req.user.id;
+      
+      // Plan price mapping
+      const planPrices = {
+        'free': 0,
+        'recruiter': 9900, // $99.00 in cents
+        'enterprise': 29900, // $299.00 in cents
+      };
+
+      const price = planPrices[plan as keyof typeof planPrices] || planPrices.recruiter;
+      
+      // Create or retrieve customer
+      let customer;
+      if (req.user.stripeCustomerId) {
+        customer = await stripe.customers.retrieve(req.user.stripeCustomerId);
+      } else {
+        customer = await stripe.customers.create({
+          email: req.user.email,
+          name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
+          metadata: { userId: userId.toString() }
+        });
+        
+        // Update user with Stripe customer ID
+        await storage.updateUserSubscription(userId, { 
+          stripeCustomerId: customer.id 
+        });
+      }
+
+      // Create payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: price,
+        currency: 'usd',
+        customer: customer.id,
+        metadata: {
+          userId: userId.toString(),
+          plan: plan
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        customerId: customer.id,
+        plan: plan,
+        amount: price
+      });
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ message: "Failed to create subscription" });
+    }
+  });
+
+  // Webhook to handle successful payments
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe not configured" });
+      }
+
+      const sig = req.headers['stripe-signature'];
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      
+      if (!sig || !webhookSecret) {
+        return res.status(400).json({ message: "Missing webhook signature or secret" });
+      }
+
+      const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+
+      if (event.type === 'payment_intent.succeeded') {
+        const paymentIntent = event.data.object;
+        const userId = paymentIntent.metadata.userId;
+        const plan = paymentIntent.metadata.plan;
+        
+        // Update user subscription
+        await storage.updateUserSubscription(userId, {
+          subscriptionPlan: plan,
+          subscriptionStatus: 'active',
+          subscriptionEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+        });
+
+        console.log(`Payment successful for user ${userId}, plan: ${plan}`);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Webhook error:", error);
+      res.status(400).json({ message: "Webhook error" });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

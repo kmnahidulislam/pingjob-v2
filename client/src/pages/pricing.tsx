@@ -4,12 +4,34 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Star, Users, Building, Crown } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 
 export default function Pricing() {
   const { user } = useAuth();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [, setLocation] = useLocation();
+
+  const handlePlanSelection = (planName: string) => {
+    if (planName === "Job Seeker") {
+      // Free plan - redirect to registration
+      setLocation('/auth');
+    } else if (planName === "Recruiter") {
+      // Paid plan - redirect to checkout
+      if (user) {
+        setLocation('/checkout?plan=recruiter');
+      } else {
+        setLocation('/auth');
+      }
+    } else if (planName === "Enterprise Client") {
+      // Enterprise plan - redirect to checkout
+      if (user) {
+        setLocation('/checkout?plan=enterprise');
+      } else {
+        setLocation('/auth');
+      }
+    }
+  };
 
   const plans = [
     {
@@ -223,6 +245,7 @@ export default function Pricing() {
                   className="w-full mb-6" 
                   variant={plan.buttonVariant}
                   size="lg"
+                  onClick={() => handlePlanSelection(plan.name)}
                 >
                   {plan.buttonText}
                 </Button>
