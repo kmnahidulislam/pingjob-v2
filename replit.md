@@ -785,6 +785,14 @@ Changelog:
   - Network/Dashboard/Profile tabs only appear for authenticated users
   - Confirmed existing pricing page is properly routed and accessible
   - Home page pagination now works correctly across all 5 pages with proper job rotation
+- July 16, 2025. Fixed real-time applicant count updates on home page job listings
+  - Resolved critical cache invalidation issue where home page showed outdated applicant counts
+  - Added comprehensive cache invalidation to job application modal for all job-related queries
+  - Implemented custom event system for cross-component communication between application modal and home page
+  - Added window event listeners to force refresh admin jobs query when applications are submitted
+  - Enhanced job application workflow with immediate cache clearing and real-time updates
+  - Home page now displays current applicant counts that update immediately after applications are submitted
+  - Fixed disconnect between job details page (correct count) and home page (cached count)
 ```
 
 ## User Preferences

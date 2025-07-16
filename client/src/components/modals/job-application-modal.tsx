@@ -84,7 +84,20 @@ export default function JobApplicationModal({
         title: "Application submitted successfully",
         description: `Your application for ${job.title} has been sent to the hiring team`
       });
+      // Invalidate multiple caches to ensure real-time updates
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/recruiter-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/jobs/${job.id}`] });
+      
+      // Force refetch of current job data
+      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      
+      // Emit custom event to force home page refresh
+      if (import.meta.env.DEV) console.log('Emitting jobApplicationSubmitted event to force home page refresh');
+      window.dispatchEvent(new CustomEvent('jobApplicationSubmitted'));
+      
       reset();
       setSelectedFile(null);
       onClose();

@@ -158,6 +158,27 @@ export default function PingJobHome() {
     }
   }, [jobs]);
 
+  // Listen for job updates and applications
+  useEffect(() => {
+    const handleJobUpdated = () => {
+      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+    };
+
+    const handleJobApplicationSubmitted = () => {
+      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+    };
+
+    window.addEventListener('jobUpdated', handleJobUpdated);
+    window.addEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
+    
+    return () => {
+      window.removeEventListener('jobUpdated', handleJobUpdated);
+      window.removeEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
+    };
+  }, [queryClient]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
