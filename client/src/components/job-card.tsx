@@ -273,7 +273,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               </span>
               <span className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
-                {job.applicationCount || 0} applicants
+                {job.applicantCount || 0} applicants
               </span>
             </div>
             
