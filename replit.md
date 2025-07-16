@@ -810,12 +810,13 @@ Changelog:
   - Unauthenticated users now see "Sign in to apply for this job" messaging with functional Apply Now buttons
   - Seamless user experience directs potential applicants to registration without barriers
 - July 16, 2025. RESOLVED: Home page applicant counts displaying correctly
-  - Enhanced getAdminJobs SQL query to include live applicant count from job_applications table
-  - Fixed field name mismatch in JobCard component (applicationCount → applicantCount)
+  - Fixed critical field name mismatch in home page template (applicationCount → applicantCount)
+  - Enhanced getAdminJobs SQL query to use stored application_count field from database
   - Updated both primary query and fallback query to include actual database counts
   - Applicant counts now work consistently across home page and job details pages
   - Auto-application system creates 100 applications per job submission with real-time count updates
-  - Eliminated need for manual sync processes - counts are live from database queries
+  - Root cause: Home page template was referencing job.applicationCount but API returns job.applicantCount
+  - Solution: Changed home page template to use job.applicantCount matching API response structure
 ```
 
 ## User Preferences
