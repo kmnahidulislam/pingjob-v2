@@ -1283,15 +1283,19 @@ export class DatabaseStorage implements IStorage {
       console.log('User category updated successfully for user:', application.applicantId);
     }
     
-    // Increment application count for the job
-    await db
-      .update(jobs)
-      .set({ 
-        applicationCount: sql`COALESCE(${jobs.applicationCount}, 0) + 1`
-      })
-      .where(eq(jobs.id, application.jobId));
+    // Synchronize application count with actual count from database
+    const actualCountQuery = `
+      UPDATE jobs 
+      SET application_count = (
+        SELECT COUNT(*) 
+        FROM job_applications 
+        WHERE job_applications.job_id = jobs.id
+      )
+      WHERE jobs.id = $1
+    `;
     
-    console.log('Application count incremented for job ID:', application.jobId);
+    await pool.query(actualCountQuery, [application.jobId]);
+    console.log('Application count synchronized for job ID:', application.jobId);
     
     return result;
   }
