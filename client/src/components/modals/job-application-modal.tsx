@@ -98,12 +98,18 @@ export default function JobApplicationModal({
       queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
       queryClient.removeQueries({ queryKey: ['/api/jobs'] });
       
-      // Force immediate refetch of admin jobs for home page
-      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      // Force immediate refetch of admin jobs for home page with multiple attempts
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      }, 100);
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      }, 1000);
       
       // Emit custom event to force home page refresh
       if (import.meta.env.DEV) console.log('Emitting jobApplicationSubmitted event to force home page refresh');
-      window.dispatchEvent(new CustomEvent('jobApplicationSubmitted'));
+      window.dispatchEvent(new CustomEvent('jobApplicationSubmitted', { detail: { autoApplicationsCount: autoCount } }));
       
       reset();
       setSelectedFile(null);

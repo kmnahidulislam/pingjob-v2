@@ -57,25 +57,43 @@ export default function PingJobHome() {
   const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery({
     queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
     queryFn: async () => {
-      const response = await fetch(`/api/admin-jobs?limit=${totalJobsToShow}`);
+      const response = await fetch(`/api/admin-jobs?limit=${totalJobsToShow}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
     },
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: true,
-    refetchOnMount: true
+    refetchOnMount: true,
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
 
   // Listen for job application events to refresh applicant counts
   useEffect(() => {
-    const handleJobApplicationSubmitted = () => {
+    const handleJobApplicationSubmitted = (event: any) => {
       if (import.meta.env.DEV) console.log('Home page received jobApplicationSubmitted event, refreshing admin jobs');
+      const autoCount = event.detail?.autoApplicationsCount || 0;
+      if (import.meta.env.DEV) console.log(`Auto-applications created: ${autoCount}, forcing cache refresh`);
+      
       queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
-      // Add a small delay to ensure database updates have propagated
+      
+      // Multiple refresh attempts to ensure cache is updated
       setTimeout(() => {
         refetchJobs();
-      }, 500);
+      }, 200);
+      
+      setTimeout(() => {
+        refetchJobs();
+      }, 800);
+      
+      setTimeout(() => {
+        refetchJobs();
+      }, 1500);
     };
 
     window.addEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
@@ -463,12 +481,29 @@ export default function PingJobHome() {
           {/* Latest Job Opportunities Section */}
           <div id="jobs-section" className="lg:col-span-3">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Latest Job Opportunities</h2>
+              <div className="flex items-center justify-center space-x-4 mb-4">
+                <h2 className="text-3xl font-bold text-gray-900">Latest Job Opportunities</h2>
+                <Button
+                  onClick={() => refetchJobs()}
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  Refresh
+                </Button>
+              </div>
               <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
               <div className="flex justify-center items-center mt-4">
                 <span className="text-sm text-gray-500">
                   Page {currentJobPage} of {totalPages} • Showing {currentJobs.length} of {totalJobs} jobs
                 </span>
+                {jobsLoading && (
+                  <span className="ml-3 text-sm text-blue-600">
+                    <Clock className="h-4 w-4 inline mr-1" />
+                    Updating...
+                  </span>
+                )}
               </div>
             </div>
             
