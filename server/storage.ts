@@ -2468,7 +2468,7 @@ export class DatabaseStorage implements IStorage {
   // Get jobs posted by admin (for homepage)
   async getAdminJobs(limit: number = 20): Promise<any[]> {
     try {
-      // Use raw SQL to include vendor count information
+      // Use raw SQL to include vendor count AND actual applicant count
       const query = `
         SELECT 
           j.id,
@@ -2486,7 +2486,8 @@ export class DatabaseStorage implements IStorage {
           c.name as company_name,
           c.logo_url as company_logo_url,
           c.location as company_location,
-          COALESCE(v.vendor_count, 0)::integer as vendor_count
+          COALESCE(v.vendor_count, 0)::integer as vendor_count,
+          COALESCE(a.applicant_count, 0)::integer as applicant_count
         FROM jobs j
         LEFT JOIN companies c ON j.company_id = c.id
         LEFT JOIN (
@@ -2494,6 +2495,11 @@ export class DatabaseStorage implements IStorage {
           FROM vendors 
           GROUP BY company_id
         ) v ON c.id = v.company_id
+        LEFT JOIN (
+          SELECT job_id, COUNT(*)::integer as applicant_count 
+          FROM job_applications 
+          GROUP BY job_id
+        ) a ON j.id = a.job_id
         WHERE j.is_active = true 
           AND (j.recruiter_id = 'admin' OR j.recruiter_id = 'admin-krupa')
         ORDER BY j.updated_at DESC, j.created_at DESC
@@ -2515,6 +2521,7 @@ export class DatabaseStorage implements IStorage {
         updatedAt: row.updatedAt,
         companyId: row.companyId,
         recruiterId: row.recruiterId,
+        applicantCount: row.applicant_count, // Add actual applicant count
         company: {
           id: row.company_id,
           name: row.company_name,
