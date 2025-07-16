@@ -2508,8 +2508,10 @@ export class DatabaseStorage implements IStorage {
       
       const result = await pool.query(query, [limit]);
       
+      console.log('DEBUG: Raw database results for getAdminJobs:', result.rows.slice(0, 2));
+      
       // Transform the flat result into the expected nested structure
-      return result.rows.map(row => ({
+      const transformedResults = result.rows.map(row => ({
         id: row.id,
         title: row.title,
         description: row.description,
@@ -2530,10 +2532,14 @@ export class DatabaseStorage implements IStorage {
           vendorCount: row.vendor_count
         }
       }));
+      
+      console.log('DEBUG: Transformed results for getAdminJobs:', transformedResults.slice(0, 2));
+      return transformedResults;
     } catch (error) {
       console.error('Error in getAdminJobs with vendor counts:', error);
       
-      // Fallback to original Drizzle query without vendor counts
+      // Fallback to original Drizzle query WITH applicant counts
+      console.log('FALLBACK: Using Drizzle query for getAdminJobs');
       const result = await db
         .select({
           id: jobs.id,
@@ -2547,6 +2553,7 @@ export class DatabaseStorage implements IStorage {
           updatedAt: jobs.updatedAt,
           companyId: jobs.companyId,
           recruiterId: jobs.recruiterId,
+          applicantCount: jobs.applicationCount, // Use stored application count
           company: {
             id: companies.id,
             name: companies.name,
@@ -2568,6 +2575,7 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt))
         .limit(limit);
 
+      console.log('FALLBACK: Drizzle query result:', result.slice(0, 2));
       return result;
     }
   }

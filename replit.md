@@ -809,14 +809,13 @@ Changelog:
   - Added proper button layout with "View Details" and "Apply Now" side by side on home page
   - Unauthenticated users now see "Sign in to apply for this job" messaging with functional Apply Now buttons
   - Seamless user experience directs potential applicants to registration without barriers
-- July 16, 2025. CRITICAL ISSUE: Home page applicant counts remain at 0 despite auto-application system working
-  - Auto-application system successfully creates 100 applications per job submission (confirmed in logs)
-  - Database application_count field not syncing with actual job_applications table records
-  - Created /api/admin/sync-counts endpoint to manually synchronize counts
-  - Added admin dashboard sync button for manual count correction
-  - Implemented multiple cache invalidation strategies but issue persists
-  - ROOT CAUSE: Database trigger or stored procedure missing for automatic count updates
-  - SOLUTION NEEDED: Direct database count synchronization or trigger implementation
+- July 16, 2025. RESOLVED: Home page applicant counts displaying correctly
+  - Enhanced getAdminJobs SQL query to include live applicant count from job_applications table
+  - Fixed field name mismatch in JobCard component (applicationCount → applicantCount)
+  - Updated both primary query and fallback query to include actual database counts
+  - Applicant counts now work consistently across home page and job details pages
+  - Auto-application system creates 100 applications per job submission with real-time count updates
+  - Eliminated need for manual sync processes - counts are live from database queries
 ```
 
 ## User Preferences
