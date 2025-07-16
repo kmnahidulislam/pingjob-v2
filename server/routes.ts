@@ -3309,9 +3309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('Starting application count synchronization...');
       
-      const { cleanPool } = await import('./clean-neon');
-      
-      // Get all jobs with their actual application counts
+      // Get all jobs with their actual application counts using standard pool
       const syncQuery = `
         UPDATE jobs 
         SET application_count = (
@@ -3328,7 +3326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )
       `;
       
-      const syncResult = await cleanPool.query(syncQuery);
+      const syncResult = await pool.query(syncQuery);
       
       // Get updated counts for verification
       const verifyQuery = `
@@ -3345,7 +3343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         LIMIT 20
       `;
       
-      const verifyResult = await cleanPool.query(verifyQuery);
+      const verifyResult = await pool.query(verifyQuery);
       
       console.log('Synchronization complete. Updated jobs:', verifyResult.rows);
       console.log('Rows affected:', syncResult.rowCount);
