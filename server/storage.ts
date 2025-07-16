@@ -2487,7 +2487,7 @@ export class DatabaseStorage implements IStorage {
           c.logo_url as company_logo_url,
           c.location as company_location,
           COALESCE(v.vendor_count, 0)::integer as vendor_count,
-          COALESCE(a.applicant_count, 0)::integer as applicant_count
+          j.application_count as applicant_count
         FROM jobs j
         LEFT JOIN companies c ON j.company_id = c.id
         LEFT JOIN (
@@ -2495,11 +2495,6 @@ export class DatabaseStorage implements IStorage {
           FROM vendors 
           GROUP BY company_id
         ) v ON c.id = v.company_id
-        LEFT JOIN (
-          SELECT job_id, COUNT(*)::integer as applicant_count 
-          FROM job_applications 
-          GROUP BY job_id
-        ) a ON j.id = a.job_id
         WHERE j.is_active = true 
           AND (j.recruiter_id = 'admin' OR j.recruiter_id = 'admin-krupa')
         ORDER BY j.updated_at DESC, j.created_at DESC
@@ -2507,8 +2502,6 @@ export class DatabaseStorage implements IStorage {
       `;
       
       const result = await pool.query(query, [limit]);
-      
-      console.log('DEBUG: Raw database results for getAdminJobs:', result.rows.slice(0, 2));
       
       // Transform the flat result into the expected nested structure
       const transformedResults = result.rows.map(row => ({
@@ -2533,13 +2526,11 @@ export class DatabaseStorage implements IStorage {
         }
       }));
       
-      console.log('DEBUG: Transformed results for getAdminJobs:', transformedResults.slice(0, 2));
       return transformedResults;
     } catch (error) {
       console.error('Error in getAdminJobs with vendor counts:', error);
       
       // Fallback to original Drizzle query WITH applicant counts
-      console.log('FALLBACK: Using Drizzle query for getAdminJobs');
       const result = await db
         .select({
           id: jobs.id,
@@ -2575,7 +2566,6 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt))
         .limit(limit);
 
-      console.log('FALLBACK: Drizzle query result:', result.slice(0, 2));
       return result;
     }
   }
