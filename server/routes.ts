@@ -3300,6 +3300,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sync application counts - fix discrepancies between stored and actual counts
+  app.post('/api/admin/sync-counts', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.userType !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      console.log('Starting application count synchronization...');
+      
+      const { cleanPool } = await import('./clean-neon');
+      
+      // Get all jobs with their actual application counts
+      const syncQuery = `
+        UPDATE jobs 
+        SET application_count = (
+          SELECT COUNT(*) 
+          FROM job_applications 
+          WHERE job_applications.job_id = jobs.id
+        )
+        WHERE jobs.id IN (
+          SELECT DISTINCT j.id 
+          FROM jobs j
+          LEFT JOIN job_applications ja ON j.id = ja.job_id
+          GROUP BY j.id
+          HAVING j.application_count != COUNT(ja.id)
+        )
+      `;
+      
+      const syncResult = await cleanPool.query(syncQuery);
+      
+      // Get updated counts for verification
+      const verifyQuery = `
+        SELECT 
+          j.id,
+          j.title,
+          j.application_count as stored_count,
+          COUNT(ja.id) as actual_count
+        FROM jobs j
+        LEFT JOIN job_applications ja ON j.id = ja.job_id
+        WHERE j.recruiter_id = 'admin-krupa'
+        GROUP BY j.id, j.title, j.application_count
+        ORDER BY j.updated_at DESC, j.created_at DESC
+        LIMIT 20
+      `;
+      
+      const verifyResult = await cleanPool.query(verifyQuery);
+      
+      console.log('Synchronization complete. Updated jobs:', verifyResult.rows);
+      console.log('Rows affected:', syncResult.rowCount);
+      
+      res.json({ 
+        message: 'Application counts synchronized successfully',
+        rowsUpdated: syncResult.rowCount,
+        sampleJobs: verifyResult.rows
+      });
+      
+    } catch (error) {
+      console.error('Error syncing application counts:', error);
+      res.status(500).json({ message: 'Failed to sync application counts' });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 

@@ -381,6 +381,36 @@ function AdminDashboard() {
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [companyEditOpen, setCompanyEditOpen] = useState(false);
 
+  // Sync application counts mutation
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/admin/sync-counts', {
+        method: 'POST',
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: `Application counts synchronized. Updated ${data.rowsUpdated} jobs.`,
+      });
+      // Refresh queries after sync
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to sync application counts. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const syncApplicationCounts = () => {
+    syncMutation.mutate();
+  };
+
   // Fetch pending companies
   const { data: pendingCompanies = [], isLoading: loadingPending } = useQuery({
     queryKey: ['/api/companies/pending'],
@@ -822,6 +852,14 @@ function AdminDashboard() {
                         Manage All Jobs
                       </Button>
                     </Link>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => syncApplicationCounts()}
+                    >
+                      <TrendingUp className="h-4 w-4 mr-2" />
+                      Sync Application Counts
+                    </Button>
                   </div>
                 </div>
               </div>
