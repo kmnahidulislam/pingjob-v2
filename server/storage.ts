@@ -2680,6 +2680,51 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Get all job applications for recruiters and enterprise users
+  // Get jobs by category for auto-application
+  async getJobsByCategory(categoryId: number, limit: number = 100): Promise<any[]> {
+    try {
+      const result = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          location: jobs.location,
+          createdAt: jobs.createdAt
+        })
+        .from(jobs)
+        .where(eq(jobs.categoryId, categoryId))
+        .orderBy(desc(jobs.createdAt))
+        .limit(limit);
+      
+      return result;
+    } catch (error) {
+      console.error('Error fetching jobs by category:', error);
+      return [];
+    }
+  }
+
+  // Check if user already applied to a job
+  async getJobApplicationByJobAndUser(jobId: number, userId: string): Promise<any | null> {
+    try {
+      const result = await db
+        .select()
+        .from(jobApplications)
+        .where(
+          and(
+            eq(jobApplications.jobId, jobId),
+            eq(jobApplications.applicantId, userId)
+          )
+        )
+        .limit(1);
+      
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      console.error('Error checking existing application:', error);
+      return null;
+    }
+  }
+
   async getJobApplicationsForRecruiters(userType: string): Promise<any[]> {
     try {
       // Enterprise users get access to ALL applications

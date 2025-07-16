@@ -79,10 +79,13 @@ export default function JobApplicationModal({
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const autoCount = data.autoApplicationsCount || 0;
       toast({
         title: "Application submitted successfully",
-        description: `Your application for ${job.title} has been sent to the hiring team`
+        description: autoCount > 0 
+          ? `Applied to ${autoCount + 1} jobs total (1 direct + ${autoCount} auto-matched by category)`
+          : `Your application for ${job.title} has been sent to the hiring team`
       });
       // Invalidate multiple caches to ensure real-time updates
       queryClient.invalidateQueries({ queryKey: ['/api/applications'] });

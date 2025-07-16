@@ -793,6 +793,15 @@ Changelog:
   - Enhanced job application workflow with immediate cache clearing and real-time updates
   - Home page now displays current applicant counts that update immediately after applications are submitted
   - Fixed disconnect between job details page (correct count) and home page (cached count)
+- July 16, 2025. Implemented intelligent auto-application system for category-matched jobs
+  - Enhanced job application workflow to automatically apply same resume to matching category jobs
+  - When job seeker uploads resume to a job, system finds latest 100 jobs with same category_id from different companies
+  - Automatically creates applications for all matching jobs to maximize job seeker visibility
+  - Added duplicate application prevention to avoid applying to same job twice
+  - Implemented comprehensive feedback system showing total applications (direct + auto-matched)
+  - Added storage methods for category-based job matching and existing application checking
+  - System increases applicant count for all relevant category jobs across multiple companies
+  - Auto-applications use same resume with category-based cover letter for professional presentation
 ```
 
 ## User Preferences
