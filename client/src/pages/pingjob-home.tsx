@@ -54,7 +54,7 @@ export default function PingJobHome() {
   };
 
   // Fetch admin jobs only for homepage display (100 jobs total for pagination)
-  const { data: jobsData, isLoading: jobsLoading } = useQuery({
+  const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery({
     queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
     queryFn: async () => {
       const response = await fetch(`/api/admin-jobs?limit=${totalJobsToShow}`);
@@ -66,6 +66,21 @@ export default function PingJobHome() {
     refetchOnWindowFocus: true,
     refetchOnMount: true
   });
+
+  // Listen for job application events to refresh applicant counts
+  useEffect(() => {
+    const handleJobApplicationSubmitted = () => {
+      if (import.meta.env.DEV) console.log('Home page received jobApplicationSubmitted event, refreshing admin jobs');
+      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+      // Add a small delay to ensure database updates have propagated
+      setTimeout(() => {
+        refetchJobs();
+      }, 500);
+    };
+
+    window.addEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
+    return () => window.removeEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
+  }, [queryClient, refetchJobs]);
 
   // Fetch categories
   const { data: categories = [] } = useQuery({

@@ -94,7 +94,11 @@ export default function JobApplicationModal({
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
       queryClient.invalidateQueries({ queryKey: [`/api/jobs/${job.id}`] });
       
-      // Force refetch of current job data
+      // Clear entire cache and force refetch of ALL job-related queries
+      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.removeQueries({ queryKey: ['/api/jobs'] });
+      
+      // Force immediate refetch of admin jobs for home page
       queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
       
       // Emit custom event to force home page refresh
