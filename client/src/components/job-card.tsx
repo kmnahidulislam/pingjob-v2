@@ -95,11 +95,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   const handleEasyApply = () => {
     if (!user) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to apply for jobs",
-        variant: "destructive"
-      });
+      setLocation('/auth');
       return;
     }
     

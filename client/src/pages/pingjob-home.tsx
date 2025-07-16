@@ -524,11 +524,18 @@ export default function PingJobHome() {
                           <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
                         </div>
                       </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button className="w-full mt-4" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
+                      <div className="flex gap-2 mt-4">
+                        <Link href={`/jobs/${job.id}`} className="flex-1">
+                          <Button variant="outline" className="w-full" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Link href="/auth" className="flex-1">
+                          <Button className="w-full" size="sm">
+                            Apply Now
+                          </Button>
+                        </Link>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

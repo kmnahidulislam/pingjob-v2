@@ -802,6 +802,13 @@ Changelog:
   - Added storage methods for category-based job matching and existing application checking
   - System increases applicant count for all relevant category jobs across multiple companies
   - Auto-applications use same resume with category-based cover letter for professional presentation
+- July 16, 2025. Added "Apply Now" functionality for unauthenticated users across all job listings
+  - Enhanced home page job cards with "Apply Now" buttons that redirect to login/signup page
+  - Updated job details page to show "Apply Now" button for all users (authenticated and unauthenticated)
+  - Modified job-card component to redirect unauthenticated users to auth page instead of showing error toast
+  - Added proper button layout with "View Details" and "Apply Now" side by side on home page
+  - Unauthenticated users now see "Sign in to apply for this job" messaging with functional Apply Now buttons
+  - Seamless user experience directs potential applicants to registration without barriers
 ```
 
 ## User Preferences

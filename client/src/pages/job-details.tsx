@@ -402,9 +402,9 @@ export default function JobDetails() {
               </div>
             </div>
 
-            {/* Apply Button - Prominent for Job Seekers */}
-            {user?.userType === 'job_seeker' && (
-              <div className="mb-6">
+            {/* Apply Button - For all users */}
+            <div className="mb-6">
+              {user?.userType === 'job_seeker' ? (
                 <Button
                   onClick={handleApply}
                   className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
@@ -412,11 +412,23 @@ export default function JobDetails() {
                 >
                   Apply Now
                 </Button>
-                <p className="text-sm text-gray-500 mt-2">
-                  Quick apply with your profile
-                </p>
-              </div>
-            )}
+              ) : (
+                <Link href="/auth">
+                  <Button
+                    className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
+                    size="lg"
+                  >
+                    Apply Now
+                  </Button>
+                </Link>
+              )}
+              <p className="text-sm text-gray-500 mt-2">
+                {user?.userType === 'job_seeker' 
+                  ? "Quick apply with your profile"
+                  : "Sign in to apply for this job"
+                }
+              </p>
+            </div>
 
             <Separator className="mb-6" />
 
