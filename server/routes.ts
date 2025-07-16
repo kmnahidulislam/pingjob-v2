@@ -3303,13 +3303,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sync application counts - fix discrepancies between stored and actual counts
   app.post('/api/admin/sync-counts', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'admin') {
+      console.log('=== SYNC COUNTS REQUEST ===');
+      console.log('User:', req.user);
+      console.log('User type:', req.user?.userType);
+      
+      if (!req.user || req.user.userType !== 'admin') {
+        console.log('Access denied - not admin');
         return res.status(403).json({ message: 'Admin access required' });
       }
 
       console.log('Starting application count synchronization...');
       
-      // Get all jobs with their actual application counts using standard pool
+      // Simple update query that should work
       const syncQuery = `
         UPDATE jobs 
         SET application_count = (
@@ -3317,36 +3322,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           FROM job_applications 
           WHERE job_applications.job_id = jobs.id
         )
-        WHERE jobs.id IN (
-          SELECT DISTINCT j.id 
-          FROM jobs j
-          LEFT JOIN job_applications ja ON j.id = ja.job_id
-          GROUP BY j.id
-          HAVING j.application_count != COUNT(ja.id)
-        )
       `;
       
+      console.log('Executing sync query...');
       const syncResult = await pool.query(syncQuery);
+      console.log('Sync query completed. Rows affected:', syncResult.rowCount);
       
-      // Get updated counts for verification
+      // Simple verification query
       const verifyQuery = `
         SELECT 
           j.id,
           j.title,
-          j.application_count as stored_count,
-          COUNT(ja.id) as actual_count
+          j.application_count as stored_count
         FROM jobs j
-        LEFT JOIN job_applications ja ON j.id = ja.job_id
         WHERE j.recruiter_id = 'admin-krupa'
-        GROUP BY j.id, j.title, j.application_count
         ORDER BY j.updated_at DESC, j.created_at DESC
-        LIMIT 20
+        LIMIT 10
       `;
       
+      console.log('Executing verify query...');
       const verifyResult = await pool.query(verifyQuery);
-      
-      console.log('Synchronization complete. Updated jobs:', verifyResult.rows);
-      console.log('Rows affected:', syncResult.rowCount);
+      console.log('Verify query completed. Sample jobs:', verifyResult.rows);
       
       res.json({ 
         message: 'Application counts synchronized successfully',
@@ -3355,8 +3351,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
     } catch (error) {
+      console.error('=== SYNC ERROR ===');
       console.error('Error syncing application counts:', error);
-      res.status(500).json({ message: 'Failed to sync application counts' });
+      console.error('Error details:', error.message);
+      console.error('Stack:', error.stack);
+      res.status(500).json({ message: 'Failed to sync application counts', error: error.message });
     }
   });
 
