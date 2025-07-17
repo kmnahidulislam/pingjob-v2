@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import TestComponent from "./test-component";
 import "./index.css";
 import { initGA } from "./lib/analytics";
 import { initializeAdSense } from "./lib/adsense";
@@ -65,9 +66,12 @@ try {
   }
 }
 
-const root = createRoot(document.getElementById("root")!);
-root.render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>
-);
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+const root = createRoot(rootElement);
+
+// Temporarily use test component to bypass React plugin issues
+root.render(<TestComponent />);

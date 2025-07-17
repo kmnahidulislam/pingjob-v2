@@ -9,6 +9,9 @@ import { z } from "zod";
 import { randomBytes } from "crypto";
 import { hashPassword } from "./auth";
 import sgMail from '@sendgrid/mail';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import validator from 'validator';
 
 // Initialize Stripe only if secret key is available
 let stripe: Stripe | null = null;
@@ -34,13 +37,22 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Configure multer for file uploads
+// Configure multer for file uploads with enhanced security
 const upload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['.pdf', '.doc', '.docx'];
+    // Validate file type by extension and MIME type
+    const allowedExtensions = ['.pdf', '.doc', '.docx'];
+    const allowedMimeTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(ext)) {
+    const mimeType = file.mimetype;
+    
+    if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(mimeType)) {
       cb(null, true);
     } else {
       cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
@@ -48,16 +60,26 @@ const upload = multer({
   },
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
+    files: 1, // Only allow 1 file per upload
   }
 });
 
-// Configure multer for image uploads (company logos, profile pictures)
+// Configure multer for image uploads with enhanced security
 const imageUpload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['.jpg', '.jpeg', '.png', '.gif'];
+    // Validate file type by extension and MIME type
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif'
+    ];
+    
     const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(ext)) {
+    const mimeType = file.mimetype;
+    
+    if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(mimeType)) {
       cb(null, true);
     } else {
       cb(new Error('Only JPG, JPEG, PNG, and GIF images are allowed'));
@@ -65,10 +87,50 @@ const imageUpload = multer({
   },
   limits: {
     fileSize: 2 * 1024 * 1024, // 2MB limit for images
+    files: 1, // Only allow 1 file per upload
   }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Security middleware
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        scriptSrc: ["'self'", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://api.stripe.com"]
+      }
+    }
+  }));
+
+  // Rate limiting for different endpoints
+  const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+  });
+
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 auth requests per windowMs
+    message: 'Too many authentication attempts, please try again later.'
+  });
+
+  const uploadLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // limit each IP to 10 uploads per hour
+    message: 'Too many uploads, please try again later.'
+  });
+
+  // Set trust proxy for rate limiting
+  app.set('trust proxy', 1);
+  
+  // Apply general rate limiting to all routes
+  app.use(generalLimiter);
+
   // Health check route for cloud deployments
   app.get('/health', (req, res) => {
     res.send('OK');
@@ -88,11 +150,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Serve static files from uploads directory
-  app.use('/uploads', express.static('uploads'));
+  // Serve static files from uploads directory with security headers
+  app.use('/uploads', express.static('uploads', {
+    setHeaders: (res, path) => {
+      // Prevent execution of scripts from uploaded files
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'");
+      res.setHeader('X-Frame-Options', 'DENY');
+    }
+  }));
   
-  // Serve static files from logos directory
-  app.use('/logos', express.static('logos'));
+  // Serve static files from logos directory with security headers
+  app.use('/logos', express.static('logos', {
+    setHeaders: (res, path) => {
+      // Prevent execution of scripts from uploaded files
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'");
+      res.setHeader('X-Frame-Options', 'DENY');
+    }
+  }));
   
   // Resume serving route for files without extensions
   app.get('/api/resume/:filename', (req, res) => {
@@ -147,13 +223,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Public routes (before auth middleware)
   
-  // Password reset routes
-  app.post('/api/forgot-password', async (req, res) => {
+  // Password reset routes with rate limiting
+  app.post('/api/forgot-password', authLimiter, async (req, res) => {
     try {
       const { email } = req.body;
       
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+      if (!email || !validator.isEmail(email)) {
+        return res.status(400).json({ message: "Valid email is required" });
       }
 
       // Check if user exists
@@ -242,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/reset-password', async (req, res) => {
+  app.post('/api/reset-password', authLimiter, async (req, res) => {
     try {
       const { token, password } = req.body;
       
@@ -250,8 +326,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Token and password are required" });
       }
 
-      if (password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+      // Enhanced password validation
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+      
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one uppercase letter, one lowercase letter, and one number" });
       }
 
       // Find user by reset token
@@ -799,8 +880,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Company logo upload route
-  app.post('/api/upload/company-logo', imageUpload.single('logo'), async (req: any, res) => {
+  // Company logo upload route with rate limiting
+  app.post('/api/upload/company-logo', uploadLimiter, imageUpload.single('logo'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -1411,7 +1492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/applications', isAuthenticated, upload.single('resume'), async (req: any, res) => {
+  app.post('/api/applications', isAuthenticated, uploadLimiter, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;
       const resumeUrl = req.file ? `/uploads/${req.file.filename}` : null;

@@ -6,6 +6,8 @@ import session from 'express-session';
 import createMemoryStore from 'memorystore';
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import rateLimit from 'express-rate-limit';
+import validator from 'validator';
 
 const scryptAsync = promisify(scrypt);
 
@@ -23,6 +25,15 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Rate limiting for authentication endpoints
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 auth requests per windowMs
+    message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   // Session configuration
   const MemoryStore = createMemoryStore(session);
 
@@ -174,9 +185,22 @@ export function setupAuth(app: Express) {
     return res.status(401).json({ message: "Not authenticated" });
   });
 
-  app.post('/api/login', async (req: any, res) => {
+  app.post('/api/login', authLimiter, async (req: any, res) => {
     try {
       const { email, password } = req.body;
+      
+      // Input validation
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+      
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      
+      if (password.length > 100) {
+        return res.status(400).json({ message: "Password too long" });
+      }
       
       const result = await pool.query(
         'SELECT id, email, password, first_name, last_name, user_type FROM users WHERE email = $1',
@@ -225,7 +249,7 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post('/api/register', async (req: any, res) => {
+  app.post('/api/register', authLimiter, async (req: any, res) => {
     try {
       const { email, password, firstName, lastName, userType } = req.body;
       
@@ -234,16 +258,24 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "All fields are required" });
       }
       
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      // Enhanced input validation
+      if (!validator.isEmail(email)) {
         return res.status(400).json({ message: "Please enter a valid email address" });
       }
       
-      // Validate password length
-      if (password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      // Enhanced password validation
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters" });
       }
+      
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one uppercase letter, one lowercase letter, and one number" });
+      }
+      
+      // Sanitize input
+      const sanitizedEmail = validator.normalizeEmail(email) || email;
+      const sanitizedFirstName = validator.escape(firstName.trim());
+      const sanitizedLastName = validator.escape(lastName.trim());
       
       // SECURITY: Only allow job_seeker accounts for free registration
       // Premium accounts (recruiter, client) require payment verification
