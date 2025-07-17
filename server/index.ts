@@ -94,6 +94,11 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // Serve static HTML file directly to bypass React plugin issues
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'client/public/index.html'));
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

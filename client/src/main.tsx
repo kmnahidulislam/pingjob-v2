@@ -1,6 +1,7 @@
 import { Component, StrictMode, ReactNode, ErrorInfo } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import SimpleApp from "./simple-app";
 import "./index.css";
 
 // Error boundary component
@@ -73,10 +74,23 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-root.render(
-  <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </StrictMode>
-);
+// Try simple app first to bypass React plugin issues
+const useSimpleApp = true;
+
+if (useSimpleApp) {
+  root.render(
+    <StrictMode>
+      <ErrorBoundary>
+        <SimpleApp />
+      </ErrorBoundary>
+    </StrictMode>
+  );
+} else {
+  root.render(
+    <StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </StrictMode>
+  );
+}

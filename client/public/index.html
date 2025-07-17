@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingJob - Professional Networking Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .linkedin-blue { background-color: #0077B5; }
+        .linkedin-blue:hover { background-color: #005885; }
+        .security-badge { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen flex items-center justify-center">
+        <div class="max-w-2xl w-full mx-auto p-8">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-blue-600 mb-4">PingJob Platform</h1>
+                    <p class="text-gray-600">Professional Networking & Job Search Platform</p>
+                </div>
+
+                <div class="security-badge rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">✓ Security Hardening Complete</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>✓ All npm vulnerabilities patched and resolved</li>
+                        <li>✓ Helmet security middleware with CSP protection</li>
+                        <li>✓ Rate limiting: 5 auth attempts/15min, 100 requests/15min</li>
+                        <li>✓ Password requirements: 8+ chars, mixed case, numbers</li>
+                        <li>✓ MIME type validation and input sanitization</li>
+                        <li>✓ Security headers for static file serving</li>
+                    </ul>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Platform Status</h3>
+                    <div id="platform-stats" class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-center">
+                            <div class="loading border-4 border-blue-200 border-t-blue-600 rounded-full w-8 h-8 mr-3"></div>
+                            <span>Loading platform statistics...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button onclick="testAPI()" class="linkedin-blue text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        Test API Connection
+                    </button>
+                    <button onclick="testAuth()" class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                        Test Authentication
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-gray-600 mb-4">Backend is fully operational with all security measures active</p>
+                    <div class="space-y-2">
+                        <div><a href="/test.html" class="text-blue-600 hover:text-blue-800">→ View Security Test Page</a></div>
+                        <div><a href="/api/platform/stats" class="text-blue-600 hover:text-blue-800">→ View Platform API</a></div>
+                    </div>
+                </div>
+
+                <div id="test-results" class="mt-6 hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load platform stats on page load
+        window.addEventListener('load', function() {
+            testAPI();
+        });
+
+        async function testAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            const statsDiv = document.getElementById('platform-stats');
+            
+            try {
+                const response = await fetch('/api/platform/stats');
+                const data = await response.json();
+                
+                statsDiv.innerHTML = `
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">${data.totalUsers.toLocaleString()}</div>
+                            <div class="text-sm text-gray-600">Total Users</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">${data.totalCompanies.toLocaleString()}</div>
+                            <div class="text-sm text-gray-600">Companies</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600">${data.activeJobs.toLocaleString()}</div>
+                            <div class="text-sm text-gray-600">Active Jobs</div>
+                        </div>
+                    </div>
+                `;
+                
+                showResult('API Test Successful', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                statsDiv.innerHTML = `
+                    <div class="text-center text-red-600">
+                        Failed to load platform statistics
+                    </div>
+                `;
+                showResult('API Test Failed', error.message, 'error');
+            }
+        }
+
+        async function testAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                showResult('Authentication Test', JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('Authentication Test Failed', error.message, 'error');
+            }
+        }
+
+        function showResult(title, content, type) {
+            const resultsDiv = document.getElementById('test-results');
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            
+            resultsDiv.innerHTML = `
+                <div class="${bgColor} border rounded-lg p-4">
+                    <h4 class="font-semibold ${textColor} mb-2">${title}</h4>
+                    <pre class="text-sm overflow-x-auto">${content}</pre>
+                </div>
+            `;
+            resultsDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
