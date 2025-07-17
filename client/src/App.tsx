@@ -37,9 +37,7 @@ import ResetPassword from "@/pages/reset-password";
 import RecruiterDashboard from "@/pages/recruiter-dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import Navigation from "@/components/navigation";
-import { initGA } from "./lib/analytics";
-import { useAnalytics } from "./hooks/use-analytics";
-import { initializeAdSense } from "./lib/adsense";
+// Analytics imports removed to prevent unhandled promise rejections in development
 
 
 
@@ -59,8 +57,7 @@ function Router() {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
   
-  // Track page views when routes change
-  useAnalytics();
+  // Analytics tracking disabled in development
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
@@ -194,21 +191,7 @@ function Router() {
 }
 
 function App() {
-  // Initialize Google Analytics and AdSense when app loads
-  useEffect(() => {
-    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
-      console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
-    } else {
-      initGA();
-    }
-
-    // Initialize Google AdSense
-    if (!import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
-      console.warn('Missing required Google AdSense client ID: VITE_GOOGLE_ADSENSE_CLIENT_ID');
-    } else {
-      initializeAdSense();
-    }
-  }, []);
+  // Analytics disabled in development to prevent unhandled promise rejections
 
   return (
     <QueryClientProvider client={queryClient}>

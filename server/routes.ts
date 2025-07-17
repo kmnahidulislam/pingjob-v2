@@ -92,19 +92,22 @@ const imageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Temporarily disable security middleware to test React plugin
-  // app.use(helmet({
-  //   contentSecurityPolicy: {
-  //     directives: {
-  //       defaultSrc: ["'self'"],
-  //       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-  //       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-  //       scriptSrc: ["'self'", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
-  //       imgSrc: ["'self'", "data:", "https:"],
-  //       connectSrc: ["'self'", "https://api.stripe.com"]
-  //     }
-  //   }
-  // }));
+  // Security middleware with React-compatible CSP configuration
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com", "https://js.stripe.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://api.stripe.com", "https://js.stripe.com", "wss:", "ws:"],
+        frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"]
+      }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  }));
 
   // Rate limiting for different endpoints
   const generalLimiter = rateLimit({

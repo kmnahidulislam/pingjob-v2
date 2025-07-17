@@ -19,7 +19,7 @@ class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (import.meta.env.DEV) {
-      console.error('Error boundary caught an error:', error, errorInfo);
+      console.error('React Error Boundary caught an error:', error, errorInfo);
     }
   }
 
@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<
   }
 }
 
-// Skip analytics initialization in development to avoid CSP issues
+// Skip analytics in development to avoid unhandled promise rejections
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -54,5 +54,10 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// Temporarily use minimal app to test React plugin
-import('./minimal-main');
+root.render(
+  <StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </StrictMode>
+);
