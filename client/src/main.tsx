@@ -1,17 +1,14 @@
-import React from "react";
+import { Component, StrictMode, ReactNode, ErrorInfo } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import TestComponent from "./test-component";
 import "./index.css";
-import { initGA } from "./lib/analytics";
-import { initializeAdSense } from "./lib/adsense";
 
 // Error boundary component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+class ErrorBoundary extends Component<
+  { children: ReactNode },
   { hasError: boolean }
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -20,7 +17,7 @@ class ErrorBoundary extends React.Component<
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (import.meta.env.DEV) {
       console.error('Error boundary caught an error:', error, errorInfo);
     }
@@ -48,21 +45,24 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-// Initialize Google Analytics with error handling
-try {
-  initGA();
-} catch (error) {
-  if (import.meta.env.DEV) {
-    console.warn('Failed to initialize Google Analytics:', error);
+// Initialize analytics in production only
+if (import.meta.env.PROD) {
+  // Initialize Google Analytics
+  if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+    import("./lib/analytics").then(({ initGA }) => {
+      initGA(import.meta.env.VITE_GA_MEASUREMENT_ID);
+    }).catch(error => {
+      console.warn('Failed to initialize Google Analytics:', error);
+    });
   }
-}
-
-// Initialize Google AdSense with error handling
-try {
-  initializeAdSense();
-} catch (error) {
-  if (import.meta.env.DEV) {
-    console.warn('Failed to initialize Google AdSense:', error);
+  
+  // Initialize Google AdSense
+  if (import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+    import("./lib/adsense").then(({ initializeAdSense }) => {
+      initializeAdSense(import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID);
+    }).catch(error => {
+      console.warn('Failed to initialize Google AdSense:', error);
+    });
   }
 }
 
@@ -73,5 +73,10 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// Temporarily use test component to bypass React plugin issues
-root.render(<TestComponent />);
+root.render(
+  <StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </StrictMode>
+);
