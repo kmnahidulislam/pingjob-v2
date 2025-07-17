@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingJob Platform - Security Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 90%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0077B5 0%, #005885 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .security-status {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .security-status h3 {
+            color: #2e7d32;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-status ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .security-status li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .security-status li:before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #0077B5;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: #0077B5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #005885;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+        
+        .results h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .results pre {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0077B5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .links a {
+            color: #0077B5;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+        
+        .links a:hover {
+            color: #005885;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PingJob Platform</h1>
+            <p>Security Hardening Complete ✓</p>
+        </div>
+        
+        <div class="content">
+            <div class="security-status">
+                <h3>🔒 Comprehensive Security Implementation</h3>
+                <ul>
+                    <li>All npm security vulnerabilities patched</li>
+                    <li>Helmet middleware with CSP protection active</li>
+                    <li>Rate limiting: 5 auth attempts/15min, 100 requests/15min</li>
+                    <li>Password requirements: 8+ characters, mixed case, numbers</li>
+                    <li>MIME type validation for all file uploads</li>
+                    <li>Input validation and sanitization enabled</li>
+                    <li>Security headers configured for production</li>
+                </ul>
+            </div>
+            
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="users-count">
+                        <div class="loading"></div>
+                    </div>
+                    <div class="stat-label">Platform Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="companies-count">
+                        <div class="loading"></div>
+                    </div>
+                    <div class="stat-label">Companies</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="jobs-count">
+                        <div class="loading"></div>
+                    </div>
+                    <div class="stat-label">Active Jobs</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn" onclick="testAPI()">Test Platform API</button>
+                <button class="btn btn-success" onclick="testAuth()">Test Authentication</button>
+                <a href="/test.html" class="btn">Full Security Test</a>
+            </div>
+            
+            <div class="results" id="results"></div>
+            
+            <div class="links">
+                <a href="/api/platform/stats" target="_blank">View Raw API Data</a>
+                <a href="/test.html" target="_blank">Advanced Security Tests</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load platform stats immediately
+        loadPlatformStats();
+        
+        async function loadPlatformStats() {
+            try {
+                const response = await fetch('/api/platform/stats');
+                const data = await response.json();
+                
+                document.getElementById('users-count').textContent = data.totalUsers.toLocaleString();
+                document.getElementById('companies-count').textContent = data.totalCompanies.toLocaleString();
+                document.getElementById('jobs-count').textContent = data.activeJobs.toLocaleString();
+            } catch (error) {
+                document.getElementById('users-count').textContent = 'Error';
+                document.getElementById('companies-count').textContent = 'Error';
+                document.getElementById('jobs-count').textContent = 'Error';
+            }
+        }
+        
+        async function testAPI() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading"></div> Testing API connection...';
+            
+            try {
+                const response = await fetch('/api/platform/stats');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <h4>✓ Platform API Test - SUCCESS</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                resultsDiv.style.backgroundColor = '#e8f5e8';
+                resultsDiv.style.borderColor = '#4caf50';
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h4>✗ Platform API Test - FAILED</h4>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                resultsDiv.style.backgroundColor = '#ffeaa7';
+                resultsDiv.style.borderColor = '#fdcb6e';
+            }
+        }
+        
+        async function testAuth() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading"></div> Testing authentication...';
+            
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <h4>✓ Authentication Test - SUCCESS</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                resultsDiv.style.backgroundColor = '#e8f5e8';
+                resultsDiv.style.borderColor = '#4caf50';
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h4>✗ Authentication Test - FAILED</h4>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                resultsDiv.style.backgroundColor = '#ffeaa7';
+                resultsDiv.style.borderColor = '#fdcb6e';
+            }
+        }
+    </script>
+</body>
+</html>

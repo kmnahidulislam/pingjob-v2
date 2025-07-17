@@ -96,7 +96,7 @@ app.use((req, res, next) => {
 
   // Serve static HTML file directly to bypass React plugin issues
   app.get('/', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'client/public/index.html'));
+    res.sendFile(path.join(process.cwd(), 'client/public/simple.html'));
   });
 
   // importantly only setup vite in development and after
