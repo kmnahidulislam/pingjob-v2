@@ -92,19 +92,19 @@ const imageUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Security middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://api.stripe.com"]
-      }
-    }
-  }));
+  // Temporarily disable security middleware to test React plugin
+  // app.use(helmet({
+  //   contentSecurityPolicy: {
+  //     directives: {
+  //       defaultSrc: ["'self'"],
+  //       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+  //       fontSrc: ["'self'", "https://fonts.gstatic.com"],
+  //       scriptSrc: ["'self'", "https://www.googletagmanager.com", "https://pagead2.googlesyndication.com"],
+  //       imgSrc: ["'self'", "data:", "https:"],
+  //       connectSrc: ["'self'", "https://api.stripe.com"]
+  //     }
+  //   }
+  // }));
 
   // Rate limiting for different endpoints
   const generalLimiter = rateLimit({

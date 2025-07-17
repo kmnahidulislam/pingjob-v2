@@ -1,7 +1,6 @@
-import { Component, StrictMode, ReactNode, ErrorInfo } from "react";
+import React, { Component, StrictMode, ReactNode, ErrorInfo } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import SimpleApp from "./simple-app";
 import "./index.css";
 
 // Error boundary component
@@ -46,26 +45,7 @@ class ErrorBoundary extends Component<
   }
 }
 
-// Initialize analytics in production only
-if (import.meta.env.PROD) {
-  // Initialize Google Analytics
-  if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
-    import("./lib/analytics").then(({ initGA }) => {
-      initGA(import.meta.env.VITE_GA_MEASUREMENT_ID);
-    }).catch(error => {
-      console.warn('Failed to initialize Google Analytics:', error);
-    });
-  }
-  
-  // Initialize Google AdSense
-  if (import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
-    import("./lib/adsense").then(({ initializeAdSense }) => {
-      initializeAdSense(import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID);
-    }).catch(error => {
-      console.warn('Failed to initialize Google AdSense:', error);
-    });
-  }
-}
+// Skip analytics initialization in development to avoid CSP issues
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -74,23 +54,5 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 
-// Try simple app first to bypass React plugin issues
-const useSimpleApp = true;
-
-if (useSimpleApp) {
-  root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        <SimpleApp />
-      </ErrorBoundary>
-    </StrictMode>
-  );
-} else {
-  root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </StrictMode>
-  );
-}
+// Temporarily use minimal app to test React plugin
+import('./minimal-main');
