@@ -24,7 +24,7 @@ import { z } from "zod";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { getDisplayAddress } from "@/utils/addressUtils";
-import AdBanner from "@/components/ads/AdBanner";
+// AdBanner temporarily disabled to prevent development error overlay
 import {
   Building,
   Search,
@@ -829,10 +829,7 @@ export default function CompaniesPage() {
         </Link>
       </div>
 
-      {/* Top Banner Advertisement */}
-      <div className="mb-8">
-        <AdBanner slot="BANNER_TOP" />
-      </div>
+      {/* Top Banner Advertisement - Disabled in development */}
 
       {/* Search Results or Company Grid */}
       {searchQuery && searchQuery.length >= 2 ? (
@@ -899,10 +896,7 @@ export default function CompaniesPage() {
                   ))}
                 </div>
                 
-                {/* Advertisement - Content Middle */}
-                <div className="my-8">
-                  <AdBanner slot="CONTENT_MIDDLE" />
-                </div>
+                {/* Advertisement - Content Middle - Disabled in development */}
                 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-8">

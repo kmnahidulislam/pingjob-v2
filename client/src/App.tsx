@@ -89,6 +89,8 @@ function Router() {
                        location.startsWith('/jobs/') ||
                        location.startsWith('/categories/') ||
                        location.startsWith('/invite/') ||
+                       location === '/companies' ||
+                       location === '/jobs' ||
                        location === '/';
 
   if (isPublicRoute && !user) {
@@ -137,6 +139,8 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
+          <Route path="/companies" component={Companies} />
+          <Route path="/jobs" component={Jobs} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
