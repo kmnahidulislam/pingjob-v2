@@ -50,11 +50,11 @@ export default function Home() {
     console.log('Recent jobs (API jobs) loading:', jobsLoading);
     console.log('Recent jobs (API jobs) error:', jobsError);
     console.log('Recent jobs (API jobs) data:', recentJobs);
-    console.log('Recent jobs (API jobs) length:', recentJobs?.length);
+    console.log('Recent jobs (API jobs) length:', Array.isArray(recentJobs) ? recentJobs.length : 0);
     console.log('Admin jobs loading:', adminJobsLoading);
     console.log('Admin jobs error:', adminJobsError);
     console.log('Admin jobs data:', adminJobs);
-    console.log('Admin jobs length:', adminJobs?.length);
+    console.log('Admin jobs length:', Array.isArray(adminJobs) ? adminJobs.length : 0);
     console.log('=============================');
   }
 
@@ -300,11 +300,11 @@ export default function Home() {
               <CardTitle>Latest Job Opportunities</CardTitle>
             </CardHeader>
             <CardContent>
-              {adminJobs && adminJobs.length > 0 ? (
+              {Array.isArray(adminJobs) && adminJobs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {adminJobs.slice(0, 4).map((job: any, index: number) => {
+                  {Array.isArray(adminJobs) ? adminJobs.slice(0, 4).map((job: any, index: number) => {
                     return <JobCard key={job.id} job={job} compact showCompany={true} />;
-                  })}
+                  }) : []}
                 </div>
               ) : (
                 <div className="text-gray-500 text-center py-8">
