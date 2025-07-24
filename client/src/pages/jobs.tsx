@@ -20,7 +20,7 @@ import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
-import AdBanner from "@/components/ads/AdBanner";
+// AdBanner removed to prevent runtime errors
 
 // Helper function to highlight search terms
 const highlightSearchTerms = (text: string, searchTerm: string) => {
@@ -187,7 +187,7 @@ export default function Jobs() {
       {/* Top Banner Advertisement */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <AdBanner slot="BANNER_TOP" />
+          {/* AdBanner removed to prevent runtime errors */}
         </div>
       </div>
       
