@@ -59,8 +59,8 @@ function Router() {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
   
-  // Track page views when routes change - temporarily disabled for debugging
-  // useAnalytics();
+  // Track page views when routes change
+  useAnalytics();
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
@@ -200,26 +200,27 @@ function Router() {
 function App() {
   // Initialize Google Analytics and AdSense when app starts
   useEffect(() => {
-    // Temporarily disable analytics for debugging
-    // try {
-    //   if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
-    //     initGA();
-    //   }
-    // } catch (error) {
-    //   if (import.meta.env.DEV) {
-    //     console.warn('Google Analytics initialization failed:', error);
-    //   }
-    // }
+    // Initialize Google Analytics with error handling
+    try {
+      if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+        setTimeout(() => initGA(), 100); // Delay to avoid blocking
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('Google Analytics initialization failed:', error);
+      }
+    }
     
-    // try {
-    //   if (import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
-    //     initializeAdSense();
-    //   }
-    // } catch (error) {
-    //   if (import.meta.env.DEV) {
-    //     console.warn('Google AdSense initialization failed:', error);
-    //   }
-    // }
+    // Initialize Google AdSense with error handling
+    try {
+      if (import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+        setTimeout(() => initializeAdSense(), 200); // Delay to avoid blocking
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('Google AdSense initialization failed:', error);
+      }
+    }
     
     // Initialize Capacitor when app starts (only in mobile environment)
     if (typeof window !== 'undefined' && (window as any).Capacitor) {
