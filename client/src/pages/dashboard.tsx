@@ -522,7 +522,7 @@ function AdminDashboard() {
       phone: formData.get('phone'),
       services: formData.get('services'),
       description: formData.get('description'),
-      status: 'active',
+      status: 'pending',
     });
   };
 

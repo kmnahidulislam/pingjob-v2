@@ -1055,21 +1055,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Vendor management routes (temporary bypass for testing)
-  app.post('/api/vendors', async (req: any, res) => {
-    try {
-      const vendorData = {
-        ...req.body,
-        createdBy: 'admin-krupa', // temporary for testing
-      };
-
-      const vendor = await storage.addVendor(vendorData);
-      res.json(vendor);
-    } catch (error) {
-      console.error("Error adding vendor:", error);
-      res.status(500).json({ message: "Failed to add vendor" });
-    }
-  });
+  // DUPLICATE VENDOR ENDPOINT REMOVED
 
 
 
@@ -2482,21 +2468,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Main vendor creation endpoint with validation and duplicate checking
   app.post('/api/vendors', isAuthenticated, async (req: any, res) => {
     try {
       const validatedData = insertVendorSchema.parse(req.body);
-      
-      // Check for duplicate vendor before creating
-      // The vendor name should correspond to a company in the companies table
-      // Check if this vendor name already exists for this client company
-      const vendorCompanies = await storage.searchCompanies(validatedData.name, 1);
-      if (vendorCompanies.length > 0) {
-        const vendorCompanyId = vendorCompanies[0].id;
-        const vendorExists = await storage.checkVendorExists(validatedData.companyId, vendorCompanyId);
-        if (vendorExists) {
-          return res.status(400).json({ message: "This vendor already exists for this company" });
-        }
-      }
       
       const vendor = await storage.addVendor({
         ...validatedData,
@@ -2507,6 +2482,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error adding vendor:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid vendor data", errors: error.errors });
+      }
+      // Handle duplicate vendor error from storage layer
+      if (error.message && error.message.includes('Vendor already exists')) {
+        return res.status(400).json({ message: error.message });
       }
       res.status(500).json({ message: "Failed to add vendor" });
     }
@@ -2681,24 +2660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Vendor routes
-  app.post('/api/vendors', async (req: any, res) => {
-    try {
-      // Use admin user for testing
-      const userId = "admin-krupa";
-      const validatedData = insertVendorSchema.parse({
-        ...req.body,
-        status: 'pending', // All new vendors start as pending
-        createdBy: userId
-      });
-      
-      const vendor = await storage.createVendor(validatedData);
-      res.status(201).json(vendor);
-    } catch (error) {
-      console.error("Error creating vendor:", error);
-      res.status(500).json({ message: "Failed to create vendor" });
-    }
-  });
+  // Vendor routes - REMOVED DUPLICATE
 
   app.patch('/api/admin/vendors/:id/status', isAuthenticated, async (req: any, res) => {
     try {

@@ -1752,6 +1752,20 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: Adding vendor with raw SQL:`, vendor);
       
+      // Check if vendor already exists for this company (prevent duplicates)
+      const existingVendor = await pool.query(`
+        SELECT id, name, email, status FROM vendors 
+        WHERE company_id = $1 AND (
+          LOWER(name) = LOWER($2) OR 
+          LOWER(email) = LOWER($3)
+        )
+      `, [vendor.companyId, vendor.name, vendor.email]);
+      
+      if (existingVendor.rows.length > 0) {
+        const existing = existingVendor.rows[0];
+        throw new Error(`Vendor already exists for this company: ${existing.name} (${existing.email}) with status: ${existing.status}`);
+      }
+      
       // First, get the next available ID to avoid sequence conflicts
       const maxIdResult = await pool.query('SELECT COALESCE(MAX(id), 0) + 1 as next_id FROM vendors');
       const nextId = maxIdResult.rows[0].next_id;
@@ -1768,7 +1782,7 @@ export class DatabaseStorage implements IStorage {
         vendor.email,
         vendor.phone || null,
         vendor.services,
-        vendor.status || "pending" // All new vendors require admin approval
+        "pending" // Always set to pending for admin approval workflow
       ]);
       
       // Update the sequence to prevent future conflicts
