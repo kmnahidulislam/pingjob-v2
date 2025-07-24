@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingJob Store Assets Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0077B5, #004182);
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .asset-generator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .icon-generator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 512px;
+            height: 512px;
+            background: linear-gradient(135deg, #0077B5, #0A66C2);
+            border-radius: 50px;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .icon-text {
+            font-size: 180px;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .feature-graphic {
+            width: 1024px;
+            height: 500px;
+            background: linear-gradient(135deg, #0077B5, #004182);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .feature-content {
+            flex: 1;
+        }
+        .feature-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .feature-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .feature-stats {
+            display: flex;
+            gap: 40px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #F5B800;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .phone-mockup {
+            width: 200px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .download-btn {
+            background: #F5B800;
+            color: #004182;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .screenshot-frame {
+            width: 300px;
+            height: 600px;
+            background: #000;
+            border-radius: 30px;
+            padding: 20px;
+            margin: 20px;
+            display: inline-block;
+            position: relative;
+        }
+        .screenshot-content {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #0077B5, #F3F2EF);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #004182;
+        }
+        .app-preview {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PingJob Google Play Store Assets</h1>
+        
+        <div class="asset-generator">
+            <h2>App Icon (512x512)</h2>
+            <div class="icon-generator" id="appIcon">
+                <div class="icon-text">PJ</div>
+            </div>
+            <button class="download-btn" onclick="downloadIcon()">Download App Icon</button>
+        </div>
+
+        <div class="asset-generator">
+            <h2>Feature Graphic (1024x500)</h2>
+            <div class="feature-graphic" id="featureGraphic">
+                <div class="feature-content">
+                    <div class="feature-title">PingJob</div>
+                    <div class="feature-subtitle">Professional Job Search & Networking</div>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <div class="stat-number">14K+</div>
+                            <div class="stat-label">Active Jobs</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">76K+</div>
+                            <div class="stat-label">Companies</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">900+</div>
+                            <div class="stat-label">Professionals</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="phone-mockup">
+                    <div class="app-preview">PingJob<br>Mobile App</div>
+                </div>
+            </div>
+            <button class="download-btn" onclick="downloadFeatureGraphic()">Download Feature Graphic</button>
+        </div>
+
+        <div class="asset-generator">
+            <h2>Screenshots (Phone)</h2>
+            <div class="screenshot-frame">
+                <div class="screenshot-content">
+                    <h3>Job Search</h3>
+                    <p>Discover 14,000+ opportunities from top companies</p>
+                </div>
+            </div>
+            <div class="screenshot-frame">
+                <div class="screenshot-content">
+                    <h3>Company Profiles</h3>
+                    <p>Explore 76,000+ verified companies and their networks</p>
+                </div>
+            </div>
+            <div class="screenshot-frame">
+                <div class="screenshot-content">
+                    <h3>Professional Networking</h3>
+                    <p>Connect with industry professionals and grow your network</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="asset-generator">
+            <h2>Store Listing Preview</h2>
+            <div style="background: rgba(255,255,255,0.9); color: #333; padding: 30px; border-radius: 15px;">
+                <h3 style="color: #0077B5;">PingJob - Job Search & Professional Network</h3>
+                <p><strong>Category:</strong> Business</p>
+                <p><strong>Rating:</strong> Everyone</p>
+                <p><strong>Size:</strong> ~15MB</p>
+                <p><strong>Latest Version:</strong> 1.0.0</p>
+                <p><strong>Developer:</strong> PingJob Inc.</p>
+                <p><strong>Contains Ads:</strong> No</p>
+                <p><strong>In-app Purchases:</strong> $99 - $299 per item</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadIcon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+            gradient.addColorStop(0, '#0077B5');
+            gradient.addColorStop(1, '#0A66C2');
+            
+            // Draw background with rounded corners
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 512, 512, 50);
+            ctx.fill();
+            
+            // Draw text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 180px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PJ', 256, 256);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = 'pingjob-icon-512x512.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadFeatureGraphic() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 500;
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, 1024, 500);
+            gradient.addColorStop(0, '#0077B5');
+            gradient.addColorStop(1, '#004182');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1024, 500);
+            
+            // Add text content
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText('PingJob', 60, 120);
+            
+            ctx.font = '24px Arial';
+            ctx.fillText('Professional Job Search & Networking', 60, 170);
+            
+            // Add stats
+            ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = '#F5B800';
+            ctx.fillText('14K+', 60, 250);
+            ctx.fillText('76K+', 200, 250);
+            ctx.fillText('900+', 340, 250);
+            
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText('Active Jobs', 60, 280);
+            ctx.fillText('Companies', 200, 280);
+            ctx.fillText('Professionals', 340, 280);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = 'pingjob-feature-graphic-1024x500.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

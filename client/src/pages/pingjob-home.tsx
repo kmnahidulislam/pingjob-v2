@@ -66,11 +66,10 @@ export default function PingJobHome() {
       if (!response.ok) throw new Error('Failed to fetch admin jobs');
       return response.json();
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 30000 // Refresh every 30 seconds
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: true
   });
 
   // Listen for job application events to refresh applicant counts
