@@ -406,12 +406,12 @@ export default function PingJobHome() {
         </div>
       </section>
 
-      {/* AdSense Banner - Top - Temporarily disabled for testing */}
-      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* AdSense Banner - Top */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="text-center">
           <AdBanner slot="BANNER_TOP" className="mx-auto" />
         </div>
-      </div> */}
+      </div>
 
       {/* Main Content Area with Sidebar and Jobs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -482,10 +482,10 @@ export default function PingJobHome() {
                   </div>
                 ))}
                 
-                {/* AdSense Sidebar Ad - Temporarily disabled for testing */}
-                {/* <div className="mt-6">
+                {/* AdSense Sidebar Ad */}
+                <div className="mt-6">
                   <AdBanner slot="SIDEBAR_PRIMARY" />
-                </div> */}
+                </div>
               </CardContent>
             </Card>
           </div>
