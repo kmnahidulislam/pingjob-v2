@@ -34,7 +34,7 @@ import {
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { JobCategories } from "@/components/job-categories";
-import AdBanner from "@/components/ads/AdBanner";
+import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
@@ -409,7 +409,11 @@ export default function PingJobHome() {
       {/* AdSense Banner - Top */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="text-center">
-          <AdBanner slot="BANNER_TOP" className="mx-auto" />
+          <GoogleAdsense 
+            adSlot="banner-top"
+            style={{ display: 'block', width: '100%', height: '90px' }}
+            className="mx-auto"
+          />
         </div>
       </div>
 
@@ -484,7 +488,10 @@ export default function PingJobHome() {
                 
                 {/* AdSense Sidebar Ad */}
                 <div className="mt-6">
-                  <AdBanner slot="SIDEBAR_PRIMARY" />
+                  <GoogleAdsense 
+                    adSlot="sidebar-primary"
+                    style={{ display: 'block', width: '100%', height: '250px' }}
+                  />
                 </div>
               </CardContent>
             </Card>

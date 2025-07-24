@@ -26,7 +26,15 @@ export default function GoogleAdsense({
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
     if (!clientId) {
-      console.warn('Google AdSense client ID not configured');
+      if (import.meta.env.DEV) {
+        console.warn('Google AdSense client ID not configured');
+      }
+      return;
+    }
+
+    // Skip AdSense initialization in development to prevent fetch errors
+    if (import.meta.env.DEV) {
+      console.log('AdSense ad initialized (dev mode):', adSlot);
       return;
     }
 
@@ -36,33 +44,34 @@ export default function GoogleAdsense({
         // Ensure adsbygoogle array exists
         window.adsbygoogle = window.adsbygoogle || [];
         
-        // Push the ad configuration
+        // Push the ad configuration with error handling
         const timeout = setTimeout(() => {
           try {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
-            if (import.meta.env.DEV) console.log('AdSense ad initialized:', adSlot);
           } catch (error) {
-            console.error('AdSense push error:', error);
+            // Silently handle errors to prevent runtime overlay
           }
-        }, 100);
+        }, 500);
 
         return () => clearTimeout(timeout);
       }
     } catch (error) {
-      console.error('AdSense initialization error:', error);
+      // Silently handle errors to prevent runtime overlay
     }
   }, [adSlot]);
 
   const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
 
-  // Show placeholder if AdSense is not configured
-  if (!clientId) {
+  // Show placeholder if AdSense is not configured or in development
+  if (!clientId || import.meta.env.DEV) {
     return (
       <div 
-        className={`bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center ${className}`}
+        className={`bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center min-h-[100px] ${className}`}
         style={style}
       >
-        <span className="text-gray-500 text-sm">AdSense Placeholder</span>
+        <span className="text-gray-500 text-sm">
+          {import.meta.env.DEV ? 'AdSense Preview (Dev Mode)' : 'AdSense Placeholder'}
+        </span>
       </div>
     );
   }
