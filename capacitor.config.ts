@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/core';
 
 const config: CapacitorConfig = {
-  appId: 'com.pingjob.app',
+  appId: 'com.pingjob',
   appName: 'PingJob',
   webDir: 'dist/public',
   server: {
