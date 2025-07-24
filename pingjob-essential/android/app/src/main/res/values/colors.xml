@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LinkedIn-inspired color scheme -->
+    <color name="colorPrimary">#0077B5</color>
+    <color name="colorPrimaryDark">#004182</color> 
+    <color name="colorAccent">#0A66C2</color>
+    
+    <!-- Status bar and splash screen -->
+    <color name="ic_launcher_background">#0077B5</color>
+    <color name="splash_screen_background">#0077B5</color>
+    
+    <!-- Additional colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#F3F2EF</color>
+</resources>

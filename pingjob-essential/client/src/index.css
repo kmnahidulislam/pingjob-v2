@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 5% 64.9%;
+  --radius: 0.5rem;
+  
+  /* LinkedIn-inspired colors */
+  --linkedin-blue: 207 90% 54%; /* #0077B5 */
+  --linkedin-dark: 210 100% 25%; /* #004182 */
+  --linkedin-light: 213 89% 42%; /* #0A66C2 */
+  --success-green: 152 69% 19%; /* #057642 */
+  --warning-orange: 48 100% 48%; /* #F5B800 */
+  --error-red: 0 77% 45%; /* #CC1016 */
+  --bg-light: 48 30% 96%; /* #F3F2EF */
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  
+  /* LinkedIn-inspired colors for dark mode */
+  --linkedin-blue: 207 90% 54%;
+  --linkedin-dark: 210 100% 35%;
+  --linkedin-light: 213 89% 52%;
+  --success-green: 152 69% 29%;
+  --warning-orange: 48 100% 58%;
+  --error-red: 0 77% 55%;
+  --bg-light: 240 3.7% 15.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-linkedin-blue {
+    color: hsl(var(--linkedin-blue));
+  }
+  
+  .bg-linkedin-blue {
+    background-color: hsl(var(--linkedin-blue));
+  }
+  
+  .border-linkedin-blue {
+    border-color: hsl(var(--linkedin-blue));
+  }
+  
+  .hover\:bg-linkedin-dark:hover {
+    background-color: hsl(var(--linkedin-dark));
+  }
+  
+  .hover\:text-linkedin-blue:hover {
+    color: hsl(var(--linkedin-blue));
+  }
+  
+  .bg-bg-light {
+    background-color: hsl(var(--bg-light));
+  }
+  
+  .text-success-green {
+    color: hsl(var(--success-green));
+  }
+  
+  .bg-success-green {
+    background-color: hsl(var(--success-green));
+  }
+  
+  .text-warning-orange {
+    color: hsl(var(--warning-orange));
+  }
+  
+  .bg-warning-orange {
+    background-color: hsl(var(--warning-orange));
+  }
+  
+  .text-error-red {
+    color: hsl(var(--error-red));
+  }
+  
+  .bg-error-red {
+    background-color: hsl(var(--error-red));
+  }
+}
+
+/* Custom animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.2s ease-out;
+}
+
+/* Job card hover effects */
+.job-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Profile completion progress */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Message bubble styles */
+.message-bubble {
+  position: relative;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.message-bubble::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+}
+
+.message-sent::before {
+  right: -8px;
+  border-left: 8px solid hsl(var(--linkedin-blue));
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+.message-received::before {
+  left: -8px;
+  border-right: 8px solid hsl(var(--muted));
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+/* Skills tag animations */
+.skill-tag {
+  transition: all 0.2s ease-in-out;
+}
+
+.skill-tag:hover {
+  transform: scale(1.05);
+}
+
+/* Dashboard card animations */
+.dashboard-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-1px);
+}
+
+/* Loading spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--linkedin-blue));
+}
+
+/* Mobile-specific styles for Capacitor apps */
+/* Prevent bounce scrolling on iOS */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area adjustments for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch-friendly button sizes */
+@media (max-width: 768px) {
+  .btn-mobile {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger tap targets for mobile */
+  button, .btn, input[type="submit"] {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* Full width inputs on mobile */
+  input, select, textarea {
+    width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
