@@ -1752,14 +1752,11 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DEBUG: Adding vendor with raw SQL:`, vendor);
       
-      // Check if vendor already exists for this company (prevent duplicates)
+      // Check if vendor already exists for this company (prevent duplicates by name only)
       const existingVendor = await pool.query(`
         SELECT id, name, email, status FROM vendors 
-        WHERE company_id = $1 AND (
-          LOWER(name) = LOWER($2) OR 
-          LOWER(email) = LOWER($3)
-        )
-      `, [vendor.companyId, vendor.name, vendor.email]);
+        WHERE company_id = $1 AND LOWER(name) = LOWER($2)
+      `, [vendor.companyId, vendor.name]);
       
       if (existingVendor.rows.length > 0) {
         const existing = existingVendor.rows[0];

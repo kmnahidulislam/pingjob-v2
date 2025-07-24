@@ -522,7 +522,7 @@ function AdminDashboard() {
       phone: formData.get('phone'),
       services: formData.get('services'),
       description: formData.get('description'),
-      status: 'pending',
+      // Status will be set to 'pending' automatically in backend
     });
   };
 
