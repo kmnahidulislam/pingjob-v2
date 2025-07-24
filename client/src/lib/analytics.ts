@@ -23,15 +23,21 @@ export const initGA = () => {
   script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
   document.head.appendChild(script1);
 
-  // Initialize gtag
-  const script2 = document.createElement('script');
-  script2.innerHTML = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${measurementId}');
-  `;
-  document.head.appendChild(script2);
+  // Initialize gtag safely
+  try {
+    if (typeof window !== 'undefined') {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function(){
+        window.dataLayer.push(arguments);
+      };
+      window.gtag('js', new Date());
+      window.gtag('config', measurementId);
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('Google Analytics initialization failed:', error);
+    }
+  }
 };
 
 // Track page views - useful for single-page applications

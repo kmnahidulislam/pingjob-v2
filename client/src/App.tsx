@@ -37,7 +37,9 @@ import ResetPassword from "@/pages/reset-password";
 import RecruiterDashboard from "@/pages/recruiter-dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import Navigation from "@/components/navigation";
-// Analytics imports removed to prevent unhandled promise rejections in development
+import { initGA } from "./lib/analytics";
+import { useAnalytics } from "./hooks/use-analytics";
+import { initializeAdSense } from "./lib/adsense";
 
 
 
@@ -57,7 +59,8 @@ function Router() {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
   
-  // Analytics tracking disabled in development
+  // Track page views when routes change - temporarily disabled for debugging
+  // useAnalytics();
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
@@ -195,8 +198,30 @@ function Router() {
 }
 
 function App() {
-  // Initialize Capacitor when app starts (only in mobile environment)
+  // Initialize Google Analytics and AdSense when app starts
   useEffect(() => {
+    // Temporarily disable analytics for debugging
+    // try {
+    //   if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+    //     initGA();
+    //   }
+    // } catch (error) {
+    //   if (import.meta.env.DEV) {
+    //     console.warn('Google Analytics initialization failed:', error);
+    //   }
+    // }
+    
+    // try {
+    //   if (import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID) {
+    //     initializeAdSense();
+    //   }
+    // } catch (error) {
+    //   if (import.meta.env.DEV) {
+    //     console.warn('Google AdSense initialization failed:', error);
+    //   }
+    // }
+    
+    // Initialize Capacitor when app starts (only in mobile environment)
     if (typeof window !== 'undefined' && (window as any).Capacitor) {
       import('./capacitor').then(({ CapacitorService }) => {
         CapacitorService.initialize().catch(console.error);
