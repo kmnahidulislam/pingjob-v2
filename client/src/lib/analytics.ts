@@ -32,6 +32,10 @@ export const initGA = () => {
       };
       window.gtag('js', new Date());
       window.gtag('config', measurementId);
+      
+      if (import.meta.env.DEV) {
+        console.log('Google Analytics initialized with ID:', measurementId);
+      }
     }
   } catch (error) {
     if (import.meta.env.DEV) {
