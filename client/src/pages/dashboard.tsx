@@ -384,15 +384,13 @@ function AdminDashboard() {
   // Sync application counts mutation
   const syncMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/admin/sync-counts', {
-        method: 'POST',
-      });
+      const response = await apiRequest('POST', '/api/admin/sync-counts');
       return response;
     },
     onSuccess: (data) => {
       toast({
         title: "Success",
-        description: `Application counts synchronized. Updated ${data.rowsUpdated} jobs.`,
+        description: `Application counts synchronized. Updated ${(data as any)?.rowsUpdated || 0} jobs.`,
       });
       // Refresh queries after sync
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
@@ -640,7 +638,7 @@ function AdminDashboard() {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCompanies || 0}</div>
+            <div className="text-2xl font-bold">{(stats as any)?.totalCompanies || 0}</div>
             <p className="text-xs text-muted-foreground">Registered companies</p>
           </CardContent>
         </Card>
