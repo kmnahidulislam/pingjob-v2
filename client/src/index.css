@@ -237,3 +237,41 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--linkedin-blue));
 }
+
+/* Mobile-specific styles for Capacitor apps */
+/* Prevent bounce scrolling on iOS */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area adjustments for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Touch-friendly button sizes */
+@media (max-width: 768px) {
+  .btn-mobile {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Larger tap targets for mobile */
+  button, .btn, input[type="submit"] {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* Full width inputs on mobile */
+  input, select, textarea {
+    width: 100%;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}

@@ -195,7 +195,16 @@ function Router() {
 }
 
 function App() {
-  // Analytics disabled in development to prevent unhandled promise rejections
+  // Initialize Capacitor when app starts (only in mobile environment)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).Capacitor) {
+      import('./capacitor').then(({ CapacitorService }) => {
+        CapacitorService.initialize().catch(console.error);
+      }).catch(() => {
+        // Capacitor not available in web environment, continue normally
+      });
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
