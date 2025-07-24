@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Google Play Store App Package Name</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step-number {
+            background: #1e40af;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #f59e0b;
+            margin: 10px 0;
+        }
+        .example {
+            background: #dcfce7;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #16a34a;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .important {
+            background: #fee2e2;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #dc2626;
+            margin: 20px 0;
+        }
+        a {
+            color: #1e40af;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .screenshot-placeholder {
+            background: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6b7280;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Find Your Google Play Store App Package Name</h1>
+        
+        <div class="important">
+            <strong>📋 What You Need to Find:</strong>
+            <ul>
+                <li><strong>Package Name</strong> (e.g., com.yourcompany.pingjob)</li>
+                <li><strong>Current Version Code</strong> (e.g., 1, 5, 12)</li>
+                <li><strong>Current App Name</strong> (what users see in store)</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Go to Google Play Console
+            </div>
+            <p>Open your browser and go to: <a href="https://play.google.com/console" target="_blank">https://play.google.com/console</a></p>
+            <p>Login with your Google account that has access to your existing "pingjob" app.</p>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Select Your Existing App
+            </div>
+            <p>On the main dashboard, you'll see a list of your apps. Click on your existing "pingjob" app.</p>
+            <div class="screenshot-placeholder">
+                [Your apps will be listed here - click on "pingjob" or whatever your app is called]
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Find Package Name on App Dashboard
+            </div>
+            <p>Once you're in your app, look at the main dashboard page. You'll see app information including:</p>
+            <div class="highlight">
+                <strong>Package name:</strong> This is what I need! It looks like com.something.something
+            </div>
+            <div class="example">
+                Examples of package names:
+                • com.pingjob.app
+                • com.yourcompany.pingjob
+                • com.yourname.jobsearch
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">4</span>
+                Find Current Version Code
+            </div>
+            <p>In the left sidebar, click on <strong>"Release"</strong> → <strong>"Production"</strong></p>
+            <p>Look at your most recent release. You'll see:</p>
+            <div class="highlight">
+                <strong>Version code:</strong> This is a number (like 1, 5, 12, etc.)
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">5</span>
+                Find Current App Name
+            </div>
+            <p>In the left sidebar, click on <strong>"Store listing"</strong></p>
+            <p>Look at the top field:</p>
+            <div class="highlight">
+                <strong>App name:</strong> This is what users see in the Play Store
+            </div>
+        </div>
+
+        <div class="important">
+            <h3>📝 Tell Me These 3 Things:</h3>
+            <p>Once you find this information, please tell me:</p>
+            <div class="example">
+                Package name: com.yourcompany.pingjob
+                Current version code: 5
+                Current app name: PingJob Career Search
+            </div>
+            <p><strong>Then I can automatically configure everything to replace your existing app with the new PingJob platform!</strong></p>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">❓</span>
+                Can't Find It?
+            </div>
+            <p>If you're having trouble:</p>
+            <ul>
+                <li>Take a screenshot of your app dashboard</li>
+                <li>Take a screenshot of your Production releases page</li>
+                <li>I can help identify the information from the screenshots</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
