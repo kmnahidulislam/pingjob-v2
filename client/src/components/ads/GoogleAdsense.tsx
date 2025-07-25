@@ -1,12 +1,8 @@
 import { useEffect } from 'react';
 
 interface GoogleAdsenseProps {
-  adSlot: string;
-  adFormat?: 'auto' | 'fluid' | 'rectangle' | 'vertical' | 'horizontal';
-  adLayout?: string;
-  adLayoutKey?: string;
-  style?: React.CSSProperties;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 declare global {
@@ -16,25 +12,13 @@ declare global {
 }
 
 export default function GoogleAdsense({
-  adSlot,
-  adFormat = 'auto',
-  adLayout,
-  adLayoutKey,
   style = { display: 'block' },
   className = ''
 }: GoogleAdsenseProps) {
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
-    if (!clientId) {
-      if (import.meta.env.DEV) {
-        console.warn('Google AdSense client ID not configured');
-      }
-      return;
-    }
-
     // Skip AdSense initialization in development to prevent fetch errors
     if (import.meta.env.DEV) {
-      console.log('AdSense ad initialized (dev mode):', adSlot);
+      console.log('AdSense ad initialized (dev mode)');
       return;
     }
 
@@ -58,20 +42,16 @@ export default function GoogleAdsense({
     } catch (error) {
       // Silently handle errors to prevent runtime overlay
     }
-  }, [adSlot]);
+  }, []);
 
-  const clientId = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID;
-
-  // Show placeholder if AdSense is not configured or in development
-  if (!clientId || import.meta.env.DEV) {
+  // Show placeholder if in development
+  if (import.meta.env.DEV) {
     return (
       <div 
         className={`bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center min-h-[100px] ${className}`}
         style={style}
       >
-        <span className="text-gray-500 text-sm">
-          {import.meta.env.DEV ? 'AdSense Preview (Dev Mode)' : 'AdSense Placeholder'}
-        </span>
+        <span className="text-gray-500 text-sm">AdSense Preview (Dev Mode)</span>
       </div>
     );
   }
@@ -80,12 +60,10 @@ export default function GoogleAdsense({
     <ins
       className={`adsbygoogle ${className}`}
       style={style}
-      data-ad-client={clientId}
-      data-ad-slot={adSlot}
-      data-ad-format={adFormat}
-      data-ad-layout={adLayout}
-      data-ad-layout-key={adLayoutKey}
-      data-full-width-responsive="true"
+      data-ad-format="fluid"
+      data-ad-layout-key="-gw-3+1f-3d+2z"
+      data-ad-client="ca-pub-9555763610767023"
+      data-ad-slot="5864590173"
     />
   );
 }
