@@ -34,7 +34,7 @@ import {
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { JobCategories } from "@/components/job-categories";
-import GoogleAdsense from "@/components/ads/GoogleAdsense";
+// import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
@@ -47,8 +47,15 @@ export default function PingJobHome() {
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<{jobs: any[], companies: any[]}>({jobs: [], companies: []});
+  const [searchLoading, setSearchLoading] = useState(false);
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
+
+  // Early return for testing
+  if (import.meta.env.DEV) {
+    console.log('PingJobHome component rendering...', { user, searchQuery, showSearchResults });
+  }
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -212,10 +219,29 @@ export default function PingJobHome() {
     };
   }, [queryClient]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setSearchLoading(true);
       setShowSearchResults(true);
+      
+      try {
+        // Search both jobs and companies
+        const [jobsResponse, companiesResponse] = await Promise.all([
+          fetch(`/api/search?query=${encodeURIComponent(searchQuery)}&limit=20`),
+          fetch(`/api/companies/search?query=${encodeURIComponent(searchQuery)}&limit=20`)
+        ]);
+        
+        const jobs = jobsResponse.ok ? await jobsResponse.json() : [];
+        const companies = companiesResponse.ok ? await companiesResponse.json() : [];
+        
+        setSearchResults({ jobs, companies });
+      } catch (error) {
+        console.error('Search failed:', error);
+        setSearchResults({ jobs: [], companies: [] });
+      } finally {
+        setSearchLoading(false);
+      }
     }
   };
 
@@ -405,6 +431,182 @@ export default function PingJobHome() {
           </div>
         </div>
       </section>
+
+      {/* Search Results Section */}
+      {showSearchResults && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Search Results for "{searchQuery}"
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {searchLoading ? "Searching..." : `Found ${searchResults.jobs.length} jobs and ${searchResults.companies.length} companies`}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSearchResults(false);
+                  setSearchQuery("");
+                  setSearchResults({jobs: [], companies: []});
+                }}
+              >
+                Clear Search
+              </Button>
+            </div>
+
+            {searchLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Jobs Results */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
+                    Jobs ({searchResults.jobs.length})
+                  </h3>
+                  {searchResults.jobs.length > 0 ? (
+                    <div className="space-y-4">
+                      {searchResults.jobs.slice(0, 10).map((job: any) => (
+                        <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                                <div className="flex items-center">
+                                  <MapPin className="h-3 w-3 mr-1" />
+                                  <span>{job.city || job.location || 'Remote'}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Users className="h-3 w-3 mr-1" />
+                                  <span>{job.applicantCount || 0} applicants</span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-gray-700 line-clamp-2">{job.description}</p>
+                            </div>
+                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
+                              <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
+                                <img 
+                                  src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                  alt={job.company.name}
+                                  className="w-full h-full object-contain p-1"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2 mt-3">
+                            <Link href={`/jobs/${job.id}`} className="flex-1">
+                              <Button variant="outline" size="sm" className="w-full">
+                                View Details
+                              </Button>
+                            </Link>
+                            <Link href="/auth" className="flex-1">
+                              <Button size="sm" className="w-full">
+                                Apply Now
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                      {searchResults.jobs.length > 10 && (
+                        <div className="text-center pt-4">
+                          <Link href={`/jobs?search=${encodeURIComponent(searchQuery)}`}>
+                            <Button variant="outline">
+                              View All {searchResults.jobs.length} Jobs
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Briefcase className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p>No jobs found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Companies Results */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
+                    Companies ({searchResults.companies.length})
+                  </h3>
+                  {searchResults.companies.length > 0 ? (
+                    <div className="space-y-4">
+                      {searchResults.companies.slice(0, 10).map((company: any) => (
+                        <div key={company.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 mb-1">{company.name}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{company.industry}</p>
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                                <div className="flex items-center">
+                                  <MapPin className="h-3 w-3 mr-1" />
+                                  <span>{company.city}, {company.state}</span>
+                                </div>
+                                {company.vendor_count > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {company.vendor_count} vendors
+                                  </Badge>
+                                )}
+                              </div>
+                              {company.description && (
+                                <p className="text-sm text-gray-700 line-clamp-2">{company.description}</p>
+                              )}
+                            </div>
+                            {company.logoUrl && company.logoUrl !== "NULL" && (
+                              <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
+                                <img 
+                                  src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                                  alt={company.name}
+                                  className="w-full h-full object-contain p-1"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-3">
+                            <Link href={`/companies?search=${encodeURIComponent(company.name)}`}>
+                              <Button variant="outline" size="sm" className="w-full">
+                                View Company Details
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                      {searchResults.companies.length > 10 && (
+                        <div className="text-center pt-4">
+                          <Link href={`/companies?search=${encodeURIComponent(searchQuery)}`}>
+                            <Button variant="outline">
+                              View All {searchResults.companies.length} Companies
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Building2 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p>No companies found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* AdSense Banner - Top - Temporarily commented for testing */}
       {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
