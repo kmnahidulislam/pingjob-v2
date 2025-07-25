@@ -48,6 +48,9 @@ import {
   type InsertExternalInvitation,
   type JobCandidateAssignment,
   type InsertJobCandidateAssignment,
+  visits,
+  type Visit,
+  type InsertVisit,
 } from "@shared/schema";
 import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
 import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
@@ -178,6 +181,12 @@ export interface IStorage {
   getExternalInvitationsByInviter(inviterUserId: string): Promise<ExternalInvitation[]>;
   updateExternalInvitationStatus(id: number, status: string, acceptedAt?: Date): Promise<ExternalInvitation>;
   resetPassword(token: string, hashedPassword: string): Promise<boolean>;
+
+  // Visit tracking operations
+  recordVisit(visit: InsertVisit): Promise<Visit>;
+  getTotalVisits(): Promise<number>;
+  getVisitsByPage(page: string): Promise<Visit[]>;
+  getDailyVisits(days: number): Promise<{ date: string; count: number }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2874,6 +2883,48 @@ export class DatabaseStorage implements IStorage {
       companyScore: 0,
       isProcessed: false
     };
+  }
+
+  // Visit tracking methods
+  async recordVisit(visit: InsertVisit): Promise<Visit> {
+    const [newVisit] = await db
+      .insert(visits)
+      .values(visit)
+      .returning();
+    
+    return newVisit;
+  }
+
+  async getTotalVisits(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(visits);
+    
+    return result[0]?.count || 0;
+  }
+
+  async getVisitsByPage(page: string): Promise<Visit[]> {
+    const result = await db
+      .select()
+      .from(visits)
+      .where(eq(visits.page, page))
+      .orderBy(desc(visits.visitedAt));
+    
+    return result;
+  }
+
+  async getDailyVisits(days: number = 30): Promise<{ date: string; count: number }[]> {
+    const result = await db
+      .select({
+        date: sql<string>`DATE(visited_at)`,
+        count: sql<number>`count(*)`
+      })
+      .from(visits)
+      .where(sql`visited_at >= NOW() - INTERVAL '${days} days'`)
+      .groupBy(sql`DATE(visited_at)`)
+      .orderBy(sql`DATE(visited_at) DESC`);
+    
+    return result;
   }
 }
 

@@ -33,6 +33,7 @@ import {
   insertVendorSchema,
   insertExternalInvitationSchema,
 } from "@shared/schema";
+import { visitTracker } from "./visit-tracker";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -3502,6 +3503,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Webhook error:", error);
       res.status(400).json({ message: "Webhook error" });
+    }
+  });
+
+  // Visit tracking endpoints
+  app.post('/api/track-visit', async (req, res) => {
+    try {
+      const { page } = req.body;
+      if (!page) {
+        return res.status(400).json({ error: 'Page parameter is required' });
+      }
+
+      const visitData = {
+        page,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        userId: (req as any).user?.id,
+        sessionId: (req as any).sessionID
+      };
+
+      visitTracker.recordVisit(visitData);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error tracking visit:', error);
+      res.status(500).json({ error: 'Failed to track visit' });
+    }
+  });
+
+  // Get visit statistics
+  app.get('/api/visit-stats', async (req, res) => {
+    try {
+      const stats = visitTracker.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error getting visit stats:', error);
+      res.status(500).json({ error: 'Failed to get visit stats' });
+    }
+  });
+
+  // Get total visits (simple endpoint)
+  app.get('/api/total-visits', async (req, res) => {
+    try {
+      const totalVisits = visitTracker.getTotalVisits();
+      res.json({ totalVisits });
+    } catch (error) {
+      console.error('Error getting total visits:', error);
+      res.status(500).json({ error: 'Failed to get total visits' });
     }
   });
 

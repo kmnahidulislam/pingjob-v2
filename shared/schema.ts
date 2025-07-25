@@ -25,6 +25,20 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Visit tracking table
+export const visits = pgTable("visits", {
+  id: serial("id").primaryKey(),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  referrer: text("referrer"),
+  page: varchar("page").notNull(),
+  userId: varchar("user_id").references(() => users.id), // Optional - tracks visits by authenticated users
+  sessionId: varchar("session_id"), // Track unique sessions
+  country: varchar("country"),
+  city: varchar("city"),
+  visitedAt: timestamp("visited_at").defaultNow(),
+});
+
 // User storage table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
@@ -604,3 +618,11 @@ export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type JobCandidateAssignment = typeof jobCandidateAssignments.$inferSelect;
 export type InsertJobCandidateAssignment = z.infer<typeof insertJobCandidateAssignmentSchema>;
+
+// Visit tracking
+export const insertVisitSchema = createInsertSchema(visits).omit({
+  id: true,
+  visitedAt: true,
+});
+export type Visit = typeof visits.$inferSelect;
+export type InsertVisit = z.infer<typeof insertVisitSchema>;

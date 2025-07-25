@@ -32,6 +32,7 @@ import ContactSales from "@/pages/contact-sales";
 import Pricing from "@/pages/pricing";
 import Auth from "@/pages/auth";
 import Checkout from "@/pages/checkout";
+import VisitStats from "@/pages/visit-stats";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 import RecruiterDashboard from "@/pages/recruiter-dashboard";
@@ -39,6 +40,7 @@ import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
+// import { useVisitTracker } from "@/hooks/use-visit-tracker";
 import { initializeAdSense } from "./lib/adsense";
 
 
@@ -61,6 +63,8 @@ function Router() {
   
   // Track page views when routes change
   useAnalytics();
+  // Track visits for analytics (temporarily disabled)
+  // useVisitTracker();
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
@@ -178,6 +182,7 @@ function Router() {
           <Route path="/enterprise-dashboard" component={EnterpriseDashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/checkout" component={Checkout} />
+          <Route path="/visit-stats" component={VisitStats} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
