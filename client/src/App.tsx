@@ -11,6 +11,7 @@ import AuthPage from "@/pages/auth-page";
 import Home from "@/pages/home";
 import PingJobHome from "@/pages/pingjob-home";
 import TestSimpleHome from "@/pages/test-simple-home";
+import PingJobHomeSimple from "@/pages/pingjob-home-simple";
 import HomeV2 from "@/pages/home-v2";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
@@ -149,7 +150,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={Jobs} />
-          <Route path="/" component={TestSimpleHome} />
+          <Route path="/" component={PingJobHomeSimple} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>
