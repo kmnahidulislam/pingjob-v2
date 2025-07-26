@@ -150,7 +150,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={Jobs} />
-          <Route path="/" component={PingJobHomeSimple} />
+          <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>
