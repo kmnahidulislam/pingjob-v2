@@ -26,7 +26,8 @@ import {
   LogOut,
   User,
   BarChart3,
-  FileText
+  FileText,
+  TrendingUp
 } from "lucide-react";
 
 export default function Navigation() {
@@ -35,6 +36,7 @@ export default function Navigation() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'recruiter' || user?.userType === 'client';
+  const isRealAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
 
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
@@ -46,6 +48,7 @@ export default function Navigation() {
     ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
     ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
     ...(isAdmin ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
+    ...(isRealAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
   ];
 
   const isActive = (href: string) => {

@@ -306,9 +306,7 @@ export default function PingJobHome() {
                 <Link href="/pricing" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                   Pricing
                 </Link>
-                <Link href="/traffic" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  Traffic
-                </Link>
+
                 {user && (
                   <>
                     <Link href="/network" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">

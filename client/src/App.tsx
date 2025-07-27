@@ -150,8 +150,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={Jobs} />
-          <Route path="/visit-stats" component={VisitStats} />
-          <Route path="/traffic" component={VisitStats} />
+
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
@@ -187,6 +186,7 @@ function Router() {
           <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/visit-stats" component={VisitStats} />
+          <Route path="/traffic" component={VisitStats} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
