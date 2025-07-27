@@ -42,7 +42,7 @@ import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
-// import { useVisitTracker } from "@/hooks/use-visit-tracker";
+import { useVisitTracker } from "@/hooks/use-visit-tracker";
 import { initializeAdSense } from "./lib/adsense";
 
 
@@ -65,7 +65,7 @@ function Router() {
   
   // Track page views when routes change
   useAnalytics();
-  // Track visits for analytics (temporarily disabled)
+  // Track visits for analytics (temporarily disabled due to import issue)
   // useVisitTracker();
 
   // Handle navigation using useEffect to prevent setState during render
@@ -150,6 +150,8 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={Jobs} />
+          <Route path="/visit-stats" component={VisitStats} />
+          <Route path="/traffic" component={VisitStats} />
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
