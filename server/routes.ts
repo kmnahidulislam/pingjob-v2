@@ -3522,7 +3522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId: (req as any).sessionID
       };
 
-      visitTracker.recordVisit(visitData);
+      await visitTracker.trackVisit(visitData);
       res.json({ success: true });
     } catch (error) {
       console.error('Error tracking visit:', error);
@@ -3533,7 +3533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get visit statistics
   app.get('/api/visit-stats', async (req, res) => {
     try {
-      const stats = visitTracker.getStats();
+      const stats = await visitTracker.getStats();
       res.json(stats);
     } catch (error) {
       console.error('Error getting visit stats:', error);
@@ -3544,7 +3544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get total visits (simple endpoint)
   app.get('/api/total-visits', async (req, res) => {
     try {
-      const totalVisits = visitTracker.getTotalVisits();
+      const totalVisits = await visitTracker.getTotalVisits();
       res.json({ totalVisits });
     } catch (error) {
       console.error('Error getting total visits:', error);
