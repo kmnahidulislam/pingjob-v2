@@ -13,6 +13,49 @@ interface VisitData {
 class VisitTracker {
   private visits: VisitData[] = [];
   private dailyCounts: Map<string, number> = new Map();
+  
+  constructor() {
+    // Add some sample data for testing
+    this.initializeSampleData();
+  }
+  
+  private initializeSampleData() {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(today.getDate() - 2);
+    
+    // Add sample visits for the last 3 days
+    const sampleVisits = [
+      // Today's visits
+      { page: '/', timestamp: today.getTime() - 3600000 }, // 1 hour ago
+      { page: '/jobs', timestamp: today.getTime() - 7200000 }, // 2 hours ago
+      { page: '/companies', timestamp: today.getTime() - 1800000 }, // 30 min ago
+      { page: '/dashboard', timestamp: today.getTime() - 900000 }, // 15 min ago
+      { page: '/traffic', timestamp: today.getTime() - 300000 }, // 5 min ago
+      
+      // Yesterday's visits
+      { page: '/', timestamp: yesterday.getTime() - 3600000 },
+      { page: '/jobs', timestamp: yesterday.getTime() - 7200000 },
+      { page: '/companies', timestamp: yesterday.getTime() - 1800000 },
+      
+      // Two days ago
+      { page: '/', timestamp: twoDaysAgo.getTime() - 3600000 },
+      { page: '/jobs', timestamp: twoDaysAgo.getTime() - 7200000 }
+    ];
+    
+    this.visits = sampleVisits;
+    
+    // Update daily counts
+    const todayKey = today.toISOString().split('T')[0];
+    const yesterdayKey = yesterday.toISOString().split('T')[0];
+    const twoDaysKey = twoDaysAgo.toISOString().split('T')[0];
+    
+    this.dailyCounts.set(todayKey, 5);
+    this.dailyCounts.set(yesterdayKey, 3);
+    this.dailyCounts.set(twoDaysKey, 2);
+  }
 
   recordVisit(data: {
     ip?: string;
