@@ -52,7 +52,7 @@ export default function PingJobHome() {
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
 
-  // Early return for testing
+  // Debug logging
   if (import.meta.env.DEV) {
     console.log('PingJobHome component rendering...', { user, searchQuery, showSearchResults });
   }
@@ -257,7 +257,35 @@ export default function PingJobHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      {/* Debug element with inline styles to bypass any CSS issues */}
+      <div style={{ 
+        position: 'fixed', 
+        top: '10px', 
+        left: '10px', 
+        zIndex: 999999, 
+        background: 'red', 
+        color: 'white', 
+        padding: '10px',
+        fontSize: '20px',
+        fontWeight: 'bold',
+        border: '3px solid yellow'
+      }}>
+        DEBUG: PingJob Home Loaded - APIs Working
+      </div>
+      
+      {/* Simple visible content to test rendering */}
+      <div style={{ 
+        background: 'blue', 
+        color: 'white', 
+        padding: '20px', 
+        margin: '50px',
+        fontSize: '24px',
+        textAlign: 'center'
+      }}>
+        PingJob Platform - {jobsData?.length || 0} Jobs Available
+      </div>
+      
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
