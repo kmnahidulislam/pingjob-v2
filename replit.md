@@ -939,6 +939,13 @@ Changelog:
   - Added comprehensive error handling and fallback responses for missing API credentials
   - Social media posting now triggers automatically when jobs are created with proper debugging information
   - System provides detailed credential status logging showing which platforms are available vs missing
+- July 30, 2025. ENHANCED: Home page job listings with prominent company branding and zip code search functionality
+  - Redesigned job card layout to prominently display company logos (20x16px) and names (text-xl, font-bold)
+  - Enhanced logo display with gradient fallback showing company initials for missing logos
+  - Repositioned company information at top of job cards with professional styling and shadow effects
+  - Confirmed zip code search functionality working correctly (e.g., "29801" returns 1 job, "novi" returns 18 jobs)
+  - Improved vendor count badges with solid blue styling for better visual consistency
+  - Enhanced overall job card hierarchy with company branding as primary visual element
   - Integration ready to work immediately once user provides required API keys for Facebook, Instagram, and Twitter/X
   - Enhanced job creation response to include socialMediaResults array showing success/failure per platform
 ```
