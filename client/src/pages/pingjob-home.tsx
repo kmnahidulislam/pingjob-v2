@@ -240,8 +240,16 @@ export default function PingJobHome() {
           fetch(`/api/companies/search?query=${encodeURIComponent(searchQuery)}&limit=20`)
         ]);
         
-        const jobs = jobsResponse.ok ? await jobsResponse.json() : [];
-        const companies = companiesResponse.ok ? await companiesResponse.json() : [];
+        const jobsData = jobsResponse.ok ? await jobsResponse.json() : [];
+        const companiesData = companiesResponse.ok ? await companiesResponse.json() : [];
+        
+        // Handle different response structures
+        const jobs = jobsData?.jobs || jobsData || [];
+        const companies = companiesData || [];
+        
+        if (import.meta.env.DEV) {
+          console.log('Search results:', { jobs: jobs.length, companies: companies.length, jobsData, companiesData });
+        }
         
         setSearchResults({ jobs, companies });
       } catch (error) {
@@ -266,11 +274,6 @@ export default function PingJobHome() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Debug Info */}
-      <div className="p-4 bg-red-100 text-black">
-        Debug: Jobs={jobs.length}, CurrentJobs={currentJobs.length}, Loading={jobsLoading ? 'yes' : 'no'}
-      </div>
-      
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
