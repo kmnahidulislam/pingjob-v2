@@ -1252,36 +1252,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const job = await storage.createJob(validatedData);
       
-      // Automatic social media posting (temporarily disabled due to missing table)
-      // if (socialMediaPoster && job.id && job.companyId) {
-      //   try {
-      //     // Get company name for social media post
-      //     const company = await storage.getCompany(job.companyId);
-      //     
-      //     const jobPostData = {
-      //       id: job.id,
-      //       title: job.title,
-      //       company: company?.name || 'Company',
-      //       location: job.location || 'Remote',
-      //       description: job.description,
-      //       employmentType: job.employmentType,
-      //       experienceLevel: job.experienceLevel,
-      //       salary: job.salary
-      //     };
-      //     
-      //     console.log('🚀 Posting job to social media platforms...');
-      //     const socialResults = await socialMediaPoster.postJobToAllPlatforms(jobPostData);
-      //     
-      //     const successCount = socialResults.filter((r: any) => r.success).length;
-      //     console.log(`✓ Social media posting completed: ${successCount}/${socialResults.length} platforms successful`);
-      //     
-      //     // Add social media results to response
-      //     (job as any).socialMediaResults = socialResults;
-      //   } catch (socialError) {
-      //     console.error('Social media posting failed:', socialError);
-      //     // Don't fail the job creation if social media posting fails
-      //   }
-      // }
+      // Automatic social media posting
+      if (socialMediaPoster && job.id && job.companyId) {
+        try {
+          // Get company name for social media post
+          const company = await storage.getCompany(job.companyId);
+          
+          const jobPostData = {
+            id: job.id,
+            title: job.title,
+            company: company?.name || 'Company',
+            location: job.location || 'Remote',
+            description: job.description,
+            employmentType: job.employmentType,
+            experienceLevel: job.experienceLevel,
+            salary: job.salary
+          };
+          
+          console.log('🚀 Posting job to social media platforms...', {
+            jobId: job.id,
+            title: job.title,
+            company: company?.name
+          });
+          const socialResults = await socialMediaPoster.postJobToAllPlatforms(jobPostData);
+          
+          const successCount = socialResults.filter((r: any) => r.success).length;
+          console.log(`✓ Social media posting completed: ${successCount}/${socialResults.length} platforms successful`);
+          
+          // Add social media results to response
+          (job as any).socialMediaResults = socialResults;
+        } catch (socialError) {
+          console.error('Social media posting failed:', socialError);
+          // Don't fail the job creation if social media posting fails
+          (job as any).socialMediaResults = [
+            { platform: 'facebook', success: false, error: 'Social media posting failed' },
+            { platform: 'twitter', success: false, error: 'Social media posting failed' },
+            { platform: 'instagram', success: false, error: 'Social media posting failed' }
+          ];
+        }
+      } else {
+        console.log('Social media posting skipped - socialMediaPoster not available or missing credentials');
+        (job as any).socialMediaResults = [
+          { platform: 'facebook', success: false, error: 'Social media credentials not configured' },
+          { platform: 'twitter', success: false, error: 'Social media credentials not configured' },
+          { platform: 'instagram', success: false, error: 'Social media credentials not configured' }
+        ];
+      }
       
       res.json(job);
     } catch (error) {

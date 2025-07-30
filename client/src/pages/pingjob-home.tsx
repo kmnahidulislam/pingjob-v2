@@ -52,11 +52,6 @@ export default function PingJobHome() {
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
 
-  // Debug logging
-  if (import.meta.env.DEV) {
-    console.log('PingJobHome component rendering...', { user, searchQuery, showSearchResults });
-  }
-
   const handleLogout = () => {
     logoutMutation.mutate();
   };
@@ -156,6 +151,19 @@ export default function PingJobHome() {
   const startIndex = (currentJobPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
   const currentJobs = jobs.slice(startIndex, endIndex);
+
+  // Debug logging
+  if (import.meta.env.DEV) {
+    console.log('PingJobHome rendering:', { 
+      jobsData: jobsData?.length,
+      jobs: jobs.length,
+      currentJobs: currentJobs.length,
+      currentJobPage,
+      startIndex,
+      endIndex,
+      jobsLoading 
+    });
+  }
   
   // Handle job pagination
   const handleJobPageChange = (page: number) => {
@@ -258,6 +266,11 @@ export default function PingJobHome() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Debug Info */}
+      <div className="p-4 bg-red-100 text-black">
+        Debug: Jobs={jobs.length}, CurrentJobs={currentJobs.length}, Loading={jobsLoading ? 'yes' : 'no'}
+      </div>
+      
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

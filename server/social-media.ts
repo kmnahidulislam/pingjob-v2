@@ -216,7 +216,7 @@ Apply now through PingJob and connect with top employers! 💪
 #JobAlert #Hiring #CareerGrowth #${jobData.company.replace(/\s+/g, '')} #PingJob #JobSearch #Career #Opportunity`;
   }
 
-  private async generateJobImage(jobData: JobPostData): string {
+  private async generateJobImage(jobData: JobPostData): Promise<string> {
     // For now, return a placeholder image service URL
     // In production, you'd want to generate actual images with job details
     const encodedTitle = encodeURIComponent(jobData.title);
@@ -260,37 +260,66 @@ Apply now through PingJob and connect with top employers! 💪
 
 export async function initializeSocialMediaPoster(pool: Pool): Promise<SocialMediaPoster | null> {
   try {
-    // Set up Facebook with provided credentials
-    const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAIazBhDPQIBO1vH1bZBWREUisDl2adipiT7Ewt1fJIVKW5QFcaoboZCiwxkq3CgLSNdLRUnlXlsYIsdn2TYQHtMugSmFRCEybHkAorZCnsZCB7j1sxIplQpzbYRlvBNx0ufEns4su8lnyGVvPwShpyVUWse1oxpI2lO2ECkBQZCzIcL9U3t8fxZCmi48acccLuq2hV9cvSma5QGMdJxgCKoDWge2RtfHk';
+    console.log('🔧 Initializing social media integration...');
     
-    // For demo purposes, we'll initialize with Facebook only for now
-    if (!facebookAccessToken) {
-      console.log('Facebook access token not found - social media posting disabled');
-      return null;
-    }
+    // Check for environment variables
+    const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+    const facebookPageId = process.env.FACEBOOK_PAGE_ID;
+    const twitterApiKey = process.env.TWITTER_API_KEY;
+    const twitterApiSecret = process.env.TWITTER_API_SECRET;
+    const twitterAccessToken = process.env.TWITTER_ACCESS_TOKEN;
+    const twitterAccessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+    const instagramAccessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
+    const instagramUserId = process.env.INSTAGRAM_USER_ID;
 
-    // Create simplified config with just Facebook for now
+    // Log availability of credentials
+    console.log('📋 Social media credentials status:');
+    console.log(`   Facebook Access Token: ${facebookAccessToken ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Facebook Page ID: ${facebookPageId ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Twitter API Key: ${twitterApiKey ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Twitter API Secret: ${twitterApiSecret ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Twitter Access Token: ${twitterAccessToken ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Twitter Access Token Secret: ${twitterAccessTokenSecret ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Instagram Access Token: ${instagramAccessToken ? '✓ Available' : '✗ Missing'}`);
+    console.log(`   Instagram User ID: ${instagramUserId ? '✓ Available' : '✗ Missing'}`);
+
+    // Create config with available credentials
     const config: SocialMediaConfig = {
       facebook: {
-        accessToken: facebookAccessToken,
-        pageId: process.env.FACEBOOK_PAGE_ID || 'demo-page-id', // Will be updated when user provides real page ID
+        accessToken: facebookAccessToken || '',
+        pageId: facebookPageId || '',
       },
       twitter: {
-        apiKey: process.env.TWITTER_API_KEY || '',
-        apiSecret: process.env.TWITTER_API_SECRET || '',
-        accessToken: process.env.TWITTER_ACCESS_TOKEN || '',
-        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || '',
+        apiKey: twitterApiKey || '',
+        apiSecret: twitterApiSecret || '',
+        accessToken: twitterAccessToken || '',
+        accessTokenSecret: twitterAccessTokenSecret || '',
       },
       instagram: {
-        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
-        userId: process.env.INSTAGRAM_USER_ID || '',
+        accessToken: instagramAccessToken || '',
+        userId: instagramUserId || '',
       },
     };
 
-    console.log('✓ Social media poster initialized with Facebook integration');
+    // Check if any platform has complete credentials
+    const facebookReady = facebookAccessToken && facebookPageId;
+    const twitterReady = twitterApiKey && twitterApiSecret && twitterAccessToken && twitterAccessTokenSecret;
+    const instagramReady = instagramAccessToken && instagramUserId;
+
+    if (!facebookReady && !twitterReady && !instagramReady) {
+      console.log('⚠️  No complete social media credentials found - automatic posting disabled');
+      console.log('   Provide the required API keys to enable automatic job posting to social media');
+      return null;
+    }
+
+    console.log('✅ Social media poster initialized with available platforms:');
+    if (facebookReady) console.log('   ✓ Facebook posting enabled');
+    if (twitterReady) console.log('   ✓ Twitter posting enabled');
+    if (instagramReady) console.log('   ✓ Instagram posting enabled');
+    
     return new SocialMediaPoster(config, pool);
   } catch (error) {
-    console.error('Failed to initialize social media poster:', error);
+    console.error('❌ Failed to initialize social media poster:', error);
     return null;
   }
 }
