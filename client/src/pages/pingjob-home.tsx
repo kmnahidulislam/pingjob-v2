@@ -269,9 +269,14 @@ export default function PingJobHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ minHeight: '100vh', background: '#f9fafb', display: 'block', visibility: 'visible' }}>
+      {/* DEBUG: Force visibility test */}
+      <div style={{ position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '10px', zIndex: 9999 }}>
+        DEBUG: Page Loading - Jobs: {jobs.length}
+      </div>
+      
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50" style={{ background: 'white', display: 'block', visibility: 'visible' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -789,10 +794,16 @@ export default function PingJobHome() {
                         <CardTitle className="text-lg font-semibold line-clamp-2 text-gray-800">
                           {job.title}
                         </CardTitle>
-                        {job.location && (
+                        {(job.company?.city || job.company?.state || job.company?.zipCode || job.location) && (
                           <div className="flex items-center text-sm text-gray-500 mt-1">
                             <MapPin className="h-4 w-4 mr-1" />
-                            <span>{job.location}</span>
+                            <span>
+                              {[
+                                job.company?.city,
+                                job.company?.state,
+                                job.company?.zipCode
+                              ].filter(Boolean).join(', ') || job.location}
+                            </span>
                           </div>
                         )}
                       </div>

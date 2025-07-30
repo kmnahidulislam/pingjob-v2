@@ -76,6 +76,17 @@
   }
 }
 
+/* Force visibility */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 @layer utilities {
   .text-linkedin-blue {
     color: hsl(var(--linkedin-blue));
