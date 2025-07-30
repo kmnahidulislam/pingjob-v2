@@ -747,25 +747,9 @@ export default function PingJobHome() {
                       {/* Company Header with Logo */}
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
-                            <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
-                              <img 
-                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                                alt={job.company.name}
-                                className="w-full h-full object-contain p-2"
-                                onError={(e) => {
-                                  const parent = e.currentTarget.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">${(job.company?.name || 'C').charAt(0).toUpperCase()}</div>`;
-                                  }
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-20 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
-                              {(job.company?.name || 'C').charAt(0).toUpperCase()}
-                            </div>
-                          )}
+                          <div className="w-20 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
+                            {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">
                               {job.company?.name || 'Company Name'}
