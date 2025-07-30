@@ -729,8 +729,19 @@ export default function PingJobHome() {
             
             {currentJobs.length > 0 ? (
               <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {currentJobs.map((job: any, index: number) => (
-                  <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
+                {currentJobs.map((job: any, index: number) => {
+                  // Debug logging for page 2 jobs
+                  if (import.meta.env.DEV && currentJobPage === 2 && job.company?.name?.includes('Laboratory')) {
+                    console.log('DEBUG Page 2 Laboratory job:', {
+                      id: job.id,
+                      companyName: job.company.name,
+                      vendorCount: job.company.vendorCount,
+                      rawCompany: job.company
+                    });
+                  }
+                  
+                  return (
+                    <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -808,7 +819,8 @@ export default function PingJobHome() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">
