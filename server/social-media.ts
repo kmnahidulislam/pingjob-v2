@@ -76,27 +76,14 @@ export class SocialMediaPoster {
   private async postToFacebook(jobData: JobPostData): Promise<{ id: string }> {
     const message = this.generateFacebookPost(jobData);
     
-    // Use page feed for posting with images
+    // Use page feed for posting
     const endpoint = `https://graph.facebook.com/v18.0/${this.config.facebook.pageId}/feed`;
     
-    // Prepare the post data
-    const postData: any = {
+    // Simple post data without external URL parameters (which require URL ownership)
+    const postData = {
       message: message,
       access_token: this.config.facebook.accessToken,
     };
-    
-    // Add company logo if available
-    if (jobData.companyLogoUrl) {
-      // Convert relative logo path to full URL
-      const logoUrl = jobData.companyLogoUrl.startsWith('http') 
-        ? jobData.companyLogoUrl 
-        : `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000'}/${jobData.companyLogoUrl}`;
-      
-      postData.link = logoUrl;
-      postData.picture = logoUrl;
-      postData.name = `${jobData.title} at ${jobData.company}`;
-      postData.description = jobData.description.substring(0, 300) + (jobData.description.length > 300 ? '...' : '');
-    }
 
     const response = await fetch(endpoint, {
       method: 'POST',
