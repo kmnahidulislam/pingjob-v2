@@ -1,22 +1,12 @@
-import React from "react";
+import React from 'react';
 
 export default function TestMinimal() {
   return (
-    <div style={{ 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: 'red',
-      color: 'white',
-      fontSize: '24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 99999
-    }}>
-      <h1>MINIMAL TEST PAGE WORKING</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold">Test Page</h1>
+        <p>This is a minimal test page to check React compilation.</p>
+      </div>
     </div>
   );
 }

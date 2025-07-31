@@ -625,16 +625,6 @@ export default function PingJobHome() {
         </div>
       )}
 
-      {/* AdSense Banner - Top - Temporarily commented for testing */}
-      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="text-center">
-          <GoogleAdsense 
-            style={{ display: 'block' }}
-            className="mx-auto"
-          />
-        </div>
-      </div> */}
-
       {/* Main Content Area with Sidebar and Jobs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
