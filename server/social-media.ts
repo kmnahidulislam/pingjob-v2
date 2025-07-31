@@ -26,6 +26,7 @@ interface JobPostData {
   employmentType: string;
   experienceLevel: string;
   salary?: string;
+  companyLogoUrl?: string;
 }
 
 export class SocialMediaPoster {
@@ -75,18 +76,34 @@ export class SocialMediaPoster {
   private async postToFacebook(jobData: JobPostData): Promise<{ id: string }> {
     const message = this.generateFacebookPost(jobData);
     
-    // Always use personal feed since page posting requires additional permissions
-    const endpoint = `https://graph.facebook.com/v18.0/me/feed`;
+    // Use page feed for posting with images
+    const endpoint = `https://graph.facebook.com/v18.0/${this.config.facebook.pageId}/feed`;
+    
+    // Prepare the post data
+    const postData: any = {
+      message: message,
+      access_token: this.config.facebook.accessToken,
+    };
+    
+    // Add company logo if available
+    if (jobData.companyLogoUrl) {
+      // Convert relative logo path to full URL
+      const logoUrl = jobData.companyLogoUrl.startsWith('http') 
+        ? jobData.companyLogoUrl 
+        : `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000'}/${jobData.companyLogoUrl}`;
+      
+      postData.link = logoUrl;
+      postData.picture = logoUrl;
+      postData.name = `${jobData.title} at ${jobData.company}`;
+      postData.description = jobData.description.substring(0, 300) + (jobData.description.length > 300 ? '...' : '');
+    }
 
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: message,
-        access_token: this.config.facebook.accessToken,
-      }),
+      body: JSON.stringify(postData),
     });
 
     if (!response.ok) {
