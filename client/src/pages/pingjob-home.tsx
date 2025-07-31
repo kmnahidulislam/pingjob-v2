@@ -109,6 +109,9 @@ export default function PingJobHome() {
       }
     },
     staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     retry: false
   });
 
@@ -125,6 +128,9 @@ export default function PingJobHome() {
       }
     },
     staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     retry: false
   });
 
@@ -143,6 +149,9 @@ export default function PingJobHome() {
       }
     },
     staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 2 * 60 * 60 * 1000, // 2 hours
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     retry: false
   });
 

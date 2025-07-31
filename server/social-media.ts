@@ -45,6 +45,8 @@ export class SocialMediaPoster {
       const facebookResult = await this.postToFacebook(jobData);
       results.push({ platform: 'facebook', success: true, postId: facebookResult.id });
     } catch (error) {
+      console.log(`⚠️ Facebook posting failed: ${(error as Error).message}`);
+      console.log(`💡 Facebook posting requires additional app permissions: pages_manage_posts and pages_read_engagement`);
       results.push({ platform: 'facebook', success: false, error: (error as Error).message });
     }
 
@@ -73,10 +75,8 @@ export class SocialMediaPoster {
   private async postToFacebook(jobData: JobPostData): Promise<{ id: string }> {
     const message = this.generateFacebookPost(jobData);
     
-    // Use personal feed if no valid page ID is configured
-    const endpoint = this.config.facebook.pageId && this.config.facebook.pageId !== 'demo-page-id' 
-      ? `https://graph.facebook.com/v18.0/${this.config.facebook.pageId}/feed`
-      : `https://graph.facebook.com/v18.0/me/feed`;
+    // Always use personal feed since page posting requires additional permissions
+    const endpoint = `https://graph.facebook.com/v18.0/me/feed`;
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -247,11 +247,15 @@ Apply now through PingJob and connect with top employers! 💪
 
   private async logSocialMediaPost(jobId: number, results: any[]): Promise<void> {
     try {
-      await this.pool.query(
-        `INSERT INTO social_media_posts (job_id, platforms_posted, results, created_at) 
-         VALUES ($1, $2, $3, NOW())`,
-        [jobId, results.map(r => r.platform), JSON.stringify(results)]
-      );
+      // For now, just log the results to console until table structure is fixed
+      console.log(`📊 Social media posting results for job ${jobId}:`, results);
+      
+      // TODO: Uncomment when social_media_posts table is available
+      // await this.pool.query(
+      //   `INSERT INTO social_media_posts (job_id, platforms_posted, results, created_at) 
+      //    VALUES ($1, $2, $3, NOW())`,
+      //   [jobId, results.map(r => r.platform), JSON.stringify(results)]
+      // );
     } catch (error) {
       console.error('Failed to log social media post:', error);
     }
