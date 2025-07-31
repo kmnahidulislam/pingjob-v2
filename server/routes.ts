@@ -1237,18 +1237,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Auto-generate location from city, state, country and map jobType to employmentType
+      // Map fields to match schema expectations
       const jobData = { 
         ...req.body, 
         recruiterId: user.id,
-        employmentType: req.body.jobType || "full_time" // Map jobType to employmentType for database
+        companyId: req.body.company_id || req.body.companyId, // Map company_id to companyId for database
+        categoryId: req.body.category_id || req.body.categoryId, // Map category_id to categoryId for database  
+        employmentType: req.body.jobType || req.body.employment_type || "full_time" // Map jobType to employmentType for database
       };
       if (jobData.city && jobData.state && jobData.country) {
         jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
       }
       
+      console.log("Job data before validation:", jobData);
       const validatedData = insertJobSchema.parse(jobData);
       console.log("Validated data:", validatedData);
+      
+      // Force add required fields if missing after validation
+      if (!validatedData.companyId && jobData.companyId) {
+        (validatedData as any).companyId = jobData.companyId;
+      }
+      if (!validatedData.categoryId && jobData.categoryId) {
+        (validatedData as any).categoryId = jobData.categoryId;
+      }
+      console.log("Final data for creation:", validatedData);
       
       const job = await storage.createJob(validatedData);
       
