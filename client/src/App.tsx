@@ -14,6 +14,7 @@ import TestSimpleHome from "@/pages/test-simple-home";
 import PingJobHomeSimple from "@/pages/pingjob-home-simple";
 import HomeV2 from "@/pages/home-v2";
 import TestMinimal from "@/pages/test-minimal";
+import PingJobHomeDebug from "@/pages/pingjob-home-debug";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
@@ -148,7 +149,7 @@ function Router() {
           <Route path="/jobs" component={Jobs} />
           <Route path="/test-minimal" component={TestMinimal} />
 
-          <Route path="/" component={TestMinimal} />
+          <Route path="/" component={PingJobHomeSimple} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>

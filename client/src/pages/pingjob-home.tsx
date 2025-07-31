@@ -80,23 +80,13 @@ export default function PingJobHome() {
   useEffect(() => {
     const handleJobApplicationSubmitted = (event: any) => {
       if (import.meta.env.DEV) console.log('Home page received jobApplicationSubmitted event, refreshing admin jobs');
-      const autoCount = event.detail?.autoApplicationsCount || 0;
-      if (import.meta.env.DEV) console.log(`Auto-applications created: ${autoCount}, forcing cache refresh`);
       
       queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
       
-      // Multiple refresh attempts to ensure cache is updated
+      // Single refresh with delay to prevent rate limiting
       setTimeout(() => {
         refetchJobs();
-      }, 200);
-      
-      setTimeout(() => {
-        refetchJobs();
-      }, 800);
-      
-      setTimeout(() => {
-        refetchJobs();
-      }, 1500);
+      }, 1000);
     };
 
     window.addEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
@@ -207,24 +197,23 @@ export default function PingJobHome() {
     }
   }, [jobs]);
 
-  // Listen for job updates and applications
+  // Listen for job updates and applications (throttled to prevent rate limiting)
   useEffect(() => {
+    let updateTimeout: NodeJS.Timeout;
+    
     const handleJobUpdated = () => {
-      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
-    };
-
-    const handleJobApplicationSubmitted = () => {
-      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
-      queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => {
+        queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+      }, 2000); // Throttle to 2 seconds
     };
 
     window.addEventListener('jobUpdated', handleJobUpdated);
-    window.addEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
     
     return () => {
       window.removeEventListener('jobUpdated', handleJobUpdated);
-      window.removeEventListener('jobApplicationSubmitted', handleJobApplicationSubmitted);
+      clearTimeout(updateTimeout);
     };
   }, [queryClient]);
 
