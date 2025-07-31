@@ -149,7 +149,7 @@ function Router() {
           <Route path="/jobs" component={Jobs} />
           <Route path="/test-minimal" component={TestMinimal} />
 
-          <Route path="/" component={PingJobHomeSimple} />
+          <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>
