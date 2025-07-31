@@ -79,10 +79,7 @@ function Router() {
     }
   }, [location, user, navigate]);
 
-  // Debug logging only in development
-  if (import.meta.env.DEV) {
-    console.log('Router - User:', user ? `authenticated (${user.email})` : 'not authenticated', 'Loading:', isLoading, 'Location:', location);
-  }
+  // Router state tracking
   
   // Special handling for public routes that don't require authentication
   const isPublicRoute = location === '/reset-password' || 
@@ -156,7 +153,7 @@ function Router() {
     );
   }
 
-  if (import.meta.env.DEV) console.log('User authenticated, showing protected routes for location:', location);
+  // User authenticated - showing protected routes
   
   // Don't render protected routes if we're still on /auth page (redirect is happening)
   if (location === '/auth') {
