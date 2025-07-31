@@ -34,6 +34,7 @@ import {
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { JobCategories } from "@/components/job-categories";
+import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
 export default function PingJobHome() {
@@ -268,38 +269,12 @@ export default function PingJobHome() {
     setSearchQuery("");
   };
 
-  // Force visibility for debugging
-  if (import.meta.env.DEV) {
-    console.log('PingJobHome rendering:', {
-      jobsData: jobsData?.length,
-      jobs: jobs.length, 
-      currentJobs: currentJobs.length,
-      currentJobPage,
-      startIndex,
-      endIndex,
-      jobsLoading
-    });
-  }
+
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ display: 'block', visibility: 'visible', opacity: 1, position: 'relative' }}>
-      {/* Emergency visibility test */}
-      <div style={{ 
-        position: 'fixed', 
-        top: '10px', 
-        right: '10px', 
-        background: 'green', 
-        color: 'white', 
-        padding: '5px 10px', 
-        zIndex: 99999,
-        fontSize: '12px',
-        borderRadius: '4px'
-      }}>
-        ALIVE: {jobs.length} jobs
-      </div>
-      
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50" style={{ display: 'block', visibility: 'visible' }}>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -934,7 +909,8 @@ export default function PingJobHome() {
         </div>
       </div>
 
-
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
