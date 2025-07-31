@@ -1214,6 +1214,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedJob = await storage.updateJob(jobId, jobData);
       console.log('Updated job result:', { id: updatedJob.id, recruiterId: updatedJob.recruiterId, title: updatedJob.title });
       
+      // Add social media posting for job edits
+      if (socialMediaPoster && updatedJob.id && updatedJob.companyId) {
+        try {
+          // Get company name for social media post
+          const company = await storage.getCompany(updatedJob.companyId);
+          
+          const jobPostData = {
+            id: updatedJob.id,
+            title: updatedJob.title,
+            company: company?.name || 'Company',
+            location: updatedJob.location || 'Remote',
+            description: updatedJob.description,
+            employmentType: updatedJob.employmentType,
+            experienceLevel: updatedJob.experienceLevel,
+            salary: updatedJob.salary
+          };
+          
+          console.log('🚀 Posting EDITED job to social media platforms...', {
+            jobId: updatedJob.id,
+            title: updatedJob.title,
+            company: company?.name
+          });
+          const socialResults = await socialMediaPoster.postJobToAllPlatforms(jobPostData);
+          
+          const successCount = socialResults.filter((r: any) => r.success).length;
+          console.log(`✓ Social media posting completed for edited job: ${successCount}/${socialResults.length} platforms successful`);
+          
+          // Add social media results to response
+          (updatedJob as any).socialMediaResults = socialResults;
+        } catch (socialError) {
+          console.error('Social media posting failed for edited job:', socialError);
+          (updatedJob as any).socialMediaResults = [
+            { platform: 'facebook', success: false, error: 'Social media posting failed' },
+            { platform: 'twitter', success: false, error: 'Social media posting failed' },
+            { platform: 'instagram', success: false, error: 'Social media posting failed' }
+          ];
+        }
+      }
+      
       res.json(updatedJob);
     } catch (error) {
       console.error('Error updating job:', error);
