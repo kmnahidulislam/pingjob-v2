@@ -26,7 +26,6 @@ interface JobPostData {
   employmentType: string;
   experienceLevel: string;
   salary?: string;
-  companyLogoUrl?: string;
 }
 
 export class SocialMediaPoster {

@@ -1228,8 +1228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: updatedJob.description,
             employmentType: updatedJob.employmentType,
             experienceLevel: updatedJob.experienceLevel,
-            salary: updatedJob.salary,
-            companyLogoUrl: company?.logoUrl
+            salary: updatedJob.salary
           };
           
           console.log('🚀 Posting EDITED job to social media platforms...', {
@@ -1318,8 +1317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: job.description,
             employmentType: job.employmentType,
             experienceLevel: job.experienceLevel,
-            salary: job.salary,
-            companyLogoUrl: company?.logoUrl
+            salary: job.salary
           };
           
           console.log('🚀 Posting job to social media platforms...', {
