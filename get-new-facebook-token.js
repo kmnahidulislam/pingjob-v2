@@ -1,0 +1,35 @@
+// Get a fresh Facebook access token
+console.log('🔧 Getting fresh Facebook access token...\n');
+
+console.log('📋 Steps to get a new working token:');
+console.log('');
+console.log('1. Go to Facebook Graph API Explorer:');
+console.log('   https://developers.facebook.com/tools/explorer/');
+console.log('');
+console.log('2. Select your app: "PingJob Platform" (App ID: 1377200590045125)');
+console.log('');
+console.log('3. Click "Get Token" → "Get User Access Token"');
+console.log('');
+console.log('4. Make sure these permissions are selected:');
+console.log('   ✓ pages_show_list');
+console.log('   ✓ pages_manage_posts');
+console.log('   ✓ pages_read_engagement');
+console.log('');
+console.log('5. Click "Generate Access Token"');
+console.log('');
+console.log('6. Authorize the permissions');
+console.log('');
+console.log('7. Copy the USER token and run this command:');
+console.log('');
+console.log('   curl "https://graph.facebook.com/me/accounts?access_token=YOUR_USER_TOKEN"');
+console.log('');
+console.log('8. Find your page "PingJob" (ID: 786417694545751) in the response');
+console.log('');
+console.log('9. Copy the "access_token" field from your page object');
+console.log('');
+console.log('10. Update the FACEBOOK_ACCESS_TOKEN secret with that page token');
+console.log('');
+console.log('⚠️  Note: Facebook tokens expire frequently. You may need to refresh them periodically.');
+console.log('');
+console.log('🎯 Current issue: Token expired at 10:00 AM, it\'s now 11:06 AM');
+console.log('📝 Need a fresh page access token with admin permissions');
