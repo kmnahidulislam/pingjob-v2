@@ -209,9 +209,10 @@ function Router() {
 function App() {
   // Initialize Google Analytics and AdSense when app starts
   useEffect(() => {
+    // Temporarily disable Google Analytics to prevent rate limiting issues
     // Initialize Google Analytics with error handling
     try {
-      if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      if (false && import.meta.env.VITE_GA_MEASUREMENT_ID) {
         setTimeout(() => initGA(), 100); // Delay to avoid blocking
       }
     } catch (error) {
