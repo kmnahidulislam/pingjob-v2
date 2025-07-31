@@ -939,6 +939,13 @@ Changelog:
   - Added comprehensive error handling and fallback responses for missing API credentials
   - Social media posting now triggers automatically when jobs are created with proper debugging information
   - System provides detailed credential status logging showing which platforms are available vs missing
+- July 31, 2025. FIXED: Job edit date display and restored complete page structure
+  - Fixed critical issue where edited jobs displayed original creation date instead of current edit date
+  - Modified home page job listings to prioritize updatedAt over createdAt for accurate timestamp display
+  - Restored complete Footer component with social media links (Facebook, Instagram, LinkedIn, Twitter)
+  - Added About and Contact navigation links in footer after accidental removal during debugging
+  - Removed problematic debug elements that were causing blank page issues
+  - Home page now displays proper job editing dates and maintains all navigation elements
 - July 30, 2025. ENHANCED: Home page job listings with prominent company branding and zip code search functionality
   - Redesigned job card layout to prominently display company logos (20x16px) and names (text-xl, font-bold)
   - Enhanced logo display with gradient fallback showing company initials for missing logos

@@ -13,6 +13,7 @@ import PingJobHome from "@/pages/pingjob-home";
 import TestSimpleHome from "@/pages/test-simple-home";
 import PingJobHomeSimple from "@/pages/pingjob-home-simple";
 import HomeV2 from "@/pages/home-v2";
+import TestMinimal from "@/pages/test-minimal";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
 import JobCreate from "@/pages/job-create";
@@ -71,10 +72,8 @@ function Router() {
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {
     if (location.startsWith('/api/')) {
-      if (import.meta.env.DEV) console.log('API route detected, redirecting to home');
       navigate('/');
     } else if (user && location === '/auth') {
-      if (import.meta.env.DEV) console.log('Authenticated user on auth page, redirecting to dashboard');
       navigate('/dashboard');
     }
   }, [location, user, navigate]);
@@ -105,7 +104,6 @@ function Router() {
   if (isPublicRoute && !user) {
     // Handle specific public routes
     if (location === '/reset-password' || location.startsWith('/reset-password?')) {
-      if (import.meta.env.DEV) console.log('Reset password page accessed, showing public page');
       return (
         <div className="min-h-screen bg-gray-50">
           <ResetPassword />
@@ -114,7 +112,6 @@ function Router() {
     }
     
     if (location === '/forgot-password') {
-      if (import.meta.env.DEV) console.log('Forgot password page accessed, showing public page');
       return (
         <div className="min-h-screen bg-gray-50">
           <ForgotPassword />
@@ -132,7 +129,6 @@ function Router() {
   }
 
   if (!user) {
-    if (import.meta.env.DEV) console.log('No user, showing public pages');
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
@@ -150,8 +146,9 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={Jobs} />
+          <Route path="/test-minimal" component={TestMinimal} />
 
-          <Route path="/" component={PingJobHome} />
+          <Route path="/" component={TestMinimal} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>

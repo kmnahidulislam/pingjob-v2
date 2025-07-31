@@ -250,7 +250,7 @@ export default function PingJobHome() {
         
         setSearchResults({ jobs, companies });
       } catch (error) {
-        console.error('Search failed:', error);
+        if (import.meta.env.DEV) console.error('Search failed:', error);
         setSearchResults({ jobs: [], companies: [] });
       } finally {
         setSearchLoading(false);
@@ -830,7 +830,7 @@ export default function PingJobHome() {
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted"}</span>
+                          <span>{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted")}</span>
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
