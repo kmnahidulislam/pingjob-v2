@@ -880,7 +880,6 @@ export class DatabaseStorage implements IStorage {
           FROM jobs j2
           LEFT JOIN users u ON u.category_id = j2.category_id 
             AND u.user_type = 'job_seeker'
-            AND u.resume_url IS NOT NULL
           GROUP BY j2.id
         ) category_matches ON j.id = category_matches.job_id
         ${whereClause}
@@ -2540,7 +2539,6 @@ export class DatabaseStorage implements IStorage {
           FROM jobs j2
           LEFT JOIN users u ON u.category_id = j2.category_id 
             AND u.user_type = 'job_seeker'
-            AND u.resume_url IS NOT NULL
           GROUP BY j2.id
         ) category_matches ON j.id = category_matches.job_id
         WHERE j.is_active = true 
