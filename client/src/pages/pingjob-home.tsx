@@ -728,18 +728,14 @@ export default function PingJobHome() {
                   Refresh
                 </Button>
               </div>
-              <p className="text-lg text-gray-600">Discover the newest positions from top companies</p>
-              <div className="flex justify-center items-center mt-4">
-                <span className="text-sm text-gray-500">
-                  Page {currentJobPage} of {totalPages} • Showing {currentJobs.length} of {totalJobs} jobs
-                </span>
-                {jobsLoading && (
-                  <span className="ml-3 text-sm text-blue-600">
+              {jobsLoading && (
+                <div className="flex justify-center items-center mt-4">
+                  <span className="text-sm text-blue-600">
                     <Clock className="h-4 w-4 inline mr-1" />
                     Updating...
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
             
             {currentJobs.length > 0 ? (
