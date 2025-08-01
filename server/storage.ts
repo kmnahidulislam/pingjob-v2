@@ -322,6 +322,14 @@ export class DatabaseStorage implements IStorage {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
+    
+    // If user uploaded a resume or changed category, this affects applicant counts for category-matched jobs
+    if (data.resumeUrl || data.categoryId) {
+      console.log('User profile update affects category matching - triggering job count refresh');
+      // The enhanced count calculation is done dynamically in getAdminJobs and getJobs queries
+      // No need to update stored counts since we calculate real-time
+    }
+    
     return user;
   }
 
@@ -842,7 +850,9 @@ export class DatabaseStorage implements IStorage {
           j.benefits,
           j.skills,
           j.is_active as "isActive",
-          j.application_count as "applicationCount",
+          (
+            COALESCE(direct_apps.count, 0) + COALESCE(category_matches.count, 0)
+          )::integer as "applicationCount",
           j.created_at as "createdAt",
           j.updated_at as "updatedAt",
           COALESCE(v.vendor_count, 0) as "vendorCount",
@@ -860,6 +870,19 @@ export class DatabaseStorage implements IStorage {
           WHERE status = 'approved'
           GROUP BY company_id
         ) v ON c.id = v.company_id
+        LEFT JOIN (
+          SELECT job_id, COUNT(*)::integer as count
+          FROM job_applications
+          GROUP BY job_id
+        ) direct_apps ON j.id = direct_apps.job_id
+        LEFT JOIN (
+          SELECT j2.id as job_id, COUNT(u.id)::integer as count
+          FROM jobs j2
+          LEFT JOIN users u ON u.category_id = j2.category_id 
+            AND u.user_type = 'job_seeker'
+            AND u.resume_url IS NOT NULL
+          GROUP BY j2.id
+        ) category_matches ON j.id = category_matches.job_id
         ${whereClause}
         ORDER BY j.updated_at DESC, j.created_at DESC
         LIMIT $${paramIndex}
@@ -1292,19 +1315,9 @@ export class DatabaseStorage implements IStorage {
       console.log('User category updated successfully for user:', application.applicantId);
     }
     
-    // Synchronize application count with actual count from database
-    const actualCountQuery = `
-      UPDATE jobs 
-      SET application_count = (
-        SELECT COUNT(*) 
-        FROM job_applications 
-        WHERE job_applications.job_id = jobs.id
-      )
-      WHERE jobs.id = $1
-    `;
-    
-    await pool.query(actualCountQuery, [application.jobId]);
-    console.log('Application count synchronized for job ID:', application.jobId);
+    // Note: We now calculate enhanced applicant counts dynamically in queries
+    // (direct applications + category matches) so no need to update stored counts
+    console.log('Job application created - enhanced count will be calculated dynamically');
     
     return result;
   }
@@ -2488,7 +2501,7 @@ export class DatabaseStorage implements IStorage {
   // Get jobs posted by admin (for homepage)
   async getAdminJobs(limit: number = 20): Promise<any[]> {
     try {
-      // Use raw SQL to include vendor count AND actual applicant count
+      // Use raw SQL to include vendor count AND enhanced applicant count (direct applications + category matches)
       const query = `
         SELECT 
           j.id,
@@ -2507,7 +2520,9 @@ export class DatabaseStorage implements IStorage {
           c.logo_url as company_logo_url,
           c.location as company_location,
           COALESCE(v.vendor_count, 0)::integer as vendor_count,
-          j.application_count as applicant_count
+          (
+            COALESCE(direct_apps.count, 0) + COALESCE(category_matches.count, 0)
+          )::integer as applicant_count
         FROM jobs j
         LEFT JOIN companies c ON j.company_id = c.id
         LEFT JOIN (
@@ -2515,6 +2530,19 @@ export class DatabaseStorage implements IStorage {
           FROM vendors 
           GROUP BY company_id
         ) v ON c.id = v.company_id
+        LEFT JOIN (
+          SELECT job_id, COUNT(*)::integer as count
+          FROM job_applications
+          GROUP BY job_id
+        ) direct_apps ON j.id = direct_apps.job_id
+        LEFT JOIN (
+          SELECT j2.id as job_id, COUNT(u.id)::integer as count
+          FROM jobs j2
+          LEFT JOIN users u ON u.category_id = j2.category_id 
+            AND u.user_type = 'job_seeker'
+            AND u.resume_url IS NOT NULL
+          GROUP BY j2.id
+        ) category_matches ON j.id = category_matches.job_id
         WHERE j.is_active = true 
           AND (j.recruiter_id = 'admin' OR j.recruiter_id = 'admin-krupa')
         ORDER BY j.updated_at DESC, j.created_at DESC
@@ -2536,7 +2564,7 @@ export class DatabaseStorage implements IStorage {
         updatedAt: row.updatedAt,
         companyId: row.companyId,
         recruiterId: row.recruiterId,
-        applicantCount: row.applicant_count, // Add actual applicant count
+        applicantCount: row.applicant_count, // Enhanced count: direct applications + category matches
         company: {
           id: row.company_id,
           name: row.company_name,
