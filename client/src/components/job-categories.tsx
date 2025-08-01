@@ -15,9 +15,18 @@ interface CategoryWithJobCount {
 interface JobCategoriesProps {
   showAll?: boolean;
   limit?: number;
+  selectedCategory?: string;
+  onCategorySelect?: (categoryId: string) => void;
+  isMobile?: boolean;
 }
 
-export function JobCategories({ showAll = false, limit = 8 }: JobCategoriesProps) {
+export function JobCategories({ 
+  showAll = false, 
+  limit = 8, 
+  selectedCategory, 
+  onCategorySelect,
+  isMobile = false 
+}: JobCategoriesProps) {
   const { data: categories, isLoading, error } = useQuery<CategoryWithJobCount[]>({
     queryKey: ['/api/categories/with-counts'],
     enabled: true,
@@ -25,16 +34,20 @@ export function JobCategories({ showAll = false, limit = 8 }: JobCategoriesProps
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={isMobile ? "space-y-2" : "grid grid-cols-2 md:grid-cols-4 gap-4"}>
         {Array.from({ length: limit }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader className="pb-3">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-            </CardContent>
-          </Card>
+          <div key={i} className={isMobile ? "h-8 bg-gray-200 rounded animate-pulse" : ""}>
+            {!isMobile && (
+              <Card className="animate-pulse">
+                <CardHeader className="pb-3">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         ))}
       </div>
     );
@@ -49,6 +62,39 @@ export function JobCategories({ showAll = false, limit = 8 }: JobCategoriesProps
   }
 
   const displayCategories = showAll ? categories : categories.slice(0, limit);
+
+  if (isMobile) {
+    return (
+      <div className="space-y-2">
+        {displayCategories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => onCategorySelect?.(category.id.toString())}
+            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
+              selectedCategory === category.id.toString()
+                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <span className="text-sm font-medium">{category.name}</span>
+            <Badge variant="secondary" className="text-xs">
+              {category.jobCount}
+            </Badge>
+          </button>
+        ))}
+        
+        {!showAll && categories.length > limit && (
+          <div className="pt-2">
+            <Link href="/categories">
+              <button className="w-full text-blue-600 hover:text-blue-800 text-sm font-medium py-2">
+                View All Categories
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">

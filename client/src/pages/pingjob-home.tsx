@@ -282,9 +282,9 @@ export default function PingJobHome() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 mobile-container">
+      {/* Desktop Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 desktop-only">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -331,56 +331,178 @@ export default function PingJobHome() {
                 <Link href="/pricing" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                   Pricing
                 </Link>
-
-                {user && (
-                  <>
-                    <Link href="/network" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                      Network
-                    </Link>
-                    <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                      Dashboard
-                    </Link>
-                    <Link href="/profile" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                      Profile
-                    </Link>
-                  </>
-                )}
               </nav>
-
+              
               {/* User Actions */}
-              <div className="flex items-center space-x-4">
-                {user ? (
-                  <>
-                    <span className="text-sm text-gray-600">
-                      Welcome, {user.firstName || user.email}
-                    </span>
-                    <Button 
-                      variant="outline" 
-                      onClick={handleLogout}
-                      disabled={logoutMutation.isPending}
-                    >
-                      <LogOut className="h-4 w-4 mr-1" />
-                      Logout
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-700">
+                    Welcome, {user.firstName || user.email}
+                  </span>
+                  {user.userType === 'admin' && (
+                    <Link href="/admin">
+                      <Button size="sm" variant="outline">
+                        Admin
+                      </Button>
+                    </Link>
+                  )}
+                  {user.userType === 'recruiter' && (
+                    <Link href="/recruiter">
+                      <Button size="sm" variant="outline">
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
+                  <Button size="sm" variant="outline" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <Link href="/signup">
+                    <Button size="sm" variant="outline">
+                      Sign Up
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/auth">
-                      <Button variant="outline">Login</Button>
-                    </Link>
-                    <Link href="/auth">
-                      <Button>Sign Up</Button>
-                    </Link>
-                  </>
-                )}
-              </div>
+                  </Link>
+                  <Link href="/login">
+                    <Button size="sm">
+                      Login
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
+      {/* Mobile Header */}
+      <div className="mobile-nav mobile-only">
+        <div className="mobile-nav-content">
+          <Link href="/">
+            <img 
+              src={logoPath} 
+              alt="PingJob" 
+              className="mobile-logo mobile-touch-target"
+              loading="eager"
+              draggable={false}
+              onError={(e) => {
+                console.error('Logo failed to load on mobile');
+                e.currentTarget.style.display = 'none';
+              }}
+              onLoad={(e) => {
+                console.log('Mobile logo loaded successfully');
+                e.currentTarget.style.opacity = '1';
+              }}
+              style={{ opacity: '0', transition: 'opacity 0.3s ease' }}
+            />
+          </Link>
+          
+          {user ? (
+            <div className="flex items-center space-x-2">
+              {user.userType === 'admin' && (
+                <Link href="/admin">
+                  <Button size="sm" variant="outline">
+                    Admin
+                  </Button>
+                </Link>
+              )}
+              {user.userType === 'recruiter' && (
+                <Link href="/recruiter">
+                  <Button size="sm" variant="outline">
+                    Dashboard
+                  </Button>
+                </Link>
+              )}
+              <Button size="sm" variant="outline" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button size="sm">
+                  Login
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Search (visible only on mobile) */}
+      <div className="mobile-only mobile-search bg-white border-b border-gray-200 p-4" style={{ marginTop: '60px' }}>
+        <form onSubmit={handleSearch} className="relative flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search jobs, companies..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="pl-10 pr-4 py-3 w-full text-base"
+              style={{ fontSize: '16px' }} // Prevent iOS zoom
+            />
+          </div>
+          <Button 
+            type="submit" 
+            size="sm" 
+            className="px-4 py-3"
+            disabled={!searchQuery.trim()}
+          >
+            Go
+          </Button>
+        </form>
+      </div>
+
+      {/* Search Results Overlay */}
+      {showSearchResults && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowSearchResults(false)} />
+      )}
+      
+      {showSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+          {searchResults.jobs.length > 0 && (
+            <div className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">Jobs</h3>
+              {searchResults.jobs.slice(0, 5).map((job: any) => (
+                <Link 
+                  key={job.id} 
+                  href={`/jobs/${job.id}`}
+                  onClick={handleResultClick}
+                  className="block p-2 hover:bg-gray-50 rounded"
+                >
+                  <div className="font-medium">{job.title}</div>
+                  <div className="text-sm text-gray-600">{job.company?.name} • {job.location}</div>
+                </Link>
+              ))}
+            </div>
+          )}
+          
+          {searchResults.companies.length > 0 && (
+            <div className="p-4 border-t border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-2">Companies</h3>
+              {searchResults.companies.slice(0, 5).map((company: any) => (
+                <Link 
+                  key={company.id} 
+                  href={`/companies/${company.id}`}
+                  onClick={handleResultClick}
+                  className="block p-2 hover:bg-gray-50 rounded"
+                >
+                  <div className="font-medium">{company.name}</div>
+                  <div className="text-sm text-gray-600">{company.industry} • {company.location}</div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Main Content */}
+      <main className="desktop-only">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Hero Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 pt-8">
@@ -904,6 +1026,247 @@ export default function PingJobHome() {
           </div>
         </div>
       </div>
+      </main>
+
+      {/* Mobile Main Content */}
+      <main className="mobile-only" style={{ marginTop: showSearchResults ? '0' : '20px' }}>
+        {/* Mobile Search Results */}
+        {showSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+          <div className="bg-white m-4 p-4 rounded-lg shadow-sm border">
+            <h2 className="mobile-title mb-4">Search Results for "{searchQuery}"</h2>
+            
+            {searchResults.jobs.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-3 flex items-center">
+                  <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
+                  Jobs ({searchResults.jobs.length})
+                </h3>
+                <div className="mobile-job-grid">
+                  {searchResults.jobs.slice(0, 10).map((job: any) => (
+                    <Link key={job.id} href={`/jobs/${job.id}`} onClick={handleResultClick}>
+                      <div className="mobile-job-card">
+                        <h4 className="font-medium mb-2">{job.title}</h4>
+                        <p className="mobile-subtitle text-gray-600">{job.company?.name}</p>
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span>{job.city || job.location || 'Remote'}</span>
+                          </div>
+                          <Button size="sm" className="px-3">Apply</Button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {searchResults.companies.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-3 flex items-center">
+                  <Building2 className="h-4 w-4 mr-2 text-green-600" />
+                  Companies ({searchResults.companies.length})
+                </h3>
+                <div className="space-y-3">
+                  {searchResults.companies.slice(0, 5).map((company: any) => (
+                    <Link key={company.id} href={`/companies/${company.id}`} onClick={handleResultClick}>
+                      <div className="mobile-job-card">
+                        <div className="flex items-center space-x-3">
+                          {company.logoUrl && (
+                            <img 
+                              src={`/${company.logoUrl}`} 
+                              alt={company.name}
+                              className="mobile-company-logo"
+                              onError={(e) => e.currentTarget.style.display = 'none'}
+                            />
+                          )}
+                          <div>
+                            <h4 className="font-medium">{company.name}</h4>
+                            <p className="text-sm text-gray-600">{company.industry}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Hero Stats */}
+        <div className="bg-gradient-to-br from-green-50 to-blue-50 m-4 p-6 rounded-lg">
+          <div className="text-center mb-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mobile-card bg-white/80 p-4">
+                <div className="text-center">
+                  <Briefcase className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-xl font-bold text-blue-600">{jobStats.totalJobs}</div>
+                  <div className="text-sm text-gray-600">Active Jobs</div>
+                </div>
+              </div>
+              
+              <div className="mobile-card bg-white/80 p-4">
+                <div className="text-center">
+                  <Building2 className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <div className="text-xl font-bold text-green-600">{jobStats.activeCompanies}</div>
+                  <div className="text-sm text-gray-600">Companies</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="flex flex-col items-center text-center p-3 bg-white/60 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-green-600 mb-1" />
+              <span className="text-xs font-medium">100% Client Jobs</span>
+            </div>
+            <div className="flex flex-col items-center text-center p-3 bg-white/60 rounded-lg">
+              <Bot className="h-5 w-5 text-indigo-600 mb-1" />
+              <span className="text-xs font-medium">AI Matching</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Job Categories */}
+        <div className="mobile-card bg-white m-4 p-4">
+          <h2 className="mobile-title mb-4">Job Categories</h2>
+          <JobCategories 
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            isMobile={true}
+          />
+        </div>
+
+        {/* Mobile Jobs List */}
+        <div className="mobile-card bg-white m-4 p-4">
+          <h2 className="mobile-title mb-4">Latest Jobs</h2>
+          
+          {jobsLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="mobile-job-card animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mobile-job-grid">
+              {currentJobs.map((job: any) => (
+                <Link key={job.id} href={`/jobs/${job.id}`}>
+                  <div className="mobile-job-card">
+                    <div className="flex items-start space-x-3">
+                      {job.company?.logoUrl && (
+                        <img 
+                          src={`/${job.company.logoUrl}`} 
+                          alt={job.company.name}
+                          className="mobile-company-logo"
+                          onError={(e) => e.currentTarget.style.display = 'none'}
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 mb-1 line-clamp-2">{job.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span>{job.location || 'Remote'}</span>
+                          </div>
+                          
+                          {job.applicantCount > 0 && (
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Users className="h-3 w-3 mr-1" />
+                              <span>{job.applicantCount} applicants</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="mt-3">
+                          <Button size="sm" className="mobile-btn">
+                            Apply Now
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+          
+          {/* Mobile Pagination */}
+          {totalPages > 1 && (
+            <div className="mobile-pagination">
+              <Button
+                variant="outline"
+                onClick={() => handleJobPageChange(currentJobPage - 1)}
+                disabled={currentJobPage === 1}
+                size="sm"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <span className="text-sm text-gray-600">
+                Page {currentJobPage} of {totalPages}
+              </span>
+              
+              <Button
+                variant="outline"
+                onClick={() => handleJobPageChange(currentJobPage + 1)}
+                disabled={currentJobPage === totalPages}
+                size="sm"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          
+          <div className="text-center mt-6">
+            <Link href="/jobs">
+              <Button className="mobile-btn">
+                View All Jobs
+                <Briefcase className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile Quick Links */}
+        <div className="mobile-card bg-white m-4 p-4">
+          <h2 className="mobile-title mb-4">Quick Links</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <Link href="/companies">
+              <Button variant="outline" className="mobile-btn">
+                <Building2 className="h-4 w-4 mr-2" />
+                Companies
+              </Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="outline" className="mobile-btn">
+                <DollarSign className="h-4 w-4 mr-2" />
+                Pricing
+              </Button>
+            </Link>
+            {!user && (
+              <>
+                <Link href="/signup">
+                  <Button className="mobile-btn">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Sign Up
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button variant="outline" className="mobile-btn">
+                    Login
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </main>
 
       {/* Footer */}
       <Footer />
