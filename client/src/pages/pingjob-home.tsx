@@ -812,14 +812,18 @@ export default function PingJobHome() {
                         {company.name}
                       </h3>
                       <div className="flex items-center space-x-3 mt-1">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <Briefcase className="h-3 w-3 mr-1" />
-                          {company.jobCount || 0}
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <Users className="h-3 w-3 mr-1" />
-                          {company.vendorCount || 0}
-                        </span>
+                        {(company.jobCount || 0) > 0 && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <Briefcase className="h-3 w-3 mr-1" />
+                            {company.jobCount}
+                          </span>
+                        )}
+                        {(company.vendorCount || 0) > 0 && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <Users className="h-3 w-3 mr-1" />
+                            {company.vendorCount}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
