@@ -49,6 +49,16 @@ app.use(express.urlencoded({ extended: false }));
 // Serve static files from logos directory
 app.use('/logos', express.static('logos'));
 
+// Serve test HTML files for debugging
+app.get('/test-login-with-browser.html', (req, res) => {
+  const filePath = path.join(process.cwd(), 'test-login-with-browser.html');
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('Test file not found');
+  }
+});
+
 // Session management is now handled by working-auth.ts
 
 app.use((req, res, next) => {
