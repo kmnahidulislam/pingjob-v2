@@ -45,8 +45,51 @@ export const useTotalVisits = () => {
       }
     };
 
+    // Initial fetch
     fetchTotalVisits();
+    
+    // Set up polling for real-time updates every 30 seconds
+    const interval = setInterval(fetchTotalVisits, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return totalVisits;
+};
+
+// Hook for real-time visit statistics
+export const useVisitStats = () => {
+  const [stats, setStats] = useState({
+    totalVisits: 0,
+    todayVisits: 0,
+    visitsByPage: {},
+    dailyVisits: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/visit-stats');
+        const data = await response.json();
+        setStats(data);
+        setLoading(false);
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.warn('Failed to fetch visit stats:', error);
+        }
+        setLoading(false);
+      }
+    };
+
+    // Initial fetch
+    fetchStats();
+    
+    // Set up polling for real-time updates every 15 seconds
+    const interval = setInterval(fetchStats, 15000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return { stats, loading };
 };

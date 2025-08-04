@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
+import { useVisitStats } from "@/hooks/use-visit-tracker";
 import {
   Users,
   Briefcase,
@@ -10,7 +11,8 @@ import {
   Building,
   UserCheck,
   Clock,
-  Star
+  Star,
+  Activity
 } from "lucide-react";
 import type { UserType } from "@/lib/types";
 
@@ -19,6 +21,9 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ userType }: DashboardStatsProps) {
+  // Real-time traffic statistics for admin users
+  const { stats: trafficStats } = useVisitStats();
+  
   const { data: connections } = useQuery({
     queryKey: ['/api/connections'],
     enabled: userType === 'job_seeker'
@@ -177,7 +182,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   });
 
   const renderAdminStats = () => (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
       <Card className="dashboard-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -213,12 +218,23 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
 
       <Card className="dashboard-card">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Total Visits</CardTitle>
+          <Eye className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">2,847</div>
-          <p className="text-xs text-muted-foreground">Currently online</p>
+          <div className="text-2xl font-bold text-blue-600">{trafficStats.totalVisits || 0}</div>
+          <p className="text-xs text-muted-foreground">All time</p>
+        </CardContent>
+      </Card>
+
+      <Card className="dashboard-card">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Today's Visits</CardTitle>
+          <Activity className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-green-600">{trafficStats.todayVisits || 0}</div>
+          <p className="text-xs text-muted-foreground">Real-time updates</p>
         </CardContent>
       </Card>
     </div>
