@@ -360,12 +360,12 @@ export default function PingJobHome() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <Link href="/signup">
+                  <Link href="/auth">
                     <Button size="sm" variant="outline">
                       Sign Up
                     </Button>
                   </Link>
-                  <Link href="/login">
+                  <Link href="/auth">
                     <Button size="sm">
                       Login
                     </Button>
@@ -421,7 +421,7 @@ export default function PingJobHome() {
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <Link href="/login">
+              <Link href="/auth">
                 <Button size="sm">
                   Login
                 </Button>
@@ -1251,13 +1251,13 @@ export default function PingJobHome() {
             </Link>
             {!user && (
               <>
-                <Link href="/signup">
+                <Link href="/auth">
                   <Button className="mobile-btn">
                     <Plus className="h-4 w-4 mr-2" />
                     Sign Up
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href="/auth">
                   <Button variant="outline" className="mobile-btn">
                     Login
                   </Button>
