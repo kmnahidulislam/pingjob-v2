@@ -3639,6 +3639,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Facebook posting endpoint
+  app.post('/api/test-facebook-post', async (req, res) => {
+    try {
+      if (!socialMediaPoster) {
+        return res.json({ success: false, error: 'Social media poster not initialized' });
+      }
+
+      const testJobData = {
+        id: 99999,
+        title: 'Test Job Posting',
+        company: 'PingJob',
+        location: 'Remote',
+        description: 'This is a test job posting to verify Facebook integration is working properly.',
+        employmentType: 'full_time',
+        experienceLevel: 'mid',
+        salary: '75000'
+      };
+
+      console.log('🧪 Testing Facebook posting with updated token...');
+      const results = await socialMediaPoster.postJobToAllPlatforms(testJobData);
+      console.log('🧪 Test results:', results);
+
+      res.json({ 
+        success: true, 
+        results,
+        facebookWorking: results.find(r => r.platform === 'facebook')?.success || false
+      });
+    } catch (error) {
+      console.error('Test Facebook post error:', error);
+      res.json({ success: false, error: (error as Error).message });
+    }
+  });
+
   // Serve uploaded files
   app.use('/uploads', express.static('uploads'));
 
