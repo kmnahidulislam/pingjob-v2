@@ -46,7 +46,16 @@ export class SocialMediaPoster {
       results.push({ platform: 'facebook', success: true, postId: facebookResult.id });
     } catch (error) {
       console.log(`⚠️ Facebook posting failed: ${(error as Error).message}`);
-      console.log(`💡 Facebook posting requires additional app permissions: pages_manage_posts and pages_read_engagement`);
+      
+      // Check if it's a token expiry issue
+      const errorMessage = (error as Error).message;
+      if (errorMessage.includes('session is invalid') || errorMessage.includes('logged out') || errorMessage.includes('access token')) {
+        console.log(`🔑 Facebook token appears to be expired. Please refresh your FACEBOOK_ACCESS_TOKEN.`);
+        console.log(`📋 Go to https://developers.facebook.com/tools/explorer/ to get a new token.`);
+      } else {
+        console.log(`💡 Facebook posting requires additional app permissions: pages_manage_posts and pages_read_engagement`);
+      }
+      
       results.push({ platform: 'facebook', success: false, error: (error as Error).message });
     }
 
