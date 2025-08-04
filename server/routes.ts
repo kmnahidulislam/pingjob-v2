@@ -404,10 +404,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication middleware for session-based auth
   const isAuthenticated = (req: any, res: any, next: any) => {
-    if (req.session?.user) {
-      req.user = req.session.user; // Set user on request object
+    // Check both session and Passport authentication
+    if (req.session?.user || req.user) {
+      req.user = req.user || req.session.user; // Set user on request object
       return next();
     }
+    console.log('🔐 Authentication failed - Session user:', !!req.session?.user, 'Passport user:', !!req.user);
     res.status(401).json({ message: "Authentication required" });
   };
 
@@ -1200,7 +1202,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/jobs/:id', (req: any, res: any, next: any) => {
+    console.log('🔐 Job update request - Session exists:', !!req.session);
+    console.log('🔐 Job update request - Session user:', !!req.session?.user);
+    console.log('🔐 Job update request - Passport user:', !!req.user);
+    console.log('🔐 Job update request - Session ID:', req.session?.id);
+    console.log('🔐 Job update request - Passport info:', req.session?.passport);
+    
+    // Check both session and Passport authentication
+    if (req.session?.user || req.user) {
+      req.user = req.user || req.session.user;
+      return next();
+    }
+    
+    console.log('🔐 Authentication failed for job update');
+    res.status(401).json({ message: "Authentication required" });
+  }, async (req: any, res) => {
     try {
       const jobId = parseInt(req.params.id);
       const updateSchema = insertJobSchema.partial();
