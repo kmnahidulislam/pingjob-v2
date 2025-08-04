@@ -50,11 +50,11 @@ export function setupAuth(app: Express) {
       checkPeriod: 86400000,
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Always false for development and Replit
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      domain: process.env.NODE_ENV === 'production' ? '.pingjob.com' : undefined
+      sameSite: 'lax', // Always lax for Replit
+      domain: undefined // No domain restriction
     }
   }));
 
@@ -159,29 +159,48 @@ export function setupAuth(app: Express) {
 
   // Passport serialization (already initialized above)
   passport.serializeUser((user: any, done) => {
+    console.log('🔐 Serializing user:', user.id);
     done(null, user.id);
   });
 
   passport.deserializeUser(async (id: string, done) => {
     try {
+      console.log('🔐 Deserializing user ID:', id);
       const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-      done(null, result.rows[0]);
+      if (result.rows.length > 0) {
+        console.log('🔐 User found in deserialization:', result.rows[0].email);
+        done(null, result.rows[0]);
+      } else {
+        console.log('🔐 User not found in deserialization for ID:', id);
+        done(null, false);
+      }
     } catch (error) {
+      console.error('🔐 Deserialization error:', error);
       done(error, null);
     }
   });
 
   app.get('/api/user', (req: any, res) => {
     console.log('GET /api/user - Session exists:', !!req.session);
-    console.log('GET /api/user - Session user:', !!req.session?.user);
+    console.log('GET /api/user - Session user (direct):', !!req.session?.user);
+    console.log('GET /api/user - Passport user:', !!req.user);
     console.log('GET /api/user - Session ID:', req.sessionID);
     console.log('GET /api/user - Full session data:', req.session);
     
-    if (req.session?.user) {
-      console.log('Returning authenticated user:', req.session.user.email);
-      return res.status(200).json(req.session.user);
+    // Check both session.user and req.user (Passport)
+    const user = req.user || req.session?.user;
+    if (user) {
+      console.log('Returning authenticated user:', user.email);
+      const userResponse = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name || user.firstName,
+        lastName: user.last_name || user.lastName,
+        userType: user.user_type || user.userType
+      };
+      return res.status(200).json(userResponse);
     }
-    console.log('No authenticated user found in session');
+    console.log('No authenticated user found in session or passport');
     return res.status(401).json({ message: "Not authenticated" });
   });
 
@@ -230,17 +249,18 @@ export function setupAuth(app: Express) {
         userType: user.user_type
       };
       
+      // Store in both session and use Passport's login method
       req.session.user = userSession;
       
-      // Force session save to ensure persistence
-      req.session.save((err: any) => {
+      // Use Passport's login method for proper session handling
+      req.login(user, (err: any) => {
         if (err) {
-          console.error("Session save error:", err);
+          console.error("Passport login error:", err);
           return res.status(500).json({ message: "Login failed" });
         }
         
-        console.log('Login successful - User stored in session:', user.email);
-        console.log('Session user after save:', req.session.user);
+        console.log('Login successful - User stored in session via Passport:', user.email);
+        console.log('Session user after passport login:', req.user);
         res.status(200).json(userSession);
       });
     } catch (error) {

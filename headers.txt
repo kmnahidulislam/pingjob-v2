@@ -1,0 +1,28 @@
+HTTP/1.1 200 OK
+Content-Security-Policy: default-src 'self';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;font-src 'self' https://fonts.gstatic.com;script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://js.stripe.com;img-src 'self' data: https:;connect-src 'self' https://api.stripe.com https://js.stripe.com wss: ws:;frame-src 'self' https://js.stripe.com https://hooks.stripe.com;base-uri 'self';form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: cross-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 996
+Date: Mon, 04 Aug 2025 13:44:40 GMT
+X-RateLimit-Reset: 1754315956
+RateLimit-Policy: 5;w=900
+RateLimit-Limit: 5
+RateLimit-Remaining: 2
+RateLimit-Reset: 876
+Content-Type: application/json; charset=utf-8
+Content-Length: 129
+ETag: W/"81-qdKyAT1zOHxwvLO4oQNDYkJdXL8"
+Set-Cookie: connect.sid=s%3AFU_Q9lhBCit8_tbCV0YI4QeLLuQtnB9o.NbmgM2asnDxtjjwUc26%2BDjT%2BcnImSpBiENdC%2BnYfzXo; Path=/; Expires=Tue, 05 Aug 2025 13:44:40 GMT; HttpOnly; SameSite=Lax
+Connection: keep-alive
+Keep-Alive: timeout=5
+

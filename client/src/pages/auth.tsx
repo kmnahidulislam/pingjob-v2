@@ -51,15 +51,27 @@ export default function Auth() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      const res = await apiRequest("POST", "/api/login", data);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Login failed");
+      console.log('🔐 Attempting login for:', data.email);
+      try {
+        const res = await apiRequest("POST", "/api/login", data);
+        console.log('🔐 Login response status:', res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.log('🔐 Login failed with error:', errorData);
+          throw new Error(errorData.message || "Login failed");
+        }
+        
+        const userData = await res.json();
+        console.log('🔐 Login successful, user data:', userData);
+        return userData;
+      } catch (error) {
+        console.error('🔐 Login mutation error:', error);
+        throw error;
       }
-      return await res.json();
     },
     onSuccess: (user) => {
-      if (import.meta.env.DEV) console.log('Login success in auth page:', user);
+      console.log('🔐 Login success callback, user:', user);
       // Update the query cache immediately
       queryClient.setQueryData(["/api/user"], user);
       
@@ -69,12 +81,14 @@ export default function Auth() {
       });
       
       // Navigate to dashboard after ensuring state updates
+      console.log('🔐 Navigating to dashboard...');
       setTimeout(() => {
+        console.log('🔐 Setting location to /dashboard');
         setLocation('/dashboard');
       }, 100);
     },
     onError: (error: Error) => {
-      if (import.meta.env.DEV) console.log('Login error:', error.message);
+      console.error('🔐 Login error callback:', error.message);
       toast({
         title: "Login failed",
         description: error.message,
@@ -118,6 +132,7 @@ export default function Auth() {
 
   const handleSubmit = (e: React.FormEvent, type: "login" | "register") => {
     e.preventDefault();
+    console.log('🔐 Form submitted, type:', type, 'email:', formData.email);
     
     if (type === "register") {
       if (formData.password !== formData.confirmPassword) {
@@ -136,9 +151,20 @@ export default function Auth() {
         });
         return;
       }
+      console.log('🔐 Calling register mutation');
       registerMutation.mutate(formData);
     } else {
-      if (import.meta.env.DEV) console.log('Submitting login for:', formData.email);
+      console.log('🔐 Calling login mutation for:', formData.email);
+      if (!formData.email || !formData.password) {
+        console.error('🔐 Missing email or password');
+        toast({
+          title: "Missing information",
+          description: "Please enter both email and password.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       loginMutation.mutate({
         email: formData.email,
         password: formData.password

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login - PingJob</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔐 PingJob Login Test</h1>
+    
+    <div id="result"></div>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="testuser@example.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="TestPassword123!" required>
+        </div>
+        
+        <button type="button" onclick="testRegister()">1. Register New User</button>
+        <button type="submit">2. Login</button>
+        <button type="button" onclick="testSession()">3. Check Session</button>
+        <button type="button" onclick="testLogout()">4. Logout</button>
+    </form>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        function showResult(message, type = 'info') {
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+        
+        async function testRegister() {
+            const email = `test${Date.now()}@example.com`;
+            try {
+                showResult('Registering new user...', 'info');
+                
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: email,
+                        password: 'TestPassword123!',
+                        firstName: 'Test',
+                        lastName: 'User',
+                        userType: 'job_seeker'
+                    })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('email').value = email;
+                    showResult(`✅ Registration successful! Email: ${email}<br>User: ${data.firstName} ${data.lastName}`, 'success');
+                } else {
+                    showResult(`❌ Registration failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Registration error: ${error.message}`, 'error');
+            }
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showResult('Logging in...', 'info');
+                
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Login successful!<br>Welcome ${data.firstName} ${data.lastName} (${data.userType})<br><br>🔄 Checking session persistence...`, 'success');
+                    
+                    // Automatically check session after login
+                    setTimeout(testSession, 1000);
+                } else {
+                    showResult(`❌ Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Login error: ${error.message}`, 'error');
+            }
+        });
+        
+        async function testSession() {
+            try {
+                showResult('Checking session...', 'info');
+                
+                const response = await fetch('/api/user', { 
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Session working!<br>User: ${data.firstName} ${data.lastName}<br>Email: ${data.email}<br>Type: ${data.userType}`, 'success');
+                } else {
+                    showResult(`❌ Session not working: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Session check error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLogout() {
+            try {
+                showResult('Logging out...', 'info');
+                
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    showResult('✅ Logged out successfully', 'success');
+                } else {
+                    showResult('❌ Logout failed', 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Logout error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check session on page load
+        window.addEventListener('load', () => {
+            setTimeout(testSession, 500);
+        });
+    </script>
+</body>
+</html>
