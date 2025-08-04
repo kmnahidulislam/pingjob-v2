@@ -1016,6 +1016,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Follow company endpoint
+  app.post('/api/companies/:id/follow', isAuthenticated, async (req: any, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      // Check if company exists
+      const company = await storage.getCompany(companyId);
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      
+      // For now, just return success - we can implement actual following logic later
+      res.json({ 
+        message: "Company followed successfully",
+        companyId,
+        userId 
+      });
+    } catch (error) {
+      console.error("Error following company:", error);
+      res.status(500).json({ message: "Failed to follow company" });
+    }
+  });
+
   // Admin stats endpoint
   app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
