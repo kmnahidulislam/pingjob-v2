@@ -573,7 +573,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                 Jobs ({companyDetails?.openJobs?.length || 0})
               </TabsTrigger>
               <TabsTrigger value="vendors">
-                Vendors ({companyDetails?.vendors?.length || 0})
+                Vendors{companyDetails?.vendors?.length > 0 ? ` (${companyDetails.vendors.length})` : ''}
               </TabsTrigger>
             </TabsList>
             
