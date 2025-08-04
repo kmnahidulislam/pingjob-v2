@@ -678,26 +678,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const query = req.query.q as string;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 0;
       
-      console.log(`DEBUG ROUTE: /api/companies called with query="${query}", limit=${limit}`);
-      
       if (query && query !== 'undefined' && query.length >= 2) {
         // Search with dynamic limit - higher for job creation
         const searchLimit = limit > 100 ? Math.min(limit, 1000) : 100;
-        console.log(`DEBUG ROUTE: Calling searchCompanies with query="${query}", searchLimit=${searchLimit}`);
         const companies = await storage.searchCompanies(query, searchLimit);
-        console.log(`DEBUG ROUTE: searchCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else if (limit > 0) {
         // Allow high limits for complete company access
         const actualLimit = limit >= 50000 ? 50000 : limit;
-        console.log(`DEBUG ROUTE: limit=${limit}, actualLimit=${actualLimit}`);
-        console.log(`DEBUG ROUTE: Calling getCompanies with limit=${actualLimit}`);
         const companies = await storage.getCompanies(actualLimit);
-        console.log(`DEBUG ROUTE: getCompanies returned ${companies.length} companies`);
         res.json(companies);
       } else {
         // No query and no limit - return top 100 companies
-        console.log(`DEBUG ROUTE: Returning top 100 companies`);
         const companies = await storage.getTopCompanies();
         res.json(companies);
       }
@@ -757,10 +749,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
       
-      console.log(`DEBUG SEARCH: Searching companies with query="${query}", limit=${limit}`);
       const companies = await storage.searchCompanies(query, limit);
-      console.log(`DEBUG SEARCH: Found ${companies.length} companies matching "${query}"`);
-      
       res.json(companies);
     } catch (error) {
       console.error('Error searching companies:', error);

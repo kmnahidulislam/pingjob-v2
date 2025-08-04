@@ -503,12 +503,10 @@ export class DatabaseStorage implements IStorage {
       `;
       
       const result = await pool.query(query);
-      console.log(`DEBUG ROUTE: getCompanies returned ${result.rows.length} companies with vendor counts`);
       
       // Convert vendor_count from string to number and transform snake_case to camelCase
       const processedRows = result.rows.map(row => {
         const vendorCount = parseInt(row.vendor_count) || 0;
-        console.log(`DEBUG: Converting vendor_count "${row.vendor_count}" to ${vendorCount} for company ${row.name}`);
         return {
           ...row,
           vendor_count: vendorCount,
@@ -605,8 +603,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchCompanies(query: string, limit = 50000): Promise<any[]> {
-    console.log(`DEBUG: searchCompanies called with query="${query}", limit=${limit}`);
-    
     try {
       const searchQuery = `
         SELECT DISTINCT
@@ -636,7 +632,6 @@ export class DatabaseStorage implements IStorage {
       const searchTerm = `%${query}%`;
       const exactTerm = query.trim();
       const result = await pool.query(searchQuery, [searchTerm, exactTerm]);
-      console.log(`DEBUG: searchCompanies returned ${result.rows.length} results for "${query}"`);
       
       // Convert vendor_count from string to number and transform snake_case to camelCase
       const processedRows = result.rows.map(row => ({

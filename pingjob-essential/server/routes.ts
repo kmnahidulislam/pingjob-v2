@@ -754,10 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
       
-      console.log(`DEBUG SEARCH: Searching companies with query="${query}", limit=${limit}`);
       const companies = await storage.searchCompanies(query, limit);
-      console.log(`DEBUG SEARCH: Found ${companies.length} companies matching "${query}"`);
-      
       res.json(companies);
     } catch (error) {
       console.error('Error searching companies:', error);

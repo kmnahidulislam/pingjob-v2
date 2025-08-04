@@ -268,12 +268,16 @@ export default function CategoryJobsPage() {
                           {company.name}
                         </h4>
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="default" className="text-sm bg-green-700 text-white font-extrabold px-3 py-1 shadow-md">
-                            {company.jobCount} JOBS
-                          </Badge>
-                          <Badge variant="default" className="text-sm bg-blue-700 text-white font-extrabold px-3 py-1 shadow-md">
-                            {company.vendorCount} VENDORS
-                          </Badge>
+                          {(company.jobCount || 0) > 0 && (
+                            <Badge variant="default" className="text-sm bg-green-700 text-white font-extrabold px-3 py-1 shadow-md">
+                              {company.jobCount} JOBS
+                            </Badge>
+                          )}
+                          {(company.vendorCount || 0) > 0 && (
+                            <Badge variant="default" className="text-sm bg-blue-700 text-white font-extrabold px-3 py-1 shadow-md">
+                              {company.vendorCount} VENDORS
+                            </Badge>
+                          )}
                         </div>
                         {(company.city || company.state) && (
                           <p className="text-xs text-gray-600 font-medium">
