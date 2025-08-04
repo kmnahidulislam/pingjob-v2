@@ -1028,10 +1028,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin stats endpoint
   app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userEmail = req.user.email;
+      const user = req.user;
+      console.log('🔐 Admin stats request - User:', user);
       
-      // Check if user is admin
-      if (userEmail !== 'krupas@vedsoft.com' && userEmail !== 'krupashankar@gmail.com') {
+      // Check if user is admin by userType or specific email
+      if (user.user_type !== 'admin' && user.userType !== 'admin' && 
+          user.email !== 'krupas@vedsoft.com' && user.email !== 'krupashankar@gmail.com') {
+        console.log('🔐 Admin access denied for user:', user.email, 'type:', user.user_type || user.userType);
         return res.status(403).json({ message: "Access denied" });
       }
 
