@@ -10,7 +10,8 @@ PingJob is a comprehensive full-stack web application designed to serve as a job
 ✅ **Job Creation Working** - Admin can successfully create and edit job postings with proper authentication
 ✅ **Vendor Count Display Completely Fixed** - All places showing "0" for vendor counts now properly hidden across all components
 ✅ **Debug Logs Cleaned** - Removed all debug console logs that were displaying vendor count information
-⚠️ **Facebook Integration Pending** - System ready for Facebook posting but requires token with `pages_manage_posts` and `pages_read_engagement` permissions
+✅ **Follow Company Feature Fixed** - Added missing `/api/companies/:id/follow` endpoint to resolve "unexpected token '<'" error
+✅ **Facebook Integration Activated** - Updated Facebook access token with proper permissions for posting job listings to PingJob page
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
