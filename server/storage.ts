@@ -2413,10 +2413,9 @@ export class DatabaseStorage implements IStorage {
       console.log(`Found ${checkAssignments.rows[0].count} assignments for job ${jobId}`);
       
       if (parseInt(checkAssignments.rows[0].count) === 0) {
-        // No assignments found, let's try to auto-assign now
-        console.log('No assignments found, attempting auto-assignment...');
-        const assignments = await this.autoAssignCandidatesToJob(jobId, recruiterId);
-        console.log(`Auto-assignment created ${assignments.length} assignments`);
+        // AUTO-ASSIGNMENT DISABLED - Only manual candidate assignments allowed
+        console.log('No assignments found - auto-assignment disabled to prevent broken application references');
+        // 🚫 Auto-assignment system disabled to prevent broken resume references
       }
       
       // Use raw SQL to handle column naming issues
