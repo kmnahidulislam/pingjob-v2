@@ -1720,8 +1720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         jobId: parseInt(req.body.jobId),
         applicantId: userId,
-        resumeUrl,
-        originalFilename,
+        resumeUrl
       });
       
       // Create the primary application first
@@ -1750,7 +1749,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 jobId: otherJob.id,
                 applicantId: userId,
                 resumeUrl: resumeUrl,
-                originalFilename: originalFilename,
                 coverLetter: req.body.coverLetter || 'Auto-applied based on matching skills and category',
                 status: 'pending'
               });
