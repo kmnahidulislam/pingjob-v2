@@ -1641,26 +1641,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/applications', isAuthenticated, uploadLimiter, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const resumeUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      
+      // Debug file upload
+      console.log('=== FILE UPLOAD DEBUG ===');
+      console.log('req.file:', req.file ? {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        path: req.file.path
+      } : 'No file uploaded');
+      
+      if (!req.file) {
+        return res.status(400).json({ message: "No resume uploaded. Please select a file." });
+      }
+      
+      const resumeUrl = `/uploads/${req.file.filename}`;
       let originalFilename = null;
       
       // Track original filename for proper downloads
-      if (req.file && req.file.originalname) {
-        originalFilename = req.file.originalname;
-        
-        // Update filename mapping
-        try {
-          const mappingPath = path.join('uploads', '.metadata', 'filename_mapping.json');
-          let mapping = {};
-          if (fs.existsSync(mappingPath)) {
-            mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
-          }
-          mapping[req.file.filename] = originalFilename;
-          fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
-          console.log(`Updated filename mapping: ${req.file.filename} -> ${originalFilename}`);
-        } catch (error) {
-          console.error('Failed to update filename mapping:', error);
+      originalFilename = req.file.originalname;
+      
+      // Verify file was saved correctly
+      const uploadedFilePath = path.join('uploads', req.file.filename);
+      if (!fs.existsSync(uploadedFilePath)) {
+        console.error(`File not found after upload: ${uploadedFilePath}`);
+        return res.status(500).json({ message: "File upload failed - file not saved" });
+      }
+      
+      console.log(`File successfully uploaded: ${uploadedFilePath} (${originalFilename})`);
+      
+      // Update filename mapping
+      try {
+        const mappingPath = path.join('uploads', '.metadata', 'filename_mapping.json');
+        let mapping = {};
+        if (fs.existsSync(mappingPath)) {
+          mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
         }
+        mapping[req.file.filename] = originalFilename;
+        fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
+        console.log(`Updated filename mapping: ${req.file.filename} -> ${originalFilename}`);
+      } catch (error) {
+        console.error('Failed to update filename mapping:', error);
       }
       
       const validatedData = insertJobApplicationSchema.parse({
