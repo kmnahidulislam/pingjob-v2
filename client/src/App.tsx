@@ -40,6 +40,7 @@ import VisitStats from "@/pages/visit-stats";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
 
+import RecruiterDashboard from "@/pages/recruiter-dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import Navigation from "@/components/navigation";
 import { initGA } from "./lib/analytics";
@@ -176,7 +177,7 @@ function Router() {
           <Route path="/network" component={NetworkPage} />
           <Route path="/messaging" component={Messaging} />
           <Route path="/dashboard" component={Dashboard} />
-
+          <Route path="/recruiter-dashboard" component={RecruiterDashboard} />
           <Route path="/enterprise-dashboard" component={EnterpriseDashboard} />
           <Route path="/social-media-test" component={SocialMediaTest} />
           <Route path="/checkout" component={Checkout} />
