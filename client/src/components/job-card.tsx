@@ -127,69 +127,54 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   const skillsArray = Array.isArray(job.skills) ? job.skills : 
     (job.skills ? String(job.skills).split(',').map((s: string) => s.trim()) : []);
 
-  // Format location properly - remove "United States" and ensure zip code is included
+  // Format location - ALWAYS returns a location string
   const formatLocation = (job: any) => {
-    // Handle remote jobs first
-    if (job.city === "Remote" || (!job.city && !job.state && !job.location)) {
+    // Handle explicit remote jobs
+    if (job.city === "Remote") {
       return 'Remote';
     }
     
-    // Try job-level location fields first (exclude country to remove "United States")
-    const parts = [];
-    if (job.city && job.city !== "Remote") parts.push(job.city);
-    if (job.state) parts.push(job.state);
-    
-    // Add zip code if available
-    let locationStr = parts.length > 0 ? parts.join(', ') : '';
-    if (locationStr && job.zipCode) {
-      locationStr += ` ${job.zipCode}`;
-    } else if (parts.length > 0) {
-      locationStr = parts.join(', ');
+    // If we have all three pieces, format with zip
+    if (job.city && job.state && job.zipCode) {
+      return `${job.city}, ${job.state} ${job.zipCode}`;
     }
     
-    if (locationStr) {
-      return locationStr;
+    // If we have city and state but no zip
+    if (job.city && job.state) {
+      return `${job.city}, ${job.state}`;
     }
     
-    // Try job.location field 
-    if (job.location && job.location.trim()) {
-      const cleaned = job.location
-        .replace(/, United States$/, '')
-        .replace(/ United States$/, '')
-        .replace(/United States,?\s*/, '')
-        .trim();
+    // If we only have city
+    if (job.city && !job.state) {
+      return job.city;
+    }
+    
+    // If we only have state
+    if (job.state && !job.city) {
+      return job.state;
+    }
+    
+    // If we have a location string, clean it up
+    if (job.location) {
+      const cleaned = job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
       if (cleaned) return cleaned;
     }
     
-    // Fallback to company location, parse it for components
+    // Try to extract from company location as fallback
     if (job.company?.location) {
-      let companyLocation = job.company.location;
-      
-      // Remove "United States" in all variations
-      companyLocation = companyLocation
-        .replace(/, United States$/, '')
-        .replace(/ United States$/, '')
-        .replace(/United States,?\s*/, '')
-        .trim();
-      
-      // Parse different formats
-      const locationParts = companyLocation.split(',').map((part: string) => part.trim()).filter(Boolean);
-      
-      if (locationParts.length >= 3) {
-        // Format: "Street Address, City, State" -> return "City, State"
-        return locationParts.slice(-2).join(', ');
-      } else if (locationParts.length === 2) {
-        // Format: "City, State" -> return as is
-        return locationParts.join(', ');
-      } else if (locationParts.length === 1) {
-        // Single part, return as is
-        return locationParts[0];
+      const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
+      if (cleaned) {
+        // Parse company location conservatively
+        const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
+        } else if (parts.length === 1) {
+          return parts[0];
+        }
       }
-      
-      // Fallback to cleaned full location
-      return companyLocation || 'Remote';
     }
     
+    // For jobs without any location data, show as Remote
     return 'Remote';
   };
 

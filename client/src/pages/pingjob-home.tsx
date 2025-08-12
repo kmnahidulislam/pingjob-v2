@@ -37,9 +37,9 @@ import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
-// Helper function to format location without United States, including zip codes
+// Helper function to format location - ALWAYS returns a location string
 const formatJobLocation = (job: any) => {
-  // Handle remote jobs first
+  // Handle explicit remote jobs
   if (job.city === "Remote") {
     return 'Remote';
   }
@@ -48,25 +48,43 @@ const formatJobLocation = (job: any) => {
   if (job.city && job.state && job.zipCode) {
     return `${job.city}, ${job.state} ${job.zipCode}`;
   }
+  
   // If we have city and state but no zip
   if (job.city && job.state) {
     return `${job.city}, ${job.state}`;
   }
+  
   // If we only have city
   if (job.city && !job.state) {
     return job.city;
   }
+  
   // If we only have state
   if (job.state && !job.city) {
     return job.state;
   }
-  // If we only have a location string, clean it up
+  
+  // If we have a location string, clean it up
   if (job.location) {
     const cleaned = job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
-    return cleaned || 'Remote';
+    if (cleaned) return cleaned;
   }
   
-  // Default fallback
+  // Try to extract from company location as fallback
+  if (job.company?.location) {
+    const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
+    if (cleaned) {
+      // Parse company location conservatively
+      const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
+      } else if (parts.length === 1) {
+        return parts[0];
+      }
+    }
+  }
+  
+  // For jobs without any location data, show as Remote
   return 'Remote';
 };
 
