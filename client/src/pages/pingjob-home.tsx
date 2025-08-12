@@ -675,10 +675,10 @@ export default function PingJobHome() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
-                              <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
-                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                                <div className="flex items-center">
-                                  <MapPin className="h-3 w-3 mr-1" />
+                              <p className="text-sm text-gray-600 mb-1">{job.company?.name}</p>
+                              <div className="flex items-center space-x-4 text-sm mb-2">
+                                <div className="flex items-center text-blue-600 font-medium">
+                                  <MapPin className="h-4 w-4 mr-1" />
                                   <span>{formatJobLocation(job)}</span>
                                 </div>
                                 <div className="flex items-center">
@@ -965,14 +965,10 @@ export default function PingJobHome() {
                         <CardTitle className="text-lg font-semibold line-clamp-2 text-gray-800">
                           {job.title}
                         </CardTitle>
-                        {(job.company?.city || job.company?.state || job.company?.zipCode || job.location) && (
-                          <div className="flex items-center text-sm text-gray-500 mt-1">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>
-                              {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || formatJobLocation(job)}
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-center text-sm text-blue-600 font-medium mt-1">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span>{formatJobLocation(job)}</span>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -1099,8 +1095,8 @@ export default function PingJobHome() {
                         <h4 className="font-medium mb-2">{job.title}</h4>
                         <p className="mobile-subtitle text-gray-600">{job.company?.name}</p>
                         <div className="flex items-center justify-between mt-3">
-                          <div className="flex items-center text-sm text-gray-500">
-                            <MapPin className="h-3 w-3 mr-1" />
+                          <div className="flex items-center text-sm text-blue-600 font-medium">
+                            <MapPin className="h-4 w-4 mr-1" />
                             <span>{formatJobLocation(job)}</span>
                           </div>
                           <Button size="sm" className="px-3">Apply</Button>
@@ -1221,8 +1217,8 @@ export default function PingJobHome() {
                         <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
                         
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center text-xs text-gray-500">
-                            <MapPin className="h-3 w-3 mr-1" />
+                          <div className="flex items-center text-sm text-blue-600 font-medium">
+                            <MapPin className="h-4 w-4 mr-1" />
                             <span>{formatJobLocation(job)}</span>
                           </div>
                           
