@@ -146,7 +146,7 @@ function JobApplicationsSection() {
                                 const link = document.createElement('a');
                                 link.href = downloadUrl;
                                 const applicantName = app.applicantName || (app.applicant ? `${app.applicant.firstName || ''} ${app.applicant.lastName || ''}`.trim() : 'resume');
-                                link.download = `${applicantName.replace(/\s+/g, '-')}-resume.pdf`;
+                                link.download = `${applicantName.replace(/\s+/g, '-')}-resume.docx`;
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);
@@ -168,7 +168,7 @@ function JobApplicationsSection() {
                           }}
                         >
                           <Download className="h-4 w-4 mr-1" />
-                          Download PDF
+                          Download DOCX
                         </Button>
                       ) : (
                         <span className="text-gray-500 text-sm italic">No resume uploaded</span>
