@@ -312,28 +312,39 @@ export function parseLocationString(location: string): { city?: string; state?: 
   // Remove zip code from location string for further parsing
   const locationWithoutZip = cleanLocation.replace(/\b\d{5}(-\d{4})?\b/, '').replace(/,\s*$/, '').trim();
   
+  // Only parse if we have commas AND this doesn't look like a street address
+  if (!locationWithoutZip.includes(',')) {
+    // Single part without commas - could be street address, only return if it's obviously a state/city
+    if (stateZipMapping[locationWithoutZip]) {
+      return {
+        state: locationWithoutZip,
+        zipCode: zipCode || stateZipMapping[locationWithoutZip]
+      };
+    }
+    if (cityZipMapping[locationWithoutZip]) {
+      return {
+        city: locationWithoutZip,
+        zipCode: zipCode || cityZipMapping[locationWithoutZip]
+      };
+    }
+    // Don't parse street addresses
+    return { zipCode: zipCode || undefined };
+  }
+  
   // Split by commas
   const parts = locationWithoutZip.split(',').map(part => part.trim()).filter(Boolean);
   
   if (parts.length >= 2) {
     // Format: "City, State" or "City, State, Country"
-    return {
-      city: parts[0],
-      state: parts[1],
-      zipCode: zipCode || undefined
-    };
-  } else if (parts.length === 1) {
-    // Could be just city or just state
-    const part = parts[0];
-    if (stateZipMapping[part]) {
+    const possibleCity = parts[0];
+    const possibleState = parts[1];
+    
+    // Check if this looks like a valid city-state combination
+    if (possibleState.length <= 20 && !possibleCity.match(/\d+.*street|avenue|road|drive|blvd|way|lane|court/i)) {
       return {
-        state: part,
-        zipCode: zipCode || stateZipMapping[part]
-      };
-    } else {
-      return {
-        city: part,
-        zipCode: zipCode || cityZipMapping[part] || undefined
+        city: possibleCity,
+        state: possibleState,
+        zipCode: zipCode || undefined
       };
     }
   }
@@ -366,8 +377,8 @@ export function enhanceJobWithLocationData(job: any): any {
     zipCode = getZipCodeForCityState(city, state);
   }
   
-  // If no zip and we have location string, parse it
-  if (!zipCode && location) {
+  // If no zip and we have location string, parse it ONLY if it looks like a proper location
+  if (!zipCode && location && location.includes(',')) {
     const parsed = parseLocationString(location);
     zipCode = parsed.zipCode || null;
     
@@ -381,42 +392,24 @@ export function enhanceJobWithLocationData(job: any): any {
     }
   }
   
-  // If still no location data, try to extract from company location (but be conservative)
+  // If still no location data, try to extract from company location (very conservative approach)
   if (!city && !state && (!location || location.trim() === '') && job.company?.location) {
     const companyLoc = job.company.location.trim();
     if (companyLoc) {
-      // Only try to extract from clearly formatted addresses like "City, State" or "Address, City, State"
-      const parsed = parseLocationString(companyLoc);
-      if (parsed.city || parsed.state) {
-        city = parsed.city;
-        state = parsed.state;
-        zipCode = parsed.zipCode || getZipCodeForCityState(city, state);
-        location = city && state ? `${city}, ${state}` : (city || state || "");
+      // Only try to extract from clearly formatted addresses with commas
+      if (companyLoc.includes(',')) {
+        const parsed = parseLocationString(companyLoc);
+        if (parsed.city && parsed.state) {
+          city = parsed.city;
+          state = parsed.state;
+          zipCode = parsed.zipCode || getZipCodeForCityState(city, state);
+          location = `${city}, ${state}`;
+        }
       } else {
-        // Only match obvious city patterns in company addresses, not street addresses
+        // For single-part company addresses, only match if it contains known city names
         const addressText = companyLoc.toLowerCase();
         const cityPatterns = [
-          { pattern: /\bchicago\b/i, city: "Chicago", state: "Illinois" },
-          { pattern: /\bmichigan avenue\b/i, city: "Chicago", state: "Illinois" }, // Specific pattern for Michigan Avenue in Chicago
-          { pattern: /\bseattle\b/i, city: "Seattle", state: "Washington" },
-          { pattern: /\bbellevue\b/i, city: "Bellevue", state: "Washington" },
-          { pattern: /\bredmond\b/i, city: "Redmond", state: "Washington" },
-          { pattern: /\bsan francisco\b/i, city: "San Francisco", state: "California" },
-          { pattern: /\bminneapolis\b/i, city: "Minneapolis", state: "Minnesota" },
-          { pattern: /\bnew york\b/i, city: "New York", state: "New York" },
-          { pattern: /\batlanta\b/i, city: "Atlanta", state: "Georgia" },
-          { pattern: /\bdallas\b/i, city: "Dallas", state: "Texas" },
-          { pattern: /\bhouston\b/i, city: "Houston", state: "Texas" },
-          { pattern: /\baustin\b/i, city: "Austin", state: "Texas" },
-          { pattern: /\bdenver\b/i, city: "Denver", state: "Colorado" },
-          { pattern: /\bphoenix\b/i, city: "Phoenix", state: "Arizona" },
-          { pattern: /\bmiami\b/i, city: "Miami", state: "Florida" },
-          { pattern: /\borlando\b/i, city: "Orlando", state: "Florida" },
-          { pattern: /\btampa\b/i, city: "Tampa", state: "Florida" },
-          { pattern: /\bboston\b/i, city: "Boston", state: "Massachusetts" },
-          { pattern: /\bdetroit\b/i, city: "Detroit", state: "Michigan" },
-          { pattern: /\bnashville\b/i, city: "Nashville", state: "Tennessee" },
-          { pattern: /\bcharlotte\b/i, city: "Charlotte", state: "North Carolina" }
+          { pattern: /\bmichigan avenue\b/i, city: "Chicago", state: "Illinois" }
         ];
         
         for (const pattern of cityPatterns) {
