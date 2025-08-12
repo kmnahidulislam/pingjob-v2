@@ -283,9 +283,18 @@ export default function Home() {
                       <h4 className="font-medium text-sm">{job.title}</h4>
                       <p className="text-xs text-gray-600">
                         {job.company?.name || 'Unknown Company'} • {
-                          job.company?.location 
-                            ? job.company.location.replace(', United States', '').replace(' United States', '').trim()
-                            : (job.location || 'Remote')
+                          (() => {
+                            if (job.company?.location) {
+                              const cleaned = job.company.location
+                                .replace(/, United States$/, '')
+                                .replace(/ United States$/, '')
+                                .replace(/United States,?\s*/, '')
+                                .trim();
+                              const parts = cleaned.split(',').map(p => p.trim()).filter(Boolean);
+                              return parts.length >= 3 ? parts.slice(-2).join(', ') : cleaned;
+                            }
+                            return job.location || 'Remote';
+                          })()
                         }
                       </p>
                       <p className="text-xs text-linkedin-blue">

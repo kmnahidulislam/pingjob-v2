@@ -141,24 +141,41 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     
     // Try job.location field 
     if (job.location && job.location.trim()) {
-      return job.location.replace(', United States', '').replace(' United States', '').trim();
+      const cleaned = job.location
+        .replace(/, United States$/, '')
+        .replace(/ United States$/, '')
+        .replace(/United States,?\s*/, '')
+        .trim();
+      if (cleaned) return cleaned;
     }
     
     // Fallback to company location, parse it for components
     if (job.company?.location) {
-      const companyLocation = job.company.location;
+      let companyLocation = job.company.location;
       
-      // Try to parse "Street Address, City, State ZipCode" format
-      const locationParts = companyLocation.split(',').map(part => part.trim());
+      // Remove "United States" in all variations
+      companyLocation = companyLocation
+        .replace(/, United States$/, '')
+        .replace(/ United States$/, '')
+        .replace(/United States,?\s*/, '')
+        .trim();
       
-      if (locationParts.length >= 2) {
-        // If we have multiple parts, skip the street address and use city, state, zip
-        const cityStateZip = locationParts.slice(1).join(', ');
-        return cityStateZip.replace(', United States', '').replace(' United States', '').trim();
+      // Parse different formats
+      const locationParts = companyLocation.split(',').map(part => part.trim()).filter(Boolean);
+      
+      if (locationParts.length >= 3) {
+        // Format: "Street Address, City, State" -> return "City, State"
+        return locationParts.slice(-2).join(', ');
+      } else if (locationParts.length === 2) {
+        // Format: "City, State" -> return as is
+        return locationParts.join(', ');
+      } else if (locationParts.length === 1) {
+        // Single part, return as is
+        return locationParts[0];
       }
       
-      // Otherwise just clean up the full company location
-      return companyLocation.replace(', United States', '').replace(' United States', '').trim();
+      // Fallback to cleaned full location
+      return companyLocation || 'Remote';
     }
     
     return 'Remote';
