@@ -1480,15 +1480,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/job-applications/for-recruiters', isAuthenticated, async (req: any, res) => {
     try {
       console.log(`===== JOB APPLICATIONS REQUEST =====`);
-      console.log(`User: ${req.user.email} (${req.user.userType})`);
-      const userType = req.user.userType;
+      console.log(`User: ${req.user.email} (${req.user.userType || req.user.user_type})`);
+      const userType = req.user.userType || req.user.user_type;
       
       // Only allow recruiters and enterprise users
       if (userType !== 'recruiter' && userType !== 'client') {
         return res.status(403).json({ message: "Access denied. Recruiter or enterprise role required." });
       }
 
-      const applications = await storage.getJobApplicationsForRecruiters(userType);
+      const applications = await storage.getJobApplicationsForRecruiters(req.user.id);
       console.log(`Found ${applications.length} applications for recruiter dashboard`);
       console.log(`Raw applications data:`, applications.slice(0, 2)); // Show first 2 for debugging
       

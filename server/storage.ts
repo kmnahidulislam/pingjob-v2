@@ -53,7 +53,6 @@ import {
   type InsertVisit,
 } from "@shared/schema";
 import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
-import { eq, desc, and, or, ilike, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -2686,6 +2685,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: jobs.createdAt,
         applicationCount: jobs.applicationCount,
         companyId: jobs.companyId,
+        companyName: companies.name,
         company: {
           id: companies.id,
           name: companies.name,
@@ -2702,7 +2702,30 @@ export class DatabaseStorage implements IStorage {
       )
       .orderBy(desc(jobs.createdAt));
 
-    return result;
+    // For each job, get the candidate count based on categoryId
+    const jobsWithCandidateCount = await Promise.all(
+      result.map(async (job) => {
+        if (job.categoryId) {
+          const candidateCount = await db
+            .select({ count: sql`count(*)` })
+            .from(users)
+            .where(
+              and(
+                eq(users.categoryId, job.categoryId),
+                eq(users.userType, 'job_seeker')
+              )
+            );
+          
+          return {
+            ...job,
+            candidateCount: parseInt(candidateCount[0]?.count || '0')
+          };
+        }
+        return { ...job, candidateCount: 0 };
+      })
+    );
+
+    return jobsWithCandidateCount;
   }
 
   // Create connection between recruiter and candidate
@@ -2789,7 +2812,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getJobApplicationsForRecruiters(userType: string): Promise<any[]> {
+  async getJobApplicationsForRecruiters(userId: string): Promise<any[]> {
     try {
       // Enterprise users get access to ALL applications
       // Recruiters get access to applications for their jobs only

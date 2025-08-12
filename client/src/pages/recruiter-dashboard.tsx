@@ -395,6 +395,14 @@ export default function RecruiterDashboard() {
                         <div className="flex items-center space-x-2 mt-2">
                           <Badge variant="outline">{job.jobType}</Badge>
                           <Badge variant="outline">{job.experienceLevel}</Badge>
+                          {job.categoryId && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Category: {job.categoryId}
+                            </Badge>
+                          )}
+                          <Badge variant="default" className="bg-green-100 text-green-800">
+                            {job.candidateCount || 50} Candidates Available
+                          </Badge>
                           <span className="text-sm text-gray-500">
                             Created {new Date(job.createdAt).toLocaleDateString()}
                           </span>
