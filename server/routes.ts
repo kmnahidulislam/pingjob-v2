@@ -1103,10 +1103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = parseInt(req.query.limit as string) || 20;
       const jobs = await storage.getAdminJobs(limit);
       
-      // Enhance each job with better location data and zip codes
-      const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
-      
-      res.json(enhancedJobs);
+      // Jobs now have complete location data from the database query
+      res.json(jobs);
     } catch (error) {
       console.error("Error fetching admin jobs:", error);
       res.status(500).json({ message: "Failed to fetch admin jobs" });
