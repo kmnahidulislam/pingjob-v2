@@ -62,7 +62,7 @@ export default function Pricing() {
       name: "Recruiter",
       description: "For recruiting professionals and HR teams",
       icon: <Building className="h-8 w-8 text-green-600" />,
-      price: billingPeriod === 'monthly' ? 99 : 990,
+      price: billingPeriod === 'monthly' ? 19 : 190,
       period: billingPeriod === 'monthly' ? '/month' : '/year',
       popular: true,
       features: [
