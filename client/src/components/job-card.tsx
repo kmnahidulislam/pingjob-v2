@@ -129,11 +129,12 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   // Format location properly - remove "United States" and ensure zip code is included
   const formatLocation = (job: any) => {
-    // Try job-level location fields first
+    // Try job-level location fields first (exclude country to remove "United States")
     const parts = [];
     if (job.city) parts.push(job.city);
     if (job.state) parts.push(job.state);
-    if (job.zipCode) parts.push(job.zipCode);
+    // Removed job.zipCode to keep locations clean
+    // Removed job.country to exclude "United States"
     
     if (parts.length > 0) {
       return parts.join(', ');

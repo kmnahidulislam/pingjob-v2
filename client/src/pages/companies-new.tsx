@@ -91,11 +91,11 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
           )}
           
           {/* Location */}
-          {(company.city || company.state || company.country) && (
+          {(company.city || company.state) && (
             <div className="flex items-center text-xs text-gray-500">
               <MapPin className="h-3 w-3 mr-1" />
               <span className="truncate">
-                {[company.city, company.state, company.country].filter(Boolean).join(', ')}
+                {[company.city, company.state].filter(Boolean).join(', ')}
               </span>
             </div>
           )}

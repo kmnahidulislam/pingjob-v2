@@ -283,7 +283,7 @@ export default function HomeV2() {
                   
                   {(company.city || company.state) && (
                     <div className="text-xs text-gray-500 mt-2">
-                      {[company.city, company.state, company.zipCode, company.country]
+                      {[company.city, company.state]
                         .filter(Boolean)
                         .join(', ')}
                     </div>
