@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+</head>
+<body>
+    <h2>Direct Upload Test</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="hidden" name="jobId" value="83767">
+        <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+        <textarea name="coverLetter" placeholder="Cover letter..."></textarea>
+        <button type="submit">Upload Resume</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const result = document.getElementById('result');
+            
+            result.innerHTML = 'Uploading...';
+            
+            try {
+                console.log('🔥 Making direct POST request to /api/applications');
+                const response = await fetch('/api/applications', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                console.log('🔥 Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `✅ Success: ${JSON.stringify(data)}`;
+                } else {
+                    const error = await response.text();
+                    result.innerHTML = `❌ Error: ${error}`;
+                }
+            } catch (error) {
+                console.error('🔥 Network error:', error);
+                result.innerHTML = `❌ Network Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
