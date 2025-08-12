@@ -1651,10 +1651,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve the upload test page
-  app.get('/test-upload.html', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'test-upload.html'));
-  });
+
 
   app.post('/api/applications', (req, res, next) => {
     console.log('🔥 === RAW REQUEST DEBUG === 🔥');
