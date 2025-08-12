@@ -161,7 +161,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
         .trim();
       
       // Parse different formats
-      const locationParts = companyLocation.split(',').map(part => part.trim()).filter(Boolean);
+      const locationParts = companyLocation.split(',').map((part: string) => part.trim()).filter(Boolean);
       
       if (locationParts.length >= 3) {
         // Format: "Street Address, City, State" -> return "City, State"
@@ -183,17 +183,16 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   if (compact) {
     // Debug logging to see what data we have
-    if (import.meta.env.DEV) console.log('JobCard compact - job data:', {
-      title: job.title,
-      company: job.company,
-      vendorCount: job.company?.vendorCount,
-      location: job.location,
-      city: job.city,
-      state: job.state,
-      zipCode: job.zipCode,
-      country: job.country,
-      formattedLocation: formatLocation(job)
-    });
+    if (import.meta.env.DEV) {
+      const formatted = formatLocation(job);
+      console.log('=== JobCard DEBUG ===');
+      console.log('Title:', job.title);
+      console.log('Job location:', job.location);
+      console.log('Company location:', job.company?.location);
+      console.log('Full job object:', job);
+      console.log('Formatted location:', formatted);
+      console.log('===================');
+    }
     
 
     

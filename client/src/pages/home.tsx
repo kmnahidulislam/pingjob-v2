@@ -290,7 +290,7 @@ export default function Home() {
                                 .replace(/ United States$/, '')
                                 .replace(/United States,?\s*/, '')
                                 .trim();
-                              const parts = cleaned.split(',').map(p => p.trim()).filter(Boolean);
+                              const parts = cleaned.split(',').map((p: string) => p.trim()).filter(Boolean);
                               return parts.length >= 3 ? parts.slice(-2).join(', ') : cleaned;
                             }
                             return job.location || 'Remote';
