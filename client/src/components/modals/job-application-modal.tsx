@@ -80,14 +80,20 @@ export default function JobApplicationModal({
         console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
       }
 
+      console.log('Making POST request to /api/applications...');
+      
       const response = await fetch('/api/applications', {
         method: 'POST',
         body: formData,
         credentials: 'include'
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const error = await response.text();
+        console.error('Upload failed with error:', error);
         throw new Error(error || 'Failed to submit application');
       }
 
