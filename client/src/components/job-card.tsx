@@ -127,6 +127,32 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   const skillsArray = Array.isArray(job.skills) ? job.skills : 
     (job.skills ? job.skills.split(',').map(s => s.trim()) : []);
 
+  // Format location properly - remove "United States" and ensure zip code is included
+  const formatLocation = (job: any) => {
+    const parts = [];
+    
+    // Add city if available
+    if (job.city) parts.push(job.city);
+    
+    // Add state if available
+    if (job.state) parts.push(job.state);
+    
+    // Add zip code if available
+    if (job.zipCode) parts.push(job.zipCode);
+    
+    // If we have parts, use them, otherwise fall back to location field
+    if (parts.length > 0) {
+      return parts.join(', ');
+    }
+    
+    // Fallback to location field but remove "United States" 
+    if (job.location) {
+      return job.location.replace(', United States', '').replace(' United States', '');
+    }
+    
+    return 'Remote';
+  };
+
   if (compact) {
     // Debug logging to see what data we have
     if (import.meta.env.DEV) console.log('JobCard compact - job data:', {
@@ -156,11 +182,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             )}
             <div className="flex items-center text-xs text-gray-500">
               <MapPin className="h-3 w-3 mr-1" />
-              <span>
-                {[job.city, job.state, job.zipCode, job.country]
-                  .filter(Boolean)
-                  .join(', ') || job.location}
-              </span>
+              <span>{formatLocation(job)}</span>
             </div>
             <Badge variant="secondary" className="text-xs">
               {job.jobType?.replace('_', ' ') || 'Full Time'}
@@ -196,11 +218,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 )}
                 <div className="flex items-center text-sm text-gray-500 mt-1">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>
-                    {[job.city, job.state, job.zipCode, job.country]
-                      .filter(Boolean)
-                      .join(', ') || job.location}
-                  </span>
+                  <span>{formatLocation(job)}</span>
                   <span className="mx-2">•</span>
                   <Badge variant="outline" className="text-xs">
                     {job.jobType?.replace('_', ' ') || 'Full Time'}
