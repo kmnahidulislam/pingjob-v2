@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Upload Test</title>
+</head>
+<body>
+    <h1>Test Resume Upload</h1>
+    
+    <!-- Login first -->
+    <div id="login-section">
+        <h2>Login</h2>
+        <button onclick="testLogin()">Login as Recruiter</button>
+        <div id="login-status"></div>
+    </div>
+    
+    <!-- Then test application -->
+    <div id="upload-section" style="display: none;">
+        <h2>Test Job Application</h2>
+        <form id="applicationForm">
+            <label>Job ID: <input type="number" name="jobId" value="83767" required></label><br><br>
+            <label>Cover Letter: <textarea name="coverLetter">Test cover letter</textarea></label><br><br>
+            <label>Resume File: <input type="file" name="resume" accept=".pdf,.doc,.docx,.txt" required></label><br><br>
+            <button type="submit">Submit Application</button>
+        </form>
+        <div id="upload-status"></div>
+    </div>
+    
+    <script>
+    async function testLogin() {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'recruiter@test.com',
+                password: 'password123'
+            })
+        });
+        
+        if (response.ok) {
+            document.getElementById('login-status').innerHTML = '✅ Login successful';
+            document.getElementById('upload-section').style.display = 'block';
+        } else {
+            document.getElementById('login-status').innerHTML = '❌ Login failed: ' + await response.text();
+        }
+    }
+    
+    document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        console.log('Submitting application...');
+        
+        const response = await fetch('/api/applications', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.text();
+        console.log('Response:', result);
+        
+        if (response.ok) {
+            document.getElementById('upload-status').innerHTML = '✅ Application submitted successfully!<br>' + result;
+        } else {
+            document.getElementById('upload-status').innerHTML = '❌ Application failed:<br>' + result;
+        }
+    });
+    </script>
+</body>
+</html>
