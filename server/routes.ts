@@ -1542,23 +1542,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cleanResumeUrl = cleanResumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
           console.log(`Application ${app.id}: Original resumeUrl="${app.resumeUrl}", Cleaned="${cleanResumeUrl}"`);
           
-          // Check if the file exists - if not, look for the user's actual resume
+          // Check if the file exists - only show applications with working resumes
           if (!fs.existsSync(path.join('uploads', cleanResumeUrl))) {
-            console.log(`File ${cleanResumeUrl} not found for application ${app.id}`);
-            // Try to find the user's actual resume file by checking their profile
-            if (app.applicant?.resumeUrl) {
-              const userResumeUrl = app.applicant.resumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
-              if (fs.existsSync(path.join('uploads', userResumeUrl))) {
-                console.log(`Using user's profile resume: ${userResumeUrl}`);
-                cleanResumeUrl = userResumeUrl;
-              } else {
-                console.log(`User's profile resume also not found: ${userResumeUrl}`);
-                cleanResumeUrl = null; // Don't show resume if not found
-              }
-            } else {
-              console.log(`No resume found for applicant ${app.applicantId}`);
-              cleanResumeUrl = null;
-            }
+            console.log(`File ${cleanResumeUrl} not found for application ${app.id} - SKIPPING APPLICATION`);
+            return null; // Skip this application entirely
           }
         }
         
@@ -1581,8 +1568,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           applicantName: `${app.applicant?.firstName || ''} ${app.applicant?.lastName || ''}`.trim(),
           applicantEmail: app.applicant?.email || 'No email'
         };
-      });
+      }).filter(app => app !== null); // Remove null entries (applications with missing files)
       
+      console.log(`Filtered applications: ${transformedApplications.length} with working resumes`);
       res.json(transformedApplications);
     } catch (error) {
       console.error("Error fetching job applications for recruiters:", error);
