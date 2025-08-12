@@ -29,7 +29,9 @@ function JobApplicationsSection() {
     queryKey: ['/api/job-applications/for-recruiters'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/job-applications/for-recruiters');
-      return response.json();
+      const data = await response.json();
+      console.log('Raw applications data from server:', data);
+      return data;
     }
   });
 
@@ -64,82 +66,98 @@ function JobApplicationsSection() {
       </div>
       
       <div className="grid gap-4">
-        {applications.map((app: any) => (
-          <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="font-semibold text-lg">{app.applicantName}</h4>
-                  {app.matchScore > 0 && (
-                    <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
+        {applications.map((app: any) => {
+          console.log('Rendering application:', app);
+          return (
+            <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <h4 className="font-semibold text-lg">
+                      {app.applicant?.firstName || 'Unknown'} {app.applicant?.lastName || 'User'}
+                    </h4>
+                    {app.matchScore > 0 && (
+                      <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
+                    )}
+                  </div>
+                  
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p><strong>Job:</strong> {app.job?.title || 'Unknown Job'}</p>
+                    <p><strong>Company:</strong> {app.job?.company?.name || 'Unknown Company'}</p>
+                    <p><strong>Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
+                    <p><strong>Email:</strong> {app.applicant?.email || 'No email'}</p>
+                    <p><strong>Category:</strong> {app.applicant?.category || 'No category'}</p>
+                  </div>
+                  
+                  {app.coverLetter && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-700">Cover Letter:</p>
+                      <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded mt-1">
+                        {app.coverLetter.length > 150 
+                          ? `${app.coverLetter.substring(0, 150)}...` 
+                          : app.coverLetter
+                        }
+                      </p>
+                    </div>
                   )}
                 </div>
                 
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p><strong>Job:</strong> {app.jobTitle}</p>
-                  <p><strong>Company:</strong> {app.companyName}</p>
-                  <p><strong>Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
-                  <p><strong>Email:</strong> {app.applicantEmail}</p>
-                </div>
-                
-                {app.coverLetter && (
-                  <div className="mt-2">
-                    <p className="text-sm font-medium text-gray-700">Cover Letter:</p>
-                    <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded mt-1">
-                      {app.coverLetter.length > 150 
-                        ? `${app.coverLetter.substring(0, 150)}...` 
-                        : app.coverLetter
-                      }
-                    </p>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex flex-col space-y-2 ml-4">
-                {app.resumeUrl && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={async () => {
-                      const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
-                      const downloadUrl = `/api/resume/${filename}`;
-                      console.log(`Attempting to download resume: ${downloadUrl}`);
-                      console.log(`Original resume URL: ${app.resumeUrl}`);
-                      
-                      try {
-                        // First check if file exists
-                        const checkResponse = await fetch(downloadUrl, { method: 'HEAD' });
-                        if (checkResponse.ok) {
-                          // File exists, proceed with download
-                          const link = document.createElement('a');
-                          link.href = downloadUrl;
-                          link.download = `resume-${app.firstName}-${app.lastName}`;
-                          link.click();
-                        } else {
-                          console.error(`Resume file not found: ${filename}`);
-                          if (import.meta.env.DEV) alert(`Resume file not found. This application has an invalid resume URL: ${app.resumeUrl}`);
+                <div className="flex flex-col space-y-2 ml-4">
+                  {app.resumeUrl ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={async () => {
+                        const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
+                        const downloadUrl = `/api/resume/${filename}`;
+                        
+                        try {
+                          // First check if file exists
+                          const checkResponse = await fetch(downloadUrl, { method: 'HEAD' });
+                          if (checkResponse.ok) {
+                            // File exists, proceed with download
+                            const link = document.createElement('a');
+                            link.href = downloadUrl;
+                            link.download = `resume-${app.applicant?.firstName || 'unknown'}-${app.applicant?.lastName || 'user'}`;
+                            link.click();
+                          } else {
+                            toast({
+                              title: "Resume Not Found",
+                              description: `The resume file is missing from the server.`,
+                              variant: "destructive",
+                            });
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Download Error",
+                            description: "Failed to download resume. Please try again.",
+                            variant: "destructive",
+                          });
                         }
-                      } catch (error) {
-                        console.error('Error downloading resume:', error);
-                        if (import.meta.env.DEV) alert(`Error downloading resume: ${error.message}`);
-                      }
-                    }}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    Download Resume
-                  </Button>
-                )}
-                
-                <Button variant="outline" size="sm" asChild>
-                  <a href={`mailto:${app.applicantEmail}`}>
-                    <Mail className="h-4 w-4 mr-1" />
-                    Contact
-                  </a>
-                </Button>
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Download Resume
+                    </Button>
+                  ) : (
+                    <div className="text-sm text-gray-500 italic">
+                      No resume uploaded
+                    </div>
+                  )}
+                  
+                  {app.applicant?.email && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`mailto:${app.applicant.email}`}>
+                        <Mail className="h-4 w-4 mr-1" />
+                        Contact
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
