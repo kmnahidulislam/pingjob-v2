@@ -2292,95 +2292,11 @@ export class DatabaseStorage implements IStorage {
 
   // ============ RECRUITER FUNCTIONALITY ============
 
-  // Auto-assign job seekers to recruiter jobs by category
+  // 🚫 AUTO-ASSIGNMENT SYSTEM DISABLED - Prevents broken STAFF Systems applications
   async autoAssignCandidatesToJob(jobId: number, recruiterId: string): Promise<JobCandidateAssignment[]> {
-    try {
-      console.log(`Auto-assigning candidates for job ${jobId} by recruiter ${recruiterId}`);
-      
-      // First create the table if it doesn't exist
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS job_candidate_assignments (
-          id SERIAL PRIMARY KEY,
-          job_id INTEGER REFERENCES jobs(id) NOT NULL,
-          candidate_id VARCHAR REFERENCES users(id) NOT NULL,
-          recruiter_id VARCHAR REFERENCES users(id) NOT NULL,
-          status VARCHAR DEFAULT 'assigned' CHECK (status IN ('assigned', 'contacted', 'interested', 'not_interested')),
-          assigned_at TIMESTAMP DEFAULT NOW(),
-          contacted_at TIMESTAMP,
-          notes TEXT,
-          UNIQUE(job_id, candidate_id, recruiter_id)
-        );
-      `);
-      
-      // Get the job details to find the category
-      const jobResult = await pool.query('SELECT * FROM jobs WHERE id = $1', [jobId]);
-      if (!jobResult.rows.length) {
-        console.log('Job not found');
-        return [];
-      }
-
-      const job = jobResult.rows[0];
-      console.log(`Job found: ${job.title}, Category ID: ${job.category_id}`);
-      
-      if (!job.category_id) {
-        console.log('Job has no category_id - cannot auto-assign');
-        return [];
-      }
-
-      // Find job seekers with matching category
-      const candidatesResult = await pool.query(`
-        SELECT id, email, first_name, last_name, category_id, user_type 
-        FROM users 
-        WHERE user_type = 'job_seeker' 
-        AND category_id = $1 
-        LIMIT 50
-      `, [job.category_id]);
-
-      console.log(`Found ${candidatesResult.rows.length} matching candidates for category ${job.category_id}`);
-      
-      // Log first few candidates for debugging
-      candidatesResult.rows.slice(0, 3).forEach(candidate => {
-        console.log(`- Candidate: ${candidate.first_name} ${candidate.last_name} (${candidate.email})`);
-      });
-
-      // Create assignments for each matching candidate
-      const assignments: JobCandidateAssignment[] = [];
-      for (const candidate of candidatesResult.rows) {
-        try {
-          // Check if assignment already exists
-          const existingAssignment = await pool.query(`
-            SELECT id FROM job_candidate_assignments 
-            WHERE job_id = $1 AND candidate_id = $2 AND recruiter_id = $3
-          `, [jobId, candidate.id, recruiterId]);
-          
-          if (existingAssignment.rows.length > 0) {
-            console.log(`Assignment already exists for candidate ${candidate.email}`);
-            continue;
-          }
-          
-          // Create new assignment
-          const result = await pool.query(`
-            INSERT INTO job_candidate_assignments (job_id, candidate_id, recruiter_id, status)
-            VALUES ($1, $2, $3, 'assigned')
-            ON CONFLICT (job_id, candidate_id, recruiter_id) DO NOTHING
-            RETURNING *
-          `, [jobId, candidate.id, recruiterId]);
-          
-          if (result.rows.length > 0) {
-            assignments.push(result.rows[0]);
-            console.log(`Assigned candidate ${candidate.email} to job ${jobId}`);
-          }
-        } catch (error) {
-          console.log('Assignment error:', error.message);
-        }
-      }
-
-      console.log(`Created ${assignments.length} assignments`);
-      return assignments;
-    } catch (error) {
-      console.error('Error in autoAssignCandidatesToJob:', error);
-      return [];
-    }
+    console.log('🚫 Auto-assignment system disabled to prevent broken resume references');
+    console.log(`Job ${jobId} assignment request blocked - manual assignments only`);
+    return [];
   }
 
   // Get assigned candidates for a recruiter's job
