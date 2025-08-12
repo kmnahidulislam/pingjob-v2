@@ -92,14 +92,13 @@ function JobApplicationsSection() {
       
       <div className="grid gap-4">
         {applications.map((app: any) => {
-          console.log('Rendering application:', app);
           return (
             <div key={app.id} className="border rounded-lg p-4 hover:bg-gray-50">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
                     <h4 className="font-semibold text-lg">
-                      {app.applicant?.firstName || 'Unknown'} {app.applicant?.lastName || 'User'}
+                      {app.applicantName || (app.applicant ? `${app.applicant.firstName} ${app.applicant.lastName}` : 'Unknown User')}
                     </h4>
                     {app.matchScore > 0 && (
                       <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
@@ -107,10 +106,10 @@ function JobApplicationsSection() {
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
-                    <p><strong>Job:</strong> {app.job?.title || 'Unknown Job'}</p>
-                    <p><strong>Company:</strong> {app.job?.company?.name || 'Unknown Company'}</p>
+                    <p><strong>Job:</strong> {app.jobTitle || app.job?.title || 'Unknown Job'}</p>
+                    <p><strong>Company:</strong> {app.companyName || app.job?.company?.name || 'Unknown Company'}</p>
                     <p><strong>Applied:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
-                    <p><strong>Email:</strong> {app.applicant?.email || 'No email'}</p>
+                    <p><strong>Email:</strong> {app.applicantEmail || app.applicant?.email || 'No email'}</p>
                     <p><strong>Category:</strong> {app.applicant?.category || 'No category'}</p>
                   </div>
                   
@@ -143,7 +142,8 @@ function JobApplicationsSection() {
                             // File exists, proceed with download
                             const link = document.createElement('a');
                             link.href = downloadUrl;
-                            link.download = `resume-${app.applicant?.firstName || 'unknown'}-${app.applicant?.lastName || 'user'}`;
+                            const applicantName = app.applicantName || (app.applicant ? `${app.applicant.firstName || ''} ${app.applicant.lastName || ''}`.trim() : 'resume');
+                            link.download = `resume-${applicantName.replace(/\s+/g, '-')}`;
                             link.click();
                           } else {
                             toast({
@@ -170,9 +170,9 @@ function JobApplicationsSection() {
                     </div>
                   )}
                   
-                  {app.applicant?.email && (
+                  {(app.applicantEmail || app.applicant?.email) && (
                     <Button variant="outline" size="sm" asChild>
-                      <a href={`mailto:${app.applicant.email}`}>
+                      <a href={`mailto:${app.applicantEmail || app.applicant.email}`}>
                         <Mail className="h-4 w-4 mr-1" />
                         Contact
                       </a>
