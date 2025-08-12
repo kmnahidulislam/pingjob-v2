@@ -37,9 +37,17 @@ import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
-// Helper function to format location without United States
+// Helper function to format location without United States, including zip codes
 const formatJobLocation = (job: any) => {
-  if (job.city && job.state) return `${job.city}, ${job.state}`;
+  // If we have all three pieces, format with zip
+  if (job.city && job.state && job.zipCode) {
+    return `${job.city}, ${job.state} ${job.zipCode}`;
+  }
+  // If we have city and state but no zip
+  if (job.city && job.state) {
+    return `${job.city}, ${job.state}`;
+  }
+  // If we only have a location string, clean it up
   if (job.location) {
     return job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim() || 'Remote';
   }

@@ -34,6 +34,7 @@ import {
   insertExternalInvitationSchema,
 } from "@shared/schema";
 import { visitTracker } from "./visit-tracker";
+import { enhanceJobWithLocationData, formatJobLocationWithZip } from "./location-utils";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -1101,7 +1102,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 20;
       const jobs = await storage.getAdminJobs(limit);
-      res.json(jobs);
+      
+      // Enhance each job with better location data and zip codes
+      const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
+      
+      res.json(enhancedJobs);
     } catch (error) {
       console.error("Error fetching admin jobs:", error);
       res.status(500).json({ message: "Failed to fetch admin jobs" });
@@ -1119,7 +1124,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyId: req.query.companyId ? parseInt(req.query.companyId as string) : undefined
       };
       const jobs = await storage.getRecruiterJobs(filters, limit);
-      res.json(jobs);
+      
+      // Enhance each job with better location data and zip codes
+      const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
+      
+      res.json(enhancedJobs);
     } catch (error) {
       console.error("Error fetching recruiter jobs:", error);
       res.status(500).json({ message: "Failed to fetch recruiter jobs" });
@@ -1134,7 +1143,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const jobs = await storage.getRecruiterOwnJobs(req.user.id);
-      res.json(jobs);
+      
+      // Enhance each job with better location data and zip codes
+      const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
+      
+      res.json(enhancedJobs);
     } catch (error) {
       console.error("Error fetching recruiter's own jobs:", error);
       res.status(500).json({ message: "Failed to fetch recruiter's own jobs" });
@@ -1151,7 +1164,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Job not found' });
       }
       
-      res.json(job);
+      // Enhance job with better location data and zip codes
+      const enhancedJob = enhanceJobWithLocationData(job);
+      
+      res.json(enhancedJob);
     } catch (error) {
       console.error('Error fetching job:', error);
       res.status(500).json({ error: 'Failed to fetch job' });
@@ -1325,16 +1341,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         jobData.location = `${jobData.city}, ${jobData.state}, ${jobData.country}`;
       }
       
-      console.log("Job data before validation:", jobData);
-      const validatedData = insertJobSchema.parse(jobData);
+      // Enhance job data with location parsing and zip codes
+      const enhancedJobData = enhanceJobWithLocationData(jobData);
+      
+      console.log("Job data before validation:", enhancedJobData);
+      const validatedData = insertJobSchema.parse(enhancedJobData);
       console.log("Validated data:", validatedData);
       
       // Force add required fields if missing after validation
-      if (!validatedData.companyId && jobData.companyId) {
-        (validatedData as any).companyId = jobData.companyId;
+      if (!validatedData.companyId && enhancedJobData.companyId) {
+        (validatedData as any).companyId = enhancedJobData.companyId;
       }
-      if (!validatedData.categoryId && jobData.categoryId) {
-        (validatedData as any).categoryId = jobData.categoryId;
+      if (!validatedData.categoryId && enhancedJobData.categoryId) {
+        (validatedData as any).categoryId = enhancedJobData.categoryId;
       }
       console.log("Final data for creation:", validatedData);
       

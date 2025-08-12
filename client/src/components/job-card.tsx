@@ -133,11 +133,17 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     const parts = [];
     if (job.city) parts.push(job.city);
     if (job.state) parts.push(job.state);
-    // Removed job.zipCode to keep locations clean
-    // Removed job.country to exclude "United States"
     
-    if (parts.length > 0) {
-      return parts.join(', ');
+    // Add zip code if available
+    let locationStr = parts.length > 0 ? parts.join(', ') : '';
+    if (locationStr && job.zipCode) {
+      locationStr += ` ${job.zipCode}`;
+    } else if (parts.length > 0) {
+      locationStr = parts.join(', ');
+    }
+    
+    if (locationStr) {
+      return locationStr;
     }
     
     // Try job.location field 
