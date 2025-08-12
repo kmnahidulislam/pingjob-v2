@@ -37,55 +37,63 @@ import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
-// Helper function to format location - ALWAYS returns a location string
+// Helper function to format location - shows real location data when available
 const formatJobLocation = (job: any) => {
-  // Handle explicit remote jobs
-  if (job.city === "Remote") {
-    return 'Remote';
-  }
-  
-  // If we have all three pieces, format with zip
-  if (job.city && job.state && job.zipCode) {
+  // Priority 1: Use job's city, state, zip if available (not Remote)
+  if (job.city && job.city !== "Remote" && job.state && job.zipCode) {
     return `${job.city}, ${job.state} ${job.zipCode}`;
   }
   
-  // If we have city and state but no zip
-  if (job.city && job.state) {
+  // Priority 2: Use city and state (no zip, not Remote)
+  if (job.city && job.city !== "Remote" && job.state) {
     return `${job.city}, ${job.state}`;
   }
   
-  // If we only have city
-  if (job.city && !job.state) {
+  // Priority 3: Use just city (not Remote)
+  if (job.city && job.city !== "Remote") {
     return job.city;
   }
   
-  // If we only have state
-  if (job.state && !job.city) {
+  // Priority 4: Use just state
+  if (job.state) {
     return job.state;
   }
   
-  // If we have a location string, clean it up
-  if (job.location) {
+  // Priority 5: Use job location field (cleaned, not Remote)
+  if (job.location && job.location.trim()) {
     const cleaned = job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
-    if (cleaned) return cleaned;
+    if (cleaned && cleaned !== "Remote") return cleaned;
   }
   
-  // Try to extract from company location as fallback
+  // Priority 6: Extract from company location (for remote jobs too)
   if (job.company?.location) {
     const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
     if (cleaned) {
-      // Parse company location conservatively
+      // Conservative parsing for company addresses
       const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
-      if (parts.length >= 2) {
-        return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
-      } else if (parts.length === 1) {
-        return parts[0];
+      
+      // Check for major city patterns in company address
+      const majorCities = ['Chicago', 'Seattle', 'New York', 'Los Angeles', 'Boston', 'Dallas', 'Atlanta', 'Denver', 'Phoenix', 'San Francisco', 'Washington'];
+      for (const city of majorCities) {
+        if (cleaned.includes(city)) {
+          // Found a major city in the address
+          if (parts.length >= 2) {
+            return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
+          }
+          return city;
+        }
+      }
+      
+      // For addresses like "12920 SE 38th Street" or "707 2nd Avenue South", don't parse as location
+      // Only parse if it looks like "City, State" format
+      if (parts.length === 2 && !parts[0].match(/\d+\s+(SE|NE|SW|NW|North|South|East|West|Avenue|Street|St|Ave|Blvd|Drive|Dr)/i)) {
+        return parts.join(', ');
       }
     }
   }
   
-  // For jobs without any location data, show as Remote
-  return 'Remote';
+  // Don't show anything if no meaningful location found
+  return '';
 };
 
 export default function PingJobHome() {
@@ -677,10 +685,12 @@ export default function PingJobHome() {
                               <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
                               <p className="text-sm text-gray-600 mb-1">{job.company?.name}</p>
                               <div className="flex items-center space-x-4 text-sm mb-2">
-                                <div className="flex items-center text-blue-600 font-medium">
-                                  <MapPin className="h-4 w-4 mr-1" />
-                                  <span>{formatJobLocation(job)}</span>
-                                </div>
+                                {formatJobLocation(job) && (
+                                  <div className="flex items-center text-blue-600 font-medium">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    <span>{formatJobLocation(job)}</span>
+                                  </div>
+                                )}
                                 <div className="flex items-center">
                                   <Users className="h-3 w-3 mr-1" />
                                   <span>{job.applicantCount || 0} applicants</span>
@@ -965,10 +975,12 @@ export default function PingJobHome() {
                         <CardTitle className="text-lg font-semibold line-clamp-2 text-gray-800">
                           {job.title}
                         </CardTitle>
-                        <div className="flex items-center text-sm text-blue-600 font-medium mt-1">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          <span>{formatJobLocation(job)}</span>
-                        </div>
+                        {formatJobLocation(job) && (
+                          <div className="flex items-center text-sm text-blue-600 font-medium mt-1">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            <span>{formatJobLocation(job)}</span>
+                          </div>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -1217,10 +1229,12 @@ export default function PingJobHome() {
                         <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
                         
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center text-sm text-blue-600 font-medium">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>{formatJobLocation(job)}</span>
-                          </div>
+                          {formatJobLocation(job) && (
+                            <div className="flex items-center text-sm text-blue-600 font-medium">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <span>{formatJobLocation(job)}</span>
+                            </div>
+                          )}
                           
                           {job.applicantCount > 0 && (
                             <div className="flex items-center text-xs text-gray-500">
