@@ -2850,6 +2850,7 @@ export class DatabaseStorage implements IStorage {
         LEFT JOIN companies c ON j.company_id = c.id
         LEFT JOIN users u ON ja.applicant_id = u.id
         LEFT JOIN categories cat ON u.category_id = cat.id
+        WHERE ja.resume_url IS NOT NULL AND ja.resume_url != ''
         ORDER BY ja.applied_at DESC
         LIMIT 1000
       `;

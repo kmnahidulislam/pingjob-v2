@@ -337,11 +337,11 @@ export default function RecruiterDashboard() {
           </div>
         </div>
 
-        {/* Job Applications Access */}
+        {/* Real Resume Applications */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Job Applications & Resumes</CardTitle>
-            <p className="text-sm text-gray-600">Access all job applications and resumes from job seekers</p>
+            <CardTitle>Actual Resume Applications</CardTitle>
+            <p className="text-sm text-gray-600">Job seekers who have uploaded resumes for your jobs</p>
           </CardHeader>
           <CardContent>
             <JobApplicationsSection />
@@ -401,7 +401,7 @@ export default function RecruiterDashboard() {
                             </Badge>
                           )}
                           <Badge variant="default" className="bg-green-100 text-green-800">
-                            {job.candidateCount || 50} Candidates Available
+                            {job.candidateCount || 0} Emails Available
                           </Badge>
                           <span className="text-sm text-gray-500">
                             Created {new Date(job.createdAt).toLocaleDateString()}
@@ -414,8 +414,8 @@ export default function RecruiterDashboard() {
                           size="sm"
                           onClick={() => viewCandidates(job.id, job.title)}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View Candidates
+                          <Mail className="h-4 w-4 mr-1" />
+                          Email {job.candidateCount || 0} Candidates
                         </Button>
                         <Button
                           variant="outline"
@@ -446,9 +446,9 @@ export default function RecruiterDashboard() {
         <Dialog open={isViewCandidatesOpen} onOpenChange={setIsViewCandidatesOpen}>
           <DialogContent className="max-w-4xl">
             <DialogHeader>
-              <DialogTitle>Candidates for: {selectedJobTitle}</DialogTitle>
+              <DialogTitle>Email Candidates for: {selectedJobTitle}</DialogTitle>
               <DialogDescription>
-                Category-matched candidates available for this position. Click "Contact Candidate" to send an email.
+                Job seekers with matching category who you can email directly about this position.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
