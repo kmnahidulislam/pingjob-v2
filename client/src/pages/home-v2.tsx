@@ -333,7 +333,22 @@ export default function HomeV2() {
                       
                       <div className="flex items-center text-sm text-gray-500 mb-4">
                         <MapPin className="h-4 w-4 mr-1" />
-                        <span>{job.location || 'Remote'}</span>
+                        <span>
+                          {(() => {
+                            // Format location without "United States"
+                            if (job.city && job.state) {
+                              return `${job.city}, ${job.state}`;
+                            }
+                            if (job.location) {
+                              return job.location
+                                .replace(/, United States$/, '')
+                                .replace(/ United States$/, '')
+                                .replace(/United States,?\s*/, '')
+                                .trim() || 'Remote';
+                            }
+                            return 'Remote';
+                          })()}
+                        </span>
                         <Clock className="h-4 w-4 ml-4 mr-1" />
                         <span>Recently posted</span>
                       </div>
