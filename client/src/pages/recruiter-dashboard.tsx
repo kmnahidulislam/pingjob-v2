@@ -33,29 +33,7 @@ function JobApplicationsSection() {
     }
   });
 
-  // Create test application
-  const createTestApplication = async () => {
-    try {
-      const response = await apiRequest('POST', '/api/test/create-application');
-      if (response.ok) {
-        const result = await response.json();
-        toast({
-          title: "Test Application Created",
-          description: `Created application with ID: ${result.applicationId}`,
-        });
-        refetch(); // Refresh the applications
-      } else {
-        throw new Error('Failed to create test application');
-      }
-    } catch (error) {
-      console.error('Error creating test application:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create test application",
-        variant: "destructive",
-      });
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -70,16 +48,8 @@ function JobApplicationsSection() {
     return (
       <div className="text-center py-8">
         <FileText className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No applications yet</h3>
-        <p className="mt-1 text-sm text-gray-500">Job applications will appear here when job seekers apply.</p>
-        
-        {/* Temporary test button for debugging */}
-        <div className="mt-4">
-          <Button onClick={createTestApplication} variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Test Application (Debug)
-          </Button>
-        </div>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Ready to receive applications</h3>
+        <p className="mt-1 text-sm text-gray-500">Applications will appear here when job seekers apply to your posted jobs.</p>
       </div>
     );
   }
@@ -90,11 +60,6 @@ function JobApplicationsSection() {
         <h3 className="text-lg font-medium">All Job Applications ({applications.length})</h3>
         <div className="flex items-center space-x-3">
           <Badge variant="secondary">{applications.length} Total Resumes</Badge>
-          {/* Debug button always visible */}
-          <Button onClick={createTestApplication} variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Test Application (Debug)
-          </Button>
         </div>
       </div>
       
