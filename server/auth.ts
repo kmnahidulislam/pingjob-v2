@@ -259,9 +259,17 @@ export function setupAuth(app: Express) {
           return res.status(500).json({ message: "Login failed" });
         }
         
-        console.log('Login successful - User stored in session via Passport:', user.email);
-        console.log('Session user after passport login:', req.user);
-        res.status(200).json(userSession);
+        // Force session save to ensure persistence
+        req.session.save((saveErr: any) => {
+          if (saveErr) {
+            console.error('Session save error:', saveErr);
+            return res.status(500).json({ message: "Session save failed" });
+          }
+          
+          console.log('Login successful - User stored in session via Passport:', user.email);
+          console.log('Session saved successfully, user ID:', user.id);
+          res.status(200).json(userSession);
+        });
       });
     } catch (error) {
       console.error("Login error:", error);

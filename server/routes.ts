@@ -1606,6 +1606,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('🔥 Method:', req.method);
     console.log('🔥 Content-Type:', req.headers['content-type']);
     console.log('🔥 User authenticated:', !!req.user);
+    console.log('🔥 Session exists:', !!req.session);
+    console.log('🔥 Session user:', !!req.session?.user);
+    console.log('🔥 Passport user:', !!req.user);
     console.log('🔥 ============================= 🔥');
     next();
   }, isAuthenticated, uploadLimiter, (req, res, next) => {
