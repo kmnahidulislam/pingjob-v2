@@ -125,29 +125,40 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   };
 
   const skillsArray = Array.isArray(job.skills) ? job.skills : 
-    (job.skills ? job.skills.split(',').map(s => s.trim()) : []);
+    (job.skills ? String(job.skills).split(',').map((s: string) => s.trim()) : []);
 
   // Format location properly - remove "United States" and ensure zip code is included
   const formatLocation = (job: any) => {
+    // Try job-level location fields first
     const parts = [];
-    
-    // Add city if available
     if (job.city) parts.push(job.city);
-    
-    // Add state if available
     if (job.state) parts.push(job.state);
-    
-    // Add zip code if available
     if (job.zipCode) parts.push(job.zipCode);
     
-    // If we have parts, use them, otherwise fall back to location field
     if (parts.length > 0) {
       return parts.join(', ');
     }
     
-    // Fallback to location field but remove "United States" 
-    if (job.location) {
-      return job.location.replace(', United States', '').replace(' United States', '');
+    // Try job.location field 
+    if (job.location && job.location.trim()) {
+      return job.location.replace(', United States', '').replace(' United States', '').trim();
+    }
+    
+    // Fallback to company location, parse it for components
+    if (job.company?.location) {
+      const companyLocation = job.company.location;
+      
+      // Try to parse "Street Address, City, State ZipCode" format
+      const locationParts = companyLocation.split(',').map(part => part.trim());
+      
+      if (locationParts.length >= 2) {
+        // If we have multiple parts, skip the street address and use city, state, zip
+        const cityStateZip = locationParts.slice(1).join(', ');
+        return cityStateZip.replace(', United States', '').replace(' United States', '').trim();
+      }
+      
+      // Otherwise just clean up the full company location
+      return companyLocation.replace(', United States', '').replace(' United States', '').trim();
     }
     
     return 'Remote';
@@ -158,7 +169,13 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     if (import.meta.env.DEV) console.log('JobCard compact - job data:', {
       title: job.title,
       company: job.company,
-      vendorCount: job.company?.vendorCount
+      vendorCount: job.company?.vendorCount,
+      location: job.location,
+      city: job.city,
+      state: job.state,
+      zipCode: job.zipCode,
+      country: job.country,
+      formattedLocation: formatLocation(job)
     });
     
 
@@ -172,10 +189,10 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                {(job.company?.vendorCount || 0) > 0 && (
+                {((job.company as any)?.vendorCount || 0) > 0 && (
                   <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
                     <Users className="h-3 w-3" />
-                    <span>{job.company?.vendorCount} vendor{(job.company?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                    <span>{(job.company as any)?.vendorCount} vendor{((job.company as any)?.vendorCount || 0) !== 1 ? 's' : ''}</span>
                   </div>
                 )}
               </div>
@@ -259,7 +276,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {/* Skills */}
             {skillsArray.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {skillsArray.slice(0, 5).map((skill, index) => (
+                {skillsArray.slice(0, 5).map((skill: string, index: number) => (
                   <Badge 
                     key={index} 
                     variant="secondary" 
@@ -291,7 +308,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               </span>
               <span className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
-                {job.applicantCount || 0} applicants
+                {job.applicationCount || 0} applicants
               </span>
             </div>
             
