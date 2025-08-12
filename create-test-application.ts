@@ -8,9 +8,10 @@ const pool = new Pool({
 
 async function createTestApplication() {
   try {
-    // First, check if there are any job applications
-    const existingApps = await pool.query('SELECT COUNT(*) as count FROM job_applications');
-    console.log(`Current applications in database: ${existingApps.rows[0].count}`);
+    console.log('🚫 Test application creation DISABLED - prevents broken resume references');
+    console.log('Only manual file uploads through application modal are allowed');
+    await pool.end();
+    return;
     
     // Get a job to apply to (preferably an admin job)
     const jobs = await pool.query(`

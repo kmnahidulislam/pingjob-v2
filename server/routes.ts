@@ -1590,65 +1590,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test endpoint to create sample job application
+  // 🚫 TEST ENDPOINT DISABLED - Prevents automatic application creation
   app.post('/api/test/create-application', isAuthenticated, async (req: any, res) => {
-    try {
-      console.log('Creating test job application...');
-      
-      // Find an admin job
-      const adminJobs = await storage.getAdminJobs();
-      if (adminJobs.length === 0) {
-        return res.status(400).json({ message: 'No admin jobs found to apply to' });
-      }
-      
-      const targetJob = adminJobs[0];
-      console.log(`Using job: ${targetJob.title} (ID: ${targetJob.id})`);
-      
-      // Find a job seeker
-      const jobSeekers = await storage.getUsersByType('job_seeker');
-      if (jobSeekers.length === 0) {
-        return res.status(400).json({ message: 'No job seekers found' });
-      }
-      
-      const jobSeeker = jobSeekers[0];
-      console.log(`Using job seeker: ${jobSeeker.firstName} ${jobSeeker.lastName}`);
-      
-      // Find an actual resume file that exists in uploads
-      const fs = require('fs');
-      const availableFiles = fs.readdirSync('uploads').filter((f: string) => f.match(/^[a-f0-9]{32}$/));
-      const resumeUrl = availableFiles.length > 0 ? `/uploads/${availableFiles[0]}` : '/uploads/test_resume.txt';
-      
-      console.log(`Using resume file: ${resumeUrl}`);
-      console.log(`Available hash files: ${availableFiles.slice(0, 3)}`);
-
-      // Create test application using storage method
-      const testApplication = await storage.createJobApplication({
-        jobId: targetJob.id,
-        applicantId: jobSeeker.id,
-        resumeUrl: resumeUrl,
-        coverLetter: 'This is a test application with a working resume file for download testing.',
-        status: 'pending',
-        matchScore: 8,
-        skillsScore: 5,
-        experienceScore: 2,
-        educationScore: 1,
-        companyScore: 0,
-        isProcessed: true
-      });
-      
-      console.log(`Created test application with ID: ${testApplication.id}`);
-      
-      res.json({ 
-        message: 'Test application created successfully',
-        applicationId: testApplication.id,
-        jobId: targetJob.id,
-        applicantId: jobSeeker.id
-      });
-      
-    } catch (error) {
-      console.error('Error creating test application:', error);
-      res.status(500).json({ message: 'Failed to create test application' });
-    }
+    res.status(403).json({ 
+      message: 'Test application endpoint disabled to prevent broken resume references',
+      note: 'Use manual file upload through application modal only'
+    });
   });
 
 

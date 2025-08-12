@@ -4,7 +4,9 @@ import { eq, and } from 'drizzle-orm';
 
 async function createSampleApplication() {
   try {
-    console.log('Creating sample application...');
+    console.log('🚫 Sample application creation DISABLED - prevents broken resume references');
+    console.log('Only manual file uploads through application modal are allowed');
+    return;
     
     // Find an admin job to apply to
     const adminJobs = await db
