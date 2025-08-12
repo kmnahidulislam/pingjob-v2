@@ -82,14 +82,22 @@ export default function JobApplicationModal({
 
       console.log('Making POST request to /api/applications...');
       
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        console.log('Response received - status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        console.log('Response URL:', response.url);
+        
+        return response;
+      } catch (fetchError) {
+        console.error('Network error during fetch:', fetchError);
+        throw new Error(`Network error: ${fetchError.message}`);
+      }
 
       if (!response.ok) {
         const error = await response.text();
