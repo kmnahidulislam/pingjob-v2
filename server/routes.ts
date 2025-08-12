@@ -1642,12 +1642,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const resumeUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      let originalFilename = null;
+      
+      // Track original filename for proper downloads
+      if (req.file && req.file.originalname) {
+        originalFilename = req.file.originalname;
+        
+        // Update filename mapping
+        try {
+          const mappingPath = path.join('uploads', '.metadata', 'filename_mapping.json');
+          let mapping = {};
+          if (fs.existsSync(mappingPath)) {
+            mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+          }
+          mapping[req.file.filename] = originalFilename;
+          fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
+          console.log(`Updated filename mapping: ${req.file.filename} -> ${originalFilename}`);
+        } catch (error) {
+          console.error('Failed to update filename mapping:', error);
+        }
+      }
       
       const validatedData = insertJobApplicationSchema.parse({
         ...req.body,
         jobId: parseInt(req.body.jobId),
         applicantId: userId,
         resumeUrl,
+        originalFilename,
       });
       
       // Create the primary application first
@@ -1676,6 +1697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 jobId: otherJob.id,
                 applicantId: userId,
                 resumeUrl: resumeUrl,
+                originalFilename: originalFilename,
                 coverLetter: req.body.coverLetter || 'Auto-applied based on matching skills and category',
                 status: 'pending'
               });
