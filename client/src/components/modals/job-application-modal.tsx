@@ -93,19 +93,17 @@ export default function JobApplicationModal({
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
         console.log('Response URL:', response.url);
         
-        return response;
+        if (!response.ok) {
+          const error = await response.text();
+          console.error('Upload failed with error:', error);
+          throw new Error(error || 'Failed to submit application');
+        }
+
+        return response.json();
       } catch (fetchError) {
         console.error('Network error during fetch:', fetchError);
         throw new Error(`Network error: ${fetchError.message}`);
       }
-
-      if (!response.ok) {
-        const error = await response.text();
-        console.error('Upload failed with error:', error);
-        throw new Error(error || 'Failed to submit application');
-      }
-
-      return response.json();
     },
     onSuccess: (data) => {
       const autoCount = data.autoApplicationsCount || 0;
