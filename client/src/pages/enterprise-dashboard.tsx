@@ -431,7 +431,22 @@ export default function EnterpriseDashboard() {
                           <div className="flex-1">
                             <h3 className="font-medium text-lg">{job.title}</h3>
                             <p className="text-sm text-gray-600">{job.company?.name}</p>
-                            <p className="text-sm text-gray-500 mt-1">{job.location}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {(() => {
+                                // Format location without "United States"
+                                if (job.city && job.state) {
+                                  return `${job.city}, ${job.state}`;
+                                }
+                                if (job.location) {
+                                  return job.location
+                                    .replace(/, United States$/, '')
+                                    .replace(/ United States$/, '')
+                                    .replace(/United States,?\s*/, '')
+                                    .trim() || 'Remote';
+                                }
+                                return 'Remote';
+                              })()}
+                            </p>
                             <div className="flex items-center space-x-2 mt-2">
                               <Badge variant="outline">{job.jobType}</Badge>
                               <Badge variant="outline">{job.experienceLevel}</Badge>

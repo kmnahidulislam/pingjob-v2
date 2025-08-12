@@ -498,7 +498,20 @@ export default function Jobs() {
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
                               <div className="flex items-center">
                                 <MapPin className="h-4 w-4 mr-1" />
-                                {job.location || `${job.city}, ${job.state}`}
+                                {(() => {
+                                  // Format location without "United States"
+                                  if (job.city && job.state) {
+                                    return `${job.city}, ${job.state}`;
+                                  }
+                                  if (job.location) {
+                                    return job.location
+                                      .replace(/, United States$/, '')
+                                      .replace(/ United States$/, '')
+                                      .replace(/United States,?\s*/, '')
+                                      .trim() || 'Remote';
+                                  }
+                                  return 'Remote';
+                                })()}
                               </div>
                               <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-1" />

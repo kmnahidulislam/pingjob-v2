@@ -108,20 +108,48 @@ export default function CategoryJobsPage() {
   const formatLocation = (job: Job) => {
     const parts = [
       job.city,
-      job.state,
-      job.country
+      job.state
+      // Removed job.country to exclude "United States"
     ].filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : job.location || "Remote";
+    
+    if (parts.length > 0) {
+      return parts.join(", ");
+    }
+    
+    // Fallback to job.location but clean it
+    if (job.location) {
+      return job.location
+        .replace(/, United States$/, '')
+        .replace(/ United States$/, '')
+        .replace(/United States,?\s*/, '')
+        .trim() || "Remote";
+    }
+    
+    return "Remote";
   };
 
   const formatCompanyLocation = (company: Job['company']) => {
     if (!company) return "Unknown Company";
     const parts = [
       company.city,
-      company.state,
-      company.country
+      company.state
+      // Removed company.country to exclude "United States"
     ].filter(Boolean);
-    return parts.length > 0 ? parts.join(", ") : company.location || "";
+    
+    if (parts.length > 0) {
+      return parts.join(", ");
+    }
+    
+    // Fallback to company.location but clean it
+    if (company.location) {
+      return company.location
+        .replace(/, United States$/, '')
+        .replace(/ United States$/, '')
+        .replace(/United States,?\s*/, '')
+        .trim();
+    }
+    
+    return "";
   };
 
   return (
