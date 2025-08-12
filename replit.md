@@ -19,13 +19,13 @@ PingJob is a comprehensive full-stack web application designed to serve as a job
   - Jobs without reliable location data now properly display "Remote" instead of empty or incorrect information
   - Added pattern matching for major cities (Chicago, Seattle, etc.) when found in company addresses
   - Enhanced location display formatting across all frontend components with "City, State ZipCode" format
-✅ **Resume Download System Fixed** (August 12, 2025) - Implemented proper resume file handling and original filename preservation:
-  - Added originalFilename field to jobApplications schema to track uploaded filenames
-  - Created filename mapping system (/uploads/.metadata/filename_mapping.json) for existing resumes
-  - Enhanced file upload endpoint to automatically track original filenames for new uploads
-  - Fixed resume download to serve files with their original names instead of hash-based names
-  - Restored authentic uploaded DOCX files instead of database-generated synthetic content
-  - Resume downloads now preserve user's original filename structure for recruiter convenience
+❌ **Resume Download System Issue** (August 12, 2025) - Critical problem identified but not yet resolved:
+  - Database contains references to resume files that no longer exist in uploads folder
+  - Applications point to missing files like 'b012481b21be5ea840ace963cbe3b95b' and 'f00b786c4ae2a76d3636414792fcb04c'
+  - 33 resume files exist in uploads but database references are broken
+  - User experiencing "No resume uploaded" for valid applications for 3+ hours
+  - Multiple failed attempts to update database with working file references
+  - SQL syntax errors preventing direct database updates
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
