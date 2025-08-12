@@ -43,6 +43,13 @@ import fs from "fs";
 const upload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
+    console.log('=== MULTER FILE FILTER DEBUG ===');
+    console.log('File received:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+    
     // Validate file type by extension and MIME type
     const allowedExtensions = ['.pdf', '.doc', '.docx'];
     const allowedMimeTypes = [
@@ -54,9 +61,15 @@ const upload = multer({
     const ext = path.extname(file.originalname).toLowerCase();
     const mimeType = file.mimetype;
     
+    console.log(`Extension: ${ext}, MIME: ${mimeType}`);
+    console.log(`Extension allowed: ${allowedExtensions.includes(ext)}`);
+    console.log(`MIME allowed: ${allowedMimeTypes.includes(mimeType)}`);
+    
     if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(mimeType)) {
+      console.log('File accepted by filter');
       cb(null, true);
     } else {
+      console.log('File rejected by filter');
       cb(new Error('Only PDF, DOC, and DOCX files are allowed'));
     }
   },
@@ -1638,7 +1651,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/applications', isAuthenticated, uploadLimiter, upload.single('resume'), async (req: any, res) => {
+  app.post('/api/applications', isAuthenticated, uploadLimiter, (req, res, next) => {
+    console.log('=== UPLOAD MIDDLEWARE ENTRY ===');
+    console.log('Request headers:', req.headers['content-type']);
+    next();
+  }, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;
       
