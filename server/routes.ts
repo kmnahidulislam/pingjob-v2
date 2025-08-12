@@ -1136,15 +1136,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get recruiter's own jobs (for dashboard)
   app.get('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
     try {
+      console.log('🔐 Recruiter jobs request - User:', req.user);
+      
       if (req.user.userType !== 'recruiter') {
+        console.log('🔐 Access denied - User type:', req.user.userType);
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
+      console.log('🔐 Fetching jobs for recruiter:', req.user.id);
       const jobs = await storage.getRecruiterOwnJobs(req.user.id);
       
       // Enhance each job with better location data and zip codes
       const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
       
+      console.log('🔐 Found', enhancedJobs.length, 'jobs for recruiter');
       res.json(enhancedJobs);
     } catch (error) {
       console.error("Error fetching recruiter's own jobs:", error);
@@ -3190,20 +3195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get recruiter's own jobs
-  app.get('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
-    try {
-      if (req.user.userType !== 'recruiter') {
-        return res.status(403).json({ message: "Access denied. Recruiter role required." });
-      }
-      
-      const jobs = await storage.getRecruiterOwnJobs(req.user.id);
-      res.json(jobs);
-    } catch (error) {
-      console.error("Error fetching recruiter jobs:", error);
-      res.status(500).json({ message: "Failed to fetch recruiter jobs" });
-    }
-  });
+
 
   // Create job as recruiter (auto-assigns candidates)
   app.post('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
@@ -3317,7 +3309,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const jobs = await storage.getRecruiterOwnJobs(req.user.id);
-      res.json(jobs);
+      
+      // Enhance each job with better location data and zip codes
+      const enhancedJobs = jobs.map(job => enhanceJobWithLocationData(job));
+      
+      res.json(enhancedJobs);
     } catch (error) {
       console.error("Error fetching enterprise jobs:", error);
       res.status(500).json({ message: "Failed to fetch enterprise jobs" });

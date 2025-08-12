@@ -180,6 +180,8 @@ export default function JobCreate() {
       });
       jobForm.reset();
       queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/recruiter/jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
     },
     onError: (error: any) => {
       console.error("Job creation error:", error);
