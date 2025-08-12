@@ -1735,36 +1735,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           j.companyId !== job.companyId
         );
         
-        // Apply the same resume to all matching jobs
-        const autoApplications = [];
-        for (const otherJob of otherJobs) {
-          try {
-            // Check if user already applied to this job
-            const existingApplication = await storage.getJobApplicationByJobAndUser(otherJob.id, userId);
-            if (!existingApplication) {
-              const autoApplication = await storage.createJobApplication({
-                jobId: otherJob.id,
-                applicantId: userId,
-                resumeUrl: resumeUrl,
-                coverLetter: req.body.coverLetter || 'Auto-applied based on matching skills and category',
-                status: 'pending'
-              });
-              autoApplications.push(autoApplication);
-            }
-          } catch (error) {
-            console.error(`Error auto-applying to job ${otherJob.id}:`, error);
-            // Continue with other jobs even if one fails
-          }
-        }
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Auto-applied resume to ${autoApplications.length} additional jobs with category ${job.categoryId}`);
-        }
+        // AUTO-APPLICATION DISABLED - Only manual file uploads allowed
+        console.log('🚫 Auto-application system disabled to prevent broken resume references');
         
         res.json({
           ...application,
-          autoApplicationsCount: autoApplications.length,
-          message: `Applied to ${autoApplications.length + 1} jobs total (1 direct + ${autoApplications.length} auto-matched)`
+          autoApplicationsCount: 0,
+          message: 'Application submitted successfully with uploaded resume'
         });
       } else {
         res.json(application);
