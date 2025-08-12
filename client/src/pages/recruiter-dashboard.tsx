@@ -31,21 +31,18 @@ function JobApplicationsSection() {
       const response = await apiRequest('GET', '/api/job-applications/for-recruiters');
       if (!response.ok) {
         if (response.status === 401) {
-          // Redirect to login if not authenticated
           window.location.href = '/auth?mode=login';
           throw new Error('Please log in to view applications');
         }
         throw new Error(`Failed to fetch applications: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Raw applications data from server:', data);
       return data;
     },
     retry: false,
     refetchOnWindowFocus: false,
-    enabled: true // Always try to fetch, let the error handler deal with auth issues
+    enabled: true
   });
-
 
 
   if (isLoading) {
@@ -124,52 +121,63 @@ function JobApplicationsSection() {
                       </p>
                     </div>
                   )}
+
+                  {/* Individual Resume Section for Each Application */}
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-800">
+                          {app.applicantName || 'Applicant'} Resume
+                        </span>
+                      </div>
+                      {app.resumeUrl ? (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="bg-blue-600 text-white hover:bg-blue-700"
+                          onClick={async () => {
+                            try {
+                              const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
+                              const downloadUrl = `/api/resume/${filename}`;
+                              
+                              const checkResponse = await fetch(downloadUrl, { method: 'HEAD' });
+                              if (checkResponse.ok) {
+                                const link = document.createElement('a');
+                                link.href = downloadUrl;
+                                const applicantName = app.applicantName || (app.applicant ? `${app.applicant.firstName || ''} ${app.applicant.lastName || ''}`.trim() : 'resume');
+                                link.download = `${applicantName.replace(/\s+/g, '-')}-resume.pdf`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              } else {
+                                toast({
+                                  title: "Resume Not Found",
+                                  description: "The resume file could not be located.",
+                                  variant: "destructive",
+                                });
+                              }
+                            } catch (error) {
+                              console.error("Resume download error:", error);
+                              toast({
+                                title: "Download Failed",
+                                description: "Unable to download resume. Please try again.",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download PDF
+                        </Button>
+                      ) : (
+                        <span className="text-gray-500 text-sm italic">No resume uploaded</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col space-y-2 ml-4">
-                  {app.resumeUrl ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={async () => {
-                        const filename = app.resumeUrl.replace('/uploads/', '').replace('uploads/', '');
-                        const downloadUrl = `/api/resume/${filename}`;
-                        
-                        try {
-                          // First check if file exists
-                          const checkResponse = await fetch(downloadUrl, { method: 'HEAD' });
-                          if (checkResponse.ok) {
-                            // File exists, proceed with download
-                            const link = document.createElement('a');
-                            link.href = downloadUrl;
-                            const applicantName = app.applicantName || (app.applicant ? `${app.applicant.firstName || ''} ${app.applicant.lastName || ''}`.trim() : 'resume');
-                            link.download = `resume-${applicantName.replace(/\s+/g, '-')}`;
-                            link.click();
-                          } else {
-                            toast({
-                              title: "Resume Not Found",
-                              description: `The resume file is missing from the server.`,
-                              variant: "destructive",
-                            });
-                          }
-                        } catch (error) {
-                          toast({
-                            title: "Download Error",
-                            description: "Failed to download resume. Please try again.",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      Download Resume
-                    </Button>
-                  ) : (
-                    <div className="text-sm text-gray-500 italic">
-                      No resume uploaded
-                    </div>
-                  )}
-                  
                   {(app.applicantEmail || app.applicant?.email) && (
                     <Button variant="outline" size="sm" asChild>
                       <a href={`mailto:${app.applicantEmail || app.applicant.email}`}>
