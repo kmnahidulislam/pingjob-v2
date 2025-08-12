@@ -1652,15 +1652,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/applications', (req, res, next) => {
-    console.log('=== RAW REQUEST DEBUG ===');
-    console.log('URL:', req.url);
-    console.log('Method:', req.method);
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('User authenticated:', !!req.user);
+    console.log('🔥 === RAW REQUEST DEBUG === 🔥');
+    console.log('🔥 URL:', req.url);
+    console.log('🔥 Method:', req.method);
+    console.log('🔥 Content-Type:', req.headers['content-type']);
+    console.log('🔥 User authenticated:', !!req.user);
+    console.log('🔥 ============================= 🔥');
     next();
   }, isAuthenticated, uploadLimiter, (req, res, next) => {
-    console.log('=== UPLOAD MIDDLEWARE ENTRY ===');
-    console.log('Request headers:', req.headers['content-type']);
+    console.log('📁 === UPLOAD MIDDLEWARE ENTRY === 📁');
+    console.log('📁 Request headers:', req.headers['content-type']);
+    console.log('📁 ============================== 📁');
     next();
   }, upload.single('resume'), async (req: any, res) => {
     try {
