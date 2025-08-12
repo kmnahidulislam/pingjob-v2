@@ -40,7 +40,7 @@ import Footer from "../components/footer";
 // Helper function to format location without United States, including zip codes
 const formatJobLocation = (job: any) => {
   // Handle remote jobs first
-  if (job.city === "Remote" || (!job.city && !job.state && !job.location)) {
+  if (job.city === "Remote") {
     return 'Remote';
   }
   
@@ -65,19 +65,8 @@ const formatJobLocation = (job: any) => {
     const cleaned = job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
     return cleaned || 'Remote';
   }
-  // Try company location as fallback
-  if (job.company?.location) {
-    const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
-    if (cleaned) {
-      // Parse company location to extract city, state
-      const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
-      if (parts.length >= 2) {
-        return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
-      } else if (parts.length === 1) {
-        return parts[0];
-      }
-    }
-  }
+  
+  // Default fallback
   return 'Remote';
 };
 
