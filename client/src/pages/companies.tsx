@@ -862,8 +862,18 @@ export default function CompaniesPage() {
               <CardTitle>
                 Top Companies (76,806 total)
               </CardTitle>
-              <div className="text-sm text-gray-500">
-                Page {currentPage} of {totalPages}
+              <div className="flex items-center gap-4">
+                {user?.userType === 'recruiter' && (
+                  <Link href="/companies/create">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create New Company
+                    </Button>
+                  </Link>
+                )}
+                <div className="text-sm text-gray-500">
+                  Page {currentPage} of {totalPages}
+                </div>
               </div>
             </div>
           </CardHeader>
