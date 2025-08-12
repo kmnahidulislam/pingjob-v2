@@ -146,7 +146,8 @@ function JobApplicationsSection() {
                                 const link = document.createElement('a');
                                 link.href = downloadUrl;
                                 const applicantName = app.applicantName || (app.applicant ? `${app.applicant.firstName || ''} ${app.applicant.lastName || ''}`.trim() : 'resume');
-                                link.download = `${applicantName.replace(/\s+/g, '-')}-resume.docx`;
+                                // The server will provide the correct filename
+                                // link.download = `${applicantName.replace(/\s+/g, '-')}-resume.docx`;
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);

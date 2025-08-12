@@ -192,8 +192,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Resume file not found' });
       }
       
+      // Load filename mapping
+      let originalFilename = `resume-${filename}`;
+      try {
+        const mappingPath = path.join('uploads', '.metadata', 'filename_mapping.json');
+        if (fs.existsSync(mappingPath)) {
+          const mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+          originalFilename = mapping[filename] || originalFilename;
+        }
+      } catch (error) {
+        console.log('Could not load filename mapping:', error.message);
+      }
+      
       // Read first few bytes to detect file type
-      const buffer = fs.readFileSync(filePath, { start: 0, end: 10 });
+      const fd = fs.openSync(filePath, 'r');
+      const buffer = Buffer.alloc(10);
+      fs.readSync(fd, buffer, 0, 10, 0);
+      fs.closeSync(fd);
       const firstBytes = buffer.toString('hex');
       
       let contentType = 'application/octet-stream';
@@ -212,10 +227,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`File type detected: ${contentType}, extension: ${fileExtension}`);
+      console.log(`Original filename: ${originalFilename}`);
       
-      // Set appropriate headers
+      // Set appropriate headers with original filename
       res.setHeader('Content-Type', contentType);
-      res.setHeader('Content-Disposition', `attachment; filename="resume-${filename}${fileExtension}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${originalFilename}"`);
       
       // Stream the file
       const stream = fs.createReadStream(filePath);
