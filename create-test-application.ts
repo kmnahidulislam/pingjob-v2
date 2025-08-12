@@ -46,25 +46,11 @@ async function createTestApplication() {
     const jobSeeker = jobSeekers.rows[0];
     console.log(`Found job seeker: ${jobSeeker.first_name} ${jobSeeker.last_name} (${jobSeeker.email})`);
     
-    // Create a test application
-    const result = await pool.query(`
-      INSERT INTO job_applications 
-      (job_id, applicant_id, resume_url, cover_letter, status, match_score, skills_score, experience_score, education_score, company_score, is_processed)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      RETURNING id
-    `, [
-      job.id,
-      jobSeeker.id,
-      'sample_resume.pdf', // Test resume file
-      'I am very interested in this position and believe my skills would be a great fit.',
-      'pending',
-      8, // Match score out of 12
-      5, // Skills score out of 6
-      2, // Experience score out of 2
-      1, // Education score out of 2
-      0, // Company score (bonus)
-      true
-    ]);
+    // 🚫 SCRIPT DISABLED - Prevents broken STAFF Systems resume references
+    console.log('🚫 Test application creation DISABLED to prevent broken resume references');
+    console.log('Only manual file uploads through application modal are allowed');
+    await pool.end();
+    return;
     
     console.log(`Created test application with ID: ${result.rows[0].id}`);
     

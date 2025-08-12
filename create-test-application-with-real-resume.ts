@@ -20,28 +20,10 @@ async function createTestApplicationWithRealResume() {
       is_processed: false
     };
     
-    // Insert the test application
-    const result = await db.query(`
-      INSERT INTO job_applications (
-        job_id, applicant_id, status, applied_at, cover_letter, 
-        resume_url, match_score, skills_score, experience_score, 
-        education_score, company_score, is_processed
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING id
-    `, [
-      testApplication.job_id,
-      testApplication.applicant_id, 
-      testApplication.status,
-      testApplication.applied_at,
-      testApplication.cover_letter,
-      testApplication.resume_url,
-      testApplication.match_score,
-      testApplication.skills_score,
-      testApplication.experience_score,
-      testApplication.education_score,
-      testApplication.company_score,
-      testApplication.is_processed
-    ]);
+    // 🚫 SCRIPT DISABLED - Prevents broken STAFF Systems resume references
+    console.log('🚫 Test application creation DISABLED to prevent broken resume references');
+    console.log('Only manual file uploads through application modal are allowed');
+    return;
     
     console.log(`✅ Created test application with ID: ${result.rows[0].id}`);
     console.log(`✅ Resume file: ${testApplication.resume_url}`);
