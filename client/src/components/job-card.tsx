@@ -129,9 +129,14 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   // Format location properly - remove "United States" and ensure zip code is included
   const formatLocation = (job: any) => {
+    // Handle remote jobs first
+    if (job.city === "Remote" || (!job.city && !job.state && !job.location)) {
+      return 'Remote';
+    }
+    
     // Try job-level location fields first (exclude country to remove "United States")
     const parts = [];
-    if (job.city) parts.push(job.city);
+    if (job.city && job.city !== "Remote") parts.push(job.city);
     if (job.state) parts.push(job.state);
     
     // Add zip code if available

@@ -381,11 +381,70 @@ export function enhanceJobWithLocationData(job: any): any {
     }
   }
   
+  // If still no location data, try to extract from company location (but be conservative)
+  if (!city && !state && (!location || location.trim() === '') && job.company?.location) {
+    const companyLoc = job.company.location.trim();
+    if (companyLoc) {
+      // Only try to extract from clearly formatted addresses like "City, State" or "Address, City, State"
+      const parsed = parseLocationString(companyLoc);
+      if (parsed.city || parsed.state) {
+        city = parsed.city;
+        state = parsed.state;
+        zipCode = parsed.zipCode || getZipCodeForCityState(city, state);
+        location = city && state ? `${city}, ${state}` : (city || state || "");
+      } else {
+        // Only match obvious city patterns in company addresses, not street addresses
+        const addressText = companyLoc.toLowerCase();
+        const cityPatterns = [
+          { pattern: /\bchicago\b/i, city: "Chicago", state: "Illinois" },
+          { pattern: /\bmichigan avenue\b/i, city: "Chicago", state: "Illinois" }, // Specific pattern for Michigan Avenue in Chicago
+          { pattern: /\bseattle\b/i, city: "Seattle", state: "Washington" },
+          { pattern: /\bbellevue\b/i, city: "Bellevue", state: "Washington" },
+          { pattern: /\bredmond\b/i, city: "Redmond", state: "Washington" },
+          { pattern: /\bsan francisco\b/i, city: "San Francisco", state: "California" },
+          { pattern: /\bminneapolis\b/i, city: "Minneapolis", state: "Minnesota" },
+          { pattern: /\bnew york\b/i, city: "New York", state: "New York" },
+          { pattern: /\batlanta\b/i, city: "Atlanta", state: "Georgia" },
+          { pattern: /\bdallas\b/i, city: "Dallas", state: "Texas" },
+          { pattern: /\bhouston\b/i, city: "Houston", state: "Texas" },
+          { pattern: /\baustin\b/i, city: "Austin", state: "Texas" },
+          { pattern: /\bdenver\b/i, city: "Denver", state: "Colorado" },
+          { pattern: /\bphoenix\b/i, city: "Phoenix", state: "Arizona" },
+          { pattern: /\bmiami\b/i, city: "Miami", state: "Florida" },
+          { pattern: /\borlando\b/i, city: "Orlando", state: "Florida" },
+          { pattern: /\btampa\b/i, city: "Tampa", state: "Florida" },
+          { pattern: /\bboston\b/i, city: "Boston", state: "Massachusetts" },
+          { pattern: /\bdetroit\b/i, city: "Detroit", state: "Michigan" },
+          { pattern: /\bnashville\b/i, city: "Nashville", state: "Tennessee" },
+          { pattern: /\bcharlotte\b/i, city: "Charlotte", state: "North Carolina" }
+        ];
+        
+        for (const pattern of cityPatterns) {
+          if (pattern.pattern.test(addressText)) {
+            city = pattern.city;
+            state = pattern.state;
+            zipCode = getZipCodeForCityState(city, state);
+            location = `${city}, ${state}`;
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  // If still no meaningful location data, mark as remote
+  if (!city && !state && (!location || location.trim() === '')) {
+    city = "Remote";
+    state = "";
+    zipCode = "";
+    location = "Remote";
+  }
+  
   return {
     ...job,
-    city: city || job.city,
-    state: state || job.state,
-    zipCode: zipCode || job.zipCode
+    city: city || job.city || "",
+    state: state || job.state || "",
+    zipCode: zipCode || job.zipCode || ""
   };
 }
 
@@ -393,10 +452,19 @@ export function formatJobLocationWithZip(job: any): string {
   const enhanced = enhanceJobWithLocationData(job);
   const { city, state, zipCode } = enhanced;
   
+  // Handle the "Remote" case first
+  if (city === "Remote" || (!city && !state && !job.location)) {
+    return 'Remote';
+  }
+  
   if (city && state && zipCode) {
     return `${city}, ${state} ${zipCode}`;
   } else if (city && state) {
     return `${city}, ${state}`;
+  } else if (city && !state) {
+    return city;
+  } else if (state && !city) {
+    return state;
   } else if (job.location) {
     return job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim() || 'Remote';
   }
