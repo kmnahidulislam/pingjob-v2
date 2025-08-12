@@ -53,6 +53,7 @@ import {
   type InsertVisit,
 } from "@shared/schema";
 import { cleanPool as pool, cleanDb as db, initializeCleanDatabase } from './clean-neon';
+import { and, eq, desc, or, ilike, isNull, sql, asc, inArray, gte, count } from 'drizzle-orm';
 
 export interface IStorage {
   // User operations
@@ -2853,8 +2854,14 @@ export class DatabaseStorage implements IStorage {
         LIMIT 1000
       `;
       
+      // Get the user to determine their type
+      const user = await this.getUser(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
       const result = await pool.query(queryText);
-      console.log(`Found ${result.rows.length} applications for ${userType} access`);
+      console.log(`Found ${result.rows.length} applications for ${user.userType} access`);
       
       // Debug: Show sample of applications found
       if (result.rows.length > 0) {
