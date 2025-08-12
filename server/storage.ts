@@ -2853,11 +2853,7 @@ export class DatabaseStorage implements IStorage {
         WHERE ja.resume_url IS NOT NULL 
         AND ja.resume_url != '' 
         AND ja.resume_url NOT LIKE '%profile_resume%'
-        AND EXISTS (
-          SELECT 1 FROM jobs j2 
-          WHERE j2.id = ja.job_id 
-          AND j2.created_by = $1
-        )
+        AND j.recruiter_id = $1
         ORDER BY ja.applied_at DESC
         LIMIT 1000
       `;
