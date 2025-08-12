@@ -2723,7 +2723,15 @@ export class DatabaseStorage implements IStorage {
   async getUsersByType(userType: string): Promise<any[]> {
     try {
       const usersByType = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          userType: users.userType,
+          categoryId: users.categoryId,
+          createdAt: users.createdAt
+        })
         .from(users)
         .where(eq(users.userType, userType))
         .limit(10);
