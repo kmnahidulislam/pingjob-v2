@@ -37,6 +37,15 @@ import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
 
+// Helper function to format location without United States
+const formatJobLocation = (job: any) => {
+  if (job.city && job.state) return `${job.city}, ${job.state}`;
+  if (job.location) {
+    return job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim() || 'Remote';
+  }
+  return 'Remote';
+};
+
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
   const queryClient = useQueryClient();
@@ -474,7 +483,7 @@ export default function PingJobHome() {
                   className="block p-2 hover:bg-gray-50 rounded"
                 >
                   <div className="font-medium">{job.title}</div>
-                  <div className="text-sm text-gray-600">{job.company?.name} • {job.location}</div>
+                  <div className="text-sm text-gray-600">{job.company?.name} • {formatJobLocation(job)}</div>
                 </Link>
               ))}
             </div>
@@ -628,7 +637,7 @@ export default function PingJobHome() {
                               <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
                                 <div className="flex items-center">
                                   <MapPin className="h-3 w-3 mr-1" />
-                                  <span>{job.city || job.location || 'Remote'}</span>
+                                  <span>{formatJobLocation(job)}</span>
                                 </div>
                                 <div className="flex items-center">
                                   <Users className="h-3 w-3 mr-1" />
@@ -918,11 +927,7 @@ export default function PingJobHome() {
                           <div className="flex items-center text-sm text-gray-500 mt-1">
                             <MapPin className="h-4 w-4 mr-1" />
                             <span>
-                              {[
-                                job.company?.city,
-                                job.company?.state,
-                                job.company?.zipCode
-                              ].filter(Boolean).join(', ') || job.location}
+                              {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || formatJobLocation(job)}
                             </span>
                           </div>
                         )}
@@ -1054,7 +1059,7 @@ export default function PingJobHome() {
                         <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center text-sm text-gray-500">
                             <MapPin className="h-3 w-3 mr-1" />
-                            <span>{job.city || job.location || 'Remote'}</span>
+                            <span>{formatJobLocation(job)}</span>
                           </div>
                           <Button size="sm" className="px-3">Apply</Button>
                         </div>
@@ -1176,7 +1181,7 @@ export default function PingJobHome() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center text-xs text-gray-500">
                             <MapPin className="h-3 w-3 mr-1" />
-                            <span>{job.location || 'Remote'}</span>
+                            <span>{formatJobLocation(job)}</span>
                           </div>
                           
                           {job.applicantCount > 0 && (
