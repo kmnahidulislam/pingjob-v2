@@ -406,11 +406,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication middleware for session-based auth
   const isAuthenticated = (req: any, res: any, next: any) => {
     // Check both session and Passport authentication
-    if (req.session?.user || req.user) {
-      req.user = req.user || req.session.user; // Set user on request object
+    const sessionUser = req.session?.user;
+    const passportUser = req.user;
+    
+    if (sessionUser || passportUser) {
+      // Normalize the user object to ensure consistent structure
+      const user = passportUser || sessionUser;
+      req.user = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name || user.firstName,
+        lastName: user.last_name || user.lastName,
+        userType: user.user_type || user.userType,
+        ...user
+      };
       return next();
     }
-    console.log('🔐 Authentication failed - Session user:', !!req.session?.user, 'Passport user:', !!req.user);
+    console.log('🔐 Authentication failed - Session user:', !!sessionUser, 'Passport user:', !!passportUser);
     res.status(401).json({ message: "Authentication required" });
   };
 

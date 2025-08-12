@@ -25,14 +25,25 @@ import {
 // Job Applications Component for Recruiters
 function JobApplicationsSection() {
   const { toast } = useToast();
-  const { data: applications = [], isLoading, refetch } = useQuery({
+  const { data: applications = [], isLoading, refetch, error } = useQuery({
     queryKey: ['/api/job-applications/for-recruiters'],
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/job-applications/for-recruiters');
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Redirect to login if not authenticated
+          window.location.href = '/auth?mode=login';
+          throw new Error('Please log in to view applications');
+        }
+        throw new Error(`Failed to fetch applications: ${response.status}`);
+      }
       const data = await response.json();
       console.log('Raw applications data from server:', data);
       return data;
-    }
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: true // Always try to fetch, let the error handler deal with auth issues
   });
 
 
@@ -42,6 +53,20 @@ function JobApplicationsSection() {
       <div className="text-center py-8">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <p className="mt-2 text-sm text-gray-600">Loading applications...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-red-500 mb-4">
+          <p className="font-medium">Failed to load applications</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
       </div>
     );
   }
