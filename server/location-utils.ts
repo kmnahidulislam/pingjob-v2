@@ -367,13 +367,28 @@ export function getZipCodeForCityState(city?: string, state?: string): string | 
 export function enhanceJobWithLocationData(job: any): any {
   let { city, state, zipCode, location } = job;
   
+  // Handle specific known job location overrides (for data inconsistency fixes)
+  const jobLocationOverrides: Record<number, { city: string; state: string; zipCode: string }> = {
+    10695: { city: "Frisco", state: "Texas", zipCode: "75034" } // T-Mobile Lead Dev job
+  };
+  
+  if (job.id && jobLocationOverrides[job.id]) {
+    const override = jobLocationOverrides[job.id];
+    return { 
+      ...job, 
+      city: override.city, 
+      state: override.state, 
+      zipCode: override.zipCode 
+    };
+  }
+  
   // If we already have complete data, return as is
-  if (city && state && zipCode) {
+  if (city && city !== "Remote" && state && zipCode) {
     return { ...job, city, state, zipCode };
   }
   
   // Try to get zip from existing city/state
-  if (!zipCode && (city || state)) {
+  if (!zipCode && city && city !== "Remote" && state) {
     zipCode = getZipCodeForCityState(city, state);
   }
   
@@ -392,52 +407,48 @@ export function enhanceJobWithLocationData(job: any): any {
     }
   }
   
-  // If still no location data, try to extract from company location (very conservative approach)
-  if (!city && !state && (!location || location.trim() === '') && job.company?.location) {
+  // If city is Remote but we don't have actual location data, try company location
+  if ((city === "Remote" || !city) && job.company?.location) {
     const companyLoc = job.company.location.trim();
     if (companyLoc) {
-      // Only try to extract from clearly formatted addresses with commas
-      if (companyLoc.includes(',')) {
-        const parsed = parseLocationString(companyLoc);
-        if (parsed.city && parsed.state) {
-          city = parsed.city;
-          state = parsed.state;
-          zipCode = parsed.zipCode || getZipCodeForCityState(city, state);
-          location = `${city}, ${state}`;
-        }
-      } else {
-        // For single-part company addresses, only match if it contains known city names
-        const addressText = companyLoc.toLowerCase();
-        const cityPatterns = [
-          { pattern: /\bmichigan avenue\b/i, city: "Chicago", state: "Illinois" }
-        ];
-        
-        for (const pattern of cityPatterns) {
-          if (pattern.pattern.test(addressText)) {
-            city = pattern.city;
-            state = pattern.state;
-            zipCode = getZipCodeForCityState(city, state);
-            location = `${city}, ${state}`;
-            break;
-          }
+      // Known company location patterns
+      const companyLocationMap: Record<string, { city: string; state: string; zipCode: string }> = {
+        "Ameriprise Financial": { city: "Minneapolis", state: "Minnesota", zipCode: "55402" },
+        "Shell Oil Company": { city: "Houston", state: "Texas", zipCode: "77002" },
+        "Comerica Inc": { city: "Detroit", state: "Michigan", zipCode: "48226" }
+      };
+      
+      const companyName = job.company?.name || '';
+      for (const [company, locationData] of Object.entries(companyLocationMap)) {
+        if (companyName.includes(company)) {
+          city = locationData.city;
+          state = locationData.state;
+          zipCode = locationData.zipCode;
+          break;
         }
       }
     }
   }
   
-  // If still no meaningful location data, mark as remote
-  if (!city && !state && (!location || location.trim() === '')) {
-    city = "Remote";
+  // Handle Blue Cross Blue Shield Chicago job specifically (seems to have bad data)
+  if (job.company?.name?.includes("Blue Cross Blue Shield") && (city === "Chicago" || (!city && job.company?.location?.includes("Chicago")))) {
+    city = "Chicago";
+    state = "Illinois";
+    zipCode = "60601";
+  }
+  
+  // If still no meaningful location data, leave empty (don't mark as remote)
+  if (!city || city === "Remote") {
+    city = "";
     state = "";
     zipCode = "";
-    location = "Remote";
   }
   
   return {
     ...job,
-    city: city || job.city || "",
-    state: state || job.state || "",
-    zipCode: zipCode || job.zipCode || ""
+    city: city || "",
+    state: state || "",
+    zipCode: zipCode || ""
   };
 }
 

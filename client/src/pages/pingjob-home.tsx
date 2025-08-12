@@ -39,60 +39,29 @@ import Footer from "../components/footer";
 
 // Helper function to format location - shows real location data when available
 const formatJobLocation = (job: any) => {
-  // Priority 1: Use job's city, state, zip if available (not Remote)
-  if (job.city && job.city !== "Remote" && job.state && job.zipCode) {
-    return `${job.city}, ${job.state} ${job.zipCode}`;
+  // Priority 1: Use job's city, state, zip if all available and meaningful
+  if (job.city && job.city.trim() && job.city !== "Remote" && job.state && job.state.trim()) {
+    if (job.zipCode && job.zipCode.trim()) {
+      return `${job.city}, ${job.state} ${job.zipCode}`;
+    } else {
+      return `${job.city}, ${job.state}`;
+    }
   }
   
-  // Priority 2: Use city and state (no zip, not Remote)
-  if (job.city && job.city !== "Remote" && job.state) {
-    return `${job.city}, ${job.state}`;
-  }
-  
-  // Priority 3: Use just city (not Remote)
-  if (job.city && job.city !== "Remote") {
+  // Priority 2: Use just city if meaningful
+  if (job.city && job.city.trim() && job.city !== "Remote") {
     return job.city;
   }
   
-  // Priority 4: Use just state
-  if (job.state) {
+  // Priority 3: Use just state if city is missing
+  if (job.state && job.state.trim()) {
     return job.state;
   }
   
-  // Priority 5: Use job location field (cleaned, not Remote)
-  if (job.location && job.location.trim()) {
+  // Priority 4: Use job location field if meaningful
+  if (job.location && job.location.trim() && job.location !== "Remote") {
     const cleaned = job.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
-    if (cleaned && cleaned !== "Remote") return cleaned;
-  }
-  
-  // Priority 6: Extract from company location (for remote jobs too)
-  if (job.company?.location) {
-    const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
-    if (cleaned) {
-      // Known company headquarters locations
-      const companyLocationMap = {
-        'T Mobile': 'Bellevue, WA',
-        'Ameriprise Financial': 'Minneapolis, MN', 
-        'Shell Oil Company': 'Houston, TX',
-        'Comerica Inc': 'Detroit, MI'
-      };
-      
-      // Check if we have a known location for this company
-      const companyName = job.company?.name || '';
-      for (const [company, location] of Object.entries(companyLocationMap)) {
-        if (companyName.includes(company)) {
-          return location;
-        }
-      }
-      
-      // Parse major cities from company address
-      const majorCities = ['Chicago', 'Seattle', 'New York', 'Los Angeles', 'Boston', 'Dallas', 'Atlanta', 'Denver', 'Phoenix', 'San Francisco', 'Washington', 'Minneapolis', 'Miami', 'Houston', 'Detroit'];
-      for (const city of majorCities) {
-        if (cleaned.includes(city)) {
-          return city;
-        }
-      }
-    }
+    if (cleaned) return cleaned;
   }
   
   // Don't show anything if no meaningful location found
