@@ -1533,22 +1533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Found ${applications.length} applications for recruiter dashboard`);
       console.log(`Raw applications data:`, applications.slice(0, 2)); // Show first 2 for debugging
       
-      // Transform data to match frontend expectations
+      // Transform data to match frontend expectations - SHOW ALL APPLICATIONS
       const transformedApplications = applications.map(app => {
-        // Clean up resume URL for proper serving
-        let cleanResumeUrl = app.resumeUrl;
-        if (cleanResumeUrl) {
-          // Remove any /uploads/ prefix and just use the filename
-          cleanResumeUrl = cleanResumeUrl.replace(/^\/uploads\//, '').replace(/^uploads\//, '');
-          console.log(`Application ${app.id}: Original resumeUrl="${app.resumeUrl}", Cleaned="${cleanResumeUrl}"`);
-          
-          // Check if the file exists - only show applications with working resumes
-          if (!fs.existsSync(path.join('uploads', cleanResumeUrl))) {
-            console.log(`File ${cleanResumeUrl} not found for application ${app.id} - SKIPPING APPLICATION`);
-            return null; // Skip this application entirely
-          }
-        }
-        
         return {
           id: app.id,
           jobId: app.jobId,
@@ -1556,7 +1542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: app.status,
           appliedAt: app.appliedAt,
           coverLetter: app.coverLetter,
-          resumeUrl: cleanResumeUrl,
+          resumeUrl: app.resumeUrl,
           matchScore: app.matchScore,
           skillsScore: app.skillsScore,
           experienceScore: app.experienceScore,
@@ -1568,9 +1554,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           applicantName: `${app.applicant?.firstName || ''} ${app.applicant?.lastName || ''}`.trim(),
           applicantEmail: app.applicant?.email || 'No email'
         };
-      }).filter(app => app !== null); // Remove null entries (applications with missing files)
+      });
       
-      console.log(`Filtered applications: ${transformedApplications.length} with working resumes`);
+      console.log(`Returning ${transformedApplications.length} applications`);
       res.json(transformedApplications);
     } catch (error) {
       console.error("Error fetching job applications for recruiters:", error);
