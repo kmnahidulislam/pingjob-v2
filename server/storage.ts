@@ -2850,7 +2850,14 @@ export class DatabaseStorage implements IStorage {
         LEFT JOIN companies c ON j.company_id = c.id
         LEFT JOIN users u ON ja.applicant_id = u.id
         LEFT JOIN categories cat ON u.category_id = cat.id
-        WHERE ja.resume_url IS NOT NULL AND ja.resume_url != ''
+        WHERE ja.resume_url IS NOT NULL 
+        AND ja.resume_url != '' 
+        AND ja.resume_url NOT LIKE '%profile_resume%'
+        AND EXISTS (
+          SELECT 1 FROM jobs j2 
+          WHERE j2.id = ja.job_id 
+          AND j2.created_by = $1
+        )
         ORDER BY ja.applied_at DESC
         LIMIT 1000
       `;
@@ -2861,7 +2868,7 @@ export class DatabaseStorage implements IStorage {
         throw new Error('User not found');
       }
       
-      const result = await pool.query(queryText);
+      const result = await pool.query(queryText, [userId]);
       console.log(`Found ${result.rows.length} applications for ${user.userType} access`);
       
       // Debug: Show sample of applications found
