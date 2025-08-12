@@ -239,6 +239,7 @@ export default function JobDetails() {
     const diffTime = Math.abs(now.getTime() - posted.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    if (diffDays === 0) return "today";
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -346,7 +347,7 @@ export default function JobDetails() {
                     </span>
                     <span className="mx-2">•</span>
                     <Clock className="h-4 w-4 mr-1" />
-                    <span>Posted {job.createdAt ? formatTimeAgo(job.createdAt) : 'Recently'}</span>
+                    <span>Updated {job.updatedAt ? formatTimeAgo(job.updatedAt) : 'Recently'}</span>
                   </div>
                 </div>
               </div>
