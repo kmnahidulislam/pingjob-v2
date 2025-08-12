@@ -57,13 +57,27 @@ export default function JobApplicationModal({
 
   const applyMutation = useMutation({
     mutationFn: async (data: ApplicationFormData & { resume?: File }) => {
+      console.log('=== CLIENT FILE UPLOAD DEBUG ===');
+      console.log('Resume file:', data.resume ? {
+        name: data.resume.name,
+        size: data.resume.size,
+        type: data.resume.type
+      } : 'No resume file');
+      
+      if (!data.resume) {
+        throw new Error('Please select a resume file before submitting your application.');
+      }
+      
       const formData = new FormData();
       formData.append('jobId', data.jobId.toString());
       if (data.coverLetter) {
         formData.append('coverLetter', data.coverLetter);
       }
-      if (data.resume) {
-        formData.append('resume', data.resume);
+      formData.append('resume', data.resume);
+      
+      console.log('FormData entries:');
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
       }
 
       const response = await fetch('/api/applications', {
@@ -125,9 +139,26 @@ export default function JobApplicationModal({
   });
 
   const onSubmit = (data: ApplicationFormData) => {
+    console.log('=== FORM SUBMIT DEBUG ===');
+    console.log('Form data:', data);
+    console.log('Selected file:', selectedFile ? {
+      name: selectedFile.name,
+      size: selectedFile.size,
+      type: selectedFile.type
+    } : 'No file selected');
+    
+    if (!selectedFile) {
+      toast({
+        title: "Resume required",
+        description: "Please upload a resume before submitting your application",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     applyMutation.mutate({
       ...data,
-      resume: selectedFile || undefined
+      resume: selectedFile
     });
   };
 
