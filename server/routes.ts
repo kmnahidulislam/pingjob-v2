@@ -1137,9 +1137,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🔐 Recruiter jobs request - User:', req.user);
+      console.log('🔐 User type check:', req.user.userType, 'vs', req.user.user_type);
       
-      if (req.user.userType !== 'recruiter') {
-        console.log('🔐 Access denied - User type:', req.user.userType);
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
+        console.log('🔐 Access denied - User type:', userType);
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
@@ -3200,7 +3202,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create job as recruiter (auto-assigns candidates)
   app.post('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'recruiter') {
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
@@ -3234,7 +3237,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get assigned candidates for a job
   app.get('/api/recruiter/jobs/:jobId/candidates', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'recruiter') {
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
@@ -3250,7 +3254,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update assignment status
   app.patch('/api/recruiter/assignments/:assignmentId', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'recruiter') {
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
@@ -3268,7 +3273,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create connection with candidate
   app.post('/api/recruiter/connect/:candidateId', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'recruiter') {
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
@@ -3284,7 +3290,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get candidate resume score
   app.get('/api/recruiter/candidate/:candidateId/score/:jobId', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.user.userType !== 'recruiter') {
+      const userType = req.user.userType || req.user.user_type;
+      if (userType !== 'recruiter') {
         return res.status(403).json({ message: "Access denied. Recruiter role required." });
       }
 
