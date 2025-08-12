@@ -69,25 +69,28 @@ const formatJobLocation = (job: any) => {
   if (job.company?.location) {
     const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
     if (cleaned) {
-      // Conservative parsing for company addresses
-      const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
+      // Known company headquarters locations
+      const companyLocationMap = {
+        'T Mobile': 'Bellevue, WA',
+        'Ameriprise Financial': 'Minneapolis, MN', 
+        'Shell Oil Company': 'Houston, TX',
+        'Comerica Inc': 'Detroit, MI'
+      };
       
-      // Check for major city patterns in company address
-      const majorCities = ['Chicago', 'Seattle', 'New York', 'Los Angeles', 'Boston', 'Dallas', 'Atlanta', 'Denver', 'Phoenix', 'San Francisco', 'Washington'];
-      for (const city of majorCities) {
-        if (cleaned.includes(city)) {
-          // Found a major city in the address
-          if (parts.length >= 2) {
-            return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
-          }
-          return city;
+      // Check if we have a known location for this company
+      const companyName = job.company?.name || '';
+      for (const [company, location] of Object.entries(companyLocationMap)) {
+        if (companyName.includes(company)) {
+          return location;
         }
       }
       
-      // For addresses like "12920 SE 38th Street" or "707 2nd Avenue South", don't parse as location
-      // Only parse if it looks like "City, State" format
-      if (parts.length === 2 && !parts[0].match(/\d+\s+(SE|NE|SW|NW|North|South|East|West|Avenue|Street|St|Ave|Blvd|Drive|Dr)/i)) {
-        return parts.join(', ');
+      // Parse major cities from company address
+      const majorCities = ['Chicago', 'Seattle', 'New York', 'Los Angeles', 'Boston', 'Dallas', 'Atlanta', 'Denver', 'Phoenix', 'San Francisco', 'Washington', 'Minneapolis', 'Miami', 'Houston', 'Detroit'];
+      for (const city of majorCities) {
+        if (cleaned.includes(city)) {
+          return city;
+        }
       }
     }
   }
