@@ -200,9 +200,8 @@ export function registerRoutes(app: Express) {
       const application = await storage.createJobApplication(applicationData);
       
       res.json({
-        ...application,
-        autoApplicationsCount: 0,
-        message: 'Application submitted successfully with uploaded resume'
+        id: application.id,
+        message: 'Application submitted successfully'
       });
     } catch (error) {
       console.error("Error creating application:", error);
