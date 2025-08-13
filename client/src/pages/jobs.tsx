@@ -106,6 +106,10 @@ export default function Jobs() {
 
   // Extract jobs from search results
   const jobs = searchResults?.jobs || [];
+  
+  // Debug logging
+  console.log('Jobs page - Total jobs received:', jobs.length);
+  console.log('Jobs page - Search results:', searchResults);
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
