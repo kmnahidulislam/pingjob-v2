@@ -245,8 +245,8 @@ export function registerRoutes(app: Express) {
     try {
       const jobs = await storage.getRecruiterJobs(req.user.id);
       
-      // Add candidate count for each job based on category matching
-      const jobsWithCandidateCount = await Promise.all(jobs.map(async (job: any) => {
+      // Add candidate count and resume count for each job
+      const jobsWithCounts = await Promise.all(jobs.map(async (job: any) => {
         try {
           // Get job seekers with matching category
           const seekers = await storage.getJobSeekers();
@@ -254,20 +254,28 @@ export function registerRoutes(app: Express) {
             seeker.categoryId === job.categoryId
           );
           
+          // Get actual resume applications for this job
+          const applications = await storage.getJobApplicationsForJob(job.id);
+          const resumeApplications = applications.filter((app: any) => 
+            app.resumeUrl && app.resumeUrl.includes('/uploads/')
+          );
+          
           return {
             ...job,
-            candidateCount: matchingCandidates.length
+            candidateCount: matchingCandidates.length,
+            resumeCount: resumeApplications.length
           };
         } catch (error) {
-          console.error('Error calculating candidate count for job', job.id, error);
+          console.error('Error calculating counts for job', job.id, error);
           return {
             ...job,
-            candidateCount: 0
+            candidateCount: 0,
+            resumeCount: 0
           };
         }
       }));
       
-      res.json(jobsWithCandidateCount);
+      res.json(jobsWithCounts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch recruiter jobs" });
     }

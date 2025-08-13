@@ -481,6 +481,9 @@ export default function RecruiterDashboard() {
                         <div className="flex items-center space-x-2 mt-2">
                           <Badge variant="outline">{job.jobType}</Badge>
                           <Badge variant="outline">{job.experienceLevel}</Badge>
+                          <Badge variant="default" className="bg-blue-100 text-blue-800">
+                            {job.resumeCount || 0} Resume{job.resumeCount !== 1 ? 's' : ''} Uploaded
+                          </Badge>
                           <Badge variant="default" className="bg-green-100 text-green-800">
                             {job.candidateCount || 0} Emails Available
                           </Badge>

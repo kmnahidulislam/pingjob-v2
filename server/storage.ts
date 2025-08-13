@@ -339,5 +339,18 @@ export const storage = {
       console.error('Error creating manual assignment:', error);
       throw error;
     }
+  },
+
+  // Get job applications for a specific job
+  async getJobApplicationsForJob(jobId: number) {
+    try {
+      return await db
+        .select()
+        .from(jobApplications)
+        .where(eq(jobApplications.jobId, jobId));
+    } catch (error) {
+      console.error('Error fetching job applications for job:', error);
+      return [];
+    }
   }
 };
