@@ -202,6 +202,8 @@ export default function RecruiterDashboard() {
   const { toast } = useToast();
   const [isEditJobOpen, setIsEditJobOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<any>(null);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
 
   // Fetch recruiter's own jobs
   const { data: recruiterJobs = [], isLoading: jobsLoading } = useQuery({
@@ -334,25 +336,49 @@ export default function RecruiterDashboard() {
 
   const viewCandidates = async (jobId: number, jobTitle: string) => {
     try {
-      const response = await apiRequest('GET', `/api/recruiter/jobs/${jobId}/candidates`);
-      const candidates = await response.json();
-      
-      setViewingCandidates(candidates);
       setSelectedJobTitle(jobTitle);
-      setIsViewCandidatesOpen(true);
       
-      if (candidates.length === 0) {
-        toast({
-          title: "Info",
-          description: "No candidates have been assigned to this job yet.",
-        });
+      // Find the job to get its category
+      const job = recruiterJobs.find((j: any) => j.id === jobId);
+      if (!job || !job.categoryId) {
+        setViewingCandidates([]);
+        setIsViewCandidatesOpen(true);
+        return;
       }
+      
+      // Get job seekers matching the job's category
+      const response = await apiRequest('GET', '/api/job-seekers');
+      if (!response.ok) {
+        throw new Error('Failed to fetch job seekers');
+      }
+      
+      const allJobSeekers = await response.json();
+      const matchingCandidates = allJobSeekers.filter((seeker: any) => 
+        seeker.categoryId === job.categoryId
+      );
+      
+      // Transform to assignment-like structure for compatibility
+      const candidateAssignments = matchingCandidates.map((candidate: any) => ({
+        candidate: {
+          id: candidate.id,
+          firstName: candidate.firstName,
+          lastName: candidate.lastName,
+          email: candidate.email,
+          headline: candidate.headline
+        }
+      }));
+      
+      setViewingCandidates(candidateAssignments);
+      setIsViewCandidatesOpen(true);
     } catch (error) {
+      console.error('Error fetching candidates:', error);
       toast({
         title: "Error",
-        description: "Failed to load candidates",
+        description: "Failed to fetch candidates",
         variant: "destructive",
       });
+      setViewingCandidates([]);
+      setIsViewCandidatesOpen(true);
     }
   };
 
@@ -441,17 +467,20 @@ export default function RecruiterDashboard() {
                   <div key={job.id} className="border rounded-lg p-4 hover:bg-gray-50">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-medium text-lg">{job.title}</h3>
+                        <button 
+                          onClick={() => {
+                            setSelectedJob(job);
+                            setIsJobDetailOpen(true);
+                          }}
+                          className="text-left hover:underline"
+                        >
+                          <h3 className="font-medium text-lg text-blue-600 hover:text-blue-800">{job.title}</h3>
+                        </button>
                         <p className="text-sm text-gray-600">{job.companyName}</p>
                         <p className="text-sm text-gray-500 mt-1">{job.location}</p>
                         <div className="flex items-center space-x-2 mt-2">
                           <Badge variant="outline">{job.jobType}</Badge>
                           <Badge variant="outline">{job.experienceLevel}</Badge>
-                          {job.categoryId && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                              Category: {job.categoryId}
-                            </Badge>
-                          )}
                           <Badge variant="default" className="bg-green-100 text-green-800">
                             {job.candidateCount || 0} Emails Available
                           </Badge>
@@ -461,6 +490,17 @@ export default function RecruiterDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedJob(job);
+                            setIsJobDetailOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -533,6 +573,84 @@ export default function RecruiterDashboard() {
                 </div>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Job Detail Dialog */}
+        <Dialog open={isJobDetailOpen} onOpenChange={setIsJobDetailOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Job Details</DialogTitle>
+            </DialogHeader>
+            {selectedJob && (
+              <div className="space-y-6">
+                <div className="border-b pb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+                  <p className="text-lg text-gray-600">{selectedJob.companyName}</p>
+                  <p className="text-gray-500">{selectedJob.location}</p>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <Badge variant="outline">{selectedJob.jobType}</Badge>
+                    <Badge variant="outline">{selectedJob.experienceLevel}</Badge>
+                    {selectedJob.salary && (
+                      <Badge variant="secondary">{selectedJob.salary}</Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Job Description</h3>
+                  <div className="prose max-w-none">
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedJob.description}</p>
+                  </div>
+                </div>
+
+                {selectedJob.requirements && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Requirements</h3>
+                    <div className="prose max-w-none">
+                      <p className="text-gray-700 whitespace-pre-wrap">{selectedJob.requirements}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedJob.benefits && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Benefits</h3>
+                    <div className="prose max-w-none">
+                      <p className="text-gray-700 whitespace-pre-wrap">{selectedJob.benefits}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <div className="text-sm text-gray-500">
+                    Posted on {new Date(selectedJob.createdAt).toLocaleDateString()}
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsJobDetailOpen(false);
+                        handleEditJob(selectedJob);
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit Job
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsJobDetailOpen(false);
+                        viewCandidates(selectedJob.id, selectedJob.title);
+                      }}
+                    >
+                      <Mail className="h-4 w-4 mr-1" />
+                      Email Candidates
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 

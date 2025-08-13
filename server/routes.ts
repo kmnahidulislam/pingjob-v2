@@ -244,7 +244,30 @@ export function registerRoutes(app: Express) {
   app.get('/api/recruiter/jobs', isAuthenticated, async (req: any, res) => {
     try {
       const jobs = await storage.getRecruiterJobs(req.user.id);
-      res.json(jobs);
+      
+      // Add candidate count for each job based on category matching
+      const jobsWithCandidateCount = await Promise.all(jobs.map(async (job: any) => {
+        try {
+          // Get job seekers with matching category
+          const seekers = await storage.getJobSeekers();
+          const matchingCandidates = seekers.filter((seeker: any) => 
+            seeker.categoryId === job.categoryId
+          );
+          
+          return {
+            ...job,
+            candidateCount: matchingCandidates.length
+          };
+        } catch (error) {
+          console.error('Error calculating candidate count for job', job.id, error);
+          return {
+            ...job,
+            candidateCount: 0
+          };
+        }
+      }));
+      
+      res.json(jobsWithCandidateCount);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch recruiter jobs" });
     }
@@ -256,6 +279,16 @@ export function registerRoutes(app: Express) {
       res.json(companies);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
+  // Job seekers endpoint for recruiter candidate viewing
+  app.get('/api/job-seekers', async (req, res) => {
+    try {
+      const jobSeekers = await storage.getJobSeekers();
+      res.json(jobSeekers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch job seekers" });
     }
   });
 
