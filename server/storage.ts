@@ -420,6 +420,72 @@ export const storage = {
     }
   },
 
+  async getJobById(jobId: number) {
+    try {
+      const jobResult = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description,
+          categoryName: categories.name
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .where(eq(jobs.id, jobId))
+        .limit(1);
+
+      if (jobResult.length === 0) {
+        return null;
+      }
+
+      const job = jobResult[0];
+      return {
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        salary: job.salary,
+        employmentType: job.employmentType,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        isActive: job.isActive,
+        createdAt: job.createdAt,
+        companyId: job.companyId,
+        categoryId: job.categoryId,
+        recruiterId: job.recruiterId,
+        company: {
+          id: job.companyId,
+          name: job.companyName || "Unknown Company",
+          logoUrl: job.companyLogoUrl,
+          website: job.companyWebsite,
+          description: job.companyDescription
+        },
+        category: {
+          id: job.categoryId,
+          name: job.categoryName || "General"
+        }
+      };
+    } catch (error) {
+      console.error(`Error fetching job ${jobId}:`, error);
+      return null;
+    }
+  },
+
   async getTopCompanies() {
     try {
       // Get companies with actual job counts using raw SQL

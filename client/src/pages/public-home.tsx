@@ -286,8 +286,8 @@ export default function PublicHome() {
               
               {/* Two-column grid layout for jobs */}
               {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length > 0 && (
-                <div className="space-y-4">
-                  {adminJobs.map((job: any) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {adminJobs.slice(0, 20).map((job: any) => (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-3">
@@ -353,11 +353,27 @@ export default function PublicHome() {
                                 </Badge>
                               </div>
                               
-                              <Link href={`/jobs/${job.id}`}>
-                                <Button size="sm" variant="outline" className="text-xs">
-                                  View
+                              <div className="flex gap-1">
+                                <Link href={`/jobs/${job.id}`}>
+                                  <Button size="sm" variant="outline" className="text-xs">
+                                    View
+                                  </Button>
+                                </Link>
+                                <Button 
+                                  size="sm" 
+                                  className="text-xs bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => {
+                                    if (!user) {
+                                      window.location.href = '/auth';
+                                    } else {
+                                      // Handle application logic for authenticated users
+                                      window.location.href = `/jobs/${job.id}`;
+                                    }
+                                  }}
+                                >
+                                  Apply Now
                                 </Button>
-                              </Link>
+                              </div>
                             </div>
                           </div>
                         </div>

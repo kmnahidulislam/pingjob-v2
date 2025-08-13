@@ -525,6 +525,26 @@ export function registerRoutes(app: Express) {
   });
 
   // Get job applications for a specific job (admin only)
+  // Individual job details endpoint
+  app.get('/api/jobs/:id', async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      if (isNaN(jobId)) {
+        return res.status(400).json({ message: 'Invalid job ID' });
+      }
+      
+      const job = await storage.getJobById(jobId);
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      
+      res.json(job);
+    } catch (error) {
+      console.error('Error fetching job:', error);
+      res.status(500).json({ message: 'Failed to fetch job details' });
+    }
+  });
+
   app.get('/api/jobs/:id/applications', async (req, res) => {
     try {
       const jobId = parseInt(req.params.id);
