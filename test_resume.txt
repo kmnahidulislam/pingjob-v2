@@ -1,20 +1,21 @@
-John Smith
-Senior Software Engineer
-Email: john.smith@email.com
-Phone: (555) 123-4567
+John Doe
+Software Engineer
 
-EXPERIENCE:
-Software Engineer at Google (2020-2023)
-- Developed React applications with TypeScript
-- Built Node.js APIs and microservices
-- Worked with PostgreSQL databases
+Experience:
+- 5 years in software development
+- Proficient in Java, Python, JavaScript
+- Experience with React, Node.js, databases
 
-Junior Developer at Microsoft (2018-2020)
-- JavaScript development
-- Database design
+Education:
+- Bachelor's in Computer Science
+- Relevant certifications
 
-EDUCATION:
-Bachelor of Computer Science, Stanford University (2018)
+Skills:
+- Programming languages: Java, Python, JavaScript
+- Frameworks: React, Express.js, Spring Boot
+- Databases: MySQL, PostgreSQL, MongoDB
+- Tools: Git, Docker, AWS
 
-SKILLS:
-React, Node.js, TypeScript, PostgreSQL, JavaScript, Python
+Contact:
+- Email: john.doe@example.com
+- Phone: (555) 123-4567

@@ -6,14 +6,20 @@ import fs from "fs";
 import { storage } from "./storage";
 import { insertJobApplicationSchema } from "../shared/schema";
 import { cleanPool as pool } from "./clean-neon";
-// Simple authentication middleware
+// Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
+  console.log('🔒 Auth check - Session exists:', !!req.session);
+  console.log('🔒 Auth check - Session user:', !!req.session?.user);
+  console.log('🔒 Auth check - Passport user:', !!req.user);
+  
   if (req.user || req.session?.user) {
     // Ensure req.user is set for consistency
     req.user = req.user || req.session.user;
+    console.log('🔒 Auth check - PASSED for user:', req.user.email);
     next();
   } else {
-    res.status(401).json({ message: "Not authenticated" });
+    console.log('🔒 Auth check - FAILED - returning 401');
+    res.status(401).json({ message: "Authentication required" });
   }
 };
 
@@ -36,13 +42,14 @@ const upload = multer({
     const allowedTypes = [
       'application/pdf',
       'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain' // Allow text files for testing
     ];
     
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, DOC, and DOCX files are allowed.'));
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.'));
     }
   }
 });
