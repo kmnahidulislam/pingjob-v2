@@ -1,2 +1,0 @@
-This is an example file in the uploads folder.
-You can replace this content with your actual file data.
