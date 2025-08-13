@@ -115,9 +115,7 @@ export default function PublicHome() {
                     </span>
                   </div>
                 ))}
-                <Link href="/categories" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  View All Categories
-                </Link>
+
               </CardContent>
             </Card>
           </div>
@@ -312,9 +310,7 @@ export default function PublicHome() {
                   </div>
                 ))}
                 
-                <Link href="/companies" className="text-blue-600 hover:text-blue-800 text-sm font-medium block pt-2">
-                  View All Companies
-                </Link>
+
               </CardContent>
             </Card>
           </div>
