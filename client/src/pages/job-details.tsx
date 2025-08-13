@@ -267,7 +267,35 @@ export default function JobDetails() {
     );
   }
 
-  if (error || !job) {
+  if (error) {
+    console.error('Job details error:', error);
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/jobs">
+            <Button variant="ghost" className="mb-6">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Jobs
+            </Button>
+          </Link>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+              <p className="text-gray-600 mb-4">
+                Error: {error instanceof Error ? error.message : 'Unknown error'}
+              </p>
+              <p className="text-gray-600 mb-4">Job ID: {id}</p>
+              <Link href="/jobs">
+                <Button>Browse All Jobs</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!job) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
@@ -283,6 +311,7 @@ export default function JobDetails() {
               <p className="text-gray-600 mb-4">
                 The job you're looking for could not be found.
               </p>
+              <p className="text-gray-600 mb-4">Job ID: {id}</p>
               <Link href="/jobs">
                 <Button>Browse All Jobs</Button>
               </Link>
@@ -293,8 +322,20 @@ export default function JobDetails() {
     );
   }
 
-  const skillsArray: string[] = job.skills ? 
-    (Array.isArray(job.skills) ? job.skills : []) : [];
+  // Handle skills array safely
+  const skillsArray: string[] = (() => {
+    if (!job.skills) return [];
+    if (Array.isArray(job.skills)) return job.skills;
+    if (typeof job.skills === 'string') {
+      try {
+        const parsed = JSON.parse(job.skills);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return job.skills.split(',').map(s => s.trim()).filter(Boolean);
+      }
+    }
+    return [];
+  })();
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
