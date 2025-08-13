@@ -28,6 +28,7 @@ import Companies from "@/pages/companies";
 import CompanyCreate from "@/pages/company-create";
 import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
+import JobDetailsSimple from "@/pages/job-details-simple";
 import CategoryJobsPage from "@/pages/category-jobs-page";
 import InvitationAccept from "@/pages/invitation-accept";
 import SocialMediaTest from "@/pages/social-media-test";
@@ -136,7 +137,7 @@ function Router() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
-          <Route path="/jobs/:id" component={JobDetails} />
+          <Route path="/jobs/:id" component={JobDetailsSimple} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
           <Route path="/auth" component={Auth} />
@@ -172,7 +173,7 @@ function Router() {
     <div className="min-h-screen bg-gray-50">
       <ProtectedLayout>
         <Switch>
-          <Route path="/jobs/:id" component={JobDetails} />
+          <Route path="/jobs/:id" component={JobDetailsSimple} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={JobsOriginal} />
