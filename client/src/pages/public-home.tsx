@@ -14,9 +14,11 @@ import {
   RefreshCw
 } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import logoPath from "@assets/logo_1749581218265.png";
 
 export default function PublicHome() {
+  const { user } = useAuth();
   // Fetch job categories
   const { data: categories = [] } = useQuery<any[]>({
     queryKey: ['/api/categories']
@@ -197,7 +199,7 @@ export default function PublicHome() {
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {Array.isArray(categories) && categories.slice(0, 8).map((category: any) => (
+                {Array.isArray(categories) && categories.slice(0, 20).map((category: any) => (
                   <div key={category.id} className="flex justify-between items-center">
                     <Link 
                       href={`/jobs?category=${category.id}`}
@@ -219,7 +221,7 @@ export default function PublicHome() {
                 <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Array.isArray(companies) && companies.slice(0, 10).map((company: any, index: number) => (
+                {Array.isArray(companies) && companies.slice(0, 20).map((company: any, index: number) => (
                   <div key={company.id} className="flex items-center space-x-3">
                     <div className="flex-shrink-0 text-sm font-medium text-gray-400">
                       {index + 1}
@@ -362,8 +364,11 @@ export default function PublicHome() {
                                 <Button 
                                   size="sm" 
                                   className="text-xs bg-blue-600 hover:bg-blue-700"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    console.log('Apply Now clicked, user:', user);
                                     if (!user) {
+                                      console.log('Redirecting to auth...');
                                       window.location.href = '/auth';
                                     } else {
                                       // Handle application logic for authenticated users
