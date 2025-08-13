@@ -4,7 +4,7 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
-import { insertJobApplicationSchema } from "../shared/schema";
+// insertJobApplicationSchema import removed - using direct object creation
 import { cleanPool as pool } from "./clean-neon";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
