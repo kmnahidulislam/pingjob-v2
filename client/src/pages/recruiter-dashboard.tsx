@@ -484,9 +484,6 @@ export default function RecruiterDashboard() {
                           <Badge variant="default" className="bg-green-100 text-green-800">
                             {job.candidateCount || 0} Emails Available
                           </Badge>
-                          <span className="text-sm text-gray-500">
-                            Created {new Date(job.createdAt).toLocaleDateString()}
-                          </span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -536,34 +533,40 @@ export default function RecruiterDashboard() {
 
         {/* View Candidates Dialog */}
         <Dialog open={isViewCandidatesOpen} onOpenChange={setIsViewCandidatesOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl max-h-[80vh]">
             <DialogHeader>
               <DialogTitle>Email Candidates for: {selectedJobTitle}</DialogTitle>
               <DialogDescription>
                 Job seekers with matching category who you can email directly about this position.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
               {viewingCandidates.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No candidates have been assigned to this job yet.</p>
+                  <p className="text-gray-500">No candidates with matching category found for this job.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Found {viewingCandidates.length} candidate{viewingCandidates.length !== 1 ? 's' : ''} with matching category
+                  </div>
                   {viewingCandidates.map((assignment: any, index: number) => (
                     <div key={`${assignment.candidate.id}-${index}`} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-bold text-2xl text-blue-900 mb-2">
+                          <h3 className="font-bold text-lg text-blue-900 mb-1">
                             {assignment.candidate.firstName} {assignment.candidate.lastName || ""}
                           </h3>
-                          <p className="text-xl text-gray-800 font-semibold">{assignment.candidate.email}</p>
+                          <p className="text-base text-gray-800 font-medium mb-2">{assignment.candidate.email}</p>
+                          {assignment.candidate.headline && (
+                            <p className="text-sm text-gray-600">{assignment.candidate.headline}</p>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-700">
-                            <a href={`mailto:${assignment.candidate.email}`}>
+                            <a href={`mailto:${assignment.candidate.email}?subject=Job Opportunity: ${selectedJobTitle}`}>
                               <Mail className="h-4 w-4 mr-1" />
-                              Contact Candidate
+                              Send Email
                             </a>
                           </Button>
                         </div>
@@ -624,7 +627,11 @@ export default function RecruiterDashboard() {
 
                 <div className="flex justify-between items-center pt-4 border-t">
                   <div className="text-sm text-gray-500">
-                    Posted on {new Date(selectedJob.createdAt).toLocaleDateString()}
+                    {selectedJob.createdAt && !isNaN(new Date(selectedJob.createdAt).getTime()) ? (
+                      `Posted on ${new Date(selectedJob.createdAt).toLocaleDateString()}`
+                    ) : (
+                      'Recently posted'
+                    )}
                   </div>
                   <div className="flex space-x-3">
                     <Button
