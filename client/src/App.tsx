@@ -154,7 +154,7 @@ function Router() {
           <Route path="/test-auth" component={TestAuth} />
           <Route path="/manual-assignments" component={ManualAssignments} />
 
-          <Route path="/" component={PublicHome} />
+          <Route path="/" component={Home} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>

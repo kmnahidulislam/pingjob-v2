@@ -112,7 +112,165 @@ export default function Home() {
 
   const profileCompletion = calculateProfileCompletion();
 
-  if (!user) return null;
+  // Show public home for non-authenticated users
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <img src={logoPath} alt="PingJob" className="h-8 w-auto" />
+              </div>
+              
+              {/* Navigation */}
+              <nav className="flex items-center space-x-4">
+                <Link href="/jobs" className="text-gray-700 hover:text-blue-600">Jobs</Link>
+                <Link href="/companies" className="text-gray-700 hover:text-blue-600">Companies</Link>
+                <Link href="/pricing" className="text-gray-700 hover:text-blue-600">Pricing</Link>
+                <Link href="/auth">
+                  <Button variant="outline" size="sm">Sign In</Button>
+                </Link>
+                <Link href="/auth">
+                  <Button size="sm">Sign Up</Button>
+                </Link>
+              </nav>
+            </div>
+          </div>
+        </header>
+
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
+          <div className="max-w-7xl mx-auto">
+            <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
+              <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                <div className="text-center lg:text-left">
+                  <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                    <span className="block">Find Your Dream</span>
+                    <span className="block text-blue-600">Career Today</span>
+                  </h1>
+                  <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl md:mt-5 md:text-xl lg:mx-0">
+                    Connect with top employers, discover amazing opportunities, and take the next step in your professional journey. Join thousands of professionals who found their perfect job through PingJob.
+                  </p>
+                  <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                    <div className="rounded-md shadow">
+                      <Link href="/auth">
+                        <Button size="lg" className="w-full px-8 py-3">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                    <div className="mt-3 sm:mt-0 sm:ml-3">
+                      <Link href="/jobs">
+                        <Button variant="outline" size="lg" className="w-full px-8 py-3">
+                          Browse Jobs
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="py-12 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Why Choose PingJob?
+              </h2>
+              <p className="mt-4 text-lg text-gray-500">
+                Everything you need to advance your career
+              </p>
+            </div>
+
+            <div className="mt-10">
+              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                    <Briefcase className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">Quality Jobs</h3>
+                  <p className="mt-2 text-base text-gray-500">
+                    Curated job opportunities from top companies across all industries.
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">Professional Network</h3>
+                  <p className="mt-2 text-base text-gray-500">
+                    Connect with industry professionals and expand your network.
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">Career Growth</h3>
+                  <p className="mt-2 text-base text-gray-500">
+                    Tools and resources to help you advance in your career.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="bg-gray-800 text-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <img src={logoPath} alt="PingJob" className="h-8 w-auto mb-4" />
+                <p className="text-gray-400 text-sm">
+                  Professional networking platform connecting talent with opportunities.
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4">For Job Seekers</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><Link href="/jobs" className="hover:text-white">Browse Jobs</Link></li>
+                  <li><Link href="/companies" className="hover:text-white">Company Profiles</Link></li>
+                  <li><Link href="/auth" className="hover:text-white">Create Profile</Link></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4">For Employers</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><Link href="/pricing" className="hover:text-white">Post Jobs</Link></li>
+                  <li><Link href="/auth" className="hover:text-white">Employer Login</Link></li>
+                  <li><Link href="/contact-sales" className="hover:text-white">Contact Sales</Link></li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><Link href="/about" className="hover:text-white">About Us</Link></li>
+                  <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+                  <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+                  <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2025 PingJob. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
