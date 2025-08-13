@@ -3,6 +3,8 @@ import { jobApplications, users, jobs } from './shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 async function createSampleApplication() {
+  console.log('🚫 Sample application creation DISABLED to prevent fake applications');
+  return;
   try {
     console.log('🚫 Sample application creation DISABLED - prevents broken resume references');
     console.log('Only manual file uploads through application modal are allowed');
