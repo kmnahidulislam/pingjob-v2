@@ -253,6 +253,77 @@ export const storage = {
     return await db.select().from(categories).orderBy(categories.name);
   },
 
+  // Fast jobs endpoint without resume counts for performance
+  async getFastJobs(limit?: number) {
+    try {
+      let query = db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description,
+          categoryName: categories.name
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .where(eq(jobs.isActive, true))
+        .orderBy(desc(jobs.createdAt));
+      
+      if (limit) {
+        query = query.limit(limit);
+      }
+      
+      const fastJobsResults = await query;
+      
+      return fastJobsResults.map(job => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        salary: job.salary,
+        employmentType: job.employmentType,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        applicationDeadline: null,
+        isActive: job.isActive,
+        postedAt: job.createdAt,
+        createdAt: job.createdAt,
+        companyId: job.companyId,
+        categoryId: job.categoryId,
+        recruiterId: job.recruiterId,
+        company: {
+          id: job.companyId,
+          name: job.companyName || "Unknown Company",
+          logoUrl: job.companyLogoUrl,
+          website: job.companyWebsite,
+          description: job.companyDescription
+        },
+        category: {
+          id: job.categoryId,
+          name: job.categoryName || "General"
+        },
+        applicationCount: 0
+      }));
+    } catch (error) {
+      console.error('Error fetching fast jobs:', error);
+      return [];
+    }
+  },
+
   async getAdminJobs() {
     try {
       const adminJobsResults = await db

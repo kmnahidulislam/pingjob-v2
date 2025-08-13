@@ -199,7 +199,8 @@ export function registerRoutes(app: Express) {
   // Fast endpoint for jobs page without resume counts
   app.get('/api/jobs', async (req, res) => {
     try {
-      const jobs = await storage.getAdminJobs();
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const jobs = await storage.getFastJobs(limit);
       res.json(jobs);
     } catch (error) {
       console.error('Error fetching jobs:', error);

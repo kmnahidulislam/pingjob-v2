@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/lib/protected-route";
 import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import Home from "@/pages/home";
+import PublicHome from "@/pages/public-home";
 import PingJobHome from "@/pages/pingjob-home";
 import TestSimpleHome from "@/pages/test-simple-home";
 import PingJobHomeSimple from "@/pages/pingjob-home-simple";
@@ -153,7 +154,7 @@ function Router() {
           <Route path="/test-auth" component={TestAuth} />
           <Route path="/manual-assignments" component={ManualAssignments} />
 
-          <Route path="/" component={PingJobHome} />
+          <Route path="/" component={PublicHome} />
           <Route><Redirect to="/" /></Route>
         </Switch>
       </div>
