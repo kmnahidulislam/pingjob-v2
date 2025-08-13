@@ -66,8 +66,26 @@ export default function PublicHome() {
                   type="text"
                   placeholder="Search jobs, companies, or skills..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const searchValue = (e.target as HTMLInputElement).value;
+                      if (searchValue.trim()) {
+                        window.location.href = `/jobs?search=${encodeURIComponent(searchValue)}`;
+                      }
+                    }
+                  }}
                 />
-                <Button size="sm" className="absolute right-1 top-1">
+                <Button 
+                  size="sm" 
+                  className="absolute right-1 top-1"
+                  onClick={() => {
+                    const input = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+                    const searchValue = input?.value;
+                    if (searchValue?.trim()) {
+                      window.location.href = `/jobs?search=${encodeURIComponent(searchValue)}`;
+                    }
+                  }}
+                >
                   Go
                 </Button>
               </div>
@@ -91,6 +109,82 @@ export default function PublicHome() {
 
 
 
+      {/* Feature Banners */}
+      <div className="bg-blue-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-2">
+                <div className="w-6 h-6 bg-green-500 rounded-full"></div>
+              </div>
+              <p className="text-sm text-green-600 font-medium">100% Client-Only Jobs</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-2">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <p className="text-sm text-blue-600 font-medium">10X Recruiter Engagement</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-2">
+                <div className="w-6 h-6 bg-purple-500 rounded-full"></div>
+              </div>
+              <p className="text-sm text-purple-600 font-medium">One Clear Goal</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mb-2">
+                <div className="w-6 h-6 bg-orange-500 rounded-full"></div>
+              </div>
+              <p className="text-sm text-orange-600 font-medium">AI-Powered Matching</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Additional Feature Banners */}
+      <div className="bg-gray-50 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mb-1">
+                <Clock className="w-4 h-4 text-orange-600" />
+              </div>
+              <p className="text-sm text-orange-600 font-medium">Real-Time Analytics</p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-8 h-8 bg-red-100 rounded-full mb-1">
+                <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+              </div>
+              <p className="text-sm text-red-600 font-medium">Resume Score™</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Platform Stats */}
+      <div className="bg-white py-8 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">14688</div>
+              <div className="text-sm text-gray-600">Active Jobs</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">76823</div>
+              <div className="text-sm text-gray-600">Top Companies</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">139</div>
+              <div className="text-sm text-gray-600">Categories</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-orange-600">2203</div>
+              <div className="text-sm text-gray-600">Posted Today</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -102,7 +196,7 @@ export default function PublicHome() {
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {Array.isArray(categories) && categories.slice(0, 10).map((category: any) => (
+                {Array.isArray(categories) && categories.slice(0, 20).map((category: any) => (
                   <div key={category.id} className="flex justify-between items-center">
                     <Link 
                       href={`/jobs?category=${category.id}`}
