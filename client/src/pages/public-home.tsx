@@ -44,6 +44,8 @@ export default function PublicHome() {
   console.log('PublicHome: Latest jobs length:', latestJobs?.length || 0);
   console.log('PublicHome: Jobs loading:', jobsLoading);
   console.log('PublicHome: Jobs error:', jobsError);
+  console.log('PublicHome: Latest jobs data type:', typeof latestJobs);
+  console.log('PublicHome: Is array?', Array.isArray(latestJobs));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,7 +118,7 @@ export default function PublicHome() {
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {categories.slice(0, 10).map((category: any) => (
+                {Array.isArray(categories) && categories.slice(0, 10).map((category: any) => (
                   <div key={category.id} className="flex justify-between items-center">
                     <Link 
                       href={`/jobs?category=${category.id}`}
@@ -125,7 +127,7 @@ export default function PublicHome() {
                       {category.name}
                     </Link>
                     <span className="text-gray-500 text-xs">
-                      {category.jobCount || 0} jobs
+                      {category.jobCount || '0'} jobs
                     </span>
                   </div>
                 ))}
@@ -157,6 +159,14 @@ export default function PublicHome() {
               {!jobsLoading && latestJobs && Array.isArray(latestJobs) && latestJobs.length === 0 && (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No jobs available at the moment.</p>
+                  <p className="text-xs text-red-500 mt-2">Debug: Jobs type: {typeof latestJobs}, Length: {latestJobs?.length}</p>
+                </div>
+              )}
+              
+              {!jobsLoading && !Array.isArray(latestJobs) && (
+                <div className="text-center py-8">
+                  <p className="text-red-500">Debug: Jobs data is not an array. Type: {typeof latestJobs}</p>
+                  <p className="text-xs text-gray-500 mt-2">Raw data: {JSON.stringify(latestJobs)?.slice(0, 100)}...</p>
                 </div>
               )}
               
@@ -259,7 +269,7 @@ export default function PublicHome() {
                 <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {companies.slice(0, 10).map((company: any, index: number) => (
+                {Array.isArray(companies) && companies.slice(0, 10).map((company: any, index: number) => (
                   <div key={company.id} className="flex items-center space-x-3">
                     <div className="flex-shrink-0 text-sm font-medium text-gray-400">
                       {index + 1}
@@ -304,6 +314,52 @@ export default function PublicHome() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <img src={logoPath} alt="PingJob" className="h-8 w-auto mb-4" />
+              <p className="text-gray-400 text-sm">
+                Professional networking platform connecting talent with opportunities.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">For Job Seekers</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="/jobs" className="hover:text-white">Browse Jobs</Link></li>
+                <li><Link href="/companies" className="hover:text-white">Company Profiles</Link></li>
+                <li><Link href="/auth" className="hover:text-white">Create Profile</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">For Employers</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="/pricing" className="hover:text-white">Post Jobs</Link></li>
+                <li><Link href="/auth" className="hover:text-white">Employer Login</Link></li>
+                <li><Link href="/contact-sales" className="hover:text-white">Contact Sales</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="/about" className="hover:text-white">About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+                <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+            <p>&copy; 2025 PingJob. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
