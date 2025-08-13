@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import PublicHome from "./public-home";
 // AdBanner removed to prevent development errors
 
 export default function Home() {
@@ -123,7 +124,10 @@ export default function Home() {
 
   const profileCompletion = calculateProfileCompletion();
 
-  if (!user) return null;
+  // Show public home for non-authenticated users
+  if (!user) {
+    return <PublicHome />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
