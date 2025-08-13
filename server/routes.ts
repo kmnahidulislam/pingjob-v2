@@ -231,4 +231,5 @@ export function registerRoutes(app: Express) {
   });
 
   console.log('✅ Routes registered successfully - auto-application system disabled');
+  return app;
 }
