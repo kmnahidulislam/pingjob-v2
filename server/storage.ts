@@ -7,6 +7,7 @@ import {
   categories, 
   jobApplications,
   jobCandidateAssignments,
+  vendors,
   type InsertUser,
   type InsertJob,
   type InsertCompany,
@@ -652,6 +653,41 @@ export const storage = {
         .limit(20);
     } catch (error) {
       console.error('Error fetching job seekers:', error);
+      return [];
+    }
+  },
+
+  // Get vendors for a specific job (via company relationship)
+  async getJobVendors(jobId: number) {
+    console.log(`🔍 Fetching vendors for job: ${jobId}`);
+    
+    try {
+      const result = await db
+        .select({
+          id: vendors.id,
+          name: vendors.name,
+          email: vendors.email,
+          phone: vendors.phone,
+          services: vendors.services,
+          status: vendors.status,
+          companyId: vendors.companyId,
+          logoUrl: companies.logoUrl,
+          website: companies.website,
+          location: companies.location,
+          description: companies.description
+        })
+        .from(vendors)
+        .innerJoin(companies, eq(vendors.companyId, companies.id))
+        .innerJoin(jobs, eq(jobs.companyId, companies.id))
+        .where(and(
+          eq(jobs.id, jobId),
+          eq(vendors.status, 'approved')
+        ));
+
+      console.log(`✅ Found ${result.length} vendors for job ${jobId}`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching job vendors:', error);
       return [];
     }
   }

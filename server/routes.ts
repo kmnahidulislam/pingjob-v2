@@ -560,6 +560,18 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get vendors for a specific job (based on company)
+  app.get('/api/jobs/:id/vendors', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const vendors = await storage.getJobVendors(parseInt(id));
+      res.json(vendors);
+    } catch (error) {
+      console.error('Error fetching job vendors:', error);
+      res.status(500).json({ message: 'Failed to fetch vendors' });
+    }
+  });
+
   // Add logout endpoint directly to prevent missing route errors
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');
