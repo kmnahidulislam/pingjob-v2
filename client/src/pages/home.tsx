@@ -68,8 +68,16 @@ export default function Home() {
     enabled: !!user
   });
 
-  const { data: jobApplications } = useQuery({
-    queryKey: ['/api/applications'],
+  const { data: jobApplications = [] } = useQuery({
+    queryKey: ['/api/applications', { limit: 3 }],
+    queryFn: async () => {
+      const response = await fetch('/api/applications?limit=3', {
+        credentials: 'include'
+      });
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data.slice(0, 3) : []; // Max 3 applications for dashboard
+    },
     enabled: !!user && user.userType === 'job_seeker'
   });
 
@@ -249,7 +257,7 @@ export default function Home() {
                     <div className="flex items-center space-x-3">
                       <Briefcase className="h-5 w-5 text-linkedin-blue" />
                       <span className="text-sm">
-                        Applied to {jobApplications.length} job{jobApplications.length > 1 ? 's' : ''} this month
+                        Applied to {Math.min(jobApplications.length, 3)} recent job{jobApplications.length > 1 ? 's' : ''}
                       </span>
                     </div>
                   )}

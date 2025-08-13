@@ -112,9 +112,10 @@ export default function JobApplicationModal({
       console.log('LATEST MODAL VERSION - NO 100 JOBS MESSAGE');
       console.log('===============================');
       
+      console.log('🚨 FIXED VERSION - NO MORE 100 JOBS MESSAGE 🚨');
       toast({
-        title: "SUCCESS: Application submitted", 
-        description: `Application completed for ${job.title}. No auto-assignment.`
+        title: "✅ SUCCESS: Single application created", 
+        description: `Application submitted for ${job.title}. System fixed - no more bulk messaging.`
       });
       
       // Simple cache invalidation - just what's needed
