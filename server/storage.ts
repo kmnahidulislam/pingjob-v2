@@ -48,6 +48,39 @@ export const storage = {
     };
   },
 
+  async deleteJobApplication(applicationId: number) {
+    console.log(`🗑️ Deleting application: ${applicationId}`);
+    await db.delete(jobApplications).where(eq(jobApplications.id, applicationId));
+    console.log(`✅ Deleted application: ${applicationId}`);
+  },
+
+  async getAllJobApplications() {
+    console.log('🔍 Fetching ALL job applications for cleanup...');
+    
+    const applicationsQuery = db
+      .select({
+        id: jobApplications.id,
+        jobId: jobApplications.jobId,
+        applicantId: jobApplications.applicantId,
+        status: jobApplications.status,
+        appliedAt: jobApplications.appliedAt,
+        coverLetter: jobApplications.coverLetter,
+        resumeUrl: jobApplications.resumeUrl,
+        matchScore: jobApplications.matchScore,
+        skillsScore: jobApplications.skillsScore,
+        experienceScore: jobApplications.experienceScore,
+        educationScore: jobApplications.educationScore,
+        companyScore: jobApplications.companyScore,
+        isProcessed: jobApplications.isProcessed
+      })
+      .from(jobApplications)
+      .orderBy(desc(jobApplications.appliedAt));
+
+    const rawApplications = await applicationsQuery;
+    console.log(`Found ${rawApplications.length} total applications`);
+    return rawApplications;
+  },
+
   async getJobApplicationsForRecruiters(recruiterId: string) {
     console.log('Retrieved user', recruiterId, 'with category:', 'checking...');
     

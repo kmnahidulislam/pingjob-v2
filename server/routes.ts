@@ -343,6 +343,51 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Cleanup endpoint for broken applications
+  app.post('/api/cleanup-broken-applications', async (req, res) => {
+    try {
+      console.log('🧹 Starting cleanup of broken applications...');
+      
+      // Get all applications with resume URLs
+      const applications = await storage.getAllJobApplications();
+      console.log(`Found ${applications.length} applications to check`);
+      
+      let deletedCount = 0;
+      let validCount = 0;
+      
+      for (const app of applications) {
+        if (!app.resumeUrl || !app.resumeUrl.startsWith('/uploads/')) {
+          console.log(`❌ Deleting application ${app.id} - invalid resume URL`);
+          await storage.deleteJobApplication(app.id);
+          deletedCount++;
+          continue;
+        }
+        
+        const filename = app.resumeUrl.replace('/uploads/', '');
+        const filePath = path.join('uploads', filename);
+        
+        if (!fs.existsSync(filePath)) {
+          console.log(`❌ Deleting application ${app.id} - missing file: ${filename}`);
+          await storage.deleteJobApplication(app.id);
+          deletedCount++;
+        } else {
+          validCount++;
+        }
+      }
+      
+      console.log(`✅ Cleanup complete: ${deletedCount} deleted, ${validCount} preserved`);
+      res.json({ 
+        message: 'Cleanup completed successfully',
+        deletedCount,
+        validCount
+      });
+      
+    } catch (error) {
+      console.error('❌ Cleanup error:', error);
+      res.status(500).json({ message: 'Cleanup failed', error: error.message });
+    }
+  });
+
   // Manual assignment endpoints
   app.get('/api/users/job-seekers', async (req, res) => {
     try {
