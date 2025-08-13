@@ -18,7 +18,8 @@ import {
   Building,
   DollarSign,
   Edit,
-  Trash2
+  Trash2,
+  FileText
 } from "lucide-react";
 import type { JobWithCompany } from "@/lib/types";
 
@@ -203,12 +204,21 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             {showCompany && (
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
-                {((job.company as any)?.vendorCount || 0) > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
-                    <Users className="h-3 w-3" />
-                    <span>{(job.company as any)?.vendorCount} vendor{((job.company as any)?.vendorCount || 0) !== 1 ? 's' : ''}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  {/* Admin Resume Count Badge */}
+                  {user?.userType === 'admin' && job.resumeCount !== undefined && (
+                    <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
+                      <FileText className="h-3 w-3" />
+                      <span>{job.resumeCount} resume{job.resumeCount !== 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                  {((job.company as any)?.vendorCount || 0) > 0 && (
+                    <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
+                      <Users className="h-3 w-3" />
+                      <span>{(job.company as any)?.vendorCount} vendor{((job.company as any)?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             <div className="flex items-center text-xs text-gray-500">
@@ -324,6 +334,13 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <Users className="h-4 w-4 mr-1" />
                 {job.applicationCount || 0} applicants
               </span>
+              {/* Admin Resume Count for Full JobCard */}
+              {user?.userType === 'admin' && job.resumeCount !== undefined && (
+                <span className="flex items-center">
+                  <FileText className="h-4 w-4 mr-1" />
+                  {job.resumeCount} resume{job.resumeCount !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
             
             <div className="flex space-x-2">

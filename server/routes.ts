@@ -199,7 +199,30 @@ export function registerRoutes(app: Express) {
   app.get('/api/admin-jobs', async (req, res) => {
     try {
       const jobs = await storage.getAdminJobs();
-      res.json(jobs);
+      
+      // Add resume count for each admin job
+      const jobsWithResumeCount = await Promise.all(jobs.map(async (job: any) => {
+        try {
+          // Get actual resume applications for this job
+          const applications = await storage.getJobApplicationsForJob(job.id);
+          const resumeApplications = applications.filter((app: any) => 
+            app.resumeUrl && app.resumeUrl.includes('/uploads/')
+          );
+          
+          return {
+            ...job,
+            resumeCount: resumeApplications.length
+          };
+        } catch (error) {
+          console.error('Error calculating resume count for admin job', job.id, error);
+          return {
+            ...job,
+            resumeCount: 0
+          };
+        }
+      }));
+      
+      res.json(jobsWithResumeCount);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch jobs" });
     }

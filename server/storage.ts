@@ -191,14 +191,35 @@ export const storage = {
 
   async getAdminJobs() {
     try {
-      const adminJobs = await db
-        .select()
+      const adminJobsResults = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description,
+          categoryName: categories.name
+        })
         .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
         .where(eq(jobs.isActive, true))
         .orderBy(desc(jobs.createdAt))
         .limit(50);
       
-      return adminJobs.map(job => ({
+      return adminJobsResults.map(job => ({
         id: job.id,
         title: job.title,
         description: job.description,
@@ -214,15 +235,15 @@ export const storage = {
         categoryId: job.categoryId,
         recruiterId: job.recruiterId,
         company: {
-          id: null,
-          name: "Company",
-          logoUrl: null,
-          website: null,
-          description: null
+          id: job.companyId,
+          name: job.companyName || "Unknown Company",
+          logoUrl: job.companyLogoUrl,
+          website: job.companyWebsite,
+          description: job.companyDescription
         },
         category: {
-          id: null,
-          name: "General"
+          id: job.categoryId,
+          name: job.categoryName || "General"
         },
         applicationCount: 0
       }));
