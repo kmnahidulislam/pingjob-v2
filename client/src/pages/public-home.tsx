@@ -17,24 +17,33 @@ import logoPath from "@assets/logo_1749581218265.png";
 
 export default function PublicHome() {
   // Fetch job categories
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [] } = useQuery<any[]>({
     queryKey: ['/api/categories']
   });
 
   // Fetch top companies
-  const { data: companies = [] } = useQuery({
+  const { data: companies = [] } = useQuery<any[]>({
     queryKey: ['/api/companies/top']
   });
 
   // Fetch latest jobs for the center section
-  const { data: latestJobs = [] } = useQuery({
+  const { data: latestJobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['/api/jobs'],
     queryFn: async () => {
+      console.log('PublicHome: Fetching jobs...');
       const response = await fetch('/api/jobs?limit=6');
       if (!response.ok) throw new Error('Failed to fetch jobs');
-      return response.json();
+      const data = await response.json();
+      console.log('PublicHome: Received jobs:', data?.length || 0);
+      console.log('PublicHome: Jobs data:', data);
+      return data;
     }
   });
+
+  // Debug logging
+  console.log('PublicHome: Latest jobs length:', latestJobs?.length || 0);
+  console.log('PublicHome: Jobs loading:', jobsLoading);
+  console.log('PublicHome: Jobs error:', jobsError);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -138,23 +147,40 @@ export default function PublicHome() {
             </div>
 
             <div className="space-y-4">
-              {latestJobs.slice(0, 6).map((job: any) => (
+              {jobsLoading && (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-gray-500 mt-2">Loading jobs...</p>
+                </div>
+              )}
+              
+              {!jobsLoading && latestJobs && Array.isArray(latestJobs) && latestJobs.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No jobs available at the moment.</p>
+                </div>
+              )}
+              
+              {!jobsLoading && latestJobs && Array.isArray(latestJobs) && latestJobs.slice(0, 6).map((job: any) => (
                 <Card key={job.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       {/* Company Logo */}
                       <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
                           <img 
                             src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
                             alt={job.company?.name}
                             className="w-full h-full object-contain p-1"
+                            onError={(e) => {
+                              console.log('Logo failed to load:', job.company.logoUrl);
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement.style.background = '#2563eb';
+                            }}
                           />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                            <Building2 className="h-6 w-6" />
-                          </div>
-                        )}
+                        ) : null}
+                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                          <Building2 className="h-6 w-6" />
+                        </div>
                       </div>
 
                       {/* Job Details */}
@@ -240,17 +266,20 @@ export default function PublicHome() {
                     </div>
                     
                     <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
-                      {company.logoUrl && company.logoUrl !== "NULL" ? (
+                      {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
                         <img 
                           src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                           alt={company.name}
                           className="w-full h-full object-contain"
+                          onError={(e) => {
+                            console.log('Company logo failed to load:', company.logoUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                          <Building2 className="h-4 w-4" />
-                        </div>
-                      )}
+                      ) : null}
+                      <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                        <Building2 className="h-4 w-4" />
+                      </div>
                     </div>
 
                     <div className="flex-1 min-w-0">
