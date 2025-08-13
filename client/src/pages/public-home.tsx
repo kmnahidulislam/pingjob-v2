@@ -187,7 +187,7 @@ export default function PublicHome() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Left Sidebar - Top Job Categories */}
           <div className="lg:col-span-1">
@@ -209,13 +209,12 @@ export default function PublicHome() {
                     </span>
                   </div>
                 ))}
-
               </CardContent>
             </Card>
           </div>
 
           {/* Center - Latest Job Opportunities */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-1">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
               <Button variant="outline" size="sm">
@@ -240,7 +239,7 @@ export default function PublicHome() {
               
               {/* Two-column grid layout for jobs */}
               {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   {adminJobs.map((job: any) => (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
