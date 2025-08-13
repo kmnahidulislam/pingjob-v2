@@ -261,7 +261,8 @@ export const storage = {
         .from(categories)
         .leftJoin(jobs, eq(categories.id, jobs.categoryId))
         .groupBy(categories.id, categories.name, categories.description)
-        .orderBy(sql`COUNT(${jobs.id}) DESC`);
+        .orderBy(sql`COUNT(${jobs.id}) DESC`)
+        .limit(20);
       return result;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -439,7 +440,7 @@ export const storage = {
         WHERE c.approved_by IS NOT NULL
         GROUP BY c.id, c.name, c.logo_url, c.industry, c.location, c.description, c.user_id, c.approved_by, c.created_at
         ORDER BY "jobCount" DESC
-        LIMIT 10
+        LIMIT 20
       `);
       
       return result.rows as any[];
