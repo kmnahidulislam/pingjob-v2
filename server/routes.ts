@@ -1621,7 +1621,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "File upload failed - file not saved" });
       }
       
-      console.log(`File successfully uploaded: ${uploadedFilePath} (${originalFilename})`);
+      console.log(`✅ File successfully uploaded: ${uploadedFilePath} (${originalFilename})`);
+      console.log(`✅ Resume URL will be: ${resumeUrl}`);
+      console.log(`✅ File exists at: ${fs.existsSync(uploadedFilePath)} (${fs.statSync(uploadedFilePath).size} bytes)`);
       
       // Update filename mapping
       try {
@@ -1645,7 +1647,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Create the primary application first
+      console.log(`✅ Creating application with resume URL: ${validatedData.resumeUrl}`);
       const application = await storage.createJobApplication(validatedData);
+      console.log(`✅ Application created with ID: ${application.id}`);
       
       // Get the job details to find the category
       const job = await storage.getJob(validatedData.jobId);
