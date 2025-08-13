@@ -421,14 +421,28 @@ export const storage = {
 
   async getTopCompanies() {
     try {
-      // Return hardcoded companies sorted by job count for deployment
-      return [
-        { id: 1, name: "Royal Canin USA Inc", logoUrl: "logos/royal-canin.png", industry: "Pet Food", location: "Missouri", description: "Pet nutrition company", userId: "admin", approvedBy: "admin", createdAt: new Date(), jobCount: 45 },
-        { id: 2, name: "The Hartford Life Insurance", logoUrl: "logos/hartford.png", industry: "Insurance", location: "Connecticut", description: "Insurance provider", userId: "admin", approvedBy: "admin", createdAt: new Date(), jobCount: 32 },
-        { id: 3, name: "Oracle Corporation", logoUrl: "logos/oracle.png", industry: "Technology", location: "California", description: "Database solutions", userId: "admin", approvedBy: "admin", createdAt: new Date(), jobCount: 28 },
-        { id: 4, name: "Microsoft Corporation", logoUrl: "logos/microsoft.png", industry: "Technology", location: "Washington", description: "Software company", userId: "admin", approvedBy: "admin", createdAt: new Date(), jobCount: 24 },
-        { id: 5, name: "Amazon", logoUrl: "logos/amazon.png", industry: "E-commerce", location: "Washington", description: "Online retail", userId: "admin", approvedBy: "admin", createdAt: new Date(), jobCount: 19 }
-      ];
+      // Get companies with actual job counts using raw SQL
+      const result = await db.execute(sql`
+        SELECT 
+          c.id,
+          c.name,
+          c.logo_url as "logoUrl",
+          c.industry,
+          c.location,
+          c.description,
+          c.user_id as "userId",
+          c.approved_by as "approvedBy",
+          c.created_at as "createdAt",
+          COUNT(j.id)::int as "jobCount"
+        FROM companies c
+        LEFT JOIN jobs j ON c.id = j.company_id
+        WHERE c.approved_by IS NOT NULL
+        GROUP BY c.id, c.name, c.logo_url, c.industry, c.location, c.description, c.user_id, c.approved_by, c.created_at
+        ORDER BY "jobCount" DESC
+        LIMIT 10
+      `);
+      
+      return result.rows as any[];
     } catch (error) {
       console.error('Error fetching top companies:', error);
       return [];
