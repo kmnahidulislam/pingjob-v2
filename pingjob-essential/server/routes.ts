@@ -1481,7 +1481,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/applications', isAuthenticated, uploadLimiter, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const resumeUrl = req.file ? `/uploads/${req.file.filename}` : null;
+      
+      console.log('🔥 === ESSENTIAL SERVER APPLICATION REQUEST === 🔥');
+      console.log('🔥 File uploaded:', !!req.file);
+      console.log('🔥 File details:', req.file ? {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size
+      } : 'NO FILE');
+      
+      if (!req.file) {
+        console.log('❌ No file uploaded - rejecting application');
+        return res.status(400).json({ message: "Resume file required for job application" });
+      }
+      
+      const resumeUrl = `/uploads/${req.file.filename}`;
+      
+      // Verify the uploaded file actually exists
+      const fs = require('fs');
+      const path = require('path');
+      const filePath = path.join('uploads', req.file.filename);
+      if (!fs.existsSync(filePath)) {
+        console.log('❌ Uploaded file not found on disk:', filePath);
+        return res.status(500).json({ message: "File upload failed - file not saved properly" });
+      }
+      
+      console.log('✅ File verified on disk:', filePath);
       
       const validatedData = insertJobApplicationSchema.parse({
         ...req.body,
@@ -1490,55 +1515,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         resumeUrl,
       });
       
+      console.log('✅ Creating application with verified resume URL:', resumeUrl);
       // Create the primary application first
       const application = await storage.createJobApplication(validatedData);
       
-      // Get the job details to find the category
-      const job = await storage.getJob(validatedData.jobId);
-      if (job?.categoryId) {
-        // Find all other jobs with the same category_id from different companies
-        const matchingJobs = await storage.getJobsByCategory(job.categoryId, 100);
-        
-        // Filter out the current job and jobs from the same company
-        const otherJobs = matchingJobs.filter(j => 
-          j.id !== validatedData.jobId && 
-          j.companyId !== job.companyId
-        );
-        
-        // Apply the same resume to all matching jobs
-        const autoApplications = [];
-        for (const otherJob of otherJobs) {
-          try {
-            // Check if user already applied to this job
-            const existingApplication = await storage.getJobApplicationByJobAndUser(otherJob.id, userId);
-            if (!existingApplication) {
-              const autoApplication = await storage.createJobApplication({
-                jobId: otherJob.id,
-                applicantId: userId,
-                resumeUrl: resumeUrl,
-                coverLetter: req.body.coverLetter || 'Auto-applied based on matching skills and category',
-                status: 'pending'
-              });
-              autoApplications.push(autoApplication);
-            }
-          } catch (error) {
-            console.error(`Error auto-applying to job ${otherJob.id}:`, error);
-            // Continue with other jobs even if one fails
-          }
-        }
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Auto-applied resume to ${autoApplications.length} additional jobs with category ${job.categoryId}`);
-        }
-        
-        res.json({
-          ...application,
-          autoApplicationsCount: autoApplications.length,
-          message: `Applied to ${autoApplications.length + 1} jobs total (1 direct + ${autoApplications.length} auto-matched)`
-        });
-      } else {
-        res.json(application);
-      }
+      // AUTO-APPLICATION SYSTEM COMPLETELY DISABLED IN ESSENTIAL SERVER TOO
+      console.log('✅ Application created successfully - auto-application system disabled in essential server');
+      res.json({
+        ...application,
+        autoApplicationsCount: 0,
+        message: 'Application submitted successfully with uploaded resume'
+      });
     } catch (error) {
       console.error("Error creating application:", error);
       if (error instanceof z.ZodError) {
