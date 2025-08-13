@@ -66,7 +66,7 @@ export default function JobApplicationModal({
         formData.append('resume', data.resume);
       }
 
-      const response = await fetch('/api/applications', {
+      const response = await fetch('/api/apply', {
         method: 'POST',
         body: formData,
         credentials: 'include'

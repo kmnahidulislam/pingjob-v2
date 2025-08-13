@@ -81,10 +81,10 @@ export default function JobApplicationModal({
         console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
       });
 
-      console.log('Making POST request to /api/applications...');
+      console.log('Making POST request to /api/apply...');
       
       try {
-        const response = await fetch('/api/applications', {
+        const response = await fetch('/api/apply', {
           method: 'POST',
           body: formData,
           credentials: 'include'
