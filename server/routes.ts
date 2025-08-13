@@ -492,6 +492,22 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get job applications for a specific job (admin only)
+  app.get('/api/jobs/:id/applications', async (req, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      if (isNaN(jobId)) {
+        return res.status(400).json({ message: 'Invalid job ID' });
+      }
+
+      const applications = await storage.getJobApplications(jobId);
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching job applications:', error);
+      res.status(500).json({ message: 'Failed to fetch job applications' });
+    }
+  });
+
   // Add logout endpoint directly to prevent missing route errors
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');

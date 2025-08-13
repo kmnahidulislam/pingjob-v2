@@ -90,6 +90,70 @@ export const storage = {
     return rawApplications;
   },
 
+  async getJobApplications(jobId: number) {
+    console.log(`🔍 Fetching applications for job ID: ${jobId}`);
+    
+    const applicationsQuery = db
+      .select({
+        id: jobApplications.id,
+        jobId: jobApplications.jobId,
+        applicantId: jobApplications.applicantId,
+        status: jobApplications.status,
+        appliedAt: jobApplications.appliedAt,
+        coverLetter: jobApplications.coverLetter,
+        resumeUrl: jobApplications.resumeUrl,
+        // originalFilename: jobApplications.originalFilename, // Field may not exist
+        matchScore: jobApplications.matchScore,
+        skillsScore: jobApplications.skillsScore,
+        experienceScore: jobApplications.experienceScore,
+        educationScore: jobApplications.educationScore,
+        companyScore: jobApplications.companyScore,
+        isProcessed: jobApplications.isProcessed,
+        // User information
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        headline: users.headline,
+        profileImageUrl: users.profileImageUrl
+      })
+      .from(jobApplications)
+      .innerJoin(users, eq(jobApplications.applicantId, users.id))
+      .where(eq(jobApplications.jobId, jobId))
+      .orderBy(desc(jobApplications.appliedAt));
+
+    const rawApplications = await applicationsQuery;
+    console.log(`Found ${rawApplications.length} applications for job ${jobId}`);
+    
+    // Transform the data to include user object
+    const transformedApplications = rawApplications.map(app => ({
+      id: app.id,
+      jobId: app.jobId,
+      applicantId: app.applicantId,
+      status: app.status,
+      appliedAt: app.appliedAt,
+      coverLetter: app.coverLetter,
+      resumeUrl: app.resumeUrl,
+      // originalFilename: app.originalFilename, // Field may not exist
+      matchScore: app.matchScore,
+      skillsScore: app.skillsScore,
+      experienceScore: app.experienceScore,
+      educationScore: app.educationScore,
+      companyScore: app.companyScore,
+      isProcessed: app.isProcessed,
+      createdAt: app.appliedAt, // For compatibility
+      user: {
+        id: app.applicantId,
+        firstName: app.firstName,
+        lastName: app.lastName,
+        email: app.email,
+        headline: app.headline,
+        profileImageUrl: app.profileImageUrl
+      }
+    }));
+    
+    return transformedApplications;
+  },
+
   async getJobApplicationsForRecruiters(recruiterId: string) {
     console.log('Retrieved user', recruiterId, 'with category:', 'checking...');
     

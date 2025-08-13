@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation, Link } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import JobEditModal from "@/components/modals/job-edit-modal";
+import ResumeApplicationsModal from "@/components/modals/resume-applications-modal";
 import {
   Clock,
   Users,
@@ -37,6 +38,8 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
 
   const bookmarkMutation = useMutation({
     mutationFn: () => apiRequest('POST', '/api/bookmarks', { jobId: job.id }),
@@ -205,12 +208,20 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               <div className="flex items-center justify-between">
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
                 <div className="flex items-center gap-2">
-                  {/* Admin Resume Count Badge */}
+                  {/* Admin Resume Count Badge - Clickable */}
                   {user?.userType === 'admin' && job.resumeCount !== undefined && (
-                    <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Open resume applications modal/view
+                        setSelectedJob(job);
+                        setIsResumeModalOpen(true);
+                      }}
+                      className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
+                    >
                       <FileText className="h-3 w-3" />
                       <span>{job.resumeCount} resume{job.resumeCount !== 1 ? 's' : ''}</span>
-                    </div>
+                    </button>
                   )}
                   {((job.company as any)?.vendorCount || 0) > 0 && (
                     <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
@@ -334,12 +345,19 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <Users className="h-4 w-4 mr-1" />
                 {job.applicationCount || 0} applicants
               </span>
-              {/* Admin Resume Count for Full JobCard */}
+              {/* Admin Resume Count for Full JobCard - Clickable */}
               {user?.userType === 'admin' && job.resumeCount !== undefined && (
-                <span className="flex items-center">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedJob(job);
+                    setIsResumeModalOpen(true);
+                  }}
+                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                >
                   <FileText className="h-4 w-4 mr-1" />
                   {job.resumeCount} resume{job.resumeCount !== 1 ? 's' : ''}
-                </span>
+                </button>
               )}
             </div>
             
@@ -406,6 +424,15 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
       />
+
+      {/* Resume Applications Modal for Admin */}
+      {selectedJob && (
+        <ResumeApplicationsModal
+          job={selectedJob}
+          isOpen={isResumeModalOpen}
+          onClose={() => setIsResumeModalOpen(false)}
+        />
+      )}
     </>
   );
 }
