@@ -1651,29 +1651,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const application = await storage.createJobApplication(validatedData);
       console.log(`✅ Application created with ID: ${application.id}`);
       
-      // Get the job details to find the category
-      const job = await storage.getJob(validatedData.jobId);
-      if (job?.categoryId) {
-        // Find all other jobs with the same category_id from different companies
-        const matchingJobs = await storage.getJobsByCategory(job.categoryId, 100);
-        
-        // Filter out the current job and jobs from the same company
-        const otherJobs = matchingJobs.filter(j => 
-          j.id !== validatedData.jobId && 
-          j.companyId !== job.companyId
-        );
-        
-        // AUTO-APPLICATION DISABLED - Only manual file uploads allowed
-        console.log('🚫 Auto-application system disabled to prevent broken resume references');
-        
-        res.json({
-          ...application,
-          autoApplicationsCount: 0,
-          message: 'Application submitted successfully with uploaded resume'
-        });
-      } else {
-        res.json(application);
-      }
+      // AUTO-APPLICATION SYSTEM COMPLETELY DISABLED
+      console.log('✅ Application created successfully - auto-application system disabled');
+      res.json({
+        ...application,
+        autoApplicationsCount: 0,
+        message: 'Application submitted successfully with uploaded resume'
+      });
     } catch (error) {
       console.error("Error creating application:", error);
       if (error instanceof z.ZodError) {
