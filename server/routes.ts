@@ -164,6 +164,23 @@ export function registerRoutes(app: Express) {
       console.log(`✅ File successfully uploaded: ${uploadedFilePath}`);
       console.log(`✅ Resume URL will be: ${resumeUrl}`);
 
+      // Update filename mapping for future downloads
+      try {
+        const mappingPath = path.join('.', 'filename-mapping.json');
+        let mapping = {};
+        
+        if (fs.existsSync(mappingPath)) {
+          mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+        }
+        
+        mapping[req.file.filename] = req.file.originalname;
+        fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
+        
+        console.log(`📝 Updated filename mapping: ${req.file.filename} -> ${req.file.originalname}`);
+      } catch (error) {
+        console.error('Error updating filename mapping:', error);
+      }
+
       const applicationData = {
         jobId: parseInt(req.body.jobId),
         applicantId: userId,
@@ -327,15 +344,27 @@ export function registerRoutes(app: Express) {
         contentType = 'text/plain';
       }
 
-      // Set headers for file download
+      // Load filename mapping
+      let originalFilename = `resume${ext}`;
+      try {
+        const mappingPath = path.join('.', 'filename-mapping.json');
+        if (fs.existsSync(mappingPath)) {
+          const mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+          originalFilename = mapping[filename] || originalFilename;
+        }
+      } catch (error) {
+        console.log('Could not load filename mapping, using default');
+      }
+
+      // Set headers for file download with original filename
       res.setHeader('Content-Type', contentType);
-      res.setHeader('Content-Disposition', `attachment; filename="resume${ext}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${originalFilename}"`);
       
       // Stream the file
       const fileStream = fs.createReadStream(filePath);
       fileStream.pipe(res);
       
-      console.log(`Resume file served successfully: ${filename}`);
+      console.log(`Resume file served successfully: ${filename} as ${originalFilename}`);
       
     } catch (error) {
       console.error('Error serving resume file:', error);
