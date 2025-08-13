@@ -76,9 +76,10 @@ export default function JobApplicationModal({
       formData.append('resume', data.resume);
       
       console.log('FormData entries:');
-      for (let [key, value] of formData.entries()) {
+      const entries = Array.from(formData.entries());
+      entries.forEach(([key, value]) => {
         console.log(`${key}:`, value instanceof File ? `File: ${value.name} (${value.size} bytes)` : value);
-      }
+      });
 
       console.log('Making POST request to /api/applications...');
       
@@ -100,9 +101,9 @@ export default function JobApplicationModal({
         }
 
         return response.json();
-      } catch (fetchError) {
+      } catch (fetchError: any) {
         console.error('Network error during fetch:', fetchError);
-        throw new Error(`Network error: ${fetchError.message}`);
+        throw new Error(`Network error: ${fetchError?.message || 'Unknown error'}`);
       }
     },
     onSuccess: (data) => {
