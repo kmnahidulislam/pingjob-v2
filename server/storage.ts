@@ -523,5 +523,27 @@ export const storage = {
       console.error('Error fetching job applications for job:', error);
       return [];
     }
+  },
+
+  // Get job seekers for profiles sidebar
+  async getJobSeekers() {
+    try {
+      return await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          headline: users.headline,
+          categoryId: users.categoryId,
+          profileImageUrl: users.profileImageUrl
+        })
+        .from(users)
+        .where(eq(users.userType, 'job_seeker'))
+        .limit(20);
+    } catch (error) {
+      console.error('Error fetching job seekers:', error);
+      return [];
+    }
   }
 };

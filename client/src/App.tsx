@@ -19,7 +19,7 @@ import TestAuth from "@/pages/test-auth";
 import ManualAssignments from "@/pages/manual-assignments";
 import PingJobHomeDebug from "@/pages/pingjob-home-debug";
 import Profile from "@/pages/profile";
-import Jobs from "@/pages/jobs";
+import JobsOriginal from "@/pages/jobs-original";
 import JobCreate from "@/pages/job-create";
 import Applications from "@/pages/applications";
 import NetworkPage from "@/pages/network-page";
@@ -149,7 +149,7 @@ function Router() {
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/companies" component={Companies} />
-          <Route path="/jobs" component={Jobs} />
+          <Route path="/jobs" component={JobsOriginal} />
           <Route path="/test-minimal" component={TestMinimal} />
           <Route path="/test-auth" component={TestAuth} />
           <Route path="/manual-assignments" component={ManualAssignments} />
@@ -175,7 +175,7 @@ function Router() {
           <Route path="/jobs/:id" component={JobDetails} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/job-create" component={JobCreate} />
-          <Route path="/jobs" component={Jobs} />
+          <Route path="/jobs" component={JobsOriginal} />
           <Route path="/company/create" component={CompanyCreate} />
           <Route path="/companies/create" component={CompanyCreate} />
           <Route path="/companies" component={Companies} />

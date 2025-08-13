@@ -271,6 +271,17 @@ export function registerRoutes(app: Express) {
     res.json([]);
   });
 
+  // Job seekers endpoint for profiles sidebar
+  app.get('/api/job-seekers', async (req, res) => {
+    try {
+      const jobSeekers = await storage.getJobSeekers();
+      res.json(jobSeekers);
+    } catch (error) {
+      console.error('Error fetching job seekers:', error);
+      res.status(500).json({ message: "Failed to fetch job seekers" });
+    }
+  });
+
   app.get('/api/job-applications/for-recruiters', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
