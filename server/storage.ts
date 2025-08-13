@@ -69,7 +69,7 @@ export const storage = {
         email: users.email,
         headline: users.headline,
         profileImageUrl: users.profileImageUrl,
-        userResumeUrl: users.resumeUrl,
+        userResumeUrl: sql`NULL`,
         categoryName: categories.name
       })
       .from(jobApplications)
@@ -117,7 +117,7 @@ export const storage = {
         email: app.email,
         headline: app.headline,
         profileImageUrl: app.profileImageUrl,
-        resumeUrl: app.userResumeUrl,
+        resumeUrl: app.resumeUrl,
         category: app.categoryName
       }
     }));
@@ -131,47 +131,48 @@ export const storage = {
   },
 
   async getAdminJobs() {
-    const adminJobs = await db
-      .select({
-        id: jobs.id,
-        title: jobs.title,
-        description: jobs.description,
-        location: jobs.location,
-        salary: jobs.salary,
-        employmentType: jobs.employmentType,
-        requirements: jobs.requirements,
-        benefits: jobs.benefits,
-        applicationDeadline: jobs.applicationDeadline,
-        isActive: jobs.isActive,
-        postedAt: jobs.postedAt,
-        companyId: jobs.companyId,
-        categoryId: jobs.categoryId,
-        recruiterId: jobs.recruiterId,
-        company: {
-          id: companies.id,
-          name: companies.name,
-          logoUrl: companies.logoUrl,
-          website: companies.website,
-          description: companies.description
-        },
-        category: {
-          id: categories.id,
-          name: categories.name
-        },
-        applicationCount: sql`CAST(COALESCE((
-          SELECT COUNT(*)::text 
-          FROM job_applications 
-          WHERE job_id = ${jobs.id}
-        ), '0') AS INTEGER)`
-      })
-      .from(jobs)
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .leftJoin(categories, eq(jobs.categoryId, categories.id))
-      .where(eq(jobs.isActive, true))
-      .orderBy(desc(jobs.postedAt))
-      .limit(100);
-    
-    return adminJobs;
+    try {
+      const adminJobs = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          applicationDeadline: jobs.applicationDeadline,
+          isActive: jobs.isActive,
+          postedAt: jobs.postedAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          company: {
+            id: companies.id,
+            name: companies.name,
+            logoUrl: companies.logoUrl,
+            website: companies.website,
+            description: companies.description
+          },
+          category: {
+            id: categories.id,
+            name: categories.name
+          },
+          applicationCount: sql`0`
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .where(eq(jobs.isActive, true))
+        .orderBy(desc(jobs.postedAt))
+        .limit(50);
+      
+      return adminJobs;
+    } catch (error) {
+      console.error('Error fetching admin jobs:', error);
+      return [];
+    }
   },
 
   async getTopCompanies() {
@@ -191,47 +192,48 @@ export const storage = {
   },
 
   async getRecruiterJobs(recruiterId: string) {
-    console.log('🔐 Fetching jobs for recruiter:', recruiterId);
-    
-    const recruiterJobs = await db
-      .select({
-        id: jobs.id,
-        title: jobs.title,
-        description: jobs.description,
-        location: jobs.location,
-        salary: jobs.salary,
-        employmentType: jobs.employmentType,
-        requirements: jobs.requirements,
-        benefits: jobs.benefits,
-        applicationDeadline: jobs.applicationDeadline,
-        isActive: jobs.isActive,
-        postedAt: jobs.postedAt,
-        companyId: jobs.companyId,
-        categoryId: jobs.categoryId,
-        recruiterId: jobs.recruiterId,
-        company: {
-          id: companies.id,
-          name: companies.name,
-          logoUrl: companies.logoUrl
-        },
-        category: {
-          id: categories.id,
-          name: categories.name
-        },
-        applicationCount: sql`CAST(COALESCE((
-          SELECT COUNT(*)::text 
-          FROM job_applications 
-          WHERE job_id = ${jobs.id}
-        ), '0') AS INTEGER)`
-      })
-      .from(jobs)
-      .leftJoin(companies, eq(jobs.companyId, companies.id))
-      .leftJoin(categories, eq(jobs.categoryId, categories.id))
-      .where(eq(jobs.recruiterId, recruiterId))
-      .orderBy(desc(jobs.postedAt));
+    try {
+      console.log('🔐 Fetching jobs for recruiter:', recruiterId);
+      
+      const recruiterJobs = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          applicationDeadline: jobs.applicationDeadline,
+          isActive: jobs.isActive,
+          postedAt: jobs.postedAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          company: {
+            id: companies.id,
+            name: companies.name,
+            logoUrl: companies.logoUrl
+          },
+          category: {
+            id: categories.id,
+            name: categories.name
+          },
+          applicationCount: sql`0`
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .where(eq(jobs.recruiterId, recruiterId))
+        .orderBy(desc(jobs.postedAt));
 
-    console.log('🔐 Found', recruiterJobs.length, 'jobs for recruiter');
-    return recruiterJobs;
+      console.log('🔐 Found', recruiterJobs.length, 'jobs for recruiter');
+      return recruiterJobs;
+    } catch (error) {
+      console.error('Error fetching recruiter jobs:', error);
+      return [];
+    }
   },
 
   async getCompanies() {
