@@ -148,17 +148,11 @@ export const storage = {
           companyId: jobs.companyId,
           categoryId: jobs.categoryId,
           recruiterId: jobs.recruiterId,
-          company: {
-            id: companies.id,
-            name: companies.name,
-            logoUrl: companies.logoUrl,
-            website: companies.website,
-            description: companies.description
-          },
-          category: {
-            id: categories.id,
-            name: categories.name
-          },
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description,
+          categoryName: categories.name,
           applicationCount: sql`0`
         })
         .from(jobs)
@@ -211,15 +205,9 @@ export const storage = {
           companyId: jobs.companyId,
           categoryId: jobs.categoryId,
           recruiterId: jobs.recruiterId,
-          company: {
-            id: companies.id,
-            name: companies.name,
-            logoUrl: companies.logoUrl
-          },
-          category: {
-            id: categories.id,
-            name: categories.name
-          },
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          categoryName: categories.name,
           applicationCount: sql`0`
         })
         .from(jobs)

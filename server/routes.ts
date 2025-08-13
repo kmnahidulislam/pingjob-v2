@@ -72,11 +72,20 @@ export function registerRoutes(app: Express) {
         userType: user.user_type
       };
       
-      // Set user in session (simulate auth)
+      // Set user in session and force save
       req.session.user = userData;
       req.user = userData;
       
-      res.json(userData);
+      // Force session save to ensure persistence
+      req.session.save((saveErr: any) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+          return res.status(500).json({ message: "Session save failed" });
+        }
+        
+        console.log('✅ Session saved successfully for user:', userData.email);
+        res.json(userData);
+      });
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ message: 'Login failed' });

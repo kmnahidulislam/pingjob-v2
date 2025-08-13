@@ -52,10 +52,12 @@ import { initializeAdSense } from "./lib/adsense";
 
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <main className="pt-16">
+      {user && <Navigation />}
+      <main className={user ? "pt-16" : ""}>
         {children}
       </main>
     </div>
