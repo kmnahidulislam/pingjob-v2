@@ -2,7 +2,8 @@ import { storage } from './server/storage';
 
 async function testJobApplicationSystem() {
   try {
-    console.log('Testing job application system...');
+    console.log('🚫 Test job application system DISABLED to prevent fake applications');
+    return;
     
     // Get a job seeker user
     const testUser = await storage.getUserByEmail('test@example.com');

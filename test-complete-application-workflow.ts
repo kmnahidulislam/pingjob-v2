@@ -2,7 +2,8 @@ import { storage } from './server/storage';
 
 async function testCompleteApplicationWorkflow() {
   try {
-    console.log('=== Testing Complete Job Application Workflow ===\n');
+    console.log('🚫 Test workflow DISABLED to prevent fake applications');
+    return;
     
     // 1. Create a test job seeker if not exists
     let testJobSeeker = await storage.getUserByEmail('jobseeker@test.com');
