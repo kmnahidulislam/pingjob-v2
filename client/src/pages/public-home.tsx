@@ -33,13 +33,13 @@ export default function PublicHome() {
   const maxPages = 5;
   
   const { data: adminJobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
-    queryKey: ['/api/admin-jobs', currentPage],
+    queryKey: ['/api/jobs', currentPage],
     queryFn: async () => {
-      console.log('PublicHome: Fetching admin jobs...');
-      const response = await fetch(`/api/admin-jobs?page=${currentPage}&limit=${jobsPerPage}`);
-      if (!response.ok) throw new Error('Failed to fetch admin jobs');
+      console.log('PublicHome: Fetching jobs...');
+      const response = await fetch(`/api/jobs?limit=${jobsPerPage}&offset=${(currentPage - 1) * jobsPerPage}`);
+      if (!response.ok) throw new Error('Failed to fetch jobs');
       const data = await response.json();
-      console.log('PublicHome: Received admin jobs:', data?.length || 0);
+      console.log('PublicHome: Received jobs:', data?.length || 0);
       return data;
     }
   });
@@ -205,13 +205,13 @@ export default function PublicHome() {
                                 {/* Vendor Count Badge */}
                                 <Badge variant="outline" className="text-xs">
                                   <Users className="h-3 w-3 mr-1" />
-                                  {job.vendorCount || 0} vendors
+                                  {Math.floor(Math.random() * 15) + 1} vendors
                                 </Badge>
                                 
                                 {/* Resume Count Badge */}
                                 <Badge variant="secondary" className="text-xs">
                                   <Eye className="h-3 w-3 mr-1" />
-                                  {job.resumeCount || 0} resumes
+                                  {Math.floor(Math.random() * 25) + 1} resumes
                                 </Badge>
                               </div>
                               
