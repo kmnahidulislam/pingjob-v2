@@ -109,11 +109,12 @@ export default function JobApplicationModal({
     onSuccess: (data) => {
       console.log('=== SUCCESS RESPONSE DEBUG ===');
       console.log('Server response:', data);
+      console.log('LATEST MODAL VERSION - NO 100 JOBS MESSAGE');
       console.log('===============================');
       
       toast({
-        title: "Application submitted successfully", 
-        description: `Your application for ${job.title} has been submitted.`
+        title: "SUCCESS: Application submitted", 
+        description: `Application completed for ${job.title}. No auto-assignment.`
       });
       
       // Simple cache invalidation - just what's needed
