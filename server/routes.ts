@@ -5,7 +5,14 @@ import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
 import { insertJobApplicationSchema } from "../shared/schema";
-import { isAuthenticated } from "./auth";
+// Simple authentication middleware
+const isAuthenticated = (req: any, res: any, next: any) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).json({ message: "Not authenticated" });
+  }
+};
 
 // Rate limiting for file uploads
 const uploadLimiter = rateLimit({
