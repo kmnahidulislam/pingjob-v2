@@ -213,9 +213,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log('Resume badge clicked for job:', job.id);
                         // Open resume applications modal/view
                         setSelectedJob(job);
                         setIsResumeModalOpen(true);
+                        console.log('Modal state set to open');
                       }}
                       className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
                     >
@@ -350,8 +352,10 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('Full JobCard resume badge clicked for job:', job.id);
                     setSelectedJob(job);
                     setIsResumeModalOpen(true);
+                    console.log('Modal state set to open (full view)');
                   }}
                   className="flex items-center text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
                 >
@@ -426,13 +430,15 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       />
 
       {/* Resume Applications Modal for Admin */}
-      {selectedJob && (
-        <ResumeApplicationsModal
-          job={selectedJob}
-          isOpen={isResumeModalOpen}
-          onClose={() => setIsResumeModalOpen(false)}
-        />
-      )}
+      <ResumeApplicationsModal
+        job={job}
+        isOpen={isResumeModalOpen}
+        onClose={() => {
+          console.log('Closing resume modal');
+          setIsResumeModalOpen(false);
+          setSelectedJob(null);
+        }}
+      />
     </>
   );
 }

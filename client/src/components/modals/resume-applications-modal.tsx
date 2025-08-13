@@ -27,6 +27,13 @@ export default function ResumeApplicationsModal({
 }: ResumeApplicationsModalProps) {
   const { user } = useAuth();
 
+  // Debug logging
+  console.log('ResumeApplicationsModal render:', {
+    jobId: job?.id,
+    isOpen,
+    jobTitle: job?.title
+  });
+
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ['/api/jobs', job.id, 'applications'],
     queryFn: async () => {
@@ -59,6 +66,8 @@ export default function ResumeApplicationsModal({
       minute: '2-digit'
     });
   };
+
+  console.log('ResumeApplicationsModal about to render Dialog with isOpen:', isOpen);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
