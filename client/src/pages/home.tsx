@@ -16,7 +16,8 @@ import {
   Briefcase,
   TrendingUp,
   Bell,
-  MessageSquare
+  MessageSquare,
+  Building2
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -30,10 +31,20 @@ export default function Home() {
     enabled: !!user?.id
   });
 
+  // Fetch job categories
+  const { data: categories = [] } = useQuery<any[]>({
+    queryKey: ['/api/categories']
+  });
+
+  // Fetch top companies
+  const { data: companies = [] } = useQuery<any[]>({
+    queryKey: ['/api/companies/top']
+  });
+
   const { data: recentJobs, isLoading: jobsLoading, error: jobsError } = useQuery({
     queryKey: ['/api/jobs'],
     queryFn: async () => {
-      const res = await fetch('/api/jobs?limit=4');
+      const res = await fetch('/api/jobs?limit=6');
       return res.json();
     }
   });
@@ -112,18 +123,32 @@ export default function Home() {
 
   const profileCompletion = calculateProfileCompletion();
 
-  // Show public home for non-authenticated users
+  // Show public home for non-authenticated users - use the original layout
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
                 <img src={logoPath} alt="PingJob" className="h-8 w-auto" />
               </div>
               
+              {/* Search Bar */}
+              <div className="flex-1 max-w-lg mx-8">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search jobs, companies, or skills..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <Button size="sm" className="absolute right-1 top-1">
+                    Go
+                  </Button>
+                </div>
+              </div>
+
               {/* Navigation */}
               <nav className="flex items-center space-x-4">
                 <Link href="/jobs" className="text-gray-700 hover:text-blue-600">Jobs</Link>
@@ -140,86 +165,149 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Hero Section */}
-        <div className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto">
-            <div className="relative z-10 pb-8 bg-transparent sm:pb-16 md:pb-20 lg:w-full lg:pb-28 xl:pb-32">
-              <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                <div className="text-center lg:text-left">
-                  <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                    <span className="block">Find Your Dream</span>
-                    <span className="block text-blue-600">Career Today</span>
-                  </h1>
-                  <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl md:mt-5 md:text-xl lg:mx-0">
-                    Connect with top employers, discover amazing opportunities, and take the next step in your professional journey. Join thousands of professionals who found their perfect job through PingJob.
-                  </p>
-                  <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                    <div className="rounded-md shadow">
-                      <Link href="/auth">
-                        <Button size="lg" className="w-full px-8 py-3">
-                          Get Started
-                        </Button>
+        {/* Main Content - 3 Column Layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Top Job Categories */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {categories.slice(0, 10).map((category: any) => (
+                  <div key={category.id} className="flex justify-between items-center">
+                    <Link 
+                      href={`/jobs?category=${category.id}`}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      {category.name}
+                    </Link>
+                    <span className="text-gray-500 text-xs">
+                      {category.jobCount || 0} jobs
+                    </span>
+                  </div>
+                ))}
+                <Link 
+                  href="/jobs"
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  View All Categories
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Center Column - Latest Job Opportunities */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-semibold">Latest Job Opportunities</CardTitle>
+                  <Button variant="outline" size="sm">
+                    Refresh
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentJobs && Array.isArray(recentJobs) && recentJobs.slice(0, 6).map((job: any) => (
+                    <Card key={job.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-4">
+                          {/* Company Logo */}
+                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
+                              <img 
+                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                alt={job.company?.name}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                                <Briefcase className="h-6 w-6" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Job Details */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                              {job.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-2">
+                              {job.company?.name || "Unknown Company"}
+                            </p>
+                            <p className="text-sm text-gray-500 mb-2">
+                              {job.location || "Remote"}
+                            </p>
+                            <p className="text-sm text-gray-700 line-clamp-2">
+                              {job.description?.substring(0, 100)}...
+                            </p>
+                            <div className="mt-3">
+                              <Link href={`/jobs/${job.id}`}>
+                                <Button size="sm" variant="outline">
+                                  View Details
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                <Link 
+                  href="/jobs"
+                  className="block text-center text-blue-600 hover:text-blue-800 font-medium mt-4"
+                >
+                  View All Jobs
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Right Column - Top Companies */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {companies.slice(0, 10).map((company: any, index: number) => (
+                  <div key={company.id} className="flex items-center space-x-3">
+                    <div className="flex-shrink-0 text-sm font-medium text-gray-400">
+                      {index + 1}
+                    </div>
+                    
+                    <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                      {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
+                        <img 
+                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                          alt={company.name}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                          <Briefcase className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <Link 
+                        href={`/companies/${company.id}`}
+                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
+                      >
+                        {company.name}
                       </Link>
                     </div>
-                    <div className="mt-3 sm:mt-0 sm:ml-3">
-                      <Link href="/jobs">
-                        <Button variant="outline" size="lg" className="w-full px-8 py-3">
-                          Browse Jobs
-                        </Button>
-                      </Link>
-                    </div>
                   </div>
-                </div>
-              </main>
-            </div>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="py-12 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                Why Choose PingJob?
-              </h2>
-              <p className="mt-4 text-lg text-gray-500">
-                Everything you need to advance your career
-              </p>
-            </div>
-
-            <div className="mt-10">
-              <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="text-center">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                    <Briefcase className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-medium text-gray-900">Quality Jobs</h3>
-                  <p className="mt-2 text-base text-gray-500">
-                    Curated job opportunities from top companies across all industries.
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-medium text-gray-900">Professional Network</h3>
-                  <p className="mt-2 text-base text-gray-500">
-                    Connect with industry professionals and expand your network.
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                    <TrendingUp className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-medium text-gray-900">Career Growth</h3>
-                  <p className="mt-2 text-base text-gray-500">
-                    Tools and resources to help you advance in your career.
-                  </p>
-                </div>
-              </div>
-            </div>
+                ))}
+                <Link 
+                  href="/companies"
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  View All Companies
+                </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
