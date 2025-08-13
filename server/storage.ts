@@ -279,9 +279,10 @@ export const storage = {
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
         .leftJoin(categories, eq(jobs.categoryId, categories.id))
-        .where(eq(jobs.isActive, true))
+        // Show all jobs, not just active ones
+        // .where(eq(jobs.isActive, true))
         .orderBy(desc(jobs.createdAt))
-        .limit(50);
+        ; // Removed limit to show all jobs
       
       return adminJobsResults.map(job => ({
         id: job.id,

@@ -196,11 +196,22 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Fast endpoint for jobs page without resume counts
+  app.get('/api/jobs', async (req, res) => {
+    try {
+      const jobs = await storage.getAdminJobs();
+      res.json(jobs);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      res.status(500).json({ message: "Failed to fetch jobs" });
+    }
+  });
+
   app.get('/api/admin-jobs', async (req, res) => {
     try {
       const jobs = await storage.getAdminJobs();
       
-      // Add resume count for each admin job
+      // Add resume count for each admin job (only for admin dashboard)
       const jobsWithResumeCount = await Promise.all(jobs.map(async (job: any) => {
         try {
           // Get actual resume applications for this job

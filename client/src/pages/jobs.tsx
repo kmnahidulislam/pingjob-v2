@@ -88,8 +88,8 @@ export default function Jobs() {
           
           return response.json();
         } else {
-          // Get all jobs when no search filters using admin-jobs endpoint
-          const response = await fetch('/api/admin-jobs');
+          // Get all jobs when no search filters using the fast jobs endpoint
+          const response = await fetch('/api/jobs');
           if (!response.ok) {
             throw new Error('Failed to fetch jobs');
           }
