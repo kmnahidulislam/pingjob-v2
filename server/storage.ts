@@ -250,7 +250,23 @@ export const storage = {
   },
 
   async getCategories() {
-    return await db.select().from(categories).orderBy(categories.name);
+    try {
+      const result = await db
+        .select({
+          id: categories.id,
+          name: categories.name,
+          description: categories.description,
+          jobCount: sql<number>`COUNT(${jobs.id})`.as('jobCount')
+        })
+        .from(categories)
+        .leftJoin(jobs, eq(categories.id, jobs.categoryId))
+        .groupBy(categories.id, categories.name, categories.description)
+        .orderBy(sql`COUNT(${jobs.id}) DESC`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
   },
 
   // Fast jobs endpoint without resume counts for performance
@@ -404,7 +420,30 @@ export const storage = {
   },
 
   async getTopCompanies() {
-    return await db.select().from(companies).limit(10);
+    try {
+      return await db
+        .select({
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl,
+          industry: companies.industry,
+          location: companies.location,
+          description: companies.description,
+          userId: companies.userId,
+          isApproved: companies.isApproved,
+          createdAt: companies.createdAt,
+          jobCount: sql<number>`COUNT(${jobs.id})`.as('jobCount')
+        })
+        .from(companies)
+        .leftJoin(jobs, eq(companies.id, jobs.companyId))
+        .where(eq(companies.isApproved, true))
+        .groupBy(companies.id, companies.name, companies.logoUrl, companies.industry, companies.location, companies.description, companies.userId, companies.isApproved, companies.createdAt)
+        .orderBy(sql`COUNT(${jobs.id}) DESC`)
+        .limit(10);
+    } catch (error) {
+      console.error('Error fetching top companies:', error);
+      return [];
+    }
   },
 
   async getPlatformStats() {

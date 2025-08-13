@@ -264,9 +264,17 @@ export default function JobsOriginal() {
                                 View Details
                               </Button>
                             </Link>
-                            <Button size="sm">
-                              Apply Now
-                            </Button>
+                            {user ? (
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                Apply Now
+                              </Button>
+                            ) : (
+                              <Link href="/auth">
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                  Apply Now
+                                </Button>
+                              </Link>
+                            )}
                           </div>
                         </div>
 
