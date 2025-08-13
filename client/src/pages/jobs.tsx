@@ -94,7 +94,12 @@ export default function Jobs() {
             throw new Error('Failed to fetch jobs');
           }
           
-          const jobs = await response.json();
+          const jobsData = await response.json();
+          console.log('Raw API response length:', Array.isArray(jobsData) ? jobsData.length : 'Not an array');
+          console.log('Raw API response type:', typeof jobsData);
+          
+          // Ensure we return jobs as an array
+          const jobs = Array.isArray(jobsData) ? jobsData : [];
           return { companies: [], jobs };
         }
       } catch (error) {

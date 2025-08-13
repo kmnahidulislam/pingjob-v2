@@ -337,6 +337,37 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Right Sidebar for non-authenticated users - Show Categories and Companies */}
+        {!user && (
+          <div className="space-y-6">
+            {/* Top Job Categories */}
+            <Card className="dashboard-card">
+              <CardHeader>
+                <CardTitle>Top Job Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Categories will be loaded here */}
+                  <p className="text-gray-500 text-sm">Loading categories...</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Top Companies */}
+            <Card className="dashboard-card">
+              <CardHeader>
+                <CardTitle>Top Companies</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Companies will be loaded here */}
+                  <p className="text-gray-500 text-sm">Loading companies...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
       </div>
     </div>
