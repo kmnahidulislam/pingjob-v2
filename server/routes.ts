@@ -164,15 +164,23 @@ export function registerRoutes(app: Express) {
       console.log(`✅ File successfully uploaded: ${uploadedFilePath}`);
       console.log(`✅ Resume URL will be: ${resumeUrl}`);
 
-      const validatedData = insertJobApplicationSchema.parse({
-        ...req.body,
+      const applicationData = {
         jobId: parseInt(req.body.jobId),
         applicantId: userId,
         resumeUrl,
-      });
+        status: 'pending' as const,
+        appliedAt: new Date(),
+        coverLetter: req.body.coverLetter || null,
+        matchScore: 0,
+        skillsScore: 0,
+        experienceScore: 0,
+        educationScore: 0,
+        companyScore: 0,
+        isProcessed: false
+      };
 
       console.log('✅ Creating single application - auto-application system disabled');
-      const application = await storage.createJobApplication(validatedData);
+      const application = await storage.createJobApplication(applicationData);
       
       res.json({
         ...application,

@@ -162,7 +162,7 @@ export const jobApplications = pgTable("job_applications", {
   jobId: integer("job_id").references(() => jobs.id).notNull(),
   applicantId: varchar("applicant_id").references(() => users.id).notNull(),
   resumeUrl: varchar("resume_url"),
-  originalFilename: varchar("original_filename"), // Store the original filename for downloads
+  // originalFilename removed - causing database errors
   coverLetter: text("cover_letter"),
   status: varchar("status", { enum: ["pending", "reviewed", "interview", "rejected", "hired"] }).default("pending"),
   appliedAt: timestamp("applied_at").defaultNow(),

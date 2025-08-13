@@ -15,7 +15,7 @@ import {
 
 export const storage = {
   // Job applications - SIMPLIFIED: No auto-assignment
-  async createJobApplication(data: InsertJobApplication) {
+  async createJobApplication(data: any) {
     console.log('📝 Creating single job application - no auto-assignment');
     console.log('Application data:', {
       jobId: data.jobId,
@@ -23,7 +23,23 @@ export const storage = {
       resumeUrl: data.resumeUrl
     });
 
-    const [application] = await db.insert(jobApplications).values(data).returning();
+    // Only use fields that exist in the database schema
+    const cleanData = {
+      jobId: data.jobId,
+      applicantId: data.applicantId,
+      resumeUrl: data.resumeUrl,
+      status: data.status || 'pending',
+      appliedAt: data.appliedAt || new Date(),
+      coverLetter: data.coverLetter || null,
+      matchScore: data.matchScore || 0,
+      skillsScore: data.skillsScore || 0,
+      experienceScore: data.experienceScore || 0,
+      educationScore: data.educationScore || 0,
+      companyScore: data.companyScore || 0,
+      isProcessed: data.isProcessed || false
+    };
+
+    const [application] = await db.insert(jobApplications).values(cleanData).returning();
     console.log('✅ Created application:', application.id);
     
     return {
