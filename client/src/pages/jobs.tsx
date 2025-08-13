@@ -104,16 +104,8 @@ export default function Jobs() {
     }
   });
 
-  // Extract jobs from search results with debug logging
+  // Extract jobs from search results
   const jobs = searchResults?.jobs || [];
-  
-  // Debug logging for job count
-  if (import.meta.env.DEV) {
-    console.log('Jobs page debug:');
-    console.log('Search results:', searchResults);
-    console.log('Jobs array:', jobs);
-    console.log('Jobs count:', jobs.length);
-  }
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({

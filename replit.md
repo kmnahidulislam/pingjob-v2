@@ -28,6 +28,15 @@ PingJob is a comprehensive full-stack web application designed to serve as a job
   - Fixed TypeScript errors in application modal that could cause upload failures
   - Applications now only created through proper manual upload with file verification
   - Resume upload/download system fully functional with real uploaded files only
+✅ **Jobs Page Display Fixed** (August 13, 2025) - Now showing all available jobs instead of limited subset:
+  - Fixed jobs page to display all 150 jobs using admin-jobs endpoint instead of limited jobs endpoint
+  - Resolved pagination/display limitations that were only showing 12 jobs
+  - All job listings now properly visible to users browsing available positions
+✅ **Logout System Fixed** (August 13, 2025) - Authentication logout functionality restored:
+  - Added missing /api/logout endpoint to main routes file 
+  - Fixed logout mutation to handle JSON parsing errors gracefully
+  - Logout now properly destroys sessions and clears cookies
+  - Users can successfully log out and are redirected to home page
 ✅ **Manual Assignment System Added** (August 13, 2025) - Admin can now manually assign candidates to jobs:
   - Created dedicated Manual Assignments page accessible from admin navigation menu
   - Added API endpoints for fetching job seekers and creating assignments
