@@ -135,37 +135,35 @@ export const storage = {
       const adminJobs = await db
         .select()
         .from(jobs)
-        .leftJoin(companies, eq(jobs.companyId, companies.id))
-        .leftJoin(categories, eq(jobs.categoryId, categories.id))
         .where(eq(jobs.isActive, true))
-        .orderBy(desc(jobs.postedAt))
+        .orderBy(desc(jobs.createdAt))
         .limit(50);
       
-      return adminJobs.map(row => ({
-        id: row.jobs.id,
-        title: row.jobs.title,
-        description: row.jobs.description,
-        location: row.jobs.location,
-        salary: row.jobs.salary,
-        employmentType: row.jobs.employmentType,
-        requirements: row.jobs.requirements,
-        benefits: row.jobs.benefits,
-        applicationDeadline: row.jobs.applicationDeadline,
-        isActive: row.jobs.isActive,
-        postedAt: row.jobs.postedAt,
-        companyId: row.jobs.companyId,
-        categoryId: row.jobs.categoryId,
-        recruiterId: row.jobs.recruiterId,
+      return adminJobs.map(job => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        salary: job.salary,
+        employmentType: job.employmentType,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        applicationDeadline: null,
+        isActive: job.isActive,
+        postedAt: job.createdAt,
+        companyId: job.companyId,
+        categoryId: job.categoryId,
+        recruiterId: job.recruiterId,
         company: {
-          id: row.companies?.id,
-          name: row.companies?.name,
-          logoUrl: row.companies?.logoUrl,
-          website: row.companies?.website,
-          description: row.companies?.description
+          id: null,
+          name: "Company",
+          logoUrl: null,
+          website: null,
+          description: null
         },
         category: {
-          id: row.categories?.id,
-          name: row.categories?.name
+          id: null,
+          name: "General"
         },
         applicationCount: 0
       }));
@@ -198,34 +196,32 @@ export const storage = {
       const recruiterJobs = await db
         .select()
         .from(jobs)
-        .leftJoin(companies, eq(jobs.companyId, companies.id))
-        .leftJoin(categories, eq(jobs.categoryId, categories.id))
         .where(eq(jobs.recruiterId, recruiterId))
-        .orderBy(desc(jobs.postedAt));
+        .orderBy(desc(jobs.createdAt));
 
-      const transformedJobs = recruiterJobs.map(row => ({
-        id: row.jobs.id,
-        title: row.jobs.title,
-        description: row.jobs.description,
-        location: row.jobs.location,
-        salary: row.jobs.salary,
-        employmentType: row.jobs.employmentType,
-        requirements: row.jobs.requirements,
-        benefits: row.jobs.benefits,
-        applicationDeadline: row.jobs.applicationDeadline,
-        isActive: row.jobs.isActive,
-        postedAt: row.jobs.postedAt,
-        companyId: row.jobs.companyId,
-        categoryId: row.jobs.categoryId,
-        recruiterId: row.jobs.recruiterId,
+      const transformedJobs = recruiterJobs.map(job => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        salary: job.salary,
+        employmentType: job.employmentType,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        applicationDeadline: null,
+        isActive: job.isActive,
+        postedAt: job.createdAt,
+        companyId: job.companyId,
+        categoryId: job.categoryId,
+        recruiterId: job.recruiterId,
         company: {
-          id: row.companies?.id,
-          name: row.companies?.name,
-          logoUrl: row.companies?.logoUrl
+          id: null,
+          name: "Company",
+          logoUrl: null
         },
         category: {
-          id: row.categories?.id,
-          name: row.categories?.name
+          id: null,
+          name: "General"
         },
         applicationCount: 0
       }));
