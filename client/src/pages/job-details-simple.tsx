@@ -1,9 +1,9 @@
 import React from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin, Globe, Users } from "lucide-react";
 import { Link } from "wouter";
 
 export default function JobDetailsSimple() {
@@ -22,6 +22,26 @@ export default function JobDetailsSimple() {
       const data = await response.json();
       console.log('Job data received:', data);
       return data;
+    },
+    enabled: !!id,
+    retry: false
+  });
+
+  // Fetch vendors for this job
+  const { data: vendors } = useQuery({
+    queryKey: ['/api/jobs', id, 'vendors'],
+    queryFn: async () => {
+      console.log('Fetching vendors for job ID:', id);
+      const response = await fetch(`/api/jobs/${id}/vendors`, {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        console.log('Vendors fetch failed:', response.status);
+        return [];
+      }
+      const data = await response.json();
+      console.log('Vendors data received:', data);
+      return data || [];
     },
     enabled: !!id,
     retry: false
@@ -143,6 +163,72 @@ export default function JobDetailsSimple() {
             )}
           </CardContent>
         </Card>
+
+        {/* Vendors Section */}
+        {vendors && vendors.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Recruiting Partners ({vendors.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 md:grid-cols-2">
+                {vendors.map((vendor: any) => (
+                  <div key={vendor.id} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                        {vendor.logoUrl && vendor.logoUrl !== "NULL" ? (
+                          <img 
+                            src={`/${vendor.logoUrl.replace(/ /g, '%20')}`} 
+                            alt={vendor.name}
+                            className="w-full h-full object-contain p-1"
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <Users className="h-6 w-6" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 mb-1">{vendor.name}</h4>
+                        {vendor.description && (
+                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                            {vendor.description}
+                          </p>
+                        )}
+                        {vendor.location && (
+                          <div className="flex items-center text-sm text-gray-500 mb-1">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {vendor.location}
+                          </div>
+                        )}
+                        {vendor.website && vendor.website !== "NULL" && (
+                          <div className="flex items-center text-sm">
+                            <Globe className="h-3 w-3 mr-1" />
+                            <a 
+                              href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {vendor.website.replace(/^https?:\/\/(www\.)?/, '')}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
