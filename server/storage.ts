@@ -16,6 +16,12 @@ import {
 export const storage = {
   // Job applications - SIMPLIFIED: No auto-assignment
   async createJobApplication(data: any) {
+    // BLOCK PROBLEMATIC AUTO-USER
+    if (data.applicantId === 'google_107360516099541738977') {
+      console.log('❌ BLOCKED: Preventing auto-application from problematic user');
+      throw new Error('Application blocked - automated applications not allowed');
+    }
+    
     console.log('📝 Creating single job application - no auto-assignment');
     console.log('Application data:', {
       jobId: data.jobId,
