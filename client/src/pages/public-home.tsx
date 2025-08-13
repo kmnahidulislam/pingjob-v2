@@ -187,16 +187,17 @@ export default function PublicHome() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* Left Sidebar - Top Job Categories */}
-          <div className="lg:col-span-1">
+          {/* Left Sidebar - Top Job Categories AND Top Companies */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Top Job Categories */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {Array.isArray(categories) && categories.slice(0, 20).map((category: any) => (
+                {Array.isArray(categories) && categories.slice(0, 8).map((category: any) => (
                   <div key={category.id} className="flex justify-between items-center">
                     <Link 
                       href={`/jobs?category=${category.id}`}
@@ -211,10 +212,56 @@ export default function PublicHome() {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Top Companies */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Array.isArray(companies) && companies.slice(0, 10).map((company: any, index: number) => (
+                  <div key={company.id} className="flex items-center space-x-3">
+                    <div className="flex-shrink-0 text-sm font-medium text-gray-400">
+                      {index + 1}
+                    </div>
+                    
+                    <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
+                      {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
+                        <img 
+                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                          alt={company.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            console.log('Company logo failed to load:', company.logoUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <Link 
+                        href={`/companies/${company.id}`}
+                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
+                      >
+                        {company.name}
+                      </Link>
+                      <p className="text-xs text-gray-500">
+                        {company.jobCount || 0} jobs
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Center - Latest Job Opportunities */}
-          <div className="lg:col-span-1">
+          {/* Right Side - Latest Job Opportunities */}
+          <div className="lg:col-span-3">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
               <Button variant="outline" size="sm">
@@ -358,55 +405,7 @@ export default function PublicHome() {
             </div>
           </div>
 
-          {/* Right Sidebar - Top Companies */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Array.isArray(companies) && companies.slice(0, 10).map((company: any, index: number) => (
-                  <div key={company.id} className="flex items-center space-x-3">
-                    <div className="flex-shrink-0 text-sm font-medium text-gray-400">
-                      {index + 1}
-                    </div>
-                    
-                    <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
-                      {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
-                        <img 
-                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
-                          alt={company.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            console.log('Company logo failed to load:', company.logoUrl);
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                          <Building2 className="h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="flex-1 min-w-0">
-                      <Link 
-                        href={`/companies/${company.id}`}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
-                      >
-                        {company.name}
-                      </Link>
-                      <p className="text-xs text-gray-500">
-                        {company.jobCount || 0} jobs
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                
-
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
 
