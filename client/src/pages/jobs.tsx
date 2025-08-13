@@ -65,52 +65,45 @@ export default function Jobs() {
     }
   }, []);
 
-  // Use the main search API for comprehensive job searching
+  // Use the fast jobs API for quick loading
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['/api/search', filters],
+    queryKey: ['/api/jobs', filters],
     queryFn: async () => {
       try {
-        const searchParams = new URLSearchParams();
+        // Use the fast jobs endpoint for better performance
+        const response = await fetch('/api/jobs');
+        if (!response.ok) throw new Error('Failed to fetch jobs');
+        const jobs = await response.json();
         
-        // If no search filters, get all jobs
-        if (filters.search || filters.location) {
-          if (filters.search) {
-            searchParams.append('q', filters.search);
-          }
-          if (filters.location) {
-            searchParams.append('location', filters.location);
-          }
-          
-          const response = await fetch(`/api/search?${searchParams.toString()}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch search results');
-          }
-          
-          return response.json();
-        } else {
-          // Get all jobs when no search filters using the fast jobs endpoint
-          const response = await fetch('/api/jobs');
-          if (!response.ok) {
-            throw new Error('Failed to fetch jobs');
-          }
-          
-          const jobsData = await response.json();
-          console.log('Raw API response length:', Array.isArray(jobsData) ? jobsData.length : 'Not an array');
-          console.log('Raw API response type:', typeof jobsData);
-          
-          // Ensure we return jobs as an array
-          const jobs = Array.isArray(jobsData) ? jobsData : [];
-          return { companies: [], jobs };
+        // Apply client-side filtering for search terms
+        let filteredJobs = jobs;
+        
+        if (filters.search) {
+          filteredJobs = jobs.filter((job: any) => 
+            job.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
+            job.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+            job.company?.name?.toLowerCase().includes(filters.search.toLowerCase())
+          );
         }
+        
+        if (filters.location) {
+          filteredJobs = filteredJobs.filter((job: any) => 
+            job.location?.toLowerCase().includes(filters.location.toLowerCase()) ||
+            job.city?.toLowerCase().includes(filters.location.toLowerCase()) ||
+            job.state?.toLowerCase().includes(filters.location.toLowerCase())
+          );
+        }
+        
+        return { results: filteredJobs, total: filteredJobs.length };
       } catch (error) {
-        console.error('Error fetching search results:', error);
-        return { companies: [], jobs: [] };
+        console.error('Error fetching jobs:', error);
+        return { results: [], total: 0 };
       }
     }
   });
 
   // Extract jobs from search results
-  const jobs = searchResults?.jobs || [];
+  const jobs = searchResults?.results || [];
   
   // Debug logging
   console.log('Jobs page - Total jobs received:', jobs.length);
