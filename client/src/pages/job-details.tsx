@@ -331,7 +331,7 @@ export default function JobDetails() {
         const parsed = JSON.parse(job.skills);
         return Array.isArray(parsed) ? parsed : [];
       } catch {
-        return job.skills.split(',').map(s => s.trim()).filter(Boolean);
+        return job.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
     }
     return [];
@@ -358,12 +358,13 @@ export default function JobDetails() {
                   {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                     <img 
                       src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                      alt={job.company.name}
+                      alt={job.company?.name || 'Company Logo'}
                       className="w-full h-full object-contain p-1"
                       onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
                         if (import.meta.env.DEV) console.log('Image failed to load:', job.company?.logoUrl);
                         if (import.meta.env.DEV) console.log('Trying absolute path:', `/${job.company?.logoUrl?.replace(/ /g, '%20')}`);
-                        e.currentTarget.style.display = 'none';
+                        target.style.display = 'none';
                       }}
                     />
                   ) : (
