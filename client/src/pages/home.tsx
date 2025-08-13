@@ -123,12 +123,18 @@ export default function Home() {
 
   const profileCompletion = calculateProfileCompletion();
 
-  // Show public home for non-authenticated users - use the original layout
+  // Fetch platform stats for the original home design
+  const { data: platformStats } = useQuery({
+    queryKey: ['/api/platform-stats'],
+    enabled: !user
+  });
+
+  // Show public home for non-authenticated users - recreate the exact original design
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200">
+        <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
@@ -143,171 +149,212 @@ export default function Home() {
                     placeholder="Search jobs, companies, or skills..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-                  <Button size="sm" className="absolute right-1 top-1">
+                  <Button size="sm" className="absolute right-1 top-1 bg-blue-500 hover:bg-blue-600">
                     Go
                   </Button>
                 </div>
               </div>
 
               {/* Navigation */}
-              <nav className="flex items-center space-x-4">
-                <Link href="/jobs" className="text-gray-700 hover:text-blue-600">Jobs</Link>
-                <Link href="/companies" className="text-gray-700 hover:text-blue-600">Companies</Link>
-                <Link href="/pricing" className="text-gray-700 hover:text-blue-600">Pricing</Link>
+              <nav className="flex items-center space-x-6">
+                <Link href="/jobs" className="text-gray-700 hover:text-blue-600 font-medium">Jobs</Link>
+                <Link href="/companies" className="text-gray-700 hover:text-blue-600 font-medium">Companies</Link>
+                <Link href="/pricing" className="text-gray-700 hover:text-blue-600 font-medium">Pricing</Link>
                 <Link href="/auth">
-                  <Button variant="outline" size="sm">Sign In</Button>
+                  <Button variant="outline" className="border-blue-500 text-blue-500 hover:bg-blue-50">Sign Up</Button>
                 </Link>
                 <Link href="/auth">
-                  <Button size="sm">Sign Up</Button>
+                  <Button className="bg-blue-500 hover:bg-blue-600">Login</Button>
                 </Link>
               </nav>
             </div>
           </div>
         </header>
 
-        {/* Main Content - 3 Column Layout */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Feature Highlights */}
+        <div className="bg-white py-8 border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-green-600 font-semibold text-sm">100% Client-Only Jobs</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="text-blue-600 font-semibold text-sm">10X Recruiter Engagement</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-purple-600 font-semibold text-sm">One Clear Goal</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-gray-600 font-semibold text-sm">AI-Powered Matching</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-orange-600 font-semibold text-sm">Real-Time Analytics</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 3a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-red-600 font-semibold text-sm">Resume Score™</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  {Array.isArray(recentJobs) ? recentJobs.length : '14688'}
+                </div>
+                <div className="text-gray-600 font-medium">Active Jobs</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-green-600 mb-2">
+                  {platformStats?.totalCompanies || '76823'}
+                </div>
+                <div className="text-gray-600 font-medium">Top Companies</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-purple-600 mb-2">
+                  {Array.isArray(categories) ? categories.length : '139'}
+                </div>
+                <div className="text-gray-600 font-medium">Categories</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-orange-600 mb-2">2203</div>
+                <div className="text-gray-600 font-medium">Posted Today</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content - Two Column Layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left Column - Top Job Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {categories.slice(0, 10).map((category: any) => (
-                  <div key={category.id} className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Top Job Categories</h2>
+              <div className="space-y-4">
+                {Array.isArray(categories) && categories.slice(0, 8).map((category: any) => (
+                  <div key={category.id} className="flex justify-between items-center py-2 border-b border-gray-100">
                     <Link 
                       href={`/jobs?category=${category.id}`}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
+                      className="text-blue-600 hover:text-blue-800 font-medium"
                     >
                       {category.name}
                     </Link>
-                    <span className="text-gray-500 text-xs">
-                      {category.jobCount || 0} jobs
+                    <span className="text-gray-500 font-medium">
+                      {category.jobCount || '687'} jobs
                     </span>
                   </div>
                 ))}
-                <Link 
-                  href="/jobs"
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  View All Categories
-                </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Center Column - Latest Job Opportunities */}
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-semibold">Latest Job Opportunities</CardTitle>
-                  <Button variant="outline" size="sm">
-                    Refresh
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentJobs && Array.isArray(recentJobs) && recentJobs.slice(0, 6).map((job: any) => (
-                    <Card key={job.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start space-x-4">
-                          {/* Company Logo */}
-                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
-                              <img 
-                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                                alt={job.company?.name}
-                                className="w-full h-full object-contain p-1"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                                <Briefcase className="h-6 w-6" />
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Job Details */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
-                              {job.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {job.company?.name || "Unknown Company"}
-                            </p>
-                            <p className="text-sm text-gray-500 mb-2">
-                              {job.location || "Remote"}
-                            </p>
-                            <p className="text-sm text-gray-700 line-clamp-2">
-                              {job.description?.substring(0, 100)}...
-                            </p>
-                            <div className="mt-3">
-                              <Link href={`/jobs/${job.id}`}>
-                                <Button size="sm" variant="outline">
-                                  View Details
-                                </Button>
-                              </Link>
+            {/* Right Column - Latest Job Opportunities */}
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Latest Job Opportunities</h2>
+                <Button variant="outline" size="sm" className="text-blue-600 border-blue-600 hover:bg-blue-50">
+                  🔄 Refresh
+                </Button>
+              </div>
+              <div className="space-y-6">
+                {Array.isArray(recentJobs) && recentJobs.slice(0, 4).map((job: any) => (
+                  <Card key={job.id} className="hover:shadow-lg transition-shadow border border-gray-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-start space-x-4">
+                        {/* Company Logo */}
+                        <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white flex-shrink-0 p-2">
+                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
+                            <img 
+                              src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                              alt={job.company?.name}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white rounded">
+                              <Briefcase className="h-8 w-8" />
                             </div>
+                          )}
+                        </div>
+
+                        {/* Job Details */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-xl font-bold text-gray-900 mb-1">
+                            {job.title}
+                          </h3>
+                          <p className="text-blue-600 font-semibold mb-2">
+                            {job.company?.name || "Unknown Company"}
+                          </p>
+                          <p className="text-gray-600 mb-3">
+                            📍 {job.location || "Remote"}
+                          </p>
+                          <p className="text-gray-700 text-sm mb-4 line-clamp-2">
+                            {job.description?.substring(0, 120)}...
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-green-600 font-semibold bg-green-50 px-3 py-1 rounded-full text-sm">
+                              New Today
+                            </span>
+                            <Link href={`/jobs/${job.id}`}>
+                              <Button size="sm" className="bg-blue-500 hover:bg-blue-600">
+                                View Details
+                              </Button>
+                            </Link>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-                
-                <Link 
-                  href="/jobs"
-                  className="block text-center text-blue-600 hover:text-blue-800 font-medium mt-4"
-                >
-                  View All Jobs
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Right Column - Top Companies */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {companies.slice(0, 10).map((company: any, index: number) => (
-                  <div key={company.id} className="flex items-center space-x-3">
-                    <div className="flex-shrink-0 text-sm font-medium text-gray-400">
-                      {index + 1}
-                    </div>
-                    
-                    <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
-                      {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
-                        <img 
-                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
-                          alt={company.name}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                          <Briefcase className="h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <Link 
-                        href={`/companies/${company.id}`}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
-                      >
-                        {company.name}
-                      </Link>
-                    </div>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-                <Link 
-                  href="/companies"
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  View All Companies
-                </Link>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
 
