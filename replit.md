@@ -56,6 +56,13 @@ PingJob is a comprehensive full-stack web application designed to serve as a job
   - Filename mapping system operational for preserving original filenames
   - System now creates exactly one application per upload with simple success message
   - All sources of "applied to 100+ jobs" message eliminated
+✅ **Admin Resume Count Display Added** (August 13, 2025) - Admins can now see resume counts for their job postings:
+  - Enhanced /api/admin-jobs endpoint with resume counting functionality matching recruiter dashboard
+  - Updated JobCard component to display blue resume count badges for admin users
+  - Fixed getAdminJobs storage method to properly fetch job data with company and category information
+  - Added AdminJobsList component to admin dashboard's Job Management tab showing jobs with resume counts
+  - Tested with live data - Oracle EBS job showing 1 actual resume submission
+  - Admin dashboard now provides same resume tracking capabilities as recruiter dashboard
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

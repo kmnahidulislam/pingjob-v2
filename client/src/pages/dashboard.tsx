@@ -37,6 +37,74 @@ import {
   ChevronsUpDown
 } from "lucide-react";
 import { Link } from "wouter";
+import JobCard from "@/components/job-card";
+
+// Admin Jobs List Component with Resume Counts
+function AdminJobsList() {
+  const { data: adminJobs = [], isLoading: jobsLoading } = useQuery({
+    queryKey: ['/api/admin-jobs'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/admin-jobs');
+      return response.json();
+    },
+  });
+
+  if (jobsLoading) {
+    return (
+      <div className="border rounded-lg">
+        <div className="p-4 border-b bg-gray-50">
+          <h4 className="font-medium">Recent Job Postings</h4>
+        </div>
+        <div className="p-4">
+          <div className="text-center py-8 text-gray-500">
+            Loading admin jobs...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!Array.isArray(adminJobs) || adminJobs.length === 0) {
+    return (
+      <div className="border rounded-lg">
+        <div className="p-4 border-b bg-gray-50">
+          <h4 className="font-medium">Recent Job Postings</h4>
+        </div>
+        <div className="p-4">
+          <div className="text-center py-8 text-gray-500">
+            <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
+            <p>No jobs found</p>
+            <p className="text-sm mt-2">Start by creating your first job posting</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border rounded-lg">
+      <div className="p-4 border-b bg-gray-50">
+        <h4 className="font-medium">Recent Job Postings ({adminJobs.length})</h4>
+      </div>
+      <div className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {adminJobs.slice(0, 8).map((job: any) => (
+            <JobCard key={job.id} job={job} compact showCompany={true} />
+          ))}
+        </div>
+        {adminJobs.length > 8 && (
+          <div className="mt-4 text-center">
+            <Link href="/jobs">
+              <Button variant="outline">
+                View All {adminJobs.length} Jobs
+              </Button>
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Simplified Job Seeker Dashboard Component (Free Users)
 function JobSeekerDashboard() {
@@ -774,19 +842,8 @@ function AdminDashboard() {
                   </Link>
                 </div>
                 
-                {/* Recent Jobs List */}
-                <div className="border rounded-lg">
-                  <div className="p-4 border-b bg-gray-50">
-                    <h4 className="font-medium">Recent Job Postings</h4>
-                  </div>
-                  <div className="p-4">
-                    <div className="text-center py-8 text-gray-500">
-                      <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                      <p>No jobs found</p>
-                      <p className="text-sm mt-2">Start by creating your first job posting</p>
-                    </div>
-                  </div>
-                </div>
+                {/* Admin Jobs List with Resume Counts */}
+                <AdminJobsList />
               </div>
             </CardContent>
           </Card>
