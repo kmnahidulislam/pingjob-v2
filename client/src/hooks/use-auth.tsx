@@ -107,7 +107,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         throw new Error("Logout failed");
       }
-      return res.json();
+      // Don't parse JSON if response is empty
+      try {
+        return await res.json();
+      } catch {
+        return {}; // Return empty object if no JSON content
+      }
     },
     onSuccess: () => {
       // Immediately clear all cached data

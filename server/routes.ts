@@ -428,6 +428,46 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Add logout endpoint directly to prevent missing route errors
+  app.post('/api/logout', (req: any, res) => {
+    console.log('=== LOGOUT ATTEMPT START ===');
+    console.log('Session before destroy:', !!req.session?.user);
+    
+    if (req.session && req.session.user) {
+      console.log('Clearing session user data...');
+      req.session.user = null;
+      delete req.session.user;
+      console.log('Session user cleared, destroying session...');
+      
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error("Session destroy error:", err);
+          return res.status(500).json({ message: "Logout failed" });
+        }
+        
+        console.log('Session destroyed successfully');
+        res.clearCookie('connect.sid', { 
+          path: '/',
+          httpOnly: true,
+          secure: false
+        });
+        
+        console.log('=== LOGOUT COMPLETED ===');
+        res.json({ message: "Logged out successfully" });
+      });
+    } else {
+      console.log('No session or user found, clearing cookies anyway');
+      res.clearCookie('connect.sid', { 
+        path: '/',
+        httpOnly: true,
+        secure: false
+      });
+      
+      console.log('=== LOGOUT COMPLETED (NO SESSION) ===');
+      res.json({ message: "Already logged out" });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }
