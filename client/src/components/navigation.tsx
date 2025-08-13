@@ -166,6 +166,14 @@ export default function Navigation() {
                     Create Company
                   </Link>
                 </DropdownMenuItem>
+                {user?.userType === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/manual-assignments" className="cursor-pointer">
+                      <Users className="h-4 w-4 mr-2" />
+                      Manual Assignments
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" />
                   Settings

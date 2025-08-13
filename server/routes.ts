@@ -278,6 +278,41 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Manual assignment endpoints
+  app.get('/api/users/job-seekers', async (req, res) => {
+    try {
+      const jobSeekers = await storage.getJobSeekers();
+      res.json(jobSeekers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch job seekers" });
+    }
+  });
+
+  app.get('/api/manual-assignments', async (req, res) => {
+    try {
+      const assignments = await storage.getManualAssignments();
+      res.json(assignments);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch assignments" });
+    }
+  });
+
+  app.post('/api/manual-assignments', async (req, res) => {
+    try {
+      const { jobId, candidateId } = req.body;
+      const assignment = await storage.createManualAssignment({
+        jobId: parseInt(jobId),
+        candidateId,
+        recruiterId: req.user?.id || req.session?.user?.id,
+        status: 'assigned',
+        assignedAt: new Date()
+      });
+      res.json(assignment);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create assignment" });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }

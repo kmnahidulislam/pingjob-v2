@@ -6,6 +6,7 @@ import {
   companies, 
   categories, 
   jobApplications,
+  jobCandidateAssignments,
   type InsertUser,
   type InsertJob,
   type InsertCompany,
@@ -236,5 +237,49 @@ export const storage = {
 
   async getCompanies() {
     return await db.select().from(companies).orderBy(companies.name);
+  },
+
+  // Manual assignment functions
+  async getJobSeekers() {
+    try {
+      return await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          headline: users.headline,
+          categoryId: users.categoryId
+        })
+        .from(users)
+        .where(eq(users.userType, 'job_seeker'));
+    } catch (error) {
+      console.error('Error fetching job seekers:', error);
+      return [];
+    }
+  },
+
+  async getManualAssignments() {
+    try {
+      return await db
+        .select()
+        .from(jobCandidateAssignments);
+    } catch (error) {
+      console.error('Error fetching manual assignments:', error);
+      return [];
+    }
+  },
+
+  async createManualAssignment(data: any) {
+    try {
+      const assignment = await db
+        .insert(jobCandidateAssignments)
+        .values(data)
+        .returning();
+      return assignment[0];
+    } catch (error) {
+      console.error('Error creating manual assignment:', error);
+      throw error;
+    }
   }
 };

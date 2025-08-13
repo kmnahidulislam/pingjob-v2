@@ -28,6 +28,12 @@ PingJob is a comprehensive full-stack web application designed to serve as a job
   - Fixed TypeScript errors in application modal that could cause upload failures
   - Applications now only created through proper manual upload with file verification
   - Resume upload/download system fully functional with real uploaded files only
+✅ **Manual Assignment System Added** (August 13, 2025) - Admin can now manually assign candidates to jobs:
+  - Created dedicated Manual Assignments page accessible from admin navigation menu
+  - Added API endpoints for fetching job seekers and creating assignments
+  - System prevents auto-assignment conflicts by using separate manual assignment table
+  - Admin can select specific jobs and candidates for targeted assignments
+  - Clean separation between user-submitted applications and admin-managed assignments
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

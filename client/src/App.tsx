@@ -15,6 +15,7 @@ import PingJobHomeSimple from "@/pages/pingjob-home-simple";
 import HomeV2 from "@/pages/home-v2";
 import TestMinimal from "@/pages/test-minimal";
 import TestAuth from "@/pages/test-auth";
+import ManualAssignments from "@/pages/manual-assignments";
 import PingJobHomeDebug from "@/pages/pingjob-home-debug";
 import Profile from "@/pages/profile";
 import Jobs from "@/pages/jobs";
@@ -150,6 +151,7 @@ function Router() {
           <Route path="/jobs" component={Jobs} />
           <Route path="/test-minimal" component={TestMinimal} />
           <Route path="/test-auth" component={TestAuth} />
+          <Route path="/manual-assignments" component={ManualAssignments} />
 
           <Route path="/" component={PingJobHome} />
           <Route><Redirect to="/" /></Route>
@@ -187,6 +189,7 @@ function Router() {
           <Route path="/checkout" component={Checkout} />
           <Route path="/visit-stats" component={VisitStats} />
           <Route path="/traffic" component={VisitStats} />
+          <Route path="/manual-assignments" component={ManualAssignments} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
