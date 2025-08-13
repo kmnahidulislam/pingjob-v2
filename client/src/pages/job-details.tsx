@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -323,7 +324,7 @@ export default function JobDetails() {
   }
 
   // Handle skills array safely
-  const skillsArray: string[] = (() => {
+  const skillsArray: string[] = React.useMemo(() => {
     if (!job.skills) return [];
     if (Array.isArray(job.skills)) return job.skills;
     if (typeof job.skills === 'string') {
@@ -331,11 +332,12 @@ export default function JobDetails() {
         const parsed = JSON.parse(job.skills);
         return Array.isArray(parsed) ? parsed : [];
       } catch {
-        return job.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
+        const skillsStr = job.skills as string;
+        return skillsStr.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
     }
     return [];
-  })();
+  }, [job.skills]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
