@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,26 +27,27 @@ export default function PublicHome() {
     queryKey: ['/api/companies/top']
   });
 
-  // Fetch latest jobs for the center section
-  const { data: latestJobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
-    queryKey: ['/api/jobs'],
+  // Fetch admin jobs with pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 20; // 2 columns x 10 rows
+  const maxPages = 5;
+  
+  const { data: adminJobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
+    queryKey: ['/api/admin-jobs', currentPage],
     queryFn: async () => {
-      console.log('PublicHome: Fetching jobs...');
-      const response = await fetch('/api/jobs?limit=6');
-      if (!response.ok) throw new Error('Failed to fetch jobs');
+      console.log('PublicHome: Fetching admin jobs...');
+      const response = await fetch(`/api/admin-jobs?page=${currentPage}&limit=${jobsPerPage}`);
+      if (!response.ok) throw new Error('Failed to fetch admin jobs');
       const data = await response.json();
-      console.log('PublicHome: Received jobs:', data?.length || 0);
-      console.log('PublicHome: Jobs data:', data);
+      console.log('PublicHome: Received admin jobs:', data?.length || 0);
       return data;
     }
   });
 
   // Debug logging
-  console.log('PublicHome: Latest jobs length:', latestJobs?.length || 0);
+  console.log('PublicHome: Admin jobs length:', adminJobs?.length || 0);
   console.log('PublicHome: Jobs loading:', jobsLoading);
   console.log('PublicHome: Jobs error:', jobsError);
-  console.log('PublicHome: Latest jobs data type:', typeof latestJobs);
-  console.log('PublicHome: Is array?', Array.isArray(latestJobs));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -87,25 +89,7 @@ export default function PublicHome() {
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-900 border-b-2 border-blue-500">
-              Active Jobs
-            </div>
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-              Top Companies
-            </div>
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-              Categories
-            </div>
-            <div className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
-              Posted Today
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -156,109 +140,130 @@ export default function PublicHome() {
                 </div>
               )}
               
-              {!jobsLoading && latestJobs && Array.isArray(latestJobs) && latestJobs.length === 0 && (
+              {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No jobs available at the moment.</p>
-                  <p className="text-xs text-red-500 mt-2">Debug: Jobs type: {typeof latestJobs}, Length: {latestJobs?.length}</p>
+                  <p className="text-gray-500">No admin jobs available at the moment.</p>
                 </div>
               )}
               
-              {!jobsLoading && !Array.isArray(latestJobs) && (
-                <div className="text-center py-8">
-                  <p className="text-red-500">Debug: Jobs data is not an array. Type: {typeof latestJobs}</p>
-                  <p className="text-xs text-gray-500 mt-2">Raw data: {JSON.stringify(latestJobs)?.slice(0, 100)}...</p>
-                </div>
-              )}
-              
-              {!jobsLoading && latestJobs && Array.isArray(latestJobs) && latestJobs.slice(0, 6).map((job: any) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      {/* Company Logo */}
-                      <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
-                          <img 
-                            src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={job.company?.name}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              console.log('Logo failed to load:', job.company.logoUrl);
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.parentElement.style.background = '#2563eb';
-                            }}
-                          />
-                        ) : null}
-                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                          <Building2 className="h-6 w-6" />
-                        </div>
-                      </div>
+              {/* Two-column grid layout for jobs */}
+              {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {adminJobs.map((job: any) => (
+                    <Card key={job.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          {/* Company Logo */}
+                          <div className="w-10 h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
+                              <img 
+                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                alt={job.company?.name}
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                                <Briefcase className="h-5 w-5" />
+                              </div>
+                            )}
+                          </div>
 
-                      {/* Job Details */}
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {job.title}
-                        </h3>
-                        <p className="text-blue-600 font-medium mb-2">
-                          {job.company?.name || 'Company Name'}
-                        </p>
-                        
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {(() => {
-                              if (job.city && job.state) {
-                                return `${job.city}, ${job.state}`;
-                              }
-                              if (job.location) {
-                                return job.location
-                                  .replace(/, United States$/, '')
-                                  .replace(/ United States$/, '')
-                                  .replace(/United States,?\s*/, '')
-                                  .trim() || 'Remote';
-                              }
-                              return 'Remote';
-                            })()}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {job.employmentType?.replace('_', ' ') || 'Full time'}
-                          </div>
-                          {job.salary && (
-                            <div className="flex items-center">
-                              <DollarSign className="h-4 w-4 mr-1" />
-                              {job.salary}
+                          {/* Job Details */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
+                              {job.title}
+                            </h3>
+                            <p className="text-xs text-blue-600 font-medium mb-2 truncate">
+                              {job.company?.name || 'Company Name'}
+                            </p>
+                            
+                            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+                              <MapPin className="h-3 w-3" />
+                              <span className="truncate">
+                                {(() => {
+                                  if (job.city && job.state) {
+                                    return `${job.city}, ${job.state}`;
+                                  }
+                                  if (job.location) {
+                                    return job.location
+                                      .replace(/, United States$/, '')
+                                      .replace(/ United States$/, '')
+                                      .replace(/United States,?\s*/, '')
+                                      .trim() || 'Remote';
+                                  }
+                                  return 'Remote';
+                                })()}
+                              </span>
                             </div>
-                          )}
-                        </div>
 
-                        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                          {job.description}
-                        </p>
+                            <p className="text-xs text-gray-700 mb-3 line-clamp-2">
+                              {job.description?.substring(0, 80)}...
+                            </p>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {job.category?.name || 'Technology'}
-                            </Badge>
-                            <span className="text-xs text-gray-500">
-                              {job.applicantCount || 0} applicants
-                            </span>
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
-                              View Details
-                            </Button>
-                            <Button size="sm">
-                              Apply Now
-                            </Button>
+                            <div className="flex items-center justify-between">
+                              <div className="flex gap-1">
+                                {/* Vendor Count Badge */}
+                                <Badge variant="outline" className="text-xs">
+                                  <Users className="h-3 w-3 mr-1" />
+                                  {job.vendorCount || 0} vendors
+                                </Badge>
+                                
+                                {/* Resume Count Badge */}
+                                <Badge variant="secondary" className="text-xs">
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  {job.resumeCount || 0} resumes
+                                </Badge>
+                              </div>
+                              
+                              <Link href={`/jobs/${job.id}`}>
+                                <Button size="sm" variant="outline" className="text-xs">
+                                  View
+                                </Button>
+                              </Link>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+              
+              {/* Pagination */}
+              {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length > 0 && (
+                <div className="flex justify-center mt-6">
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    >
+                      Previous
+                    </Button>
+                    
+                    {Array.from({ length: Math.min(maxPages, 5) }, (_, i) => (
+                      <Button
+                        key={i + 1}
+                        variant={currentPage === i + 1 ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={currentPage >= maxPages}
+                      onClick={() => setCurrentPage(prev => Math.min(maxPages, prev + 1))}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -286,10 +291,11 @@ export default function PublicHome() {
                             e.currentTarget.style.display = 'none';
                           }}
                         />
-                      ) : null}
-                      <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                        <Building2 className="h-4 w-4" />
-                      </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex-1 min-w-0">
