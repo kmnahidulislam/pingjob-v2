@@ -88,8 +88,8 @@ export default function Jobs() {
           
           return response.json();
         } else {
-          // Get all jobs when no search filters
-          const response = await fetch('/api/jobs?limit=500');
+          // Get all jobs when no search filters using admin-jobs endpoint
+          const response = await fetch('/api/admin-jobs');
           if (!response.ok) {
             throw new Error('Failed to fetch jobs');
           }
@@ -104,8 +104,16 @@ export default function Jobs() {
     }
   });
 
-  // Extract jobs from search results
+  // Extract jobs from search results with debug logging
   const jobs = searchResults?.jobs || [];
+  
+  // Debug logging for job count
+  if (import.meta.env.DEV) {
+    console.log('Jobs page debug:');
+    console.log('Search results:', searchResults);
+    console.log('Jobs array:', jobs);
+    console.log('Jobs count:', jobs.length);
+  }
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
