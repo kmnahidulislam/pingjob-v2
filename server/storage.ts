@@ -16,10 +16,13 @@ import {
 export const storage = {
   // Job applications - SIMPLIFIED: No auto-assignment
   async createJobApplication(data: any) {
-    // BLOCK PROBLEMATIC AUTO-USER
-    if (data.applicantId === 'google_107360516099541738977') {
-      console.log('❌ BLOCKED: Preventing auto-application from problematic user');
-      throw new Error('Application blocked - automated applications not allowed');
+    // ABSOLUTE BLOCK FOR AUTO-APPLICATIONS
+    if (data.applicantId === 'google_107360516099541738977' || 
+        data.applicantId?.includes('google_') ||
+        data.applicantId === 'admin-krupa' ||
+        !data.resumeUrl?.includes('/uploads/')) {
+      console.log('❌ BLOCKED: Auto-application attempt blocked completely');
+      throw new Error('BLOCKED: Only manual applications with file uploads allowed');
     }
     
     console.log('📝 Creating single job application - no auto-assignment');

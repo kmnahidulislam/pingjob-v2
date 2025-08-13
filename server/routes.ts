@@ -169,6 +169,11 @@ export function registerRoutes(app: Express) {
         isProcessed: false
       };
 
+      // EXTRA VALIDATION - Only allow manual uploads
+      if (!req.file || !req.file.filename) {
+        throw new Error('Only manual file uploads allowed');
+      }
+      
       const application = await storage.createJobApplication(applicationData);
       
       res.json({

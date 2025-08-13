@@ -113,7 +113,7 @@ export default function JobApplicationModal({
       
       toast({
         title: "Application submitted successfully", 
-        description: `Your application for ${job.title} has been submitted. Application ID: ${data.id}`
+        description: `Your application for ${job.title} has been submitted.`
       });
       
       // Simple cache invalidation - just what's needed
