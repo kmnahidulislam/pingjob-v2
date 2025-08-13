@@ -30,7 +30,12 @@ app.use(session({
   secret: 'auth-secret-key-dev',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }
+  cookie: { 
+    secure: false, 
+    httpOnly: true, 
+    maxAge: 1000 * 60 * 60 * 24,
+    sameSite: 'lax'
+  }
 }));
 
 // Serve ads.txt file for Google AdSense verification (HIGHEST PRIORITY)
