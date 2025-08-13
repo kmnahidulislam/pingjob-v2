@@ -5,9 +5,12 @@ import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
 import { insertJobApplicationSchema } from "../shared/schema";
+import { cleanPool as pool } from "./clean-neon";
 // Simple authentication middleware
 const isAuthenticated = (req: any, res: any, next: any) => {
-  if (req.user) {
+  if (req.user || req.session?.user) {
+    // Ensure req.user is set for consistency
+    req.user = req.user || req.session.user;
     next();
   } else {
     res.status(401).json({ message: "Not authenticated" });
@@ -45,6 +48,41 @@ const upload = multer({
 });
 
 export function registerRoutes(app: Express) {
+  
+  // Login endpoint
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      const result = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+      
+      if (result.rows.length === 0) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      const user = result.rows[0];
+      const userData = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
+      };
+      
+      // Set user in session (simulate auth)
+      req.session.user = userData;
+      req.user = userData;
+      
+      res.json(userData);
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  });
+
   // User authentication endpoints
   app.get('/api/user', (req: any, res) => {
     console.log('GET /api/user - Session exists:', !!req.session);
@@ -53,9 +91,10 @@ export function registerRoutes(app: Express) {
     console.log('GET /api/user - Session ID:', req.session?.id);
     console.log('GET /api/user - Full session data:', req.session);
     
-    if (req.user) {
-      console.log('Returning authenticated user:', req.user.email);
-      res.json(req.user);
+    if (req.user || req.session?.user) {
+      const user = req.user || req.session.user;
+      console.log('Returning authenticated user:', user.email);
+      res.json(user);
     } else {
       console.log('No authenticated user found in session or passport');
       res.status(401).json({ message: "Not authenticated" });

@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeCleanDatabase } from "./clean-neon";
@@ -23,6 +24,14 @@ initializeCleanDatabase().then(() => {
 }).catch(console.error);
 
 const app = express();
+
+// Basic session setup
+app.use(session({
+  secret: 'auth-secret-key-dev',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }
+}));
 
 // Serve ads.txt file for Google AdSense verification (HIGHEST PRIORITY)
 app.get('/ads.txt', (req, res) => {
