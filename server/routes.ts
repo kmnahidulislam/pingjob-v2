@@ -117,39 +117,18 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Job applications endpoint - FIXED TO PREVENT FAKE APPLICATIONS
-  app.post('/api/applications', (req, res, next) => {
-    console.log('🔥 === RAW REQUEST DEBUG === 🔥');
-    console.log('🔥 URL:', req.url);
-    console.log('🔥 Method:', req.method);
-    console.log('🔥 Content-Type:', req.headers['content-type']);
-    console.log('🔥 User authenticated:', !!req.user);
-    console.log('🔥 Session exists:', !!req.session);
-    console.log('🔥 Session user:', !!req.session?.user);
-    console.log('🔥 Passport user:', !!req.user);
-    console.log('🔥 ============================= 🔥');
-    next();
-  }, isAuthenticated, uploadLimiter, (req, res, next) => {
-    console.log('📁 === UPLOAD MIDDLEWARE ENTRY === 📁');
-    console.log('📁 Request headers:', req.headers['content-type']);
-    console.log('📁 ============================== 📁');
-    next();
-  }, upload.single('resume'), async (req: any, res) => {
+  // Old /api/applications endpoint - DISABLED
+  app.post('/api/applications', (req, res) => {
+    res.status(410).json({ message: "This endpoint has been disabled. Use /api/apply instead." });
+  });
+
+  // Simple /api/apply endpoint (what the frontend actually uses)
+  app.post('/api/apply', isAuthenticated, uploadLimiter, upload.single('resume'), async (req: any, res) => {
     try {
       const userId = req.user.id;
       
-      // Debug file upload
-      console.log('=== FILE UPLOAD DEBUG ===');
-      console.log('req.file:', req.file ? {
-        filename: req.file.filename,
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        path: req.file.path
-      } : 'No file uploaded');
-      
       if (!req.file) {
-        return res.status(400).json({ message: "No resume uploaded. Please select a file." });
+        return res.status(400).json({ message: "No resume uploaded" });
       }
       
       const resumeUrl = `/uploads/${req.file.filename}`;
@@ -157,14 +136,10 @@ export function registerRoutes(app: Express) {
       // Verify file was saved correctly
       const uploadedFilePath = path.join('uploads', req.file.filename);
       if (!fs.existsSync(uploadedFilePath)) {
-        console.error(`File not found after upload: ${uploadedFilePath}`);
-        return res.status(500).json({ message: "File upload failed - file not saved" });
+        return res.status(500).json({ message: "File upload failed" });
       }
-      
-      console.log(`✅ File successfully uploaded: ${uploadedFilePath}`);
-      console.log(`✅ Resume URL will be: ${resumeUrl}`);
 
-      // Update filename mapping for future downloads
+      // Update filename mapping
       try {
         const mappingPath = path.join('.', 'filename-mapping.json');
         let mapping = {};
@@ -175,8 +150,6 @@ export function registerRoutes(app: Express) {
         
         mapping[req.file.filename] = req.file.originalname;
         fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
-        
-        console.log(`📝 Updated filename mapping: ${req.file.filename} -> ${req.file.originalname}`);
       } catch (error) {
         console.error('Error updating filename mapping:', error);
       }
@@ -196,7 +169,6 @@ export function registerRoutes(app: Express) {
         isProcessed: false
       };
 
-      console.log('✅ Creating single application - auto-application system disabled');
       const application = await storage.createJobApplication(applicationData);
       
       res.json({
