@@ -266,7 +266,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Resume download endpoint
+  // Resume serving endpoints
   app.head('/api/resume/:filename', async (req, res) => {
     try {
       const filename = req.params.filename;
@@ -289,6 +289,56 @@ export function registerRoutes(app: Express) {
       }
     } catch (error) {
       console.error('Error checking resume file:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/resume/:filename', async (req, res) => {
+    try {
+      const filename = req.params.filename;
+      console.log(`Resume download request: filename="${filename}"`);
+      
+      const filePath = path.join('uploads', filename);
+      console.log(`Looking for file at: ${filePath}`);
+      
+      if (!fs.existsSync(filePath)) {
+        console.log('File exists: false');
+        console.log(`Resume file not found: ${filename}`);
+        
+        const availableFiles = fs.readdirSync('uploads');
+        console.log('Available files in uploads:', availableFiles);
+        
+        return res.status(404).json({ error: 'Resume file not found' });
+      }
+
+      console.log('File exists: true - serving file');
+      
+      // Determine content type based on file extension
+      let contentType = 'application/octet-stream';
+      const ext = path.extname(filename).toLowerCase();
+      
+      if (ext === '.pdf') {
+        contentType = 'application/pdf';
+      } else if (ext === '.doc') {
+        contentType = 'application/msword';
+      } else if (ext === '.docx') {
+        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      } else if (ext === '.txt') {
+        contentType = 'text/plain';
+      }
+
+      // Set headers for file download
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="resume${ext}"`);
+      
+      // Stream the file
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+      
+      console.log(`Resume file served successfully: ${filename}`);
+      
+    } catch (error) {
+      console.error('Error serving resume file:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });

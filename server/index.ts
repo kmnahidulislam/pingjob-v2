@@ -63,6 +63,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve static files from logos directory
 app.use('/logos', express.static('logos'));
 
+// Serve static files from uploads directory (for resume downloads)
+app.use('/uploads', express.static('uploads'));
+
 // Serve test HTML files for debugging
 app.get('/test-login-with-browser.html', (req, res) => {
   const filePath = path.join(process.cwd(), 'test-login-with-browser.html');
