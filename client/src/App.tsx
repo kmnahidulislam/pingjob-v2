@@ -197,7 +197,7 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/contact-sales" component={ContactSales} />
           <Route path="/pricing" component={Pricing} />
-          <Route path="/" component={Home} />
+          <Route path="/" component={Dashboard} />
           <Route>
             {() => {
               console.log('Fallback route hit for:', location);

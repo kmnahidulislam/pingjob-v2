@@ -190,8 +190,29 @@ export function registerRoutes(app: Express) {
   app.get('/api/categories', async (req, res) => {
     try {
       const categories = await storage.getCategories();
-      res.json(categories);
+      
+      // Add job counts for each category
+      const categoriesWithJobCounts = await Promise.all(
+        categories.map(async (category: any) => {
+          try {
+            const jobs = await storage.getJobsByCategory(category.id);
+            return {
+              ...category,
+              jobCount: jobs.length
+            };
+          } catch (error) {
+            console.error(`Error getting job count for category ${category.id}:`, error);
+            return {
+              ...category,
+              jobCount: 0
+            };
+          }
+        })
+      );
+      
+      res.json(categoriesWithJobCounts);
     } catch (error) {
+      console.error('Error fetching categories:', error);
       res.status(500).json({ message: "Failed to fetch categories" });
     }
   });

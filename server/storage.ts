@@ -389,6 +389,20 @@ export const storage = {
     }
   },
 
+  async getJobsByCategory(categoryId: number) {
+    try {
+      const categoryJobs = await db
+        .select()
+        .from(jobs)
+        .where(and(eq(jobs.categoryId, categoryId), eq(jobs.isActive, true)));
+      
+      return categoryJobs;
+    } catch (error) {
+      console.error(`Error fetching jobs for category ${categoryId}:`, error);
+      return [];
+    }
+  },
+
   async getTopCompanies() {
     return await db.select().from(companies).limit(10);
   },
