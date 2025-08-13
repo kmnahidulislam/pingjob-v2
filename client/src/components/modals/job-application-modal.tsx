@@ -107,9 +107,13 @@ export default function JobApplicationModal({
       }
     },
     onSuccess: (data) => {
+      console.log('=== SUCCESS RESPONSE DEBUG ===');
+      console.log('Server response:', data);
+      console.log('===============================');
+      
       toast({
-        title: "Application submitted successfully",
-        description: `Your application for ${job.title} has been sent to the hiring team`
+        title: "Application submitted successfully", 
+        description: `Your application for ${job.title} has been submitted. Application ID: ${data.id}`
       });
       
       // Simple cache invalidation - just what's needed

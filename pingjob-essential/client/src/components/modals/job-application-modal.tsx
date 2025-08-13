@@ -80,36 +80,18 @@ export default function JobApplicationModal({
       return response.json();
     },
     onSuccess: (data) => {
-      const autoCount = data.autoApplicationsCount || 0;
+      console.log('=== SUCCESS RESPONSE DEBUG ===');
+      console.log('Server response:', data);
+      console.log('===============================');
+      
       toast({
-        title: "Application submitted successfully",
-        description: autoCount > 0 
-          ? `Applied to ${autoCount + 1} jobs total (1 direct + ${autoCount} auto-matched by category)`
-          : `Your application for ${job.title} has been sent to the hiring team`
+        title: "Application submitted successfully", 
+        description: `Your application for ${job.title} has been submitted. Application ID: ${data.id}`
       });
-      // Invalidate multiple caches to ensure real-time updates
-      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/recruiter-jobs'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
-      queryClient.invalidateQueries({ queryKey: [`/api/jobs/${job.id}`] });
       
-      // Clear entire cache and force refetch of ALL job-related queries
-      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
-      queryClient.removeQueries({ queryKey: ['/api/jobs'] });
-      
-      // Force immediate refetch of admin jobs for home page with multiple attempts
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
-      }, 100);
-      
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
-      }, 1000);
-      
-      // Emit custom event to force home page refresh
-      if (import.meta.env.DEV) console.log('Emitting jobApplicationSubmitted event to force home page refresh');
-      window.dispatchEvent(new CustomEvent('jobApplicationSubmitted', { detail: { autoApplicationsCount: autoCount } }));
+      // Simple cache invalidation - just what's needed
+      queryClient.invalidateQueries({ queryKey: ['/api/job-applications/for-recruiters'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/recruiter/jobs'] });
       
       reset();
       setSelectedFile(null);
