@@ -404,7 +404,14 @@ export const storage = {
 
       const categoryApplicantMap = new Map(categoryApplicantCounts.map(c => [c.categoryId, c.count]));
       
-      return adminJobsResults.map(job => ({
+      console.log('🔍 Category applicant counts:', categoryApplicantCounts.slice(0, 5));
+      console.log('🔍 Category applicant map size:', categoryApplicantMap.size);
+      
+      return adminJobsResults.map(job => {
+        const matchedApplicants = job.categoryId ? categoryApplicantMap.get(job.categoryId) || 0 : 0;
+        console.log(`🔍 Job ${job.id} (${job.title}) - Category: ${job.categoryId}, Matched: ${matchedApplicants}`);
+        
+        return {
         id: job.id,
         title: job.title,
         description: job.description,
@@ -436,8 +443,9 @@ export const storage = {
           name: job.categoryName || "General"
         },
         applicationCount: 0,
-        categoryMatchedApplicants: categoryApplicantMap.get(job.categoryId || 0) || 0
-      }));
+        categoryMatchedApplicants: matchedApplicants
+      };
+    });
     } catch (error) {
       console.error('Error fetching admin jobs:', error);
       return [];
