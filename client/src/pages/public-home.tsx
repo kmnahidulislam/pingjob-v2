@@ -310,14 +310,14 @@ export default function PublicHome() {
 
                           {/* Job Details */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-semibold text-gray-900 mb-1 truncate">
-                              {job.title}
-                            </h3>
-                            
-                            {/* Company Name - Bigger Font */}
-                            <p className="text-sm text-blue-600 font-semibold mb-2 truncate">
+                            {/* Company Name - Above Title and Bigger */}
+                            <p className="text-lg text-blue-600 font-bold mb-1 truncate">
                               {job.company?.name || 'Company Name'}
                             </p>
+                            
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2 truncate">
+                              {job.title}
+                            </h3>
                             
                             {/* Vendor Count Below Company Name */}
                             <div className="mb-2">
@@ -351,9 +351,9 @@ export default function PublicHome() {
                               {job.description?.substring(0, 80)}...
                             </p>
 
-                            <div className="flex items-center justify-between mt-3">
-                              <div className="flex gap-2 text-xs text-gray-500">                                
-                                {/* Applicant Count and Date */}
+                            <div className="mt-3">
+                              <div className="flex gap-2 text-xs text-gray-500 mb-3">                                
+                                {/* Applicant Count and Date - Left Aligned */}
                                 <span>{job.applicationCount || '0'} applicants</span>
                                 <span>•</span>
                                 <span>{new Date(job.postedAt).toLocaleDateString()}</span>
