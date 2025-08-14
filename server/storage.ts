@@ -392,24 +392,23 @@ export const storage = {
       
       console.log('🔍 Vendor count map size:', vendorCountMap.size);
       
-      // Get category-based applicant counts
-      const categoryApplicantCounts = await db
+      // Get actual job application counts per job
+      const applicationCounts = await db
         .select({
-          categoryId: users.categoryId,
+          jobId: jobApplications.jobId,
           count: sql<number>`cast(count(*) as int)`
         })
-        .from(users)
-        .where(and(eq(users.userType, 'job_seeker'), ne(users.categoryId, null)))
-        .groupBy(users.categoryId);
+        .from(jobApplications)
+        .groupBy(jobApplications.jobId);
 
-      const categoryApplicantMap = new Map(categoryApplicantCounts.map(c => [c.categoryId, c.count]));
+      const applicationCountMap = new Map(applicationCounts.map(a => [a.jobId, a.count]));
       
-      console.log('🔍 Category applicant counts:', categoryApplicantCounts.slice(0, 5));
-      console.log('🔍 Category applicant map size:', categoryApplicantMap.size);
+      console.log('🔍 Application counts:', applicationCounts.slice(0, 5));
+      console.log('🔍 Total jobs with applications:', applicationCounts.length);
       
       return adminJobsResults.map(job => {
-        const matchedApplicants = job.categoryId ? categoryApplicantMap.get(job.categoryId) || 0 : 0;
-        console.log(`🔍 Job ${job.id} (${job.title}) - Category: ${job.categoryId}, Matched: ${matchedApplicants}`);
+        const realApplicants = applicationCountMap.get(job.id) || 0;
+        console.log(`🔍 Job ${job.id} (${job.title}) - Real applications: ${realApplicants}`);
         
         return {
         id: job.id,
@@ -442,8 +441,8 @@ export const storage = {
           id: job.categoryId,
           name: job.categoryName || "General"
         },
-        applicationCount: 0,
-        categoryMatchedApplicants: matchedApplicants
+        applicationCount: realApplicants,
+        categoryMatchedApplicants: realApplicants
       };
     });
     } catch (error) {
