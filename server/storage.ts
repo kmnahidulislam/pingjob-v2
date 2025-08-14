@@ -384,22 +384,8 @@ export const storage = {
         .where(eq(vendors.status, 'approved'))
         .groupBy(vendors.companyId);
 
-      // Get category-based resume counts (job seekers with same category)
-      const categoryResumeCounts = await db
-        .select({
-          categoryId: users.categoryId,
-          count: sql<number>`cast(count(*) as int)`
-        })
-        .from(users)
-        .where(and(
-          eq(users.userType, 'job_seeker'),
-          sql`resume_url IS NOT NULL AND resume_url != ''`
-        ))
-        .groupBy(users.categoryId);
-
       // Create lookup maps for efficient matching
       const vendorCountMap = new Map(vendorCounts.map(v => [v.companyId, v.count]));
-      const categoryResumeCountMap = new Map(categoryResumeCounts.map(c => [c.categoryId, c.count]));
       
       return adminJobsResults.map(job => ({
         id: job.id,
@@ -420,7 +406,7 @@ export const storage = {
         state: job.state,
         zipCode: job.zipCode,
         vendorCount: vendorCountMap.get(job.companyId) || 0,
-        categoryResumeCount: categoryResumeCountMap.get(job.categoryId) || 0,
+        categoryResumeCount: 0, // Simplified - remove resume counting for now
         company: {
           id: job.companyId,
           name: job.companyName || "Unknown Company",
