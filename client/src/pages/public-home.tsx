@@ -313,87 +313,81 @@ export default function PublicHome() {
                             )}
                           </div>
 
-                          {/* Job Details - Split Layout */}
-                          <div className="flex-1 min-w-0 grid grid-cols-2 gap-4">
-                            {/* Left Column - Company and Location */}
-                            <div>
-                              {/* Company Name - Above Location and Bigger */}
-                              <p className="text-lg text-blue-600 font-bold mb-1 truncate">
-                                {job.company?.name || 'Company Name'}
-                              </p>
-                              
-                              {/* City, State, Zip - Below Company Name */}
-                              <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-                                <MapPin className="h-3 w-3" />
-                                <span className="text-left">
-                                  {(() => {
-                                    if (job.city && job.state) {
-                                      const location = `${job.city}, ${job.state}`;
-                                      return job.zipCode ? `${location} ${job.zipCode}` : location;
-                                    }
-                                    if (job.location) {
-                                      return job.location
-                                        .replace(/, United States$/, '')
-                                        .replace(/ United States$/, '')
-                                        .replace(/United States,?\s*/, '')
-                                        .trim() || 'Remote';
-                                    }
-                                    return 'Remote';
-                                  })()}
-                                </span>
-                              </div>
-                              
-                              {/* Vendor Count */}
-                              <div className="mb-2">
-                                <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
-                                  <span>{job.vendorCount || 0} Vendors</span>
-                                </Badge>
-                              </div>
+                          {/* Job Details - Vertical Layout */}
+                          <div className="flex-1 min-w-0">
+                            {/* Company Name - Top and Bigger */}
+                            <p className="text-lg text-blue-600 font-bold mb-1 truncate">
+                              {job.company?.name || 'Company Name'}
+                            </p>
+                            
+                            {/* City, State, Zip - Below Company Name */}
+                            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+                              <MapPin className="h-3 w-3" />
+                              <span className="text-left">
+                                {(() => {
+                                  if (job.city && job.state) {
+                                    const location = `${job.city}, ${job.state}`;
+                                    return job.zipCode ? `${location} ${job.zipCode}` : location;
+                                  }
+                                  if (job.location) {
+                                    return job.location
+                                      .replace(/, United States$/, '')
+                                      .replace(/ United States$/, '')
+                                      .replace(/United States,?\s*/, '')
+                                      .trim() || 'Remote';
+                                  }
+                                  return 'Remote';
+                                })()}
+                              </span>
                             </div>
                             
-                            {/* Right Column - Job Details */}
-                            <div>
-                              {/* Title - Left Aligned */}
-                              <h3 className="text-sm font-semibold text-gray-900 mb-2 text-left">
-                                {job.title}
-                              </h3>
-                              
-                              {/* Description - Left Aligned */}
-                              <p className="text-xs text-gray-700 mb-2 text-left">
-                                {job.description?.substring(0, 80)}...
-                              </p>
-                              
-                              <div className="flex gap-2 text-xs text-gray-500 mb-3">                                
-                                {/* Applicant Count and Date - Left Aligned */}
-                                <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
-                                <span>•</span>
-                                <span>{new Date(job.postedAt).toLocaleDateString()}</span>
-                              </div>
-                              
-                              <div className="flex gap-2">
-                                <Link href={`/jobs/${job.id}`}>
-                                  <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
-                                    View Details
-                                  </Button>
-                                </Link>
-                                <Button 
-                                  size="sm" 
-                                  className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    console.log('Apply Now clicked, user:', user);
-                                    if (!user) {
-                                      console.log('Redirecting to auth...');
-                                      window.location.href = '/auth';
-                                    } else {
-                                      // Handle application logic for authenticated users
-                                      window.location.href = `/jobs/${job.id}`;
-                                    }
-                                  }}
-                                >
-                                  Apply Now
+                            {/* Title - Below Location */}
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2 text-left">
+                              {job.title}
+                            </h3>
+                            
+                            {/* Description - Below Title */}
+                            <p className="text-xs text-gray-700 mb-2 text-left">
+                              {job.description?.substring(0, 80)}...
+                            </p>
+                            
+                            {/* Vendor Count */}
+                            <div className="mb-2">
+                              <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
+                                <span>{job.vendorCount || 0} Vendors</span>
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex gap-2 text-xs text-gray-500 mb-3">                                
+                              {/* Applicant Count and Date */}
+                              <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
+                              <span>•</span>
+                              <span>{new Date(job.postedAt).toLocaleDateString()}</span>
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              <Link href={`/jobs/${job.id}`}>
+                                <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
+                                  View Details
                                 </Button>
-                              </div>
+                              </Link>
+                              <Button 
+                                size="sm" 
+                                className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  console.log('Apply Now clicked, user:', user);
+                                  if (!user) {
+                                    console.log('Redirecting to auth...');
+                                    window.location.href = '/auth';
+                                  } else {
+                                    // Handle application logic for authenticated users
+                                    window.location.href = `/jobs/${job.id}`;
+                                  }
+                                }}
+                              >
+                                Apply Now
+                              </Button>
                             </div>
                           </div>
                         </div>
