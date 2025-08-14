@@ -322,7 +322,7 @@ export default function PublicHome() {
                               {/* Vendor Count Badge - Prominent Top Right */}
                               <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
                                 <Users className="h-3 w-3 mr-1" />
-                                {job.vendorCount || '0'} Partners
+                                {job.vendorCount || '0'} Vendors
                               </Badge>
                             </div>
                             
@@ -350,24 +350,24 @@ export default function PublicHome() {
                               {job.description?.substring(0, 80)}...
                             </p>
 
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-3">
                               <div className="flex gap-1">                                
-                                {/* Resume Count Badge */}
+                                {/* Resume Count Badge - based on category matching */}
                                 <Badge variant="secondary" className="text-xs">
                                   <Eye className="h-3 w-3 mr-1" />
-                                  {job.resumeCount || '0'} resumes
+                                  {job.categoryResumeCount || '0'} resumes
                                 </Badge>
                               </div>
                               
                               <div className="flex gap-2">
                                 <Link href={`/jobs/${job.id}`}>
-                                  <Button size="sm" variant="outline" className="text-xs px-3 py-1.5">
+                                  <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
                                     View Details
                                   </Button>
                                 </Link>
                                 <Button 
                                   size="sm" 
-                                  className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                                  className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     console.log('Apply Now clicked, user:', user);

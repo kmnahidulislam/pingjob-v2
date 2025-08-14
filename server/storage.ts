@@ -344,6 +344,7 @@ export const storage = {
 
   async getAdminJobs() {
     try {
+      // First get the jobs with company and category data
       const adminJobsResults = await db
         .select({
           id: jobs.id,
@@ -363,15 +364,42 @@ export const storage = {
           companyLogoUrl: companies.logoUrl,
           companyWebsite: companies.website,
           companyDescription: companies.description,
-          categoryName: categories.name
+          categoryName: categories.name,
+          city: jobs.city,
+          state: jobs.state,
+          zipCode: jobs.zipCode
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
         .leftJoin(categories, eq(jobs.categoryId, categories.id))
-        // Show all jobs, not just active ones
-        // .where(eq(jobs.isActive, true))
-        .orderBy(desc(jobs.createdAt))
-        ; // Removed limit to show all jobs
+        .orderBy(desc(jobs.createdAt));
+
+      // Get vendor counts for each company
+      const vendorCounts = await db
+        .select({
+          companyId: vendors.companyId,
+          count: sql<number>`cast(count(*) as int)`
+        })
+        .from(vendors)
+        .where(eq(vendors.status, 'approved'))
+        .groupBy(vendors.companyId);
+
+      // Get category-based resume counts (job seekers with same category)
+      const categoryResumeCounts = await db
+        .select({
+          categoryId: users.categoryId,
+          count: sql<number>`cast(count(*) as int)`
+        })
+        .from(users)
+        .where(and(
+          eq(users.userType, 'job_seeker'),
+          isNull(users.resumeUrl) === false
+        ))
+        .groupBy(users.categoryId);
+
+      // Create lookup maps for efficient matching
+      const vendorCountMap = new Map(vendorCounts.map(v => [v.companyId, v.count]));
+      const categoryResumeCountMap = new Map(categoryResumeCounts.map(c => [c.categoryId, c.count]));
       
       return adminJobsResults.map(job => ({
         id: job.id,
@@ -388,6 +416,11 @@ export const storage = {
         companyId: job.companyId,
         categoryId: job.categoryId,
         recruiterId: job.recruiterId,
+        city: job.city,
+        state: job.state,
+        zipCode: job.zipCode,
+        vendorCount: vendorCountMap.get(job.companyId) || 0,
+        categoryResumeCount: categoryResumeCountMap.get(job.categoryId) || 0,
         company: {
           id: job.companyId,
           name: job.companyName || "Unknown Company",
