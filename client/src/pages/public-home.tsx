@@ -310,19 +310,29 @@ export default function PublicHome() {
 
                           {/* Job Details */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
-                              {job.title}
-                            </h3>
-                            <p className="text-xs text-blue-600 font-medium mb-2 truncate">
-                              {job.company?.name || 'Company Name'}
-                            </p>
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
+                                  {job.title}
+                                </h3>
+                                <p className="text-xs text-blue-600 font-medium mb-2 truncate">
+                                  {job.company?.name || 'Company Name'}
+                                </p>
+                              </div>
+                              {/* Vendor Count Badge - Prominent Top Right */}
+                              <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
+                                <Users className="h-3 w-3 mr-1" />
+                                {job.vendorCount || '0'} Partners
+                              </Badge>
+                            </div>
                             
                             <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
                               <MapPin className="h-3 w-3" />
                               <span className="truncate">
                                 {(() => {
                                   if (job.city && job.state) {
-                                    return `${job.city}, ${job.state}`;
+                                    const location = `${job.city}, ${job.state}`;
+                                    return job.zipCode ? `${location} ${job.zipCode}` : location;
                                   }
                                   if (job.location) {
                                     return job.location
@@ -341,29 +351,23 @@ export default function PublicHome() {
                             </p>
 
                             <div className="flex items-center justify-between">
-                              <div className="flex gap-1">
-                                {/* Vendor Count Badge */}
-                                <Badge variant="outline" className="text-xs">
-                                  <Users className="h-3 w-3 mr-1" />
-                                  {Math.floor(Math.random() * 15) + 1} vendors
-                                </Badge>
-                                
+                              <div className="flex gap-1">                                
                                 {/* Resume Count Badge */}
                                 <Badge variant="secondary" className="text-xs">
                                   <Eye className="h-3 w-3 mr-1" />
-                                  {Math.floor(Math.random() * 25) + 1} resumes
+                                  {job.resumeCount || '0'} resumes
                                 </Badge>
                               </div>
                               
-                              <div className="flex gap-1">
+                              <div className="flex gap-2">
                                 <Link href={`/jobs/${job.id}`}>
-                                  <Button size="sm" variant="outline" className="text-xs">
-                                    View
+                                  <Button size="sm" variant="outline" className="text-xs px-3 py-1.5">
+                                    View Details
                                   </Button>
                                 </Link>
                                 <Button 
                                   size="sm" 
-                                  className="text-xs bg-blue-600 hover:bg-blue-700"
+                                  className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     console.log('Apply Now clicked, user:', user);
