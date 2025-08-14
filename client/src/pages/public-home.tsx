@@ -292,9 +292,9 @@ export default function PublicHome() {
                   {adminJobs.slice(0, 20).map((job: any) => (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          {/* Company Logo */}
-                          <div className="w-10 h-10 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                        <div className="flex items-start space-x-4">
+                          {/* Company Logo - Bigger */}
+                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
                               <img 
                                 src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
@@ -303,23 +303,24 @@ export default function PublicHome() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                                <Briefcase className="h-5 w-5" />
+                                <Briefcase className="h-6 w-6" />
                               </div>
                             )}
                           </div>
 
                           {/* Job Details */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1 min-w-0">
-                                <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
-                                  {job.title}
-                                </h3>
-                                <p className="text-xs text-blue-600 font-medium mb-2 truncate">
-                                  {job.company?.name || 'Company Name'}
-                                </p>
-                              </div>
-                              {/* Vendor Count Badge - Prominent Top Right */}
+                            <h3 className="text-base font-semibold text-gray-900 mb-1 truncate">
+                              {job.title}
+                            </h3>
+                            
+                            {/* Company Name - Bigger Font */}
+                            <p className="text-sm text-blue-600 font-semibold mb-2 truncate">
+                              {job.company?.name || 'Company Name'}
+                            </p>
+                            
+                            {/* Vendor Count Below Company Name */}
+                            <div className="mb-2">
                               <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
                                 <Users className="h-3 w-3 mr-1" />
                                 {job.vendorCount || '0'} Vendors
@@ -351,12 +352,11 @@ export default function PublicHome() {
                             </p>
 
                             <div className="flex items-center justify-between mt-3">
-                              <div className="flex gap-1">                                
-                                {/* Resume Count Badge - based on category matching */}
-                                <Badge variant="secondary" className="text-xs">
-                                  <Eye className="h-3 w-3 mr-1" />
-                                  {job.categoryResumeCount || '0'} resumes
-                                </Badge>
+                              <div className="flex gap-2 text-xs text-gray-500">                                
+                                {/* Applicant Count and Date */}
+                                <span>{job.applicationCount || '0'} applicants</span>
+                                <span>•</span>
+                                <span>{new Date(job.postedAt).toLocaleDateString()}</span>
                               </div>
                               
                               <div className="flex gap-2">

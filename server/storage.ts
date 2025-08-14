@@ -393,7 +393,6 @@ export const storage = {
         .from(users)
         .where(and(
           eq(users.userType, 'job_seeker'),
-          ne(users.resumeUrl, ''),
           users.resumeUrl.isNotNull()
         ))
         .groupBy(users.categoryId);
