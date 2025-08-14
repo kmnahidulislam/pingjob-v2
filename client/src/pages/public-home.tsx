@@ -354,7 +354,7 @@ export default function PublicHome() {
                             {/* Vendor Count */}
                             <div className="mb-2">
                               <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
-                                <span>{job.vendorCount || 0}</span> Vendors
+                                <span>{job.vendorCount || 0} Vendors</span>
                               </Badge>
                             </div>
 
