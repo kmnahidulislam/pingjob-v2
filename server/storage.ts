@@ -8,7 +8,7 @@ import {
   jobApplications,
   jobCandidateAssignments,
   vendors,
-  type InsertUser,
+  type UpsertUser,
   type InsertJob,
   type InsertCompany,
   type InsertJobApplication
@@ -302,7 +302,7 @@ export const storage = {
         .orderBy(desc(jobs.createdAt));
       
       if (limit) {
-        query = query.limit(limit);
+        query = query.limit(limit) as any;
       }
       
       const fastJobsResults = await query;
@@ -428,7 +428,7 @@ export const storage = {
         city: job.city,
         state: job.state,
         zipCode: job.zipCode,
-        vendorCount: vendorCountMap.get(job.companyId) || 0,
+        vendorCount: vendorCountMap.get(job.companyId!) || 0,
         categoryResumeCount: 0, // Simplified - remove resume counting for now
         company: {
           id: job.companyId,
@@ -623,24 +623,6 @@ export const storage = {
   },
 
   // Manual assignment functions
-  async getJobSeekers() {
-    try {
-      return await db
-        .select({
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-          headline: users.headline,
-          categoryId: users.categoryId
-        })
-        .from(users)
-        .where(eq(users.userType, 'job_seeker'));
-    } catch (error) {
-      console.error('Error fetching job seekers:', error);
-      return [];
-    }
-  },
 
   async getManualAssignments() {
     try {
