@@ -297,9 +297,9 @@ export default function PublicHome() {
                     return (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
-                        <div className="flex items-start space-x-2">
-                          {/* Company Logo - Aligned to top */}
-                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start">
+                        <div className="flex items-start">
+                          {/* Company Logo - Smaller and tight */}
+                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-2">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
                               <img 
                                 src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
@@ -313,8 +313,8 @@ export default function PublicHome() {
                             )}
                           </div>
 
-                          {/* All Content - Vertical stack starting from top */}
-                          <div className="flex-1 min-w-0 flex flex-col justify-start">
+                          {/* All Content - Starts immediately after logo */}
+                          <div className="flex-1 min-w-0">
                             {/* Company Name - Top and Bigger */}
                             <p className="text-lg text-blue-600 font-bold mb-1 truncate">
                               {job.company?.name || 'Company Name'}
