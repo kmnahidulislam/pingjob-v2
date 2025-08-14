@@ -393,20 +393,13 @@ export const storage = {
         .from(users)
         .where(and(
           eq(users.userType, 'job_seeker'),
-          sql`${users.resumeUrl} IS NOT NULL AND ${users.resumeUrl} != ''`
+          sql`resume_url IS NOT NULL AND resume_url != ''`
         ))
         .groupBy(users.categoryId);
 
-      // Debug logging
-      console.log('📊 Vendor counts found:', vendorCounts.length);
-      console.log('📊 Category resume counts found:', categoryResumeCounts.length);
-      
       // Create lookup maps for efficient matching
       const vendorCountMap = new Map(vendorCounts.map(v => [v.companyId, v.count]));
       const categoryResumeCountMap = new Map(categoryResumeCounts.map(c => [c.categoryId, c.count]));
-      
-      console.log('📊 Vendor count map size:', vendorCountMap.size);
-      console.log('📊 Category resume count map size:', categoryResumeCountMap.size);
       
       return adminJobsResults.map(job => ({
         id: job.id,
