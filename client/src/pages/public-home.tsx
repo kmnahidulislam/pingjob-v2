@@ -35,13 +35,13 @@ export default function PublicHome() {
   const maxPages = 5;
   
   const { data: adminJobs = [], isLoading: jobsLoading, error: jobsError } = useQuery({
-    queryKey: ['/api/jobs', currentPage],
+    queryKey: ['/api/admin-jobs', currentPage],
     queryFn: async () => {
-      console.log('PublicHome: Fetching jobs...');
-      const response = await fetch(`/api/jobs?limit=${jobsPerPage}&offset=${(currentPage - 1) * jobsPerPage}`);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
+      console.log('PublicHome: Fetching admin jobs...');
+      const response = await fetch(`/api/admin-jobs?limit=${jobsPerPage}&offset=${(currentPage - 1) * jobsPerPage}`);
+      if (!response.ok) throw new Error('Failed to fetch admin jobs');
       const data = await response.json();
-      console.log('PublicHome: Received jobs:', data?.length || 0);
+      console.log('PublicHome: Received admin jobs:', data?.length || 0);
       return data;
     }
   });
