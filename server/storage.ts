@@ -384,8 +384,13 @@ export const storage = {
         .where(eq(vendors.status, 'approved'))
         .groupBy(vendors.companyId);
 
+      console.log('🔍 Total vendors found:', vendorCounts.length);
+      console.log('🔍 First few vendor counts:', vendorCounts.slice(0, 5));
+
       // Create lookup maps for efficient matching
       const vendorCountMap = new Map(vendorCounts.map(v => [v.companyId, v.count]));
+      
+      console.log('🔍 Vendor count map size:', vendorCountMap.size);
       
       return adminJobsResults.map(job => ({
         id: job.id,

@@ -350,7 +350,7 @@ export default function PublicHome() {
                             <div className="mb-2">
                               <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
                                 <Users className="h-3 w-3 mr-1" />
-                                {job.vendorCount || '0'} Vendors
+                                {job.vendorCount} Vendors
                               </Badge>
                             </div>
 
