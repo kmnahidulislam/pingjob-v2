@@ -289,7 +289,12 @@ export default function PublicHome() {
               {/* Two-column grid layout for jobs */}
               {!jobsLoading && adminJobs && Array.isArray(adminJobs) && adminJobs.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {adminJobs.slice(0, 20).map((job: any) => (
+                  {adminJobs.slice(0, 20).map((job: any, index: number) => {
+                    // Debug the first few jobs
+                    if (index < 3) {
+                      console.log(`🔍 Job ${index + 1}: vendorCount =`, job.vendorCount, typeof job.vendorCount);
+                    }
+                    return (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-4">
@@ -350,7 +355,7 @@ export default function PublicHome() {
                             <div className="mb-2">
                               <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
                                 <Users className="h-3 w-3 mr-1" />
-                                {job.vendorCount} Vendors
+                                <span>{job.vendorCount || 0}</span> Vendors
                               </Badge>
                             </div>
 
@@ -391,7 +396,8 @@ export default function PublicHome() {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
               
