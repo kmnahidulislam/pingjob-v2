@@ -298,8 +298,8 @@ export default function PublicHome() {
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-4">
-                          {/* Company Logo - Bigger */}
-                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
+                          {/* Company Logo - Aligned to top */}
+                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
                               <img 
                                 src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
@@ -313,8 +313,8 @@ export default function PublicHome() {
                             )}
                           </div>
 
-                          {/* Job Details - Vertical Layout */}
-                          <div className="flex-1 min-w-0">
+                          {/* All Content - Vertical stack starting from top */}
+                          <div className="flex-1 min-w-0 flex flex-col justify-start">
                             {/* Company Name - Top and Bigger */}
                             <p className="text-lg text-blue-600 font-bold mb-1 truncate">
                               {job.company?.name || 'Company Name'}
@@ -323,7 +323,7 @@ export default function PublicHome() {
                             {/* City, State, Zip - Below Company Name */}
                             <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
                               <MapPin className="h-3 w-3" />
-                              <span className="text-left">
+                              <span>
                                 {(() => {
                                   if (job.city && job.state) {
                                     const location = `${job.city}, ${job.state}`;
@@ -342,12 +342,12 @@ export default function PublicHome() {
                             </div>
                             
                             {/* Title - Below Location */}
-                            <h3 className="text-sm font-semibold text-gray-900 mb-2 text-left">
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2">
                               {job.title}
                             </h3>
                             
                             {/* Description - Below Title */}
-                            <p className="text-xs text-gray-700 mb-2 text-left">
+                            <p className="text-xs text-gray-700 mb-2">
                               {job.description?.substring(0, 80)}...
                             </p>
                             
