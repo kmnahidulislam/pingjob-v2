@@ -342,15 +342,20 @@ export default function PublicHome() {
                         </div>
                         
                         {/* Everything below company/location starts from left edge */}
-                        <div className="pl-4">
+                        <div>
                           {/* Job Title */}
                           <h3 className="text-sm font-semibold text-gray-900 mb-2">
                             {job.title}
                           </h3>
                           
-                          {/* Description */}
-                          <p className="text-xs text-gray-700 mb-2">
-                            {job.description?.substring(0, 120)}...
+                          {/* Description - 5 lines */}
+                          <p className="text-xs text-gray-700 mb-2 leading-relaxed" style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 5,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}>
+                            {job.description}
                           </p>
                           
                           {/* Vendor Count */}
@@ -367,16 +372,16 @@ export default function PublicHome() {
                             <span>{new Date(job.postedAt).toLocaleDateString()}</span>
                           </div>
                           
-                          {/* Action Buttons */}
+                          {/* Action Buttons - Smaller */}
                           <div className="flex gap-2">
                             <Link href={`/jobs/${job.id}`}>
-                              <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
+                              <Button size="sm" variant="outline" className="text-xs px-2 py-1 border-gray-300 h-7">
                                 View Details
                               </Button>
                             </Link>
                             <Button 
                               size="sm" 
-                              className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
+                              className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md h-7"
                               onClick={(e) => {
                                 e.preventDefault();
                                 console.log('Apply Now clicked, user:', user);
