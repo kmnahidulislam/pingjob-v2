@@ -298,8 +298,8 @@ export default function PublicHome() {
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start">
-                          {/* Company Logo - Smaller and tight */}
-                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-2">
+                          {/* Company Logo - Back to original size */}
+                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-3">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
                               <img 
                                 src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
@@ -313,81 +313,85 @@ export default function PublicHome() {
                             )}
                           </div>
 
-                          {/* All Content - Starts immediately after logo */}
-                          <div className="flex-1 min-w-0">
-                            {/* Company Name - Top and Bigger */}
-                            <p className="text-lg text-blue-600 font-bold mb-1 truncate">
-                              {job.company?.name || 'Company Name'}
-                            </p>
-                            
-                            {/* City, State, Zip - Below Company Name */}
-                            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-                              <MapPin className="h-3 w-3" />
-                              <span>
-                                {(() => {
-                                  if (job.city && job.state) {
-                                    const location = `${job.city}, ${job.state}`;
-                                    return job.zipCode ? `${location} ${job.zipCode}` : location;
-                                  }
-                                  if (job.location) {
-                                    return job.location
-                                      .replace(/, United States$/, '')
-                                      .replace(/ United States$/, '')
-                                      .replace(/United States,?\s*/, '')
-                                      .trim() || 'Remote';
-                                  }
-                                  return 'Remote';
-                                })()}
-                              </span>
+                          {/* Two Column Layout */}
+                          <div className="flex-1 min-w-0 grid grid-cols-2 gap-0">
+                            {/* Left Column - Company Info Only */}
+                            <div>
+                              <p className="text-lg text-blue-600 font-bold mb-1 truncate">
+                                {job.company?.name || 'Company Name'}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs text-gray-600">
+                                <MapPin className="h-3 w-3" />
+                                <span>
+                                  {(() => {
+                                    if (job.city && job.state) {
+                                      const location = `${job.city}, ${job.state}`;
+                                      return job.zipCode ? `${location} ${job.zipCode}` : location;
+                                    }
+                                    if (job.location) {
+                                      return job.location
+                                        .replace(/, United States$/, '')
+                                        .replace(/ United States$/, '')
+                                        .replace(/United States,?\s*/, '')
+                                        .trim() || 'Remote';
+                                    }
+                                    return 'Remote';
+                                  })()}
+                                </span>
+                              </div>
                             </div>
                             
-                            {/* Title - Below Location */}
-                            <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                              {job.title}
-                            </h3>
-                            
-                            {/* Description - Below Title */}
-                            <p className="text-xs text-gray-700 mb-2">
-                              {job.description?.substring(0, 120)}...
-                            </p>
-                            
-                            {/* Vendor Count */}
-                            <div className="mb-2">
-                              <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
-                                <span>{job.vendorCount || 0} Vendors</span>
-                              </Badge>
-                            </div>
-                            
-                            <div className="flex gap-2 text-xs text-gray-500 mb-3">                                
+                            {/* Right Column - Everything else starting from left edge */}
+                            <div className="-ml-4">
+                              {/* Job Title */}
+                              <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                                {job.title}
+                              </h3>
+                              
+                              {/* Description */}
+                              <p className="text-xs text-gray-700 mb-2">
+                                {job.description?.substring(0, 120)}...
+                              </p>
+                              
+                              {/* Vendor Count */}
+                              <div className="mb-2">
+                                <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
+                                  <span>{job.vendorCount || 0} Vendors</span>
+                                </Badge>
+                              </div>
+                              
                               {/* Applicant Count and Date */}
-                              <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
-                              <span>•</span>
-                              <span>{new Date(job.postedAt).toLocaleDateString()}</span>
-                            </div>
-                            
-                            <div className="flex gap-2">
-                              <Link href={`/jobs/${job.id}`}>
-                                <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
-                                  View Details
+                              <div className="flex gap-2 text-xs text-gray-500 mb-3">
+                                <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
+                                <span>•</span>
+                                <span>{new Date(job.postedAt).toLocaleDateString()}</span>
+                              </div>
+                              
+                              {/* Action Buttons */}
+                              <div className="flex gap-2">
+                                <Link href={`/jobs/${job.id}`}>
+                                  <Button size="sm" variant="outline" className="text-xs px-3 py-1.5 border-gray-300">
+                                    View Details
+                                  </Button>
+                                </Link>
+                                <Button 
+                                  size="sm" 
+                                  className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    console.log('Apply Now clicked, user:', user);
+                                    if (!user) {
+                                      console.log('Redirecting to auth...');
+                                      window.location.href = '/auth';
+                                    } else {
+                                      // Handle application logic for authenticated users
+                                      window.location.href = `/jobs/${job.id}`;
+                                    }
+                                  }}
+                                >
+                                  Apply Now
                                 </Button>
-                              </Link>
-                              <Button 
-                                size="sm" 
-                                className="text-xs px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  console.log('Apply Now clicked, user:', user);
-                                  if (!user) {
-                                    console.log('Redirecting to auth...');
-                                    window.location.href = '/auth';
-                                  } else {
-                                    // Handle application logic for authenticated users
-                                    window.location.href = `/jobs/${job.id}`;
-                                  }
-                                }}
-                              >
-                                Apply Now
-                              </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
