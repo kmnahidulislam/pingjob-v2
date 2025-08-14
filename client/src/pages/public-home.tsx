@@ -315,21 +315,15 @@ export default function PublicHome() {
                               {job.company?.name || 'Company Name'}
                             </p>
                             
-                            <h3 className="text-sm font-semibold text-gray-900 mb-2 truncate">
+                            {/* Title - Left Aligned */}
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2 text-left">
                               {job.title}
                             </h3>
                             
-                            {/* Vendor Count Below Company Name */}
-                            <div className="mb-2">
-                              <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
-                                <Users className="h-3 w-3 mr-1" />
-                                {job.vendorCount || '0'} Vendors
-                              </Badge>
-                            </div>
-                            
+                            {/* City, State, Zip - Left Aligned */}
                             <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
                               <MapPin className="h-3 w-3" />
-                              <span className="truncate">
+                              <span className="text-left">
                                 {(() => {
                                   if (job.city && job.state) {
                                     const location = `${job.city}, ${job.state}`;
@@ -347,9 +341,18 @@ export default function PublicHome() {
                               </span>
                             </div>
 
-                            <p className="text-xs text-gray-700 mb-3 line-clamp-2">
+                            {/* Description - Left Aligned */}
+                            <p className="text-xs text-gray-700 mb-2 text-left">
                               {job.description?.substring(0, 80)}...
                             </p>
+                            
+                            {/* Vendor Count */}
+                            <div className="mb-2">
+                              <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
+                                <Users className="h-3 w-3 mr-1" />
+                                {job.vendorCount || '0'} Vendors
+                              </Badge>
+                            </div>
 
                             <div className="mt-3">
                               <div className="flex gap-2 text-xs text-gray-500 mb-3">                                
