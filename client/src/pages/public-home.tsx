@@ -297,7 +297,7 @@ export default function PublicHome() {
                     return (
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
-                        <div className="flex items-start space-x-4">
+                        <div className="flex items-start space-x-2">
                           {/* Company Logo - Aligned to top */}
                           <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
@@ -348,7 +348,7 @@ export default function PublicHome() {
                             
                             {/* Description - Below Title */}
                             <p className="text-xs text-gray-700 mb-2">
-                              {job.description?.substring(0, 80)}...
+                              {job.description?.substring(0, 120)}...
                             </p>
                             
                             {/* Vendor Count */}
