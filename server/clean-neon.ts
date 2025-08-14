@@ -2,10 +2,10 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-// Use your updated Neon.tech credentials
-const DATABASE_URL = "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
+// Use environment DATABASE_URL (from Replit's database)
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_AGIUSy9qx6ag@ep-broad-cake-a5ztlrwa-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require";
 
-console.log("Using updated Neon credentials:", DATABASE_URL.substring(0, 50) + "...");
+console.log("Using database URL:", DATABASE_URL.substring(0, 50) + "...");
 
 const CLEAN_CONNECTION = {
   connectionString: DATABASE_URL,
