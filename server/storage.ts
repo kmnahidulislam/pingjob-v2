@@ -392,6 +392,18 @@ export const storage = {
       
       console.log('🔍 Vendor count map size:', vendorCountMap.size);
       
+      // Get category-based applicant counts
+      const categoryApplicantCounts = await db
+        .select({
+          categoryId: users.categoryId,
+          count: sql<number>`cast(count(*) as int)`
+        })
+        .from(users)
+        .where(and(eq(users.userType, 'job_seeker'), ne(users.categoryId, null)))
+        .groupBy(users.categoryId);
+
+      const categoryApplicantMap = new Map(categoryApplicantCounts.map(c => [c.categoryId, c.count]));
+      
       return adminJobsResults.map(job => ({
         id: job.id,
         title: job.title,
@@ -423,7 +435,8 @@ export const storage = {
           id: job.categoryId,
           name: job.categoryName || "General"
         },
-        applicationCount: 0
+        applicationCount: 0,
+        categoryMatchedApplicants: categoryApplicantMap.get(job.categoryId || 0) || 0
       }));
     } catch (error) {
       console.error('Error fetching admin jobs:', error);
