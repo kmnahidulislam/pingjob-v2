@@ -29,6 +29,16 @@ export default function PublicHome() {
     queryKey: ['/api/companies/top']
   });
 
+  // Fetch platform statistics
+  const { data: platformStats } = useQuery({
+    queryKey: ['/api/platform/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/platform/stats');
+      if (!response.ok) throw new Error('Failed to fetch platform stats');
+      return response.json();
+    }
+  });
+
   // Fetch admin jobs with pagination
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 20; // 2 columns x 10 rows
@@ -168,20 +178,28 @@ export default function PublicHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-2xl font-bold text-blue-600">14688</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {platformStats?.totalJobs?.toLocaleString() || '0'}
+              </div>
               <div className="text-sm text-gray-600">Active Jobs</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-green-600">76823</div>
-              <div className="text-sm text-gray-600">Top Companies</div>
+              <div className="text-2xl font-bold text-green-600">
+                {platformStats?.totalCompanies?.toLocaleString() || '0'}
+              </div>
+              <div className="text-sm text-gray-600">Companies</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-purple-600">139</div>
+              <div className="text-2xl font-bold text-purple-600">
+                {categories?.length?.toLocaleString() || '0'}
+              </div>
               <div className="text-sm text-gray-600">Categories</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-orange-600">2203</div>
-              <div className="text-sm text-gray-600">Posted Today</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {platformStats?.totalUsers?.toLocaleString() || '0'}
+              </div>
+              <div className="text-sm text-gray-600">Platform Users</div>
             </div>
           </div>
         </div>
