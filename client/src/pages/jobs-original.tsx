@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Building2, MapPin, Clock, DollarSign, Users, RefreshCw, Briefcase, User } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Users, RefreshCw, Briefcase } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -42,15 +42,7 @@ export default function JobsOriginal() {
     queryKey: ['/api/categories']
   });
 
-  // Fetch job seekers for right sidebar profiles
-  const { data: jobSeekers = [] } = useQuery({
-    queryKey: ['/api/job-seekers'],
-    queryFn: async () => {
-      const response = await fetch('/api/job-seekers');
-      if (!response.ok) throw new Error('Failed to fetch job seekers');
-      return response.json();
-    }
-  });
+
 
   // Filter jobs based on search
   const filteredJobs = jobs.filter((job: any) => {
@@ -73,29 +65,39 @@ export default function JobsOriginal() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2">
-                <img 
-                  src="/logos/pingjob-logo.svg" 
-                  alt="PingJob" 
-                  className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-                />
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <img src={logoPath} alt="PingJob" className="h-8 w-auto" />
               </Link>
-              
-              {/* Search Bar */}
-              <div className="relative max-w-md">
-                <div className="relative">
-                  <Input
-                    type="text"
-                    placeholder="Search jobs, companies, or skills..."
-                    value={filters.search}
-                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <Button size="sm" className="absolute right-1 top-1">
-                    Go
-                  </Button>
-                </div>
+            </div>
+            
+            {/* Search Bar - Consistent with Home Page */}
+            <div className="flex-1 max-w-lg mx-8">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search jobs, companies, or skills..."
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const searchValue = e.target.value;
+                      if (searchValue.trim()) {
+                        setFilters(prev => ({ ...prev, search: searchValue }));
+                      }
+                    }
+                  }}
+                />
+                <Button 
+                  size="sm" 
+                  className="absolute right-1 top-1"
+                  onClick={() => {
+                    // Search is already handled by the filter state
+                  }}
+                >
+                  Go
+                </Button>
               </div>
             </div>
 
@@ -157,8 +159,8 @@ export default function JobsOriginal() {
             </Card>
           </div>
 
-          {/* Center - Latest Job Opportunities */}
-          <div className="lg:col-span-2">
+          {/* Center - Latest Job Opportunities (Expanded to take full space) */}
+          <div className="lg:col-span-3">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
               <Button variant="outline" size="sm">
@@ -288,51 +290,7 @@ export default function JobsOriginal() {
             </div>
           </div>
 
-          {/* Right Sidebar - Matching Profiles */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Matching Profiles</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Array.isArray(jobSeekers) && jobSeekers.slice(0, 10).map((seeker: any, index: number) => (
-                  <div key={seeker.id || index} className="flex items-center space-x-3">
-                    <div className="w-8 h-8 border border-gray-200 rounded-full overflow-hidden bg-gray-50 flex-shrink-0">
-                      {seeker.profileImageUrl ? (
-                        <img 
-                          src={seeker.profileImageUrl} 
-                          alt={`${seeker.firstName} ${seeker.lastName}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                          <User className="h-4 w-4" />
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="flex-1 min-w-0">
-                      <Link 
-                        href={`/profiles/${seeker.id}`}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block"
-                      >
-                        {seeker.firstName} {seeker.lastName}
-                      </Link>
-                      <p className="text-xs text-gray-500 truncate">
-                        {seeker.headline || 'Job Seeker'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                
-                {(!jobSeekers || jobSeekers.length === 0) && (
-                  <div className="text-center py-4">
-                    <p className="text-sm text-gray-500">No matching profiles found</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>
