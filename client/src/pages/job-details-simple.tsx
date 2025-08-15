@@ -208,21 +208,27 @@ export default function JobDetailsSimple() {
                         </div>
                       )}
                       
-                      {vendor.description && (
+                      {vendor.city && (
                         <div className="text-sm text-gray-600">
-                          <span className="font-medium">Address:</span> {vendor.description}
+                          <span className="font-medium">City:</span> {vendor.city}
+                        </div>
+                      )}
+                      
+                      {vendor.state && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">State:</span> {vendor.state}
+                        </div>
+                      )}
+                      
+                      {vendor.zipCode && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Zip:</span> {vendor.zipCode}
                         </div>
                       )}
                       
                       {vendor.phone && (
                         <div className="text-sm text-gray-600">
                           <span className="font-medium">Phone:</span> {vendor.phone}
-                        </div>
-                      )}
-                      
-                      {vendor.email && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Email:</span> {vendor.email}
                         </div>
                       )}
                     </div>

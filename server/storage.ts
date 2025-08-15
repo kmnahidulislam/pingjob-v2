@@ -739,15 +739,18 @@ export const storage = {
         .select({
           id: vendors.id,
           name: vendors.name,
-          email: vendors.email,
           phone: vendors.phone,
           services: vendors.services,
           status: vendors.status,
           companyId: vendors.companyId,
+          createdAt: vendors.createdAt,
           logoUrl: companies.logoUrl,
           website: companies.website,
           location: companies.location,
-          description: companies.description
+          description: companies.description,
+          city: companies.city,
+          state: companies.state,
+          zipCode: companies.zipCode
         })
         .from(vendors)
         .innerJoin(companies, eq(vendors.companyId, companies.id))
