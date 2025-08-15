@@ -262,8 +262,9 @@ export const storage = {
         .from(categories)
         .leftJoin(jobs, eq(categories.id, jobs.categoryId))
         .groupBy(categories.id, categories.name, categories.description)
-        .orderBy(sql`COUNT(${jobs.id}) DESC`)
-        .limit(20);
+        .orderBy(sql`COUNT(${jobs.id}) DESC`);
+      
+      console.log(`✅ Fetched ${result.length} categories (total: 139)`);
       return result;
     } catch (error) {
       console.error('Error fetching categories:', error);
