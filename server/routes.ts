@@ -696,6 +696,150 @@ export function registerRoutes(app: Express) {
   });
 
   // Add logout endpoint directly to prevent missing route errors
+  // Countries, States, Cities endpoints for location dropdowns
+  app.get('/api/countries', async (req, res) => {
+    try {
+      const countries = [
+        { id: 1, name: 'United States', code: 'US' },
+        { id: 2, name: 'Canada', code: 'CA' },
+        { id: 3, name: 'United Kingdom', code: 'GB' },
+        { id: 4, name: 'Australia', code: 'AU' },
+        { id: 5, name: 'Germany', code: 'DE' },
+        { id: 6, name: 'France', code: 'FR' },
+        { id: 7, name: 'India', code: 'IN' },
+        { id: 8, name: 'Japan', code: 'JP' },
+        { id: 9, name: 'South Korea', code: 'KR' },
+        { id: 10, name: 'Netherlands', code: 'NL' },
+        { id: 11, name: 'Switzerland', code: 'CH' },
+        { id: 12, name: 'Sweden', code: 'SE' },
+        { id: 13, name: 'Norway', code: 'NO' },
+        { id: 14, name: 'Denmark', code: 'DK' },
+        { id: 15, name: 'Finland', code: 'FI' }
+      ];
+      res.json(countries);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch countries' });
+    }
+  });
+
+  app.get('/api/states', async (req, res) => {
+    try {
+      const { countryId } = req.query;
+      
+      // US States
+      if (countryId === '1') {
+        const states = [
+          { id: 1, name: 'California', countryId: 1 },
+          { id: 2, name: 'New York', countryId: 1 },
+          { id: 3, name: 'Texas', countryId: 1 },
+          { id: 4, name: 'Florida', countryId: 1 },
+          { id: 5, name: 'Illinois', countryId: 1 },
+          { id: 6, name: 'Pennsylvania', countryId: 1 },
+          { id: 7, name: 'Ohio', countryId: 1 },
+          { id: 8, name: 'Georgia', countryId: 1 },
+          { id: 9, name: 'North Carolina', countryId: 1 },
+          { id: 10, name: 'Michigan', countryId: 1 },
+          { id: 11, name: 'New Jersey', countryId: 1 },
+          { id: 12, name: 'Virginia', countryId: 1 },
+          { id: 13, name: 'Washington', countryId: 1 },
+          { id: 14, name: 'Arizona', countryId: 1 },
+          { id: 15, name: 'Massachusetts', countryId: 1 },
+          { id: 16, name: 'Tennessee', countryId: 1 },
+          { id: 17, name: 'Indiana', countryId: 1 },
+          { id: 18, name: 'Missouri', countryId: 1 },
+          { id: 19, name: 'Maryland', countryId: 1 },
+          { id: 20, name: 'Wisconsin', countryId: 1 }
+        ];
+        res.json(states);
+      }
+      // Canada Provinces
+      else if (countryId === '2') {
+        const provinces = [
+          { id: 21, name: 'Ontario', countryId: 2 },
+          { id: 22, name: 'Quebec', countryId: 2 },
+          { id: 23, name: 'British Columbia', countryId: 2 },
+          { id: 24, name: 'Alberta', countryId: 2 },
+          { id: 25, name: 'Manitoba', countryId: 2 },
+          { id: 26, name: 'Saskatchewan', countryId: 2 }
+        ];
+        res.json(provinces);
+      }
+      // UK Countries
+      else if (countryId === '3') {
+        const ukCountries = [
+          { id: 31, name: 'England', countryId: 3 },
+          { id: 32, name: 'Scotland', countryId: 3 },
+          { id: 33, name: 'Wales', countryId: 3 },
+          { id: 34, name: 'Northern Ireland', countryId: 3 }
+        ];
+        res.json(ukCountries);
+      }
+      // Australia States
+      else if (countryId === '4') {
+        const australianStates = [
+          { id: 41, name: 'New South Wales', countryId: 4 },
+          { id: 42, name: 'Victoria', countryId: 4 },
+          { id: 43, name: 'Queensland', countryId: 4 },
+          { id: 44, name: 'Western Australia', countryId: 4 },
+          { id: 45, name: 'South Australia', countryId: 4 },
+          { id: 46, name: 'Tasmania', countryId: 4 }
+        ];
+        res.json(australianStates);
+      }
+      else {
+        res.json([]);
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch states' });
+    }
+  });
+
+  app.get('/api/cities', async (req, res) => {
+    try {
+      const { stateId } = req.query;
+      
+      // California cities
+      if (stateId === '1') {
+        const cities = [
+          { id: 1, name: 'Los Angeles', stateId: 1 },
+          { id: 2, name: 'San Francisco', stateId: 1 },
+          { id: 3, name: 'San Diego', stateId: 1 },
+          { id: 4, name: 'San Jose', stateId: 1 },
+          { id: 5, name: 'Sacramento', stateId: 1 }
+        ];
+        res.json(cities);
+      }
+      // New York cities
+      else if (stateId === '2') {
+        const cities = [
+          { id: 11, name: 'New York City', stateId: 2 },
+          { id: 12, name: 'Buffalo', stateId: 2 },
+          { id: 13, name: 'Rochester', stateId: 2 },
+          { id: 14, name: 'Syracuse', stateId: 2 },
+          { id: 15, name: 'Albany', stateId: 2 }
+        ];
+        res.json(cities);
+      }
+      // Texas cities
+      else if (stateId === '3') {
+        const cities = [
+          { id: 21, name: 'Houston', stateId: 3 },
+          { id: 22, name: 'Dallas', stateId: 3 },
+          { id: 23, name: 'Austin', stateId: 3 },
+          { id: 24, name: 'San Antonio', stateId: 3 },
+          { id: 25, name: 'Fort Worth', stateId: 3 }
+        ];
+        res.json(cities);
+      }
+      // Add more state/city mappings as needed
+      else {
+        res.json([]);
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch cities' });
+    }
+  });
+
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');
     console.log('Session before destroy:', !!req.session?.user);
