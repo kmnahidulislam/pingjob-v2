@@ -85,9 +85,11 @@ export default function Navigation() {
           <div className="flex items-center space-x-4 md:space-x-8">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <div className="h-8 flex items-center px-3 bg-linkedin-blue text-white font-bold text-lg rounded-md hover:bg-blue-700 transition-colors">
-                PingJob
-              </div>
+              <img 
+                src="/logos/pingjob-logo.svg" 
+                alt="PingJob" 
+                className="h-8 w-auto hover:opacity-90 transition-opacity"
+              />
             </Link>
 
             {/* Navigation Items */}
