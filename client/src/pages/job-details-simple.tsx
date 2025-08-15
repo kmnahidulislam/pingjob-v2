@@ -3,7 +3,7 @@ import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Users } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Globe } from "lucide-react";
 import { Link } from "wouter";
 
 export default function JobDetailsSimple() {
@@ -201,20 +201,27 @@ export default function JobDetailsSimple() {
                     <div className="space-y-2">
                       <h4 className="font-semibold text-gray-900 text-lg">{vendor.name}</h4>
                       
+                      <div className="text-sm text-blue-600 font-medium">
+                        Staffing Services
+                      </div>
+                      
                       {(vendor.address || vendor.city) && (
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                           <span>
-                            {vendor.address && `${vendor.address}, `}
-                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}`}
-                            {vendor.zipCode && ` ${vendor.zipCode}`}
+                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}, `}
+                            {vendor.zipCode && `${vendor.zipCode}, `}
+                            United States
                           </span>
                         </div>
                       )}
                       
-                      {vendor.phone && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Phone:</span> {vendor.phone}
+                      {vendor.website && (
+                        <div className="flex items-center text-sm text-blue-600">
+                          <Globe className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            {vendor.website.replace(/^https?:\/\//, '')}
+                          </a>
                         </div>
                       )}
                     </div>
