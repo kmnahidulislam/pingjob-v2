@@ -318,11 +318,15 @@ export default function PublicHome() {
                         <div className="flex items-start">
                           {/* Company Logo - Back to original size */}
                           <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-3">
-                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
+                            {job.company?.logoUrl && job.company.logoUrl.startsWith('https://') ? (
                               <img 
-                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                src={job.company.logoUrl} 
                                 alt={job.company?.name}
                                 className="w-full h-full object-contain p-1"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-blue-600 text-white"><svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/></svg></div>`;
+                                }}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
@@ -376,10 +380,13 @@ export default function PublicHome() {
                             {job.description}
                           </p>
                           
-                          {/* Vendor Count */}
-                          <div className="mb-2">
-                            <Badge variant="outline" className="text-xs bg-orange-50 border-orange-200 text-orange-700 font-semibold">
-                              <span>{job.vendorCount || 0} Vendors</span>
+                          {/* Employment Type and Experience Level */}
+                          <div className="mb-2 flex gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {job.employmentType || 'Full-time'}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {job.experienceLevel || 'All Levels'}
                             </Badge>
                           </div>
                           
