@@ -749,5 +749,17 @@ export const storage = {
       console.error('Error fetching job vendors:', error);
       return [];
     }
+  },
+
+  // Create a new vendor
+  async createVendor(vendorData: any) {
+    try {
+      const [vendor] = await db.insert(vendors).values(vendorData).returning();
+      console.log('✅ Created vendor:', vendor.id);
+      return vendor;
+    } catch (error) {
+      console.error('Error creating vendor:', error);
+      throw error;
+    }
   }
 };

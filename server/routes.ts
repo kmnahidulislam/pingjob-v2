@@ -345,6 +345,52 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company search endpoint specifically for vendor management
+  app.get('/api/companies/search', async (req, res) => {
+    try {
+      const { query, limit = 20 } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.json([]);
+      }
+
+      if (query.length < 2) {
+        return res.json([]);
+      }
+
+      const companies = await storage.searchCompanies(query, parseInt(limit as string));
+      res.json(companies);
+      
+    } catch (error) {
+      console.error('Error in company search endpoint:', error);
+      res.status(500).json({ message: 'Company search failed' });
+    }
+  });
+
+  // Vendors endpoint for creating vendors
+  app.post('/api/vendors', async (req, res) => {
+    try {
+      const { companyId, name, email, phone, services, description, status } = req.body;
+      
+      const vendorData = {
+        companyId: parseInt(companyId),
+        name,
+        email,
+        phone,
+        services,
+        description,
+        status: status || 'pending'
+      };
+
+      const vendor = await storage.createVendor(vendorData);
+      res.json(vendor);
+      
+    } catch (error) {
+      console.error('Error creating vendor:', error);
+      res.status(500).json({ message: 'Failed to create vendor' });
+    }
+  });
+
   // Job seekers endpoint for recruiter candidate viewing
   app.get('/api/job-seekers', async (req, res) => {
     try {
