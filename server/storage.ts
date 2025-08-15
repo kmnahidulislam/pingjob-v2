@@ -744,11 +744,11 @@ export const storage = {
           status: vendors.status,
           companyId: vendors.companyId,
           createdAt: vendors.createdAt,
-          // Vendor-specific address fields
-          city: vendors.vendorCity,
-          state: vendors.vendorState,
-          zipCode: vendors.vendorZipCode,
-          address: vendors.vendorAddress
+          // Get real company address data
+          city: companies.city,
+          state: companies.state,
+          zipCode: companies.zipCode,
+          address: companies.location
         })
         .from(vendors)
         .innerJoin(companies, eq(vendors.companyId, companies.id))
