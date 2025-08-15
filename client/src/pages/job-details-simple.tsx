@@ -209,9 +209,10 @@ export default function JobDetailsSimple() {
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                           <span>
-                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}, `}
-                            {vendor.zipCode && `${vendor.zipCode}, `}
-                            United States
+                            {vendor.address && `${vendor.address}, `}
+                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}`}
+                            {vendor.zipCode && `, ${vendor.zipCode}`}
+                            {vendor.city && `, United States`}
                           </span>
                         </div>
                       )}
