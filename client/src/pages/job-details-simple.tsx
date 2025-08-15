@@ -201,23 +201,19 @@ export default function JobDetailsSimple() {
                     <div className="space-y-2">
                       <h4 className="font-semibold text-gray-900 text-lg">{vendor.name}</h4>
                       
-                      <div className="text-sm text-blue-600 font-medium">
-                        Staffing Services
-                      </div>
-                      
                       {(vendor.address || vendor.city) && (
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
                           <span>
-                            {vendor.address && `${vendor.address}, `}
-                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}`}
-                            {vendor.zipCode && `, ${vendor.zipCode}`}
-                            {vendor.city && `, United States`}
+                            {vendor.address && vendor.address !== 'NULL' && `${vendor.address}, `}
+                            {vendor.city && vendor.city !== 'NULL' && vendor.state && vendor.state !== 'NULL' && `${vendor.city}, ${vendor.state}`}
+                            {vendor.zipCode && vendor.zipCode !== 'NULL' && `, ${vendor.zipCode}`}
+                            {vendor.city && vendor.city !== 'NULL' && `, United States`}
                           </span>
                         </div>
                       )}
                       
-                      {vendor.website && (
+                      {vendor.website && vendor.website !== 'NULL' && (
                         <div className="flex items-center text-sm text-blue-600">
                           <Globe className="h-4 w-4 mr-2 flex-shrink-0" />
                           <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
