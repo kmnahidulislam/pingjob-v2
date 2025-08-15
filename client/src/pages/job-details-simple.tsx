@@ -28,7 +28,7 @@ export default function JobDetailsSimple() {
   });
 
   // Fetch vendors for this job
-  const { data: vendors } = useQuery({
+  const { data: vendorData } = useQuery({
     queryKey: ['/api/jobs', id, 'vendors'],
     queryFn: async () => {
       console.log('Fetching vendors for job ID:', id);
@@ -37,15 +37,24 @@ export default function JobDetailsSimple() {
       });
       if (!response.ok) {
         console.log('Vendors fetch failed:', response.status);
-        return [];
+        return { vendors: [], isLimited: false, totalCount: 0 };
       }
       const data = await response.json();
       console.log('Vendors data received:', data);
-      return data || [];
+      // Handle both old format (array) and new format (object)
+      if (Array.isArray(data)) {
+        return { vendors: data, isLimited: false, totalCount: data.length };
+      }
+      return data || { vendors: [], isLimited: false, totalCount: 0 };
     },
     enabled: !!id,
     retry: false
   });
+
+  const vendors = vendorData?.vendors || [];
+  const isLimited = vendorData?.isLimited || false;
+  const totalVendorCount = vendorData?.totalCount || 0;
+  const signupMessage = vendorData?.message;
 
   if (isLoading) {
     return (
@@ -170,8 +179,20 @@ export default function JobDetailsSimple() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Recruiting Partners ({vendors.length})
+                Recruiting Partners ({isLimited ? `${vendors.length} of ${totalVendorCount}` : vendors.length})
               </CardTitle>
+              {isLimited && signupMessage && (
+                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm text-blue-700 mb-2">
+                    <span className="font-medium">{signupMessage}</span>
+                  </p>
+                  <Link href="/auth">
+                    <Button size="sm" className="bg-linkedin-blue hover:bg-blue-700">
+                      Sign Up to View All {totalVendorCount} Vendors
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">

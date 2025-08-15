@@ -658,11 +658,63 @@ export function registerRoutes(app: Express) {
   });
 
   // Get vendors for a specific job (based on company)
-  app.get('/api/jobs/:id/vendors', async (req, res) => {
+  app.get('/api/jobs/:id/vendors', async (req: any, res) => {
     try {
       const { id } = req.params;
-      const vendors = await storage.getJobVendors(parseInt(id));
-      res.json(vendors);
+      const allVendors = await storage.getJobVendors(parseInt(id));
+      
+      // Check if user is authenticated
+      const isAuthenticated = req.session?.user || req.user;
+      
+      if (!isAuthenticated) {
+        // For non-authenticated users, show only 3 vendors based on:
+        // 1. Most number of clients (estimated by how many jobs they have)
+        // 2. Latest to be added (most recent createdAt)
+        
+        // Get vendor statistics to determine client count
+        const vendorsWithStats = await Promise.all(allVendors.map(async (vendor: any) => {
+          try {
+            // Count jobs associated with this vendor's company as proxy for client count
+            const companyJobs = await storage.getCompanyJobs(vendor.companyId);
+            return {
+              ...vendor,
+              estimatedClients: companyJobs.length,
+              createdAt: vendor.createdAt || new Date()
+            };
+          } catch (error) {
+            return {
+              ...vendor,
+              estimatedClients: 0,
+              createdAt: vendor.createdAt || new Date()
+            };
+          }
+        }));
+        
+        // Sort by client count (desc) and then by creation date (desc)
+        const sortedVendors = vendorsWithStats.sort((a, b) => {
+          if (b.estimatedClients !== a.estimatedClients) {
+            return b.estimatedClients - a.estimatedClients;
+          }
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        
+        // Return only top 3 vendors
+        const limitedVendors = sortedVendors.slice(0, 3);
+        
+        res.json({
+          vendors: limitedVendors,
+          isLimited: true,
+          totalCount: allVendors.length,
+          message: "Sign up to view all available vendors"
+        });
+      } else {
+        // For authenticated users, show all vendors
+        res.json({
+          vendors: allVendors,
+          isLimited: false,
+          totalCount: allVendors.length
+        });
+      }
     } catch (error) {
       console.error('Error fetching job vendors:', error);
       res.status(500).json({ message: 'Failed to fetch vendors' });
