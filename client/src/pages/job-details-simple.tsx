@@ -201,28 +201,14 @@ export default function JobDetailsSimple() {
                     <div className="space-y-2">
                       <h4 className="font-semibold text-gray-900 text-lg">{vendor.name}</h4>
                       
-                      {vendor.address && (
+                      {(vendor.address || vendor.city) && (
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                          <span>{vendor.address}</span>
-                        </div>
-                      )}
-                      
-                      {vendor.city && (
-                        <div className="text-sm text-gray-600">
-                          {vendor.city}
-                        </div>
-                      )}
-                      
-                      {vendor.state && (
-                        <div className="text-sm text-gray-600">
-                          {vendor.state}
-                        </div>
-                      )}
-                      
-                      {vendor.zipCode && (
-                        <div className="text-sm text-gray-600">
-                          {vendor.zipCode}
+                          <span>
+                            {vendor.address && `${vendor.address}, `}
+                            {vendor.city && vendor.state && `${vendor.city}, ${vendor.state}`}
+                            {vendor.zipCode && ` ${vendor.zipCode}`}
+                          </span>
                         </div>
                       )}
                       
