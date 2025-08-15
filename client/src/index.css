@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 :root {
+  --linkedin-blue: #0077B5;
+  --linkedin-blue-dark: #005885;
+}
+
+:root {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --muted: 240 4.8% 95.9%;
