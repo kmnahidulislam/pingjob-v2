@@ -338,7 +338,11 @@ export function registerRoutes(app: Express) {
 
   app.get('/api/companies', async (req, res) => {
     try {
-      const companies = await storage.getCompanies();
+      const { limit = 100, offset = 0 } = req.query;
+      const companies = await storage.getCompanies(
+        parseInt(limit as string), 
+        parseInt(offset as string)
+      );
       res.json(companies);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch companies" });

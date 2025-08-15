@@ -618,8 +618,21 @@ export const storage = {
     }
   },
 
-  async getCompanies() {
-    return await db.select().from(companies).orderBy(companies.name);
+  async getCompanies(limit: number = 100, offset: number = 0) {
+    try {
+      const result = await db
+        .select()
+        .from(companies)
+        .orderBy(companies.name)
+        .limit(limit)
+        .offset(offset);
+      
+      console.log(`✅ Fetched ${result.length} companies (limit: ${limit}, offset: ${offset})`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      return [];
+    }
   },
 
   async searchCompanies(query: string, limit: number = 50) {
