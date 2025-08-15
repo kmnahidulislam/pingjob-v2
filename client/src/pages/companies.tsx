@@ -692,7 +692,9 @@ export default function CompaniesPage() {
     queryFn: async () => {
       const response = await apiRequest('GET', '/api/companies/top');
       return response.json();
-    }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000 // Keep in cache for 10 minutes
   });
 
   // Fetch platform stats for total company count
@@ -712,7 +714,9 @@ export default function CompaniesPage() {
       const response = await apiRequest('GET', `/api/search?q=${encodeURIComponent(searchQuery)}`);
       return response.json();
     },
-    enabled: searchQuery.length >= 2
+    enabled: searchQuery.length >= 2,
+    staleTime: 30000, // Cache for 30 seconds
+    gcTime: 60000 // Keep in cache for 1 minute
   });
 
   // Company edit mutation
