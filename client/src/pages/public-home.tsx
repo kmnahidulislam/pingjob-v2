@@ -318,9 +318,9 @@ export default function PublicHome() {
                         <div className="flex items-start">
                           {/* Company Logo - Back to original size */}
                           <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-3">
-                            {job.company?.logoUrl && job.company.logoUrl.startsWith('https://') ? (
+                            {job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL' ? (
                               <img 
-                                src={job.company.logoUrl} 
+                                src={job.company.logoUrl.startsWith('http') ? job.company.logoUrl : `/${job.company.logoUrl}`} 
                                 alt={job.company?.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e) => {
