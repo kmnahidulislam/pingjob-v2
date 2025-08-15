@@ -380,18 +380,14 @@ export default function PublicHome() {
                             {job.description}
                           </p>
                           
-                          {/* Employment Type and Experience Level */}
-                          <div className="mb-2 flex gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {job.employmentType || 'Full-time'}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {job.experienceLevel || 'All Levels'}
-                            </Badge>
-                          </div>
-                          
-                          {/* Applicant Count and Date */}
+                          {/* Vendor Count and Date */}
                           <div className="flex gap-2 text-xs text-gray-500 mb-3">
+                            {job.vendorCount && job.vendorCount > 0 && (
+                              <>
+                                <span>Vendor({job.vendorCount})</span>
+                                <span>•</span>
+                              </>
+                            )}
                             <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
                             <span>•</span>
                             <span>{new Date(job.postedAt).toLocaleDateString()}</span>

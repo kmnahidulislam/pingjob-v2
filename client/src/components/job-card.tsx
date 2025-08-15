@@ -238,9 +238,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               <MapPin className="h-3 w-3 mr-1" />
               <span>{formatLocation(job)}</span>
             </div>
-            <Badge variant="secondary" className="text-xs">
-              {job.jobType?.replace('_', ' ') || 'Full Time'}
-            </Badge>
+
           </div>
         </CardContent>
       </Card>
@@ -273,10 +271,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <div className="flex items-center text-sm text-gray-500 mt-1">
                   <MapPin className="h-4 w-4 mr-1" />
                   <span>{formatLocation(job)}</span>
-                  <span className="mx-2">•</span>
-                  <Badge variant="outline" className="text-xs">
-                    {job.jobType?.replace('_', ' ') || 'Full Time'}
-                  </Badge>
+
                 </div>
               </div>
             </div>
@@ -296,19 +291,15 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
           {/* Job Details */}
           <div className="space-y-3 mb-4">
-            {/* Experience Level and Salary */}
-            <div className="flex items-center gap-4 text-sm text-gray-600">
-              <span className="flex items-center">
-                <Users className="h-4 w-4 mr-1" />
-                {job.experienceLevel.replace('_', ' ')} level
-              </span>
-              {job.salary && (
+            {/* Salary Only */}
+            {job.salary && (
+              <div className="flex items-center text-sm text-gray-600">
                 <span className="flex items-center">
                   <DollarSign className="h-4 w-4 mr-1" />
                   {job.salary}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Skills */}
             {skillsArray.length > 0 && (
