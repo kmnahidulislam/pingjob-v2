@@ -781,6 +781,30 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Job creation endpoint
+  app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
+    try {
+      const jobData = {
+        ...req.body,
+        recruiterId: req.user.id, // Automatically assign recruiter from authenticated user
+        employmentType: req.body.jobType || req.body.employmentType || 'full_time' // Map jobType to employmentType if needed
+      };
+
+      console.log('Creating job with data:', jobData);
+      
+      const job = await storage.createJob(jobData);
+      
+      console.log('Job created successfully:', job.id);
+      res.json({
+        id: job.id,
+        message: 'Job created successfully'
+      });
+    } catch (error) {
+      console.error("Error creating job:", error);
+      res.status(500).json({ message: "Failed to create job" });
+    }
+  });
+
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');
     console.log('Session before destroy:', !!req.session?.user);

@@ -856,5 +856,41 @@ export const storage = {
       console.error('Error fetching company jobs:', error);
       return [];
     }
+  },
+
+  // Create a new job
+  async createJob(jobData: any) {
+    try {
+      console.log('Creating job with data:', jobData);
+      
+      // Prepare job data for database insertion
+      const cleanData = {
+        companyId: jobData.companyId,
+        recruiterId: jobData.recruiterId,
+        categoryId: jobData.categoryId,
+        title: jobData.title,
+        description: jobData.description,
+        requirements: jobData.requirements,
+        location: jobData.location,
+        country: jobData.country,
+        state: jobData.state,
+        city: jobData.city,
+        zipCode: jobData.zipCode,
+        jobType: jobData.jobType,
+        employmentType: jobData.employmentType,
+        experienceLevel: jobData.experienceLevel,
+        salary: jobData.salary,
+        benefits: jobData.benefits,
+        skills: jobData.skills || [],
+        isActive: true
+      };
+
+      const [job] = await db.insert(jobs).values(cleanData).returning();
+      console.log('✅ Created job:', job.id);
+      return job;
+    } catch (error) {
+      console.error('Error creating job:', error);
+      throw error;
+    }
   }
 };
