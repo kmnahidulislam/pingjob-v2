@@ -743,7 +743,11 @@ export const storage = {
           services: vendors.services,
           status: vendors.status,
           companyId: vendors.companyId,
-          createdAt: vendors.createdAt
+          createdAt: vendors.createdAt,
+          city: vendors.city,
+          state: vendors.state,
+          zipCode: vendors.zipCode,
+          location: vendors.location
         })
         .from(vendors)
         .innerJoin(companies, eq(vendors.companyId, companies.id))
