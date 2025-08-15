@@ -142,7 +142,7 @@ export function registerRoutes(app: Express) {
       // Update filename mapping
       try {
         const mappingPath = path.join('.', 'filename-mapping.json');
-        let mapping = {};
+        let mapping: any = {};
         
         if (fs.existsSync(mappingPath)) {
           mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
@@ -529,7 +529,7 @@ export function registerRoutes(app: Express) {
         validCount
       });
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Cleanup error:', error);
       res.status(500).json({ message: 'Cleanup failed', error: error.message });
     }
@@ -560,7 +560,7 @@ export function registerRoutes(app: Express) {
       const assignment = await storage.createManualAssignment({
         jobId: parseInt(jobId),
         candidateId,
-        recruiterId: req.user?.id || req.session?.user?.id,
+        recruiterId: (req as any).user?.id || (req as any).session?.user?.id,
         status: 'assigned',
         assignedAt: new Date()
       });
