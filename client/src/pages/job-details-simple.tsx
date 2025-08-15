@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
+import logoPath from "@assets/logo_1749581218265.png";
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
@@ -62,11 +63,7 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-8 w-auto hover:opacity-90 transition-opacity"
-              />
+              <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
             </Link>
           </div>
         </header>
@@ -92,11 +89,7 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-8 w-auto hover:opacity-90 transition-opacity"
-              />
+              <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
             </Link>
           </div>
         </header>
@@ -132,11 +125,7 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-8 w-auto hover:opacity-90 transition-opacity"
-              />
+              <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
             </Link>
           </div>
         </header>
@@ -168,11 +157,7 @@ export default function JobDetailsSimple() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link href="/" className="flex-shrink-0 flex items-center">
-            <img 
-              src="/logos/pingjob-logo.svg" 
-              alt="PingJob" 
-              className="h-8 w-auto hover:opacity-90 transition-opacity"
-            />
+            <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
           </Link>
         </div>
       </header>
