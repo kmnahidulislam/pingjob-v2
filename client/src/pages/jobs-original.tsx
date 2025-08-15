@@ -74,14 +74,13 @@ export default function JobsOriginal() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2">
                 <img 
-                  src={logoPath} 
+                  src="/logos/pingjob-logo.svg" 
                   alt="PingJob" 
-                  className="h-8 w-auto"
+                  className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
                 />
-                <span className="text-xl font-bold text-gray-900">PingJob</span>
-              </div>
+              </Link>
               
               {/* Search Bar */}
               <div className="relative max-w-md">
