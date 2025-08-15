@@ -833,6 +833,37 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company creation endpoint
+  app.post('/api/companies', isAuthenticated, async (req: any, res) => {
+    try {
+      console.log('=== COMPANY CREATION REQUEST ===');
+      console.log('Request body:', req.body);
+      console.log('User:', req.user);
+      
+      const companyData = {
+        ...req.body,
+        userId: req.user.id,
+        // Auto-approve for admin and paying users
+        status: (req.user.userType === 'admin' || req.user.userType === 'recruiter' || req.user.userType === 'client') 
+          ? 'approved' 
+          : 'pending'
+      };
+
+      console.log('Creating company with data:', companyData);
+      
+      const company = await storage.createCompany(companyData);
+      
+      console.log('Company created successfully:', company.id);
+      res.json({
+        id: company.id,
+        message: 'Company created successfully'
+      });
+    } catch (error) {
+      console.error("Error creating company:", error);
+      res.status(500).json({ message: "Failed to create company" });
+    }
+  });
+
   // Job creation endpoint
   app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
     try {

@@ -888,6 +888,20 @@ export const storage = {
     }
   },
 
+  // Create a new company
+  async createCompany(companyData: InsertCompany) {
+    try {
+      console.log('Creating company with data:', companyData);
+      
+      const [company] = await db.insert(companies).values(companyData).returning();
+      console.log('✅ Created company:', company.id);
+      return company;
+    } catch (error) {
+      console.error('Error creating company:', error);
+      throw error;
+    }
+  },
+
   // Create a new job
   async createJob(jobData: any) {
     try {
