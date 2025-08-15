@@ -378,7 +378,6 @@ export function registerRoutes(app: Express) {
         email,
         phone,
         services,
-        description,
         status: status || 'pending'
       };
 
@@ -388,6 +387,18 @@ export function registerRoutes(app: Express) {
     } catch (error) {
       console.error('Error creating vendor:', error);
       res.status(500).json({ message: 'Failed to create vendor' });
+    }
+  });
+
+  // Get vendors for a specific company
+  app.get('/api/companies/:id/vendors', async (req, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      const vendors = await storage.getCompanyVendors(companyId);
+      res.json(vendors);
+    } catch (error) {
+      console.error('Error fetching company vendors:', error);
+      res.status(500).json({ message: 'Failed to fetch vendors' });
     }
   });
 

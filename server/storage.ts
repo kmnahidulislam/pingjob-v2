@@ -754,12 +754,47 @@ export const storage = {
   // Create a new vendor
   async createVendor(vendorData: any) {
     try {
-      const [vendor] = await db.insert(vendors).values(vendorData).returning();
+      // Only use columns that exist in the actual database
+      const vendorToCreate = {
+        companyId: vendorData.companyId,
+        name: vendorData.name,
+        email: vendorData.email,
+        phone: vendorData.phone,
+        services: vendorData.services,
+        status: vendorData.status || 'pending'
+      };
+      
+      const [vendor] = await db.insert(vendors).values(vendorToCreate).returning();
       console.log('✅ Created vendor:', vendor.id);
       return vendor;
     } catch (error) {
       console.error('Error creating vendor:', error);
       throw error;
+    }
+  },
+
+  // Get vendors for a specific company
+  async getCompanyVendors(companyId: number) {
+    try {
+      const result = await db
+        .select({
+          id: vendors.id,
+          name: vendors.name,
+          email: vendors.email,
+          phone: vendors.phone,
+          services: vendors.services,
+          status: vendors.status,
+          createdAt: vendors.createdAt
+        })
+        .from(vendors)
+        .where(eq(vendors.companyId, companyId))
+        .orderBy(vendors.createdAt);
+
+      console.log(`✅ Found ${result.length} vendors for company ${companyId}`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching company vendors:', error);
+      return [];
     }
   }
 };
