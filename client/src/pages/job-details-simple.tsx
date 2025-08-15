@@ -59,19 +59,17 @@ export default function JobDetailsSimple() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header with Logo */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
-            <Link href="/">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <img 
                 src="/logos/pingjob-logo.svg" 
                 alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-8 w-auto hover:opacity-90 transition-opacity"
               />
             </Link>
           </div>
         </header>
-
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <div className="animate-pulse">
@@ -91,19 +89,17 @@ export default function JobDetailsSimple() {
     console.error('Job details error:', error);
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header with Logo */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
-            <Link href="/">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <img 
                 src="/logos/pingjob-logo.svg" 
                 alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-8 w-auto hover:opacity-90 transition-opacity"
               />
             </Link>
           </div>
         </header>
-
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <Link href="/">
@@ -133,19 +129,17 @@ export default function JobDetailsSimple() {
   if (!job) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header with Logo */}
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
-            <Link href="/">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <img 
                 src="/logos/pingjob-logo.svg" 
                 alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-8 w-auto hover:opacity-90 transition-opacity"
               />
             </Link>
           </div>
         </header>
-
         <div className="p-6">
           <div className="max-w-4xl mx-auto">
             <Link href="/">
@@ -171,14 +165,13 @@ export default function JobDetailsSimple() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Logo */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <Link href="/">
+          <Link href="/" className="flex-shrink-0 flex items-center">
             <img 
               src="/logos/pingjob-logo.svg" 
               alt="PingJob" 
-              className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              className="h-8 w-auto hover:opacity-90 transition-opacity"
             />
           </Link>
         </div>
