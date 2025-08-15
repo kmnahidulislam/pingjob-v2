@@ -730,11 +730,40 @@ export const storage = {
     }
   },
 
-  // Get vendors for a specific job (via company relationship)
+  // Get vendors for a specific job (via job_vendors table or company relationship)
   async getJobVendors(jobId: number) {
     console.log(`🔍 Fetching vendors for job: ${jobId}`);
     
     try {
+      // First try the job_vendors table for proper vendor associations
+      const jobVendorResult = await db.execute(sql`
+        SELECT v.id, v.name, v.phone, v.services, v.status, v.company_id,
+               c.city, c.state, c.zip_code, c.location as address, c.website
+        FROM vendors v
+        JOIN job_vendors jv ON v.id = jv.vendor_id
+        JOIN companies c ON v.company_id = c.id
+        WHERE jv.job_id = ${jobId}
+        ORDER BY v.created_at DESC
+      `);
+
+      if (jobVendorResult.rows && jobVendorResult.rows.length > 0) {
+        console.log(`✅ Found ${jobVendorResult.rows.length} vendors via job_vendors for job ${jobId}`);
+        return jobVendorResult.rows.map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          services: row.services,
+          status: row.status,
+          companyId: row.company_id,
+          city: row.city,
+          state: row.state,
+          zipCode: row.zip_code,
+          address: row.address,
+          website: row.website
+        }));
+      }
+
+      // Fallback to old method if no job_vendors associations exist
       const result = await db
         .select({
           id: vendors.id,
@@ -744,7 +773,6 @@ export const storage = {
           status: vendors.status,
           companyId: vendors.companyId,
           createdAt: vendors.createdAt,
-          // Get real company address data
           city: companies.city,
           state: companies.state,
           zipCode: companies.zipCode,
@@ -759,7 +787,7 @@ export const storage = {
           eq(vendors.status, 'approved')
         ));
 
-      console.log(`✅ Found ${result.length} vendors for job ${jobId}`);
+      console.log(`✅ Found ${result.length} vendors via fallback for job ${jobId}`);
       return result;
     } catch (error) {
       console.error('Error fetching job vendors:', error);
