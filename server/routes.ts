@@ -572,6 +572,32 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Global search endpoint for companies and jobs
+  app.get('/api/search', async (req, res) => {
+    try {
+      const { q: query } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: 'Search query is required' });
+      }
+
+      if (query.length < 2) {
+        return res.json({ companies: [], jobs: [] });
+      }
+
+      // Search companies
+      const companies = await storage.searchCompanies(query, 20);
+      
+      // For now, return companies only since that's what's needed
+      // Jobs search can be added later if needed
+      res.json({ companies, jobs: [] });
+      
+    } catch (error) {
+      console.error('Error in search endpoint:', error);
+      res.status(500).json({ message: 'Search failed' });
+    }
+  });
+
   // Add logout endpoint directly to prevent missing route errors
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');

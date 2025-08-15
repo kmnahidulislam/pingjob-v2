@@ -622,6 +622,39 @@ export const storage = {
     return await db.select().from(companies).orderBy(companies.name);
   },
 
+  async searchCompanies(query: string, limit: number = 50) {
+    try {
+      const searchResults = await db
+        .select({
+          id: companies.id,
+          name: companies.name,
+          logoUrl: companies.logoUrl,
+          industry: companies.industry,
+          location: companies.location,
+          description: companies.description,
+          userId: companies.userId,
+          approvedBy: companies.approvedBy,
+          createdAt: companies.createdAt
+        })
+        .from(companies)
+        .where(
+          or(
+            ilike(companies.name, `%${query}%`),
+            ilike(companies.industry, `%${query}%`),
+            ilike(companies.location, `%${query}%`),
+            ilike(companies.description, `%${query}%`)
+          )
+        )
+        .orderBy(companies.name)
+        .limit(limit);
+
+      return searchResults;
+    } catch (error) {
+      console.error('Error searching companies:', error);
+      return [];
+    }
+  },
+
   // Manual assignment functions
 
   async getManualAssignments() {
