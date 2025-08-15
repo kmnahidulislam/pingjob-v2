@@ -728,6 +728,23 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Add route to handle /api/states/:countryId format as well
+  app.get('/api/states/:countryId', async (req, res) => {
+    try {
+      const { countryId } = req.params;
+      
+      const result = await pool.query(
+        'SELECT id, country_id as "countryId", name, code FROM states WHERE country_id = $1 ORDER BY name',
+        [countryId]
+      );
+      console.log(`States for country ${countryId}:`, result.rows.length);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Error fetching states:', error);
+      res.status(500).json({ message: 'Failed to fetch states' });
+    }
+  });
+
   app.get('/api/cities', async (req, res) => {
     try {
       const { stateId } = req.query;
@@ -740,6 +757,23 @@ export function registerRoutes(app: Express) {
         'SELECT id, state_id as "stateId", name FROM cities WHERE state_id = $1 ORDER BY name',
         [stateId]
       );
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+      res.status(500).json({ message: 'Failed to fetch cities' });
+    }
+  });
+
+  // Add route to handle /api/cities/:stateId format as well
+  app.get('/api/cities/:stateId', async (req, res) => {
+    try {
+      const { stateId } = req.params;
+      
+      const result = await pool.query(
+        'SELECT id, state_id as "stateId", name FROM cities WHERE state_id = $1 ORDER BY name',
+        [stateId]
+      );
+      console.log(`Cities for state ${stateId}:`, result.rows.length);
       res.json(result.rows);
     } catch (error) {
       console.error('Error fetching cities:', error);
