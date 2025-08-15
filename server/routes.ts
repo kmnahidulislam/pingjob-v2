@@ -402,6 +402,42 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company details endpoint - returns jobs and vendors for a company
+  app.get('/api/companies/:id/details', async (req, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: 'Invalid company ID' });
+      }
+      
+      // Get company basic info
+      const company = await storage.getCompanyById(companyId);
+      if (!company) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+
+      // Get active jobs for this company
+      const openJobs = await storage.getCompanyJobs(companyId);
+      
+      // Get vendors for this company  
+      const vendors = await storage.getCompanyVendors(companyId);
+      
+      const result = {
+        ...company,
+        openJobs,
+        vendors
+      };
+      
+      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs, ${vendors.length} vendors`);
+      res.json(result);
+      
+    } catch (error) {
+      console.error('Error fetching company details:', error);
+      res.status(500).json({ message: 'Failed to fetch company details' });
+    }
+  });
+
   // Job seekers endpoint for recruiter candidate viewing
   app.get('/api/job-seekers', async (req, res) => {
     try {

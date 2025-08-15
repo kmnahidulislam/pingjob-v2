@@ -796,5 +796,51 @@ export const storage = {
       console.error('Error fetching company vendors:', error);
       return [];
     }
+  },
+
+  // Get company by ID
+  async getCompanyById(companyId: number) {
+    try {
+      const result = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.id, companyId))
+        .limit(1);
+
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      console.error('Error fetching company by ID:', error);
+      return null;
+    }
+  },
+
+  // Get jobs for a specific company
+  async getCompanyJobs(companyId: number) {
+    try {
+      const result = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId
+        })
+        .from(jobs)
+        .where(and(eq(jobs.companyId, companyId), eq(jobs.isActive, true)))
+        .orderBy(desc(jobs.createdAt));
+
+      console.log(`✅ Found ${result.length} active jobs for company ${companyId}`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching company jobs:', error);
+      return [];
+    }
   }
 };
