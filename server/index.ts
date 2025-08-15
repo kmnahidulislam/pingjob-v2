@@ -123,21 +123,20 @@ app.use((req, res, next) => {
 
   // Remove static HTML override to restore React app
 
+  // Use environment PORT or default to 5000 for cloud deployments
+  const port = parseInt(process.env.PORT || "5000", 10);
+  const server = app.listen(port, "0.0.0.0", () => {
+    log(`serving on port ${port}`);
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  const server = app;
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
-
-  // Use environment PORT or default to 5000 for cloud deployments
-  const port = process.env.PORT || 5000;
-  app.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
-  });
   } catch (error) {
     console.error('Server startup error:', error);
   }
