@@ -3,7 +3,7 @@ import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Globe, Users } from "lucide-react";
+import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
 
 export default function JobDetailsSimple() {
@@ -195,54 +195,36 @@ export default function JobDetailsSimple() {
               )}
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 {vendors.map((vendor: any) => (
                   <div key={vendor.id} className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {vendor.logoUrl && vendor.logoUrl !== "NULL" ? (
-                          <img 
-                            src={`/${vendor.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={vendor.name}
-                            className="w-full h-full object-contain p-1"
-                            onError={(e) => {
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <Users className="h-6 w-6" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 mb-1">{vendor.name}</h4>
-                        {vendor.description && (
-                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                            {vendor.description}
-                          </p>
-                        )}
-                        {vendor.location && (
-                          <div className="flex items-center text-sm text-gray-500 mb-1">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {vendor.location}
-                          </div>
-                        )}
-                        {vendor.website && vendor.website !== "NULL" && (
-                          <div className="flex items-center text-sm">
-                            <Globe className="h-3 w-3 mr-1" />
-                            <a 
-                              href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              {vendor.website.replace(/^https?:\/\/(www\.)?/, '')}
-                            </a>
-                          </div>
-                        )}
-                      </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-gray-900 text-lg">{vendor.name}</h4>
+                      
+                      {vendor.location && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span>{vendor.location}</span>
+                        </div>
+                      )}
+                      
+                      {vendor.description && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Address:</span> {vendor.description}
+                        </div>
+                      )}
+                      
+                      {vendor.phone && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Phone:</span> {vendor.phone}
+                        </div>
+                      )}
+                      
+                      {vendor.email && (
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Email:</span> {vendor.email}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
