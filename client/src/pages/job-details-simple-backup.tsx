@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
+// Logo will be referenced directly from public folder
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
@@ -36,7 +37,7 @@ export default function JobDetailsSimple() {
         credentials: 'include'
       });
       if (!response.ok) {
-        console.error('Failed to fetch vendors:', response.status);
+        console.log('Vendors fetch failed:', response.status);
         return { vendors: [], isLimited: false, totalCount: 0 };
       }
       const data = await response.json();
@@ -63,11 +64,18 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
-              />
+              <div className="h-10 flex items-center">
+                <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 cursor-pointer hover:opacity-80 transition-opacity">
+                  <circle cx="20" cy="20" r="18" fill="#0077B5"/>
+                  <path d="M12 10 L12 30 M12 10 L20 10 Q24 10 24 15 Q24 20 20 20 L12 20" 
+                        stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  <circle cx="28" cy="20" r="2" fill="#0077B5"/>
+                  <text x="38" y="16" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#0077B5">Ping</text>
+                  <text x="38" y="30" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#333333">Job</text>
+                  <line x1="30" y1="20" x2="35" y2="18" stroke="#0077B5" strokeWidth="1" opacity="0.6"/>
+                  <line x1="30" y1="20" x2="35" y2="22" stroke="#333333" strokeWidth="1" opacity="0.4"/>
+                </svg>
+              </div>
             </Link>
           </div>
         </header>
@@ -95,11 +103,18 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
-              />
+              <div className="h-10 flex items-center">
+                <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 cursor-pointer hover:opacity-80 transition-opacity">
+                  <circle cx="20" cy="20" r="18" fill="#0077B5"/>
+                  <path d="M12 10 L12 30 M12 10 L20 10 Q24 10 24 15 Q24 20 20 20 L12 20" 
+                        stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  <circle cx="28" cy="20" r="2" fill="#0077B5"/>
+                  <text x="38" y="16" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#0077B5">Ping</text>
+                  <text x="38" y="30" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#333333">Job</text>
+                  <line x1="30" y1="20" x2="35" y2="18" stroke="#0077B5" strokeWidth="1" opacity="0.6"/>
+                  <line x1="30" y1="20" x2="35" y2="22" stroke="#333333" strokeWidth="1" opacity="0.4"/>
+                </svg>
+              </div>
             </Link>
           </div>
         </header>
@@ -137,11 +152,18 @@ export default function JobDetailsSimple() {
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/">
-              <img 
-                src="/logos/pingjob-logo.svg" 
-                alt="PingJob" 
-                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
-              />
+              <div className="h-10 flex items-center">
+                <svg width="160" height="40" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 cursor-pointer hover:opacity-80 transition-opacity">
+                  <circle cx="20" cy="20" r="18" fill="#0077B5"/>
+                  <path d="M12 10 L12 30 M12 10 L20 10 Q24 10 24 15 Q24 20 20 20 L12 20" 
+                        stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  <circle cx="28" cy="20" r="2" fill="#0077B5"/>
+                  <text x="38" y="16" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#0077B5">Ping</text>
+                  <text x="38" y="30" fontFamily="Inter, Arial, sans-serif" fontSize="14" fontWeight="700" fill="#333333">Job</text>
+                  <line x1="30" y1="20" x2="35" y2="18" stroke="#0077B5" strokeWidth="1" opacity="0.6"/>
+                  <line x1="30" y1="20" x2="35" y2="22" stroke="#333333" strokeWidth="1" opacity="0.4"/>
+                </svg>
+              </div>
             </Link>
           </div>
         </header>
@@ -176,7 +198,7 @@ export default function JobDetailsSimple() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link href="/">
             <img 
-              src="/logos/pingjob-logo.svg" 
+              src="./logos/pingjob-logo.svg" 
               alt="PingJob" 
               className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
             />
@@ -204,24 +226,43 @@ export default function JobDetailsSimple() {
             <p className="text-gray-600 mb-4">
               {job.location || 'Location not specified'}
             </p>
-            <div className="prose max-w-none">
-              <div 
-                dangerouslySetInnerHTML={{ 
-                  __html: job.description || 'No description available' 
-                }} 
-              />
+            
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2">Description</h3>
+              <div className="text-gray-700 whitespace-pre-line">
+                {job.description || 'No description available'}
+              </div>
             </div>
+
+            {job.requirements && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">Requirements</h3>
+                <div className="text-gray-700 whitespace-pre-line">
+                  {job.requirements}
+                </div>
+              </div>
+            )}
+
+            {job.benefits && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-2">Benefits</h3>
+                <div className="text-gray-700 whitespace-pre-line">
+                  {job.benefits}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {vendors.length > 0 && (
-          <Card>
+        {/* Vendors Section */}
+        {vendors && vendors.length > 0 && (
+          <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="h-5 w-5 mr-2" />
-                Recommended Staffing Partners
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Vendors ({isLimited ? `${vendors.length} of ${totalVendorCount}` : vendors.length})
               </CardTitle>
-              {isLimited && (
+              {isLimited && signupMessage && (
                 <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-sm text-blue-700 mb-2">
                     <span className="font-medium">{signupMessage}</span>
