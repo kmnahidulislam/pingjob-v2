@@ -58,13 +58,28 @@ export default function JobDetailsSimple() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header with Logo */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <Link href="/">
+              <img 
+                src="/logos/pingjob-logo.svg" 
+                alt="PingJob" 
+                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
+          </div>
+        </header>
+
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="bg-white rounded-lg shadow-sm p-8">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -75,26 +90,41 @@ export default function JobDetailsSimple() {
   if (error) {
     console.error('Job details error:', error);
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/">
-            <Button variant="ghost" className="mb-6">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          <Card>
-            <CardContent className="p-8 text-center">
-              <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-              <p className="text-gray-600 mb-4">
-                Error: {error instanceof Error ? error.message : 'Unknown error'}
-              </p>
-              <p className="text-gray-600 mb-4">Job ID: {id}</p>
-              <Button onClick={() => window.location.reload()}>
-                Refresh Page
+      <div className="min-h-screen bg-gray-50">
+        {/* Header with Logo */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <Link href="/">
+              <img 
+                src="/logos/pingjob-logo.svg" 
+                alt="PingJob" 
+                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
+          </div>
+        </header>
+
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <Link href="/">
+              <Button variant="ghost" className="mb-6">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Jobs
               </Button>
-            </CardContent>
-          </Card>
+            </Link>
+            <Card>
+              <CardContent className="p-8 text-center">
+                <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+                <p className="text-gray-600 mb-4">
+                  Error: {error instanceof Error ? error.message : 'Unknown error'}
+                </p>
+                <p className="text-gray-600 mb-4">Job ID: {id}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Refresh Page
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
@@ -102,39 +132,68 @@ export default function JobDetailsSimple() {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/">
-            <Button variant="ghost" className="mb-6">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          <Card>
-            <CardContent className="p-8 text-center">
-              <h2 className="text-xl font-semibold mb-2">Job Not Found</h2>
-              <p className="text-gray-600 mb-4">Job ID: {id}</p>
-              <Button onClick={() => window.location.reload()}>
-                Refresh Page
+      <div className="min-h-screen bg-gray-50">
+        {/* Header with Logo */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <Link href="/">
+              <img 
+                src="/logos/pingjob-logo.svg" 
+                alt="PingJob" 
+                className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
+          </div>
+        </header>
+
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <Link href="/">
+              <Button variant="ghost" className="mb-6">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Jobs
               </Button>
-            </CardContent>
-          </Card>
+            </Link>
+            <Card>
+              <CardContent className="p-8 text-center">
+                <h2 className="text-xl font-semibold mb-2">Job Not Found</h2>
+                <p className="text-gray-600 mb-4">Job ID: {id}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Refresh Page
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <Link href="/">
-          <Button variant="ghost" className="mb-6">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
-        </Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header with Logo */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <Link href="/">
+            <img 
+              src="/logos/pingjob-logo.svg" 
+              alt="PingJob" 
+              className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
+            />
+          </Link>
+        </div>
+      </header>
 
-        <Card className="mb-6">
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/">
+            <Button variant="ghost" className="mb-6">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Jobs
+            </Button>
+          </Link>
+
+          <Card className="mb-6">
           <CardContent className="p-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {job.title || 'No Title'}
@@ -228,6 +287,7 @@ export default function JobDetailsSimple() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
