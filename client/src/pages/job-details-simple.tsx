@@ -201,10 +201,10 @@ export default function JobDetailsSimple() {
                     <div className="space-y-2">
                       <h4 className="font-semibold text-gray-900 text-lg">{vendor.name}</h4>
                       
-                      {vendor.location && (
+                      {vendor.address && (
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                          <span>{vendor.location}</span>
+                          <span>{vendor.address}</span>
                         </div>
                       )}
                       

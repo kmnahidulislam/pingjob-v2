@@ -273,6 +273,11 @@ export const vendors = pgTable("vendors", {
   createdBy: varchar("created_by"),
   addedBy: varchar("added_by").references(() => users.id),
   approvedBy: varchar("approved_by"),
+  // Vendor-specific address fields
+  vendorCity: varchar("vendor_city"),
+  vendorState: varchar("vendor_state"),
+  vendorZipCode: varchar("vendor_zip_code"),
+  vendorAddress: text("vendor_address"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
