@@ -3,8 +3,9 @@ import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Users, Globe } from "lucide-react";
+import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
+// Logo will be referenced directly from public folder
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
@@ -269,15 +270,6 @@ export default function JobDetailsSimple() {
                             {vendor.zipCode && vendor.zipCode !== 'NULL' && `, ${vendor.zipCode}`}
                             {vendor.city && vendor.city !== 'NULL' && `, United States`}
                           </span>
-                        </div>
-                      )}
-                      
-                      {vendor.website && vendor.website !== 'NULL' && (
-                        <div className="flex items-center text-sm text-blue-600">
-                          <Globe className="h-4 w-4 mr-2 flex-shrink-0" />
-                          <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                            {vendor.website.replace(/^https?:\/\//, '')}
-                          </a>
                         </div>
                       )}
                     </div>
