@@ -179,7 +179,7 @@ export default function JobDetailsSimple() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Recruiting Partners ({isLimited ? `${vendors.length} of ${totalVendorCount}` : vendors.length})
+                Vendors ({isLimited ? `${vendors.length} of ${totalVendorCount}` : vendors.length})
               </CardTitle>
               {isLimited && signupMessage && (
                 <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
@@ -210,19 +210,19 @@ export default function JobDetailsSimple() {
                       
                       {vendor.city && (
                         <div className="text-sm text-gray-600">
-                          <span className="font-medium">City:</span> {vendor.city}
+                          {vendor.city}
                         </div>
                       )}
                       
                       {vendor.state && (
                         <div className="text-sm text-gray-600">
-                          <span className="font-medium">State:</span> {vendor.state}
+                          {vendor.state}
                         </div>
                       )}
                       
                       {vendor.zipCode && (
                         <div className="text-sm text-gray-600">
-                          <span className="font-medium">Zip:</span> {vendor.zipCode}
+                          {vendor.zipCode}
                         </div>
                       )}
                       
