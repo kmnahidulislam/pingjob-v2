@@ -88,6 +88,20 @@ export default function PingJobHome() {
     logoutMutation.mutate();
   };
 
+  // Handle Apply Now click - preserves job context for after login
+  const handleApplyNow = (jobId: number) => {
+    console.log('Apply Now clicked, user:', user);
+    if (!user) {
+      console.log('Redirecting to auth with job redirect...');
+      // Store the intended job destination in localStorage
+      localStorage.setItem('intendedJobId', jobId.toString());
+      window.location.href = '/auth';
+    } else {
+      // User is logged in, go directly to job details page
+      window.location.href = `/jobs/${jobId}`;
+    }
+  };
+
   // Fetch admin jobs only for homepage display (100 jobs total for pagination)
   const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery({
     queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
@@ -689,11 +703,16 @@ export default function PingJobHome() {
                                 View Details
                               </Button>
                             </Link>
-                            <Link href="/auth" className="flex-1">
-                              <Button size="sm" className="w-full">
-                                Apply Now
-                              </Button>
-                            </Link>
+                            <Button 
+                              size="sm" 
+                              className="w-full flex-1" 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleApplyNow(job.id);
+                              }}
+                            >
+                              Apply Now
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -988,11 +1007,16 @@ export default function PingJobHome() {
                             View Details
                           </Button>
                         </Link>
-                        <Link href="/auth" className="flex-1">
-                          <Button className="w-full" size="sm">
-                            Apply Now
-                          </Button>
-                        </Link>
+                        <Button 
+                          className="w-full flex-1" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleApplyNow(job.id);
+                          }}
+                        >
+                          Apply Now
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -1217,7 +1241,15 @@ export default function PingJobHome() {
                         </div>
                         
                         <div className="mt-3">
-                          <Button size="sm" className="mobile-btn">
+                          <Button 
+                            size="sm" 
+                            className="mobile-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleApplyNow(job.id);
+                            }}
+                          >
                             Apply Now
                           </Button>
                         </div>

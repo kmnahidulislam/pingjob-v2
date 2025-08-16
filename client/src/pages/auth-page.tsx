@@ -136,9 +136,14 @@ export default function AuthPage() {
     },
   });
 
-  // Redirect if already logged in
+  // Handle users who are already logged in but have a pending job redirect
   if (user) {
-    return <Redirect to="/" />;
+    const intendedJobId = localStorage.getItem('intendedJobId');
+    if (intendedJobId) {
+      localStorage.removeItem('intendedJobId');
+      return <Redirect to={`/jobs/${intendedJobId}`} />;
+    }
+    return <Redirect to="/dashboard" />;
   }
 
   const onLogin = (values: z.infer<typeof loginSchema>) => {

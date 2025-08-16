@@ -58,14 +58,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      if (import.meta.env.DEV) console.log('Login mutation success:', user);
+      if (import.meta.env.DEV) console.log('🔐 Login success callback, user:', user);
       // Update auth state immediately
       queryClient.setQueryData(["/api/user"], user);
+      
+      // Check for intended job redirect
+      const intendedJobId = localStorage.getItem('intendedJobId');
+      if (intendedJobId) {
+        localStorage.removeItem('intendedJobId');
+        if (import.meta.env.DEV) console.log('🔐 Navigating to intended job:', intendedJobId);
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          window.location.href = `/jobs/${intendedJobId}`;
+        }, 100);
+        return;
+      }
       
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
+      
+      // Default redirect to dashboard
+      if (import.meta.env.DEV) console.log('🔐 No intended job, navigating to dashboard...');
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
@@ -87,10 +105,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
+      
+      // Check for intended job redirect
+      const intendedJobId = localStorage.getItem('intendedJobId');
+      if (intendedJobId) {
+        localStorage.removeItem('intendedJobId');
+        if (import.meta.env.DEV) console.log('🔐 New user, navigating to intended job:', intendedJobId);
+        setTimeout(() => {
+          window.location.href = `/jobs/${intendedJobId}`;
+        }, 100);
+        return;
+      }
+      
       toast({
         title: "Welcome!",
         description: "Your account has been created successfully.",
       });
+      
+      // Default redirect to dashboard
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
