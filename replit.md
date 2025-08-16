@@ -31,9 +31,9 @@ Preferred communication style: Simple, everyday language.
 - **File Storage**: Local filesystem
 
 ### Key Features
-- **Authentication System**: Supports multiple user types (job seekers, recruiters, clients, administrators), password hashing, and session persistence. Includes Google OAuth for sign-in.
+- **Authentication System**: Supports multiple user types (job seekers, recruiters, clients, administrators), password hashing, and session persistence. Includes Google OAuth for sign-in and smart job application redirect flow.
 - **User Management**: Comprehensive profiles with resume/profile image uploads, education, experience, and skills.
-- **Company Management**: Company profiles with logo uploads and admin approval workflow, including geographic data.
+- **Company Management**: Company profiles with logo uploads and admin approval workflow, including geographic data. Full company creation API with validation.
 - **Job Management**: Job posting, application tracking, hierarchical categorization, advanced search/filtering, and intelligent location parsing.
 - **Networking Features**: Professional connections, direct messaging, and groups.
 - **Resume Parsing & Scoring**: Intelligent job-resume matching with skills-weighted scoring.
@@ -41,6 +41,7 @@ Preferred communication style: Simple, everyday language.
 - **Admin Features**: Dashboard for user, company, and job management, including pending approvals, traffic analytics, and manual candidate assignment.
 - **Recruiter Features**: Dedicated dashboard for job management, candidate auto-assignment based on category, and communication tools.
 - **Social Media Integration**: Automatic posting of job listings.
+- **Smart Redirect System**: Preserves user intent during authentication flow - users applying for jobs are redirected back to their intended job after login/signup.
 
 ### Design Principles
 - **UI/UX**: Clean, intuitive interfaces with consistent branding, readability, and professional presentation.
