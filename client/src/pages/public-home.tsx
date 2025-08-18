@@ -365,14 +365,14 @@ export default function PublicHome() {
                         
                         {/* Everything below company/location starts from left edge */}
                         <div>
-                          {/* Job Title with Blue Vendor Badge */}
-                          <div className="flex items-center gap-2 mb-2">
+                          {/* Job Title with Vendor Badge in Right Corner */}
+                          <div className="flex items-center justify-between mb-2">
                             <h3 className="text-sm font-semibold text-gray-900">
                               {job.title}
                             </h3>
                             {job.vendorCount && job.vendorCount > 0 && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-600 text-white">
-                                Vendor({job.vendorCount})
+                                Vendor ({job.vendorCount})
                               </span>
                             )}
                           </div>
