@@ -926,6 +926,25 @@ export const storage = {
     }
   },
 
+  // Update an existing company
+  async updateCompany(companyId: number, companyData: any) {
+    try {
+      console.log('Updating company:', companyId, 'with data:', companyData);
+      
+      const [updatedCompany] = await db
+        .update(companies)
+        .set(companyData)
+        .where(eq(companies.id, companyId))
+        .returning();
+      
+      console.log('✅ Updated company:', companyId);
+      return updatedCompany;
+    } catch (error) {
+      console.error('Error updating company:', error);
+      throw error;
+    }
+  },
+
   // Create a new job
   async createJob(jobData: any) {
     try {

@@ -881,6 +881,34 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company update endpoint
+  app.patch('/api/companies/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: 'Invalid company ID' });
+      }
+
+      // Check if company exists
+      const existingCompany = await storage.getCompanyById(companyId);
+      if (!existingCompany) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+
+      // Update company
+      const updatedCompany = await storage.updateCompany(companyId, req.body);
+      
+      res.json({
+        id: updatedCompany.id,
+        message: 'Company updated successfully'
+      });
+    } catch (error) {
+      console.error("Error updating company:", error);
+      res.status(500).json({ message: "Failed to update company" });
+    }
+  });
+
   // Job creation endpoint
   app.post('/api/jobs', isAuthenticated, async (req: any, res) => {
     try {
