@@ -414,12 +414,26 @@ export const storage = {
 
       const applicationCountMap = new Map(applicationCounts.map(a => [a.jobId, a.count]));
       
+      // Get job seeker counts by category (for categoryMatchedApplicants)
+      const categoryApplicantCounts = await db
+        .select({
+          categoryId: users.categoryId,
+          count: sql<number>`cast(count(*) as int)`
+        })
+        .from(users)
+        .where(eq(users.userType, 'job_seeker'))
+        .groupBy(users.categoryId);
+
+      const categoryApplicantMap = new Map(categoryApplicantCounts.map(c => [c.categoryId, c.count]));
+      
       console.log('🔍 Application counts:', applicationCounts.slice(0, 5));
       console.log('🔍 Total jobs with applications:', applicationCounts.length);
+      console.log('🔍 Category applicant counts:', categoryApplicantCounts.slice(0, 5));
       
       return adminJobsResults.map(job => {
         const realApplicants = applicationCountMap.get(job.id) || 0;
-        console.log(`🔍 Job ${job.id} (${job.title}) - Real applications: ${realApplicants}`);
+        const categoryMatchedApplicants = categoryApplicantMap.get(job.categoryId!) || 0;
+        console.log(`🔍 Job ${job.id} (${job.title}) - Real applications: ${realApplicants}, Category applicants: ${categoryMatchedApplicants}`);
         
         return {
         id: job.id,
@@ -453,7 +467,7 @@ export const storage = {
           name: job.categoryName || "General"
         },
         applicationCount: realApplicants,
-        categoryMatchedApplicants: realApplicants
+        categoryMatchedApplicants: categoryMatchedApplicants
       };
     });
     } catch (error) {
