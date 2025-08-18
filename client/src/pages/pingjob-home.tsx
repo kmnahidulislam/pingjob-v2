@@ -956,7 +956,7 @@ export default function PingJobHome() {
                               {job.title}
                             </CardTitle>
                             {job.company?.name && (
-                              <span className="bg-blue-500 text-white px-3 py-1 rounded text-sm font-medium flex-shrink-0">
+                              <span className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-semibold flex-shrink-0 shadow-sm">
                                 {job.company.name}
                               </span>
                             )}
