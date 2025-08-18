@@ -948,14 +948,14 @@ export default function PingJobHome() {
                           </div>
                         )}
                         
-                        {/* Job Title and Vendor on same line with highlighting */}
+                        {/* Job Title with Vendor in right corner */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <CardTitle className="text-lg font-semibold text-gray-800 flex-1 line-clamp-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <CardTitle className="text-lg font-semibold text-gray-800 flex-1 line-clamp-2 pr-3">
                               {job.title}
                             </CardTitle>
                             {job.company?.name && (
-                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm">
+                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm flex-shrink-0">
                                 {job.company.name}
                               </span>
                             )}
