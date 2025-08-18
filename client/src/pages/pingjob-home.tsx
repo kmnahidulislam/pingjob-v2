@@ -920,9 +920,18 @@ export default function PingJobHome() {
               <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {currentJobs.map((job: any, index: number) => (
                   <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
-                    <CardHeader className="pb-4">
-                      {/* Company Logo - Bigger */}
-                      <div className="flex items-start space-x-4 mb-4">
+                    <CardHeader className="pb-4 relative">
+                      {/* Vendor badge in absolute top-right corner */}
+                      {job.company?.name && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm">
+                            {job.company.name}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Company Logo and Job Title */}
+                      <div className="flex items-start space-x-4 mb-4 pr-20">
                         {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                           <div className="w-24 h-20 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0 relative">
                             <img 
@@ -948,18 +957,11 @@ export default function PingJobHome() {
                           </div>
                         )}
                         
-                        {/* Job Title with Vendor in right corner */}
+                        {/* Job Title */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <CardTitle className="text-lg font-semibold text-gray-800 flex-1 line-clamp-2 pr-3">
-                              {job.title}
-                            </CardTitle>
-                            {job.company?.name && (
-                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm flex-shrink-0">
-                                {job.company.name}
-                              </span>
-                            )}
-                          </div>
+                          <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2 mb-2">
+                            {job.title}
+                          </CardTitle>
                           {formatJobLocation(job) && (
                             <div className="flex items-center text-sm text-blue-600 font-medium">
                               <MapPin className="h-4 w-4 mr-1" />
