@@ -316,8 +316,8 @@ export default function PublicHome() {
                     <Card key={job.id} className="hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-start">
-                          {/* Company Logo - Back to original size */}
-                          <div className="w-14 h-14 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-3">
+                          {/* Company Logo - Bigger as requested */}
+                          <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-4">
                             {job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL' ? (
                               <img 
                                 src={job.company.logoUrl.startsWith('http') ? job.company.logoUrl : `/${job.company.logoUrl}`} 
@@ -365,10 +365,17 @@ export default function PublicHome() {
                         
                         {/* Everything below company/location starts from left edge */}
                         <div>
-                          {/* Job Title */}
-                          <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                            {job.title}
-                          </h3>
+                          {/* Job Title with Blue Vendor Badge */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-sm font-semibold text-gray-900">
+                              {job.title}
+                            </h3>
+                            {job.vendorCount && job.vendorCount > 0 && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-600 text-white">
+                                Vendor({job.vendorCount})
+                              </span>
+                            )}
+                          </div>
                           
                           {/* Description - 5 lines */}
                           <p className="text-xs text-gray-700 mb-2 leading-relaxed" style={{
@@ -380,17 +387,11 @@ export default function PublicHome() {
                             {job.description}
                           </p>
                           
-                          {/* Vendor Count and Date */}
-                          <div className="flex gap-2 text-xs text-gray-500 mb-3">
-                            {job.vendorCount && job.vendorCount > 0 && (
-                              <>
-                                <span>Vendor({job.vendorCount})</span>
-                                <span>•</span>
-                              </>
-                            )}
-                            <span>{job.categoryMatchedApplicants || '0'} Applicants</span>
-                            <span>•</span>
-                            <span>{new Date(job.postedAt).toLocaleDateString()}</span>
+                          {/* Applicant Count and Date - Bold as requested */}
+                          <div className="flex gap-2 text-xs mb-3">
+                            <span className="font-bold text-gray-800">{job.categoryMatchedApplicants || '0'} Applicants</span>
+                            <span className="text-gray-500">•</span>
+                            <span className="font-bold text-gray-800">{new Date(job.postedAt).toLocaleDateString()}</span>
                           </div>
                           
                           {/* Action Buttons - Smaller */}
