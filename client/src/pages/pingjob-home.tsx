@@ -921,57 +921,52 @@ export default function PingJobHome() {
                 {currentJobs.map((job: any, index: number) => (
                   <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
                     <CardHeader className="pb-4">
-                      {/* Company Header with Logo */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
-                            <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0 relative">
-                              <img 
-                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                                alt={job.company.name}
-                                className="w-full h-full object-contain p-2"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = 'flex';
-                                }}
-                              />
-                              <div 
-                                className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg"
-                                style={{display: 'none'}}
-                              >
-                                {(job.company?.name || 'C').charAt(0).toUpperCase()}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-20 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
+                      {/* Company Logo - Bigger */}
+                      <div className="flex items-start space-x-4 mb-4">
+                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                          <div className="w-24 h-20 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0 relative">
+                            <img 
+                              src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                              alt={job.company.name}
+                              className="w-full h-full object-contain p-2"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                            />
+                            <div 
+                              className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl"
+                              style={{display: 'none'}}
+                            >
                               {(job.company?.name || 'C').charAt(0).toUpperCase()}
                             </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="text-xl font-bold text-gray-900 mb-1 line-clamp-1">
-                              {job.company?.name || 'Company Name'}
-                            </div>
-                            {job.company?.vendorCount && job.company.vendorCount > 0 && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
-                                {job.company.vendorCount} vendors
+                          </div>
+                        ) : (
+                          <div className="w-24 h-20 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-2xl rounded-lg shadow-sm flex-shrink-0">
+                            {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        
+                        {/* Job Title and Vendor on same line with highlighting */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <CardTitle className="text-lg font-semibold text-gray-800 flex-1 line-clamp-1">
+                              {job.title}
+                            </CardTitle>
+                            {job.company?.name && (
+                              <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm">
+                                {job.company.name}
                               </span>
                             )}
                           </div>
+                          {formatJobLocation(job) && (
+                            <div className="flex items-center text-sm text-blue-600 font-medium">
+                              <MapPin className="h-4 w-4 mr-1" />
+                              <span>{formatJobLocation(job)}</span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-
-                      {/* Job Title */}
-                      <div className="mb-3">
-                        <CardTitle className="text-lg font-semibold line-clamp-2 text-gray-800">
-                          {job.title}
-                        </CardTitle>
-                        {formatJobLocation(job) && (
-                          <div className="flex items-center text-sm text-blue-600 font-medium mt-1">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>{formatJobLocation(job)}</span>
-                          </div>
-                        )}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -993,12 +988,12 @@ export default function PingJobHome() {
                           )}
                           <div className="flex items-center">
                             <Users className="h-3 w-3 mr-1" />
-                            <span>{job.applicantCount || 0} applicants</span>
+                            <span className="font-bold text-gray-700">{job.applicantCount || 0} applicants</span>
                           </div>
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span>{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted")}</span>
+                          <span className="font-bold text-gray-700">{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "Recently posted")}</span>
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
