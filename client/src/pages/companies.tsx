@@ -1195,7 +1195,6 @@ export default function CompaniesPage() {
                     value={editingCompany.city || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, city: e.target.value})}
                     placeholder="Enter city name"
-                    disabled={!editingCompany.state}
                   />
                 </div>
                 <div>
@@ -1206,7 +1205,6 @@ export default function CompaniesPage() {
                     value={editingCompany.zipCode || editingCompany.zip_code || ''}
                     onChange={(e) => setEditingCompany({...editingCompany, zipCode: e.target.value})}
                     placeholder="Enter zip/postal code"
-                    disabled={!editingCompany.city}
                   />
                 </div>
               </div>
