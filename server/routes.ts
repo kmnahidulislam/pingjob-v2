@@ -242,7 +242,9 @@ export function registerRoutes(app: Express) {
 
   app.get('/api/admin-jobs', async (req, res) => {
     try {
-      const jobs = await storage.getAdminJobs();
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      const jobs = await storage.getAdminJobs(limit, offset);
       res.json(jobs);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch jobs" });

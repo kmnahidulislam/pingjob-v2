@@ -343,10 +343,10 @@ export const storage = {
     }
   },
 
-  async getAdminJobs() {
+  async getAdminJobs(limit?: number, offset?: number) {
     try {
       // First get the jobs with company and category data
-      const adminJobsResults = await db
+      let query = db
         .select({
           id: jobs.id,
           title: jobs.title,
@@ -374,6 +374,16 @@ export const storage = {
         .leftJoin(companies, eq(jobs.companyId, companies.id))
         .leftJoin(categories, eq(jobs.categoryId, categories.id))
         .orderBy(desc(jobs.createdAt));
+
+      // Apply pagination if provided
+      if (limit) {
+        query = query.limit(limit);
+      }
+      if (offset) {
+        query = query.offset(offset);
+      }
+
+      const adminJobsResults = await query;
 
       // Get vendor counts for each company
       const vendorCounts = await db
