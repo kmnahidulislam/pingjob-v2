@@ -183,11 +183,25 @@ export default function JobDetailsSimple() {
               {job.location || 'Location not specified'}
             </p>
             <div className="prose max-w-none">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Job Description</h3>
               <div 
                 dangerouslySetInnerHTML={{ 
                   __html: job.description || 'No description available' 
                 }} 
+                className="mb-6"
               />
+              
+              {job.requirements && (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Requirements</h3>
+                  <div 
+                    dangerouslySetInnerHTML={{ 
+                      __html: job.requirements 
+                    }} 
+                    className="mb-6"
+                  />
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
