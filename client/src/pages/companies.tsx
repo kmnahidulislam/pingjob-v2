@@ -722,8 +722,11 @@ export default function CompaniesPage() {
   // Company edit mutation
   const companyEditMutation = useMutation({
     mutationFn: async (companyData: any) => {
+      console.log('Company edit mutation received data:', companyData);
+      
       // If there's a logo file, use FormData for file upload
       if (companyData.logoFile) {
+        console.log('Using FormData for file upload');
         const formData = new FormData();
         formData.append('logo', companyData.logoFile);
         
@@ -745,8 +748,17 @@ export default function CompaniesPage() {
         
         return response.json();
       } else {
+        console.log('Using JSON for regular update');
+        // Create a clean copy without undefined values
+        const cleanData = Object.fromEntries(
+          Object.entries(companyData).filter(([key, value]) => 
+            value !== undefined && value !== null && value !== ''
+          )
+        );
+        console.log('Clean data to send:', cleanData);
+        
         // Regular JSON update without file upload
-        const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
+        const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, cleanData);
         return response.json();
       }
     },
