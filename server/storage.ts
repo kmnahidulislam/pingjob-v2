@@ -945,6 +945,32 @@ export const storage = {
     }
   },
 
+  // Update an existing job
+  async updateJob(jobId: number, jobData: any) {
+    try {
+      console.log('Updating job:', jobId, 'with data:', jobData);
+      
+      // Filter out undefined/null values
+      const cleanData = Object.fromEntries(
+        Object.entries(jobData).filter(([key, value]) => 
+          value !== undefined && value !== null
+        )
+      );
+
+      const [updatedJob] = await db
+        .update(jobs)
+        .set(cleanData)
+        .where(eq(jobs.id, jobId))
+        .returning();
+      
+      console.log('✅ Updated job:', jobId);
+      return updatedJob;
+    } catch (error) {
+      console.error('Error updating job:', error);
+      throw error;
+    }
+  },
+
   // Create a new job
   async createJob(jobData: any) {
     try {

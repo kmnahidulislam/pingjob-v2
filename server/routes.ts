@@ -991,6 +991,71 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Job update endpoint
+  app.put('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      
+      if (isNaN(jobId)) {
+        return res.status(400).json({ message: 'Invalid job ID' });
+      }
+
+      // Check if job exists
+      const existingJob = await storage.getJobById(jobId);
+      if (!existingJob) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+
+      // Update job
+      const updatedJob = await storage.updateJob(jobId, req.body);
+      
+      // Post to social media after successful job update
+      if (socialMediaPoster && socialMediaPoster.isConfigured()) {
+        try {
+          console.log('📱 Posting updated job to social media platforms...');
+          
+          // Get company name for social media post
+          let companyName = 'Company';
+          if (updatedJob.companyId) {
+            try {
+              const company = await storage.getCompanyById(updatedJob.companyId);
+              companyName = company?.name || 'Company';
+            } catch (error) {
+              console.error('⚠️ Failed to fetch company for social media post:', error);
+            }
+          }
+          
+          const socialMediaJob = {
+            id: updatedJob.id,
+            title: updatedJob.title || 'Updated Job Opportunity',
+            company: companyName,
+            location: updatedJob.location || 'Remote',
+            description: updatedJob.description || '',
+            employmentType: updatedJob.employmentType || 'full_time',
+            experienceLevel: updatedJob.experienceLevel || 'Mid-level',
+            salary: updatedJob.salary
+          };
+          
+          const results = await socialMediaPoster.postJobToAllPlatforms(socialMediaJob);
+          console.log('📱 Social media posting results for updated job:', results);
+        } catch (error) {
+          console.error('⚠️ Social media posting failed for updated job:', error);
+          // Don't fail the job update if social media posting fails
+        }
+      } else {
+        console.log('📱 Social media posting skipped - integration not available');
+      }
+      
+      res.json({
+        id: updatedJob.id,
+        message: 'Job updated successfully'
+      });
+    } catch (error) {
+      console.error("Error updating job:", error);
+      res.status(500).json({ message: "Failed to update job" });
+    }
+  });
+
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');
     console.log('Session before destroy:', !!req.session?.user);
