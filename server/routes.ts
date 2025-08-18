@@ -6,6 +6,7 @@ import fs from "fs";
 import { storage } from "./storage";
 // insertJobApplicationSchema import removed - using direct object creation
 import { cleanPool as pool } from "./clean-neon";
+import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
   console.log('🔒 Auth check - Session exists:', !!req.session);
@@ -54,7 +55,21 @@ const upload = multer({
   }
 });
 
+// Initialize social media poster
+let socialMediaPoster: SocialMediaPoster | null = null;
+
 export function registerRoutes(app: Express) {
+  // Initialize social media integration
+  initializeSocialMediaPoster(pool).then(poster => {
+    socialMediaPoster = poster;
+    if (poster) {
+      console.log('✅ Social media integration initialized successfully');
+    } else {
+      console.log('⚠️ Social media integration disabled - missing credentials');
+    }
+  }).catch(error => {
+    console.error('❌ Failed to initialize social media integration:', error);
+  });
   
   // Login endpoint
   app.post('/api/login', async (req, res) => {
@@ -880,6 +895,32 @@ export function registerRoutes(app: Express) {
       const job = await storage.createJob(jobData);
       
       console.log('Job created successfully:', job.id);
+      
+      // Post to social media platforms if integration is available
+      if (socialMediaPoster) {
+        try {
+          console.log('📱 Attempting to post job to social media platforms...');
+          const socialMediaJob = {
+            id: job.id,
+            title: job.title || 'New Job Opportunity',
+            company: job.company?.name || 'Company',
+            location: job.location || 'Remote',
+            description: job.description || '',
+            employmentType: job.employmentType || 'full_time',
+            experienceLevel: 'Mid-level', // Default since this field might not exist
+            salary: job.salary
+          };
+          
+          const results = await socialMediaPoster.postJobToAllPlatforms(socialMediaJob);
+          console.log('📱 Social media posting results:', results);
+        } catch (error) {
+          console.error('⚠️ Social media posting failed:', error);
+          // Don't fail the job creation if social media posting fails
+        }
+      } else {
+        console.log('📱 Social media posting skipped - integration not available');
+      }
+      
       res.json({
         id: job.id,
         message: 'Job created successfully'
