@@ -919,16 +919,16 @@ export default function PingJobHome() {
             {currentJobs.length > 0 ? (
               <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {currentJobs.map((job: any, index: number) => (
-                  <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
-                    <CardHeader className="pb-4 relative">
-                      {/* Vendor badge in absolute top-right corner */}
-                      {job.company?.name && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold border border-yellow-300 shadow-sm">
-                            {job.company.name}
-                          </span>
-                        </div>
-                      )}
+                  <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300 relative">
+                    {/* Vendor badge in absolute top-right corner of entire card */}
+                    {job.company?.name && (
+                      <div className="absolute top-3 right-3 z-20">
+                        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold border border-yellow-300 shadow-sm">
+                          {job.company.name}
+                        </span>
+                      </div>
+                    )}
+                    <CardHeader className="pb-4">
                       
                       {/* Company Logo and Job Title */}
                       <div className="flex items-start space-x-4 mb-4 pr-20">
