@@ -900,14 +900,26 @@ export function registerRoutes(app: Express) {
       if (socialMediaPoster) {
         try {
           console.log('📱 Attempting to post job to social media platforms...');
+          
+          // Get company information for the job
+          let companyName = 'Company';
+          if (job.companyId) {
+            try {
+              const company = await storage.getCompanyById(job.companyId);
+              companyName = company?.name || 'Company';
+            } catch (error) {
+              console.error('⚠️ Failed to fetch company for social media post:', error);
+            }
+          }
+          
           const socialMediaJob = {
             id: job.id,
             title: job.title || 'New Job Opportunity',
-            company: job.company?.name || 'Company',
+            company: companyName,
             location: job.location || 'Remote',
             description: job.description || '',
             employmentType: job.employmentType || 'full_time',
-            experienceLevel: 'Mid-level', // Default since this field might not exist
+            experienceLevel: job.experienceLevel || 'Mid-level',
             salary: job.salary
           };
           
