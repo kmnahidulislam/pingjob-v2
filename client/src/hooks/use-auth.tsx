@@ -62,7 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Update auth state immediately
       queryClient.setQueryData(["/api/user"], user);
       
-      // Check for intended job redirect
+      // Check for post-auth redirect
+      const postAuthRedirect = localStorage.getItem('postAuthRedirect');
+      if (postAuthRedirect) {
+        localStorage.removeItem('postAuthRedirect');
+        if (import.meta.env.DEV) console.log('🔐 Navigating to stored redirect:', postAuthRedirect);
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          window.location.href = postAuthRedirect;
+        }, 100);
+        return;
+      }
+      
+      // Fallback: Check for legacy intended job redirect
       const intendedJobId = localStorage.getItem('intendedJobId');
       if (intendedJobId) {
         localStorage.removeItem('intendedJobId');

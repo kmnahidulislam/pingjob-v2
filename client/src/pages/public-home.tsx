@@ -408,7 +408,9 @@ export default function PublicHome() {
                                 e.preventDefault();
                                 console.log('Apply Now clicked, user:', user);
                                 if (!user) {
-                                  console.log('Redirecting to auth...');
+                                  console.log('Storing job ID for post-auth redirect:', job.id);
+                                  // Store the job ID for post-authentication redirect
+                                  localStorage.setItem('postAuthRedirect', `/jobs/${job.id}`);
                                   window.location.href = '/auth';
                                 } else {
                                   // Handle application logic for authenticated users

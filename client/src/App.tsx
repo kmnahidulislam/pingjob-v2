@@ -82,7 +82,14 @@ function Router() {
     if (location.startsWith('/api/')) {
       navigate('/');
     } else if (user && location === '/auth') {
-      navigate('/dashboard');
+      // Check for stored redirect before going to dashboard
+      const postAuthRedirect = localStorage.getItem('postAuthRedirect');
+      if (postAuthRedirect) {
+        localStorage.removeItem('postAuthRedirect');
+        navigate(postAuthRedirect);
+      } else {
+        navigate('/dashboard');
+      }
     }
   }, [location, user, navigate]);
 
