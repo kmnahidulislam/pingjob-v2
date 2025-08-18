@@ -890,14 +890,34 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: 'Invalid company ID' });
       }
 
+      console.log('Company update request body:', req.body);
+
+      // Check if body has any fields to update
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: 'No update data provided' });
+      }
+
       // Check if company exists
       const existingCompany = await storage.getCompanyById(companyId);
       if (!existingCompany) {
         return res.status(404).json({ message: 'Company not found' });
       }
 
+      // Filter out null, undefined, and empty string values
+      const updateData = Object.fromEntries(
+        Object.entries(req.body).filter(([key, value]) => 
+          value !== null && value !== undefined && value !== ''
+        )
+      );
+
+      console.log('Filtered update data:', updateData);
+
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ message: 'No valid update data provided' });
+      }
+
       // Update company
-      const updatedCompany = await storage.updateCompany(companyId, req.body);
+      const updatedCompany = await storage.updateCompany(companyId, updateData);
       
       res.json({
         id: updatedCompany.id,

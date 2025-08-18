@@ -804,6 +804,7 @@ export default function CompaniesPage() {
   };
 
   const handleEditCompany = (company: any) => {
+    console.log('Setting editing company:', company);
     setEditingCompany(company);
     setCompanyEditOpen(true);
   };
@@ -1241,7 +1242,14 @@ export default function CompaniesPage() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => companyEditMutation.mutate(editingCompany)}
+                  onClick={() => {
+                    console.log('Attempting to save company with data:', editingCompany);
+                    if (editingCompany && Object.keys(editingCompany).length > 0) {
+                      companyEditMutation.mutate(editingCompany);
+                    } else {
+                      console.error('No editing company data to save');
+                    }
+                  }}
                   disabled={companyEditMutation.isPending}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
