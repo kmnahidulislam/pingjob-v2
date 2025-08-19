@@ -26,6 +26,7 @@ import NetworkPage from "@/pages/network-page";
 import Messaging from "@/pages/messaging";
 import Companies from "@/pages/companies";
 import CompanyCreate from "@/pages/company-create";
+import CompanyDetails from "@/pages/company-details";
 import Dashboard from "@/pages/dashboard";
 import JobDetails from "@/pages/job-details";
 import JobDetailsSimple from "@/pages/job-details-simple";
@@ -156,6 +157,7 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
+          <Route path="/companies/:id" component={CompanyDetails} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={JobsOriginal} />
           <Route path="/test-minimal" component={TestMinimal} />
@@ -186,6 +188,7 @@ function Router() {
           <Route path="/jobs" component={JobsOriginal} />
           <Route path="/company/create" component={CompanyCreate} />
           <Route path="/companies/create" component={CompanyCreate} />
+          <Route path="/companies/:id" component={CompanyDetails} />
           <Route path="/companies" component={Companies} />
           <Route path="/profile/:id?" component={Profile} />
           <Route path="/applications" component={Applications} />
