@@ -708,6 +708,56 @@ export const storage = {
     }
   },
 
+  async searchJobs(query: string, limit: number = 50) {
+    try {
+      console.log('🔍 Searching jobs for query:', query);
+      
+      const searchResults = await db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          city: jobs.city,
+          state: jobs.state,
+          zipCode: jobs.zipCode,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          updatedAt: jobs.updatedAt
+        })
+        .from(jobs)
+        .where(
+          and(
+            eq(jobs.isActive, true),
+            or(
+              ilike(jobs.title, `%${query}%`),
+              ilike(jobs.description, `%${query}%`),
+              ilike(jobs.location, `%${query}%`),
+              ilike(jobs.city, `%${query}%`),
+              ilike(jobs.state, `%${query}%`),
+              ilike(jobs.zipCode, `%${query}%`),
+              ilike(jobs.requirements, `%${query}%`)
+            )
+          )
+        )
+        .orderBy(desc(jobs.createdAt))
+        .limit(limit);
+
+      console.log(`🔍 Found ${searchResults.length} jobs for query "${query}"`);
+      
+      return searchResults;
+    } catch (error) {
+      console.error('Error searching jobs:', error);
+      return [];
+    }
+  },
+
   // Manual assignment functions
 
   async getManualAssignments() {

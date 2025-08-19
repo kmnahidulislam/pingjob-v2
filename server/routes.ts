@@ -754,9 +754,10 @@ export function registerRoutes(app: Express) {
       // Search companies
       const companies = await storage.searchCompanies(query, 20);
       
-      // For now, return companies only since that's what's needed
-      // Jobs search can be added later if needed
-      res.json({ companies, jobs: [] });
+      // Search jobs by location (zip code, city, state)
+      const jobs = await storage.searchJobs(query, 20);
+      
+      res.json({ companies, jobs });
       
     } catch (error) {
       console.error('Error in search endpoint:', error);

@@ -292,7 +292,7 @@ export default function PingJobHome() {
       try {
         // Search both jobs and companies
         const [jobsResponse, companiesResponse] = await Promise.all([
-          fetch(`/api/search?query=${encodeURIComponent(searchQuery)}&limit=20`),
+          fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&limit=20`),
           fetch(`/api/companies/search?query=${encodeURIComponent(searchQuery)}&limit=20`)
         ]);
         
