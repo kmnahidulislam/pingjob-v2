@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
-import PublicHome from "./public-home";
+import PingJobHome from "@/pages/pingjob-home";
 // AdBanner removed to prevent development errors
 
 export default function Home() {
@@ -126,7 +126,7 @@ export default function Home() {
 
   // Show public home for non-authenticated users
   if (!user) {
-    return <PublicHome />;
+    return <PingJobHome />;
   }
 
   return (
