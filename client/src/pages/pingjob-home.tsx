@@ -1012,21 +1012,7 @@ export default function PingJobHome() {
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                           <Calendar className="h-3 w-3 mr-1" />
-                          <span className="font-bold text-gray-700">
-                            {job.updatedAt ? new Date(job.updatedAt).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            }) : (job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            }) : new Date().toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            }))}
-                          </span>
+                          <span className="font-bold text-gray-700">{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : new Date().toLocaleDateString())}</span>
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
