@@ -462,7 +462,11 @@ export const storage = {
           name: job.companyName || "Unknown Company",
           logoUrl: job.companyLogoUrl,
           website: job.companyWebsite,
-          description: job.companyDescription
+          description: job.companyDescription,
+          city: job.city,
+          state: job.state,
+          zipCode: job.zipCode,
+          vendorCount: vendorCountMap.get(job.companyId!) || 0
         },
         category: {
           id: job.categoryId,

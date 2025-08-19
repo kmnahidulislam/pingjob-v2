@@ -968,14 +968,12 @@ export default function PingJobHome() {
                         )}
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-800 truncate mb-1">
+                          <h3 className="font-semibold text-gray-800 truncate">
                             {job.company?.name || 'Company Name'}
                           </h3>
-                          {(job.company?.city || job.company?.state || job.company?.zipCode) && (
-                            <div className="text-xs text-gray-600 mb-1">
-                              {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ')}
-                            </div>
-                          )}
+                          <div className="text-xs text-gray-600 mb-1">
+                            {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || 'Location not specified'}
+                          </div>
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             {job.company?.vendorCount || 6} vendors
                           </span>
