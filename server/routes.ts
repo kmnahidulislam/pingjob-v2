@@ -1010,7 +1010,7 @@ export function registerRoutes(app: Express) {
       const updatedJob = await storage.updateJob(jobId, req.body);
       
       // Post to social media after successful job update
-      if (socialMediaPoster && socialMediaPoster.isConfigured()) {
+      if (socialMediaPoster) {
         try {
           console.log('📱 Posting updated job to social media platforms...');
           
