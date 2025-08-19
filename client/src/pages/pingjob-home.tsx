@@ -941,13 +941,13 @@ export default function PingJobHome() {
                     <CardHeader className="pb-4">
                       
                       {/* Company Logo and Name */}
-                      <div className="flex items-center space-x-3 mb-4">
+                      <div className="flex items-start space-x-4 mb-4">
                         {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
-                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
+                          <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
                             <img 
                               src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
                               alt={job.company.name}
-                              className="w-full h-full object-contain p-1"
+                              className="w-full h-full object-contain p-2"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -955,23 +955,30 @@ export default function PingJobHome() {
                               }}
                             />
                             <div 
-                              className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg"
+                              className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl"
                               style={{display: 'none'}}
                             >
                               {(job.company?.name || 'C').charAt(0).toUpperCase()}
                             </div>
                           </div>
                         ) : (
-                          <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg rounded-lg shadow-sm flex-shrink-0">
+                          <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
                             {(job.company?.name || 'C').charAt(0).toUpperCase()}
                           </div>
                         )}
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-800 truncate">
+                          <h3 className="font-semibold text-gray-800 truncate mb-1">
                             {job.company?.name || 'Company Name'}
                           </h3>
-                          <span className="text-xs text-gray-500">6 vendors</span>
+                          {(job.company?.city || job.company?.state || job.company?.zipCode) && (
+                            <div className="text-xs text-gray-600 mb-1">
+                              {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ')}
+                            </div>
+                          )}
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {job.company?.vendorCount || 6} vendors
+                          </span>
                         </div>
                       </div>
                       
