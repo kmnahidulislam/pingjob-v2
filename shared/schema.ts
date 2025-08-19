@@ -266,12 +266,10 @@ export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
   companyId: integer("company_id").references(() => companies.id).notNull(),
   name: varchar("name").notNull(),
-  email: varchar("email").notNull(),
+  email: varchar("email"),
   phone: varchar("phone"),
   services: text("services"), // Will store service codes or IDs
   status: varchar("status").default("pending"),
-
-  addedBy: varchar("added_by").references(() => users.id),
   approvedBy: varchar("approved_by"),
   // Vendor-specific address fields
   vendorCity: varchar("vendor_city"),

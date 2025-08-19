@@ -248,8 +248,7 @@ function VendorManagement({ companyId }: { companyId: number }) {
               name="email"
               type="email"
               defaultValue={selectedVendorCompany?.website ? `info@${selectedVendorCompany.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}` : ""}
-              placeholder="Enter vendor email"
-              required
+              placeholder="Enter vendor email (optional)"
             />
           </div>
 
