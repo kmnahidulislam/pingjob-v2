@@ -822,7 +822,7 @@ export default function PingJobHome() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {Array.isArray(categories) && categories.length > 0 ? (
-                  categories.slice(0, 10).map((category: any) => (
+                  categories.slice(0, 20).map((category: any) => (
                     <div key={category.id} className="flex justify-between items-center">
                       <Link 
                         href={`/jobs?category=${category.id}`}
