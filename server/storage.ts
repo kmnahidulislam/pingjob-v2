@@ -321,6 +321,7 @@ export const storage = {
         isActive: job.isActive,
         postedAt: job.createdAt,
         createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
         companyId: job.companyId,
         categoryId: job.categoryId,
         recruiterId: job.recruiterId,
@@ -358,6 +359,7 @@ export const storage = {
           benefits: jobs.benefits,
           isActive: jobs.isActive,
           createdAt: jobs.createdAt,
+          updatedAt: jobs.updatedAt,
           companyId: jobs.companyId,
           categoryId: jobs.categoryId,
           recruiterId: jobs.recruiterId,
@@ -373,14 +375,14 @@ export const storage = {
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
         .leftJoin(categories, eq(jobs.categoryId, categories.id))
-        .orderBy(desc(jobs.createdAt));
+        .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt));
 
       // Apply pagination if provided
       if (limit) {
-        query = query.limit(limit);
+        query = query.limit(limit) as any;
       }
       if (offset) {
-        query = query.offset(offset);
+        query = query.offset(offset) as any;
       }
 
       const adminJobsResults = await query;
@@ -909,7 +911,7 @@ export const storage = {
         })
         .from(jobs)
         .where(and(eq(jobs.companyId, companyId), eq(jobs.isActive, true)))
-        .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt));
+        .orderBy(desc(jobs.createdAt));
 
       console.log(`✅ Found ${result.length} active jobs for company ${companyId}`);
       return result;
@@ -963,6 +965,9 @@ export const storage = {
           value !== undefined && value !== null
         )
       );
+
+      // Always set updatedAt to current timestamp
+      cleanData.updatedAt = new Date();
 
       const [updatedJob] = await db
         .update(jobs)
