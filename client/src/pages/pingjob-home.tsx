@@ -820,8 +820,26 @@ export default function PingJobHome() {
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
               </CardHeader>
-              <CardContent>
-                <JobCategories limit={10} />
+              <CardContent className="space-y-3">
+                {Array.isArray(categories) && categories.length > 0 ? (
+                  categories.slice(0, 10).map((category: any) => (
+                    <div key={category.id} className="flex justify-between items-center">
+                      <Link 
+                        href={`/jobs?category=${category.id}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        {category.name}
+                      </Link>
+                      <span className="text-gray-500 text-xs">
+                        {category.jobCount || '0'} jobs
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-gray-500 text-sm">
+                    Unable to load job categories
+                  </div>
+                )}
               </CardContent>
             </Card>
 
