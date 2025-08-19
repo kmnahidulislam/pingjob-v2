@@ -270,7 +270,7 @@ export const vendors = pgTable("vendors", {
   phone: varchar("phone"),
   services: text("services"), // Will store service codes or IDs
   status: varchar("status").default("pending"),
-  createdBy: varchar("created_by"),
+
   addedBy: varchar("added_by").references(() => users.id),
   approvedBy: varchar("approved_by"),
   // Vendor-specific address fields

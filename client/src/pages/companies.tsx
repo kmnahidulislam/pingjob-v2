@@ -618,35 +618,48 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
               {companyDetails?.vendors && companyDetails.vendors.length > 0 ? (
                 <div className="space-y-4">
                   {companyDetails.vendors.map((vendor: any) => (
-                    <Card key={vendor.vendor_id}>
+                    <Card key={vendor.id}>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h4 className="font-semibold">{vendor.vendor_name}</h4>
-                            <p className="text-sm text-gray-600">{vendor.service_name}</p>
+                            <h4 className="font-semibold">{vendor.name}</h4>
+                            <p className="text-sm text-gray-600">{vendor.services || 'Services not specified'}</p>
                             <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
-                              {vendor.city && vendor.state && (
+                              {vendor.vendorCity && vendor.vendorState && (
                                 <div className="flex items-center gap-1">
                                   <MapPin className="h-4 w-4" />
-                                  {vendor.city}, {vendor.state} {vendor.zip_code}
+                                  {vendor.vendorCity}, {vendor.vendorState} {vendor.vendorZipCode}
                                 </div>
                               )}
-                              {vendor.website && (
+                              {vendor.email && (
                                 <div className="flex items-center gap-1">
-                                  <Globe className="h-4 w-4" />
+                                  <Mail className="h-4 w-4" />
                                   <a 
-                                    href={vendor.website.startsWith('http') ? vendor.website : `https://${vendor.website}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    href={`mailto:${vendor.email}`}
                                     className="text-linkedin-blue hover:underline"
                                   >
-                                    {vendor.website}
+                                    {vendor.email}
+                                  </a>
+                                </div>
+                              )}
+                              {vendor.phone && (
+                                <div className="flex items-center gap-1">
+                                  <Phone className="h-4 w-4" />
+                                  <a 
+                                    href={`tel:${vendor.phone}`}
+                                    className="text-linkedin-blue hover:underline"
+                                  >
+                                    {vendor.phone}
                                   </a>
                                 </div>
                               )}
                             </div>
                           </div>
-
+                          <div className="text-right">
+                            <Badge variant={vendor.status === 'approved' ? 'default' : 'secondary'}>
+                              {vendor.status}
+                            </Badge>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
