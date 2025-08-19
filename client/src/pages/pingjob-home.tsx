@@ -975,7 +975,7 @@ export default function PingJobHome() {
                             {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || 'Location not specified'}
                           </div>
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {job.company?.vendorCount || 6} vendors
+                            {job.company?.vendorCount || 0} vendors
                           </span>
                         </div>
                       </div>
