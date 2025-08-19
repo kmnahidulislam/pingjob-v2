@@ -991,20 +991,14 @@ export default function PingJobHome() {
                         {job.description}
                       </p>
                       
-                      {/* Location */}
-                      {formatJobLocation(job) && (
-                        <div className="flex items-center text-sm text-blue-600 font-medium mb-4">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          <span>{formatJobLocation(job)}</span>
-                        </div>
-                      )}
+
                       
                       {/* Job Stats */}
                       <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center">
                             <Users className="h-3 w-3 mr-1" />
-                            <span>{job.applicantCount || 0} applicants</span>
+                            <span>{job.applicationCount || 0} applicants</span>
                           </div>
                           <div className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
