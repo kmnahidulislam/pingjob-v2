@@ -245,10 +245,10 @@ export default function PingJobHome() {
 
   // Calculate real-time statistics
   const jobStats = {
-    totalJobs: platformStats?.activeJobs || 12,
+    totalJobs: platformStats?.totalJobs || jobs.length,
     activeCompanies: platformStats?.totalCompanies || 76806,
     totalCategories: categories.length,
-    todayJobs: Math.floor((platformStats?.activeJobs || 12) * 0.15)
+    todayJobs: platformStats?.todayJobs || Math.floor(jobs.length * 0.08)
   };
 
   // Featured job rotation - reduced frequency to prevent rate limiting
