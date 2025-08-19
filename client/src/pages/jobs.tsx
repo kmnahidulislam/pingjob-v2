@@ -179,7 +179,7 @@ export default function Jobs() {
       <div className="absolute top-4 left-4 z-10">
         <Link href="/">
           <img 
-            src="/logos/pingjob-logo.svg" 
+            src={logoPath} 
             alt="PingJob Logo" 
             className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
           />
