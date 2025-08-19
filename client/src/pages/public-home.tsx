@@ -24,7 +24,17 @@ export default function PublicHome() {
   // Listen for job updates to refresh the page
   useEffect(() => {
     const handleJobUpdated = () => {
-      console.log('Home page: Received jobUpdated event, refreshing admin jobs...');
+      console.log('🏠 Home page: Received jobUpdated event, refreshing admin jobs...');
+      
+      // Clear all admin-jobs queries from cache
+      queryClient.removeQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === '/api/admin-jobs';
+        }
+      });
+      
+      // Force immediate invalidation and refetch
       queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
       queryClient.refetchQueries({ 
         predicate: (query) => {
@@ -32,6 +42,8 @@ export default function PublicHome() {
           return Array.isArray(key) && key[0] === '/api/admin-jobs';
         }
       });
+      
+      console.log('🏠 Home page: Cache cleared and queries refetched');
     };
 
     window.addEventListener('jobUpdated', handleJobUpdated);
