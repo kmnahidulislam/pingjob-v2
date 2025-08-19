@@ -321,7 +321,7 @@ export const storage = {
         isActive: job.isActive,
         postedAt: job.createdAt,
         createdAt: job.createdAt,
-        updatedAt: job.updatedAt,
+        updatedAt: job.createdAt,
         companyId: job.companyId,
         categoryId: job.categoryId,
         recruiterId: job.recruiterId,
