@@ -998,7 +998,7 @@ export default function PingJobHome() {
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center">
                             <Users className="h-3 w-3 mr-1" />
-                            <span>{job.applicationCount || 0} applicants</span>
+                            <span>{job.applicationCount || job.categoryMatchedApplicants || 0} applicants</span>
                           </div>
                           <div className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
