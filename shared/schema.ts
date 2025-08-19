@@ -277,7 +277,6 @@ export const vendors = pgTable("vendors", {
   vendorZipCode: varchar("vendor_zip_code"),
   vendorAddress: text("vendor_address"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Location tables with hierarchical relationships
