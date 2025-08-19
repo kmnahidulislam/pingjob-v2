@@ -1048,7 +1048,8 @@ export function registerRoutes(app: Express) {
       
       res.json({
         id: updatedJob.id,
-        message: 'Job updated successfully'
+        message: 'Job updated successfully',
+        updatedJob
       });
     } catch (error) {
       console.error("Error updating job:", error);

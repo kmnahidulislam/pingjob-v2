@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,24 @@ import logoPath from "@assets/logo_1749581218265.png";
 
 export default function PublicHome() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Listen for job updates to refresh the page
+  useEffect(() => {
+    const handleJobUpdated = () => {
+      console.log('Home page: Received jobUpdated event, refreshing admin jobs...');
+      queryClient.invalidateQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.refetchQueries({ 
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === '/api/admin-jobs';
+        }
+      });
+    };
+
+    window.addEventListener('jobUpdated', handleJobUpdated);
+    return () => window.removeEventListener('jobUpdated', handleJobUpdated);
+  }, [queryClient]);
   // Fetch job categories
   const { data: categories = [] } = useQuery<any[]>({
     queryKey: ['/api/categories']
@@ -53,7 +71,9 @@ export default function PublicHome() {
       const data = await response.json();
       console.log('PublicHome: Received admin jobs:', data?.length || 0);
       return data;
-    }
+    },
+    staleTime: 0, // Always refetch when component mounts
+    gcTime: 5 * 60 * 1000 // Keep in cache for 5 minutes
   });
 
   // Debug logging
