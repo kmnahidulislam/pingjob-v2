@@ -891,18 +891,25 @@ export const storage = {
           title: jobs.title,
           description: jobs.description,
           location: jobs.location,
+          city: jobs.city,
+          state: jobs.state,
+          zipCode: jobs.zipCode,
+          country: jobs.country,
           salary: jobs.salary,
           employmentType: jobs.employmentType,
+          experienceLevel: jobs.experienceLevel,
+          skills: jobs.skills,
           requirements: jobs.requirements,
           benefits: jobs.benefits,
           isActive: jobs.isActive,
           createdAt: jobs.createdAt,
+          updatedAt: jobs.updatedAt,
           categoryId: jobs.categoryId,
           recruiterId: jobs.recruiterId
         })
         .from(jobs)
         .where(and(eq(jobs.companyId, companyId), eq(jobs.isActive, true)))
-        .orderBy(desc(jobs.createdAt));
+        .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt));
 
       console.log(`✅ Found ${result.length} active jobs for company ${companyId}`);
       return result;

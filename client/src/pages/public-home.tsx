@@ -357,7 +357,10 @@ export default function PublicHome() {
                                 className="w-full h-full object-contain p-1"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
-                                  e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-blue-600 text-white"><svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/></svg></div>`;
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-blue-600 text-white"><svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/></svg></div>`;
+                                  }
                                 }}
                               />
                             ) : (

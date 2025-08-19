@@ -105,18 +105,22 @@ export default function JobEditModal({ job, isOpen, onClose }: JobEditModalProps
 
   // Update location dropdown states when form data changes
   useEffect(() => {
-    if (formData.country && countries) {
+    if (formData.country && countries && countries.length > 0) {
+      console.log('Looking for country:', formData.country, 'in countries:', countries);
       const countryObj = countries.find((c: any) => c.name === formData.country);
       if (countryObj) {
+        console.log('Found country object:', countryObj);
         setSelectedCountryId(countryObj.id);
       }
     }
   }, [formData.country, countries]);
 
   useEffect(() => {
-    if (formData.state && states) {
+    if (formData.state && states && states.length > 0) {
+      console.log('Looking for state:', formData.state, 'in states:', states);
       const stateObj = states.find((s: any) => s.name === formData.state);
       if (stateObj) {
+        console.log('Found state object:', stateObj);
         setSelectedStateId(stateObj.id);
       }
     }
