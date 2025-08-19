@@ -968,7 +968,7 @@ export default function PingJobHome() {
                         )}
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-800 truncate">
+                          <h3 className="font-bold text-lg text-gray-800 truncate">
                             {job.company?.name || 'Company Name'}
                           </h3>
                           <div className="text-xs text-gray-600 mb-1">
