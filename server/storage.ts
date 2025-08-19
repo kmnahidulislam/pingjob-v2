@@ -594,13 +594,18 @@ export const storage = {
     const [jobCount] = await db.select({ count: sql`count(*)` }).from(jobs);
     const [activeJobCount] = await db.select({ count: sql`count(*)` }).from(jobs).where(eq(jobs.isActive, true));
     const [todayJobCount] = await db.select({ count: sql`count(*)` }).from(jobs).where(sql`DATE(created_at) = CURRENT_DATE`);
+    const [todayUpdatedCount] = await db.select({ count: sql`count(*)` }).from(jobs).where(sql`DATE(updated_at) = CURRENT_DATE`);
+    
+    // Start from 200 and add daily additions/edits
+    const dailyActivity = Number(todayJobCount.count) + Number(todayUpdatedCount.count);
+    const todayJobsDisplay = 200 + dailyActivity;
     
     return {
       totalUsers: Number(userCount.count),
       totalCompanies: Number(companyCount.count), 
       totalJobs: Number(activeJobCount.count),
       activeJobs: Number(activeJobCount.count),
-      todayJobs: Number(todayJobCount.count)
+      todayJobs: todayJobsDisplay
     };
   },
 
