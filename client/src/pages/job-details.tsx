@@ -397,6 +397,17 @@ export default function JobDetails() {
               </div>
               
               <div className="flex space-x-2">
+                {/* Apply Now Button - only show for job seekers */}
+                {user?.userType === 'job_seeker' && (
+                  <Button
+                    onClick={handleApply}
+                    className="bg-linkedin-blue hover:bg-linkedin-blue-dark text-white"
+                    size="sm"
+                  >
+                    Apply Now
+                  </Button>
+                )}
+                
                 {/* Admin Edit Button */}
                 {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
                   <Button
