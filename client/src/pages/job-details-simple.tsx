@@ -1,14 +1,34 @@
 import React from "react";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
+  const [, navigate] = useLocation();
+  const { user } = useAuth();
+
+  // Handle apply button click
+  const handleApply = () => {
+    console.log('Apply Now clicked, user:', user);
+    
+    if (!user) {
+      console.log('Redirecting to auth with job redirect...');
+      localStorage.setItem('postAuthRedirect', `/jobs/${id}`);
+      console.log('Stored postAuthRedirect:', `/jobs/${id}`);
+      console.log('Current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
+      navigate('/auth');
+      return;
+    }
+
+    // User is authenticated, redirect to application form
+    navigate(`/applications?job=${id}`);
+  };
 
   const { data: job, isLoading, error } = useQuery({
     queryKey: ['/api/jobs', id],
@@ -155,21 +175,41 @@ export default function JobDetailsSimple() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex-shrink-0 flex items-center">
             <img src={logoPath} alt="PingJob" className="h-10 w-auto" />
           </Link>
+          
+          {/* Apply Now Button in Header */}
+          <Button
+            onClick={handleApply}
+            className="bg-linkedin-blue hover:bg-linkedin-blue-dark text-white"
+            size="sm"
+          >
+            Apply Now
+          </Button>
         </div>
       </header>
 
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
-          <Link href="/">
-            <Button variant="ghost" className="mb-6">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Jobs
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/">
+              <Button variant="ghost">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Jobs
+              </Button>
+            </Link>
+            
+            {/* Large Apply Now Button */}
+            <Button
+              onClick={handleApply}
+              className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
+              size="lg"
+            >
+              Apply Now
             </Button>
-          </Link>
+          </div>
 
           <Card className="mb-6">
           <CardContent className="p-8">
