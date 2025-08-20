@@ -71,9 +71,20 @@ export default function Auth() {
       }
     },
     onSuccess: (user) => {
-      console.log('🔐 Login success callback, user:', user);
+      console.log('🔐 Auth page login success callback, user:', user);
       // Update the query cache immediately
       queryClient.setQueryData(["/api/user"], user);
+      
+      // Check for redirect FIRST
+      const redirectPath = localStorage.getItem('postAuthRedirect');
+      console.log('🔐 Auth page checking for redirect:', redirectPath);
+      
+      if (redirectPath) {
+        console.log('🔐 Auth page found redirect, going to:', redirectPath);
+        localStorage.removeItem('postAuthRedirect');
+        setLocation(redirectPath);
+        return;
+      }
       
       toast({
         title: "Welcome back!",
@@ -81,11 +92,8 @@ export default function Auth() {
       });
       
       // Navigate to dashboard after ensuring state updates
-      console.log('🔐 Navigating to dashboard...');
-      setTimeout(() => {
-        console.log('🔐 Setting location to /dashboard');
-        setLocation('/dashboard');
-      }, 100);
+      console.log('🔐 Auth page no redirect, going to dashboard');
+      setLocation('/dashboard');
     },
     onError: (error: Error) => {
       console.error('🔐 Login error callback:', error.message);
