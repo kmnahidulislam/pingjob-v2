@@ -58,64 +58,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      if (import.meta.env.DEV) console.log('🔐 Login success callback, user:', user);
-      // Update auth state immediately
+      if (import.meta.env.DEV) console.log('🔐 Login success callback executing, user:', user);
+      
+      // Update auth state
       queryClient.setQueryData(["/api/user"], user);
       
-      // Check for post-auth redirect
-      const postAuthRedirect = localStorage.getItem('postAuthRedirect');
-      const pendingJobApplication = localStorage.getItem('pendingJobApplication');
-      const intendedJobId = localStorage.getItem('intendedJobId');
+      // Check for redirect IMMEDIATELY
+      const redirectPath = localStorage.getItem('postAuthRedirect');
+      if (import.meta.env.DEV) console.log('🔐 Checking for redirect:', redirectPath);
       
-      if (import.meta.env.DEV) console.log('🔐 REDIRECT CHECK START');
-      if (import.meta.env.DEV) console.log('🔐 postAuthRedirect found:', postAuthRedirect);
-      if (import.meta.env.DEV) console.log('🔐 pendingJobApplication found:', pendingJobApplication);
-      if (import.meta.env.DEV) console.log('🔐 intendedJobId found:', intendedJobId);
-      if (import.meta.env.DEV) console.log('🔐 ALL localStorage keys:', Object.keys(localStorage));
-      if (import.meta.env.DEV) console.log('🔐 REDIRECT CHECK END');
-      
-      if (postAuthRedirect) {
-        if (import.meta.env.DEV) console.log('🔐 FOUND REDIRECT! Navigating to:', postAuthRedirect);
+      if (redirectPath) {
+        if (import.meta.env.DEV) console.log('🔐 REDIRECT FOUND! Going to:', redirectPath);
         localStorage.removeItem('postAuthRedirect');
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-          if (import.meta.env.DEV) console.log('🔐 Executing redirect to:', postAuthRedirect);
-          window.location.href = postAuthRedirect;
-        }, 100);
+        window.location.href = redirectPath;
         return;
       }
       
-      if (pendingJobApplication) {
-        localStorage.removeItem('pendingJobApplication');
-        if (import.meta.env.DEV) console.log('🔐 Navigating to pending job application:', pendingJobApplication);
-        setTimeout(() => {
-          window.location.href = `/jobs/${pendingJobApplication}`;
-        }, 100);
-        return;
-      }
-      
-      // Fallback: Check for legacy intended job redirect
-      if (intendedJobId) {
-        localStorage.removeItem('intendedJobId');
-        if (import.meta.env.DEV) console.log('🔐 Navigating to intended job:', intendedJobId);
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-          window.location.href = `/jobs/${intendedJobId}`;
-        }, 100);
-        return;
-      }
-      
+      // No redirect, show success message and go to dashboard
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
       
-      // Default redirect to dashboard
-      if (import.meta.env.DEV) console.log('🔐 No intended job, navigating to dashboard...');
-      if (import.meta.env.DEV) console.log('🔐 Setting location to /dashboard');
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 100);
+      if (import.meta.env.DEV) console.log('🔐 No redirect, going to dashboard');
+      window.location.href = '/dashboard';
     },
     onError: (error: Error) => {
       toast({
