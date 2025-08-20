@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (import.meta.env.DEV) console.log('🔐 Navigating to stored redirect:', postAuthRedirect);
         // Use setTimeout to ensure DOM is ready
         setTimeout(() => {
+          if (import.meta.env.DEV) console.log('🔐 Actually redirecting to:', postAuthRedirect);
           window.location.href = postAuthRedirect;
         }, 100);
         return;
