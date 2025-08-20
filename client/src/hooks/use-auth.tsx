@@ -64,12 +64,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Check for post-auth redirect
       const postAuthRedirect = localStorage.getItem('postAuthRedirect');
+      const pendingJobApplication = localStorage.getItem('pendingJobApplication');
+      
+      if (import.meta.env.DEV) console.log('🔐 Checking redirects - postAuthRedirect:', postAuthRedirect, 'pendingJobApplication:', pendingJobApplication);
+      
       if (postAuthRedirect) {
         localStorage.removeItem('postAuthRedirect');
         if (import.meta.env.DEV) console.log('🔐 Navigating to stored redirect:', postAuthRedirect);
         // Use setTimeout to ensure DOM is ready
         setTimeout(() => {
           window.location.href = postAuthRedirect;
+        }, 100);
+        return;
+      }
+      
+      if (pendingJobApplication) {
+        localStorage.removeItem('pendingJobApplication');
+        if (import.meta.env.DEV) console.log('🔐 Navigating to pending job application:', pendingJobApplication);
+        setTimeout(() => {
+          window.location.href = `/jobs/${pendingJobApplication}`;
         }, 100);
         return;
       }
@@ -93,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Default redirect to dashboard
       if (import.meta.env.DEV) console.log('🔐 No intended job, navigating to dashboard...');
+      if (import.meta.env.DEV) console.log('🔐 Setting location to /dashboard');
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 100);
