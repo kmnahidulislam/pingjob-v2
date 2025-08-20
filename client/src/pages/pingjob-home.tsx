@@ -31,7 +31,7 @@ import {
   DollarSign,
   Plus
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
@@ -71,6 +71,7 @@ const formatJobLocation = (job: any) => {
 export default function PingJobHome() {
   const { user, logoutMutation } = useAuth();
   const queryClient = useQueryClient();
+  const [location, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentJobPage, setCurrentJobPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -98,10 +99,11 @@ export default function PingJobHome() {
       localStorage.setItem('postAuthRedirect', redirectPath);
       console.log('Stored postAuthRedirect:', redirectPath);
       console.log('Current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
-      window.location.href = '/auth';
+      // Use router navigation instead of window.location.href to preserve localStorage
+      navigate('/auth');
     } else {
       // User is logged in, go directly to job details page
-      window.location.href = `/jobs/${jobId}`;
+      navigate(`/jobs/${jobId}`);
     }
   };
 

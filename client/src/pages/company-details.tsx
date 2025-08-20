@@ -25,10 +25,13 @@ export default function CompanyDetails() {
   const [, navigate] = useLocation();
 
   const handleApplyNow = (jobId: number) => {
+    console.log('Company page Apply Now clicked, user:', user, 'jobId:', jobId);
     if (!user) {
       // Store the job application intent and redirect to login
-      localStorage.setItem('pendingJobApplication', jobId.toString());
-      localStorage.setItem('postAuthRedirect', `/jobs/${jobId}`);
+      const redirectPath = `/jobs/${jobId}`;
+      localStorage.setItem('postAuthRedirect', redirectPath);
+      console.log('Company page stored postAuthRedirect:', redirectPath);
+      console.log('Company page current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
       navigate('/auth');
       return;
     }
