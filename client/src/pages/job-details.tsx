@@ -397,22 +397,14 @@ export default function JobDetails() {
               </div>
               
               <div className="flex space-x-2">
-                {/* Apply Now Button - only show for job seekers */}
-                {user?.userType === 'job_seeker' && (
-                  <Button
-                    onClick={handleApply}
-                    className="bg-linkedin-blue hover:bg-linkedin-blue-dark text-white"
-                    size="sm"
-                  >
-                    Apply Now
-                  </Button>
-                )}
-                {/* Debug: Show user type */}
-                {import.meta.env.DEV && (
-                  <div className="text-xs text-gray-500">
-                    User: {user?.userType || 'none'}
-                  </div>
-                )}
+                {/* Apply Now Button - always show */}
+                <Button
+                  onClick={handleApply}
+                  className="bg-linkedin-blue hover:bg-linkedin-blue-dark text-white"
+                  size="sm"
+                >
+                  Apply Now
+                </Button>
                 
                 {/* Admin Edit Button */}
                 {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
@@ -464,37 +456,17 @@ export default function JobDetails() {
               </div>
             </div>
 
-            {/* Apply Button - For all users */}
+            {/* Apply Button - Always show large button */}
             <div className="mb-6">
-              {/* Debug info */}
-              {import.meta.env.DEV && (
-                <div className="text-xs text-gray-500 mb-2">
-                  Debug: User type: {user?.userType || 'undefined'}, User ID: {user?.id || 'undefined'}
-                </div>
-              )}
-              {user?.userType === 'job_seeker' ? (
-                <Button
-                  onClick={handleApply}
-                  className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
-                  size="lg"
-                >
-                  Apply Now
-                </Button>
-              ) : (
-                <Link href="/auth">
-                  <Button
-                    className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
-                    size="lg"
-                  >
-                    Apply Now
-                  </Button>
-                </Link>
-              )}
+              <Button
+                onClick={handleApply}
+                className="bg-linkedin-blue text-white hover:bg-linkedin-dark text-lg px-8 py-3"
+                size="lg"
+              >
+                Apply Now
+              </Button>
               <p className="text-sm text-gray-500 mt-2">
-                {user?.userType === 'job_seeker' 
-                  ? "Quick apply with your profile"
-                  : "Sign in to apply for this job"
-                }
+                Quick apply with your profile
               </p>
             </div>
 
