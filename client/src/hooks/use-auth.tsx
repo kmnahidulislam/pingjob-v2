@@ -67,17 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const pendingJobApplication = localStorage.getItem('pendingJobApplication');
       const intendedJobId = localStorage.getItem('intendedJobId');
       
-      if (import.meta.env.DEV) console.log('🔐 Checking for redirects...');
-      if (import.meta.env.DEV) console.log('🔐 postAuthRedirect:', postAuthRedirect);
-      if (import.meta.env.DEV) console.log('🔐 pendingJobApplication:', pendingJobApplication);
-      if (import.meta.env.DEV) console.log('🔐 intendedJobId:', intendedJobId);
+      if (import.meta.env.DEV) console.log('🔐 REDIRECT CHECK START');
+      if (import.meta.env.DEV) console.log('🔐 postAuthRedirect found:', postAuthRedirect);
+      if (import.meta.env.DEV) console.log('🔐 pendingJobApplication found:', pendingJobApplication);
+      if (import.meta.env.DEV) console.log('🔐 intendedJobId found:', intendedJobId);
+      if (import.meta.env.DEV) console.log('🔐 ALL localStorage keys:', Object.keys(localStorage));
+      if (import.meta.env.DEV) console.log('🔐 REDIRECT CHECK END');
       
       if (postAuthRedirect) {
+        if (import.meta.env.DEV) console.log('🔐 FOUND REDIRECT! Navigating to:', postAuthRedirect);
         localStorage.removeItem('postAuthRedirect');
-        if (import.meta.env.DEV) console.log('🔐 Navigating to stored redirect:', postAuthRedirect);
         // Use setTimeout to ensure DOM is ready
         setTimeout(() => {
-          if (import.meta.env.DEV) console.log('🔐 Actually redirecting to:', postAuthRedirect);
+          if (import.meta.env.DEV) console.log('🔐 Executing redirect to:', postAuthRedirect);
           window.location.href = postAuthRedirect;
         }, 100);
         return;
