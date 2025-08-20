@@ -67,13 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const pendingJobApplication = localStorage.getItem('pendingJobApplication');
       const intendedJobId = localStorage.getItem('intendedJobId');
       
-      if (import.meta.env.DEV) console.log('🔐 ALL localStorage values:', {
-        postAuthRedirect,
-        pendingJobApplication,
-        intendedJobId,
-        allKeys: Object.keys(localStorage),
-        allValues: Object.keys(localStorage).map(key => [key, localStorage.getItem(key)])
-      });
+      if (import.meta.env.DEV) console.log('🔐 Checking for redirects...');
+      if (import.meta.env.DEV) console.log('🔐 postAuthRedirect:', postAuthRedirect);
+      if (import.meta.env.DEV) console.log('🔐 pendingJobApplication:', pendingJobApplication);
+      if (import.meta.env.DEV) console.log('🔐 intendedJobId:', intendedJobId);
       
       if (postAuthRedirect) {
         localStorage.removeItem('postAuthRedirect');
