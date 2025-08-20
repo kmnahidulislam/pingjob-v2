@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'wouter';
+import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,17 +22,19 @@ const formatJobLocation = (job: any) => {
 export default function CompanyDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const [, navigate] = useLocation();
 
   const handleApplyNow = (jobId: number) => {
     if (!user) {
       // Store the job application intent and redirect to login
       localStorage.setItem('pendingJobApplication', jobId.toString());
-      window.location.href = '/auth';
+      localStorage.setItem('postAuthRedirect', `/jobs/${jobId}`);
+      navigate('/auth');
       return;
     }
     
     // Navigate to job details page where they can apply
-    window.location.href = `/jobs/${jobId}`;
+    navigate(`/jobs/${jobId}`);
   };
   
   const { data: companyDetails, isLoading } = useQuery({
