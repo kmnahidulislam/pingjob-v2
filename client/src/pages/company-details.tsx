@@ -22,6 +22,18 @@ const formatJobLocation = (job: any) => {
 export default function CompanyDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+
+  const handleApplyNow = (jobId: number) => {
+    if (!user) {
+      // Store the job application intent and redirect to login
+      localStorage.setItem('pendingJobApplication', jobId.toString());
+      window.location.href = '/auth';
+      return;
+    }
+    
+    // Navigate to job details page where they can apply
+    window.location.href = `/jobs/${jobId}`;
+  };
   
   const { data: companyDetails, isLoading } = useQuery({
     queryKey: [`/api/companies/${id}/details`],
@@ -232,8 +244,14 @@ export default function CompanyDetails() {
                               <Button variant="outline" size="sm" asChild>
                                 <Link href={`/jobs/${job.id}`}>View Details</Link>
                               </Button>
-                              <Button size="sm" asChild>
-                                <Link href={`/jobs/${job.id}`}>Apply Now</Link>
+                              <Button 
+                                size="sm" 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleApplyNow(job.id);
+                                }}
+                              >
+                                Apply Now
                               </Button>
                             </div>
                           </div>
