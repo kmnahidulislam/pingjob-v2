@@ -65,8 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Check for post-auth redirect
       const postAuthRedirect = localStorage.getItem('postAuthRedirect');
       const pendingJobApplication = localStorage.getItem('pendingJobApplication');
+      const intendedJobId = localStorage.getItem('intendedJobId');
       
-      if (import.meta.env.DEV) console.log('🔐 Checking redirects - postAuthRedirect:', postAuthRedirect, 'pendingJobApplication:', pendingJobApplication);
+      if (import.meta.env.DEV) console.log('🔐 ALL localStorage values:', {
+        postAuthRedirect,
+        pendingJobApplication,
+        intendedJobId,
+        allKeys: Object.keys(localStorage),
+        allValues: Object.keys(localStorage).map(key => [key, localStorage.getItem(key)])
+      });
       
       if (postAuthRedirect) {
         localStorage.removeItem('postAuthRedirect');
@@ -89,7 +96,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Fallback: Check for legacy intended job redirect
-      const intendedJobId = localStorage.getItem('intendedJobId');
       if (intendedJobId) {
         localStorage.removeItem('intendedJobId');
         if (import.meta.env.DEV) console.log('🔐 Navigating to intended job:', intendedJobId);

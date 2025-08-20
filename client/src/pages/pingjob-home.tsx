@@ -94,7 +94,10 @@ export default function PingJobHome() {
     if (!user) {
       console.log('Redirecting to auth with job redirect...');
       // Store the intended job destination in localStorage
-      localStorage.setItem('postAuthRedirect', `/jobs/${jobId}`);
+      const redirectPath = `/jobs/${jobId}`;
+      localStorage.setItem('postAuthRedirect', redirectPath);
+      console.log('Stored postAuthRedirect:', redirectPath);
+      console.log('Current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
       window.location.href = '/auth';
     } else {
       // User is logged in, go directly to job details page
