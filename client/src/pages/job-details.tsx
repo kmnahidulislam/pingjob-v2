@@ -407,6 +407,12 @@ export default function JobDetails() {
                     Apply Now
                   </Button>
                 )}
+                {/* Debug: Show user type */}
+                {import.meta.env.DEV && (
+                  <div className="text-xs text-gray-500">
+                    User: {user?.userType || 'none'}
+                  </div>
+                )}
                 
                 {/* Admin Edit Button */}
                 {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
@@ -460,6 +466,12 @@ export default function JobDetails() {
 
             {/* Apply Button - For all users */}
             <div className="mb-6">
+              {/* Debug info */}
+              {import.meta.env.DEV && (
+                <div className="text-xs text-gray-500 mb-2">
+                  Debug: User type: {user?.userType || 'undefined'}, User ID: {user?.id || 'undefined'}
+                </div>
+              )}
               {user?.userType === 'job_seeker' ? (
                 <Button
                   onClick={handleApply}
