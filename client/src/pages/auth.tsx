@@ -160,6 +160,20 @@ export default function Auth() {
         return;
       }
       console.log('🔐 Calling register mutation');
+      
+      // For premium accounts, redirect directly to checkout BEFORE calling mutation
+      if (formData.userType === 'recruiter' || formData.userType === 'client') {
+        console.log('🔐 PREMIUM ACCOUNT DETECTED - redirecting to checkout');
+        localStorage.setItem('pendingUserData', JSON.stringify({
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName
+        }));
+        localStorage.setItem('pendingUserType', formData.userType);
+        window.location.href = '/checkout';
+        return;
+      }
+      
       registerMutation.mutate(formData);
     } else {
       console.log('🔐 Calling login mutation for:', formData.email);
