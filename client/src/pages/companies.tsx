@@ -616,7 +616,8 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
               
               {companyDetails?.vendors && companyDetails.vendors.length > 0 ? (
                 <div className="space-y-4">
-                  {companyDetails.vendors.map((vendor: any) => (
+                  {/* Show only first 3 vendors for non-authenticated users, all for authenticated users */}
+                  {(user ? companyDetails.vendors : companyDetails.vendors.slice(0, 3)).map((vendor: any) => (
                     <Card key={vendor.id}>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -630,7 +631,8 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                                   {vendor.vendorCity}, {vendor.vendorState} {vendor.vendorZipCode}
                                 </div>
                               )}
-                              {vendor.email && (
+                              {/* Show email only to authenticated users */}
+                              {vendor.email && user && (
                                 <div className="flex items-center gap-1">
                                   <Mail className="h-4 w-4" />
                                   <a 
@@ -663,6 +665,25 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                       </CardContent>
                     </Card>
                   ))}
+                  
+                  {/* Show "Login to see more" message for non-authenticated users when there are more than 3 vendors */}
+                  {!user && companyDetails.vendors.length > 3 && (
+                    <Card className="border-dashed">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-gray-500">
+                          <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm font-medium">
+                            {companyDetails.vendors.length - 3} more vendor{companyDetails.vendors.length - 3 !== 1 ? 's' : ''} available
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            <Link href="/auth" className="text-linkedin-blue hover:underline">
+                              Login
+                            </Link> to view all vendors and contact information
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
