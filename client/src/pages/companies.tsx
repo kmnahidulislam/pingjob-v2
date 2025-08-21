@@ -512,11 +512,11 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                     </span>
                   </div>
                 )}
-                {companyDetails?.vendors?.length > 0 && (
+                {companyDetails?.totalVendorCount > 0 && (
                   <div className="flex items-center text-blue-600">
                     <Users className="h-5 w-5 mr-2" />
                     <span className="font-medium">
-                      {companyDetails.vendors.length} Vendor{companyDetails.vendors.length !== 1 ? 's' : ''}
+                      {companyDetails.totalVendorCount} Vendor{companyDetails.totalVendorCount !== 1 ? 's' : ''}
                     </span>
                   </div>
                 )}
@@ -572,7 +572,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                 Jobs ({companyDetails?.openJobs?.length || 0})
               </TabsTrigger>
               <TabsTrigger value="vendors">
-                Vendors{companyDetails?.vendors?.length > 0 ? ` (${companyDetails.vendors.length})` : ''}
+                Vendors{companyDetails?.totalVendorCount > 0 ? ` (${companyDetails.totalVendorCount})` : ''}
               </TabsTrigger>
             </TabsList>
             
@@ -665,14 +665,14 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
                     </Card>
                   ))}
                   
-                  {/* Show "Login to see more" message for non-authenticated users when limited vendors are shown */}
-                  {!user && (
+                  {/* Show "Login to see more" message for non-authenticated users when there are more vendors than displayed */}
+                  {!user && companyDetails?.totalVendorCount > companyDetails?.vendors?.length && (
                     <Card className="border-dashed">
                       <CardContent className="p-4 text-center">
                         <div className="text-gray-500">
                           <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
                           <p className="text-sm font-medium">
-                            More vendors may be available
+                            {companyDetails.totalVendorCount - companyDetails.vendors.length} more vendor{companyDetails.totalVendorCount - companyDetails.vendors.length !== 1 ? 's' : ''} available
                           </p>
                           <p className="text-xs text-gray-400 mt-1">
                             <Link href="/auth" className="text-linkedin-blue hover:underline">

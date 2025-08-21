@@ -603,6 +603,7 @@ export function registerRoutes(app: Express) {
       
       // Filter vendors based on authentication status
       let vendors = allVendors;
+      let totalVendorCount = allVendors.length;
       
       if (!isUserAuthenticated) {
         // For unauthenticated users: limit to 3 vendors and remove email addresses
@@ -615,7 +616,8 @@ export function registerRoutes(app: Express) {
       const result = {
         ...company,
         openJobs,
-        vendors
+        vendors,
+        totalVendorCount
       };
       
       console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
