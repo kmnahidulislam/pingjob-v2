@@ -109,35 +109,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (import.meta.env.DEV) console.log('🔐 Registration response status:', res.status);
       
+      const responseData = await res.json();
+      if (import.meta.env.DEV) console.log('🔐 Registration response data:', responseData);
+      
       if (!res.ok) {
-        const errorData = await res.json();
-        if (import.meta.env.DEV) console.log('🔐 Registration error data:', errorData);
-        
-        // Handle payment required for premium accounts
-        if (res.status === 402 && errorData.requiresPayment) {
-          if (import.meta.env.DEV) console.log('🔐 Premium account - redirecting to payment:', errorData);
+        // Handle payment required for premium accounts FIRST
+        if (res.status === 402 && responseData.requiresPayment) {
+          if (import.meta.env.DEV) console.log('🔐 Premium account - processing payment redirect:', responseData);
           
           // Store user data for payment flow
-          localStorage.setItem('pendingUserData', JSON.stringify(errorData.userData));
-          localStorage.setItem('pendingUserType', errorData.userType);
+          localStorage.setItem('pendingUserData', JSON.stringify(responseData.userData));
+          localStorage.setItem('pendingUserType', responseData.userType);
           
-          if (import.meta.env.DEV) console.log('🔐 Stored pending data, redirecting to /checkout');
+          if (import.meta.env.DEV) console.log('🔐 Stored pending data, initiating redirect to /checkout');
           
-          // Redirect to payment page immediately without throwing error
-          setTimeout(() => {
-            window.location.href = '/checkout';
-          }, 100);
+          // Redirect immediately and return success to prevent error handling
+          window.location.href = '/checkout';
           
-          // Return a success-like response to prevent error handling
-          return { redirect: true, message: 'Redirecting to payment page...' };
+          // Return a success response to avoid error state
+          return { redirect: true, message: 'Redirecting to payment page...', success: true };
         }
         
-        throw new Error(errorData.message || "Registration failed");
+        // For other errors, throw normally
+        throw new Error(responseData.message || "Registration failed");
       }
       
-      const userData = await res.json();
-      if (import.meta.env.DEV) console.log('🔐 Registration successful:', userData);
-      return userData;
+      if (import.meta.env.DEV) console.log('🔐 Registration successful:', responseData);
+      return responseData;
     },
     onSuccess: (response: any) => {
       // Handle payment redirect response
