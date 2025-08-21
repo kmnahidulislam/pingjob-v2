@@ -123,12 +123,20 @@ export function setupSimpleAuth(app: Express) {
         return res.status(400).json({ message: "Please enter a valid email address" });
       }
 
-      // SECURITY: Allow recruiter and client accounts for testing
-      // In production, premium accounts would require payment verification
-      const allowedUserTypes = ["job_seeker", "recruiter", "client"];
-      if (userType && !allowedUserTypes.includes(userType)) {
+      // SECURITY: Premium accounts require payment - redirect to payment page
+      if (userType && (userType === "recruiter" || userType === "client")) {
+        return res.status(402).json({ 
+          message: "Premium account types require payment. Redirecting to payment page.",
+          requiresPayment: true,
+          userType: userType,
+          userData: { email, firstName, lastName }
+        });
+      }
+      
+      // Only allow job_seeker for free registration
+      if (userType && userType !== "job_seeker") {
         return res.status(400).json({ 
-          message: "Invalid user type. Must be job_seeker, recruiter, or client." 
+          message: "Invalid user type. Free registration only supports job_seeker accounts." 
         });
       }
       
@@ -143,7 +151,7 @@ export function setupSimpleAuth(app: Express) {
         password: hashedPassword,
         firstName,
         lastName,
-        userType: userType || "job_seeker", // Allow specified userType or default to job_seeker
+        userType: "job_seeker", // Only job_seeker for free registration
       });
 
       req.session.user = user;
@@ -151,6 +159,59 @@ export function setupSimpleAuth(app: Express) {
     } catch (error) {
       console.error("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Premium user creation endpoint (after payment confirmation)
+  app.post("/api/create-premium-user", async (req, res) => {
+    try {
+      const { email, firstName, lastName, userType, paymentConfirmed } = req.body;
+      
+      // Validate payment confirmation
+      if (!paymentConfirmed) {
+        return res.status(400).json({ message: "Payment confirmation required" });
+      }
+      
+      // Validate required fields
+      if (!email || !firstName || !lastName || !userType) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Only allow premium user types
+      if (userType !== "recruiter" && userType !== "client") {
+        return res.status(400).json({ message: "Invalid user type for premium account" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Generate a temporary password - user will need to set their password via password reset
+      const tempPassword = Math.random().toString(36).substr(2, 12);
+      const hashedPassword = await hashPassword(tempPassword);
+      
+      const user = await createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        userType
+      });
+      
+      // Log them in immediately
+      req.session.user = user;
+      
+      console.log(`Premium user created: ${email} (${userType}) - temp password: ${tempPassword}`);
+      
+      res.status(201).json({
+        ...user,
+        message: "Premium account created successfully. Please check your email for login instructions."
+      });
+    } catch (error) {
+      console.error("Premium user creation error:", error);
+      res.status(500).json({ message: "Failed to create premium account" });
     }
   });
 

@@ -97,6 +97,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", credentials);
       if (!res.ok) {
         const errorData = await res.json();
+        
+        // Handle payment required for premium accounts
+        if (res.status === 402 && errorData.requiresPayment) {
+          // Store user data for payment flow
+          localStorage.setItem('pendingUserData', JSON.stringify(errorData.userData));
+          localStorage.setItem('pendingUserType', errorData.userType);
+          
+          // Redirect to payment page
+          window.location.href = '/checkout';
+          return; // Don't throw error, let redirect handle it
+        }
+        
         throw new Error(errorData.message || "Registration failed");
       }
       return await res.json();

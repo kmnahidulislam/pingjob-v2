@@ -46,10 +46,50 @@ const CheckoutForm = ({ plan }: { plan: string }) => {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Payment Successful",
-        description: "Welcome to PingJob Pro! Your subscription is now active.",
-      });
+      // Check if this is from registration flow
+      const pendingUserData = localStorage.getItem('pendingUserData');
+      const pendingUserType = localStorage.getItem('pendingUserType');
+      
+      if (pendingUserData && pendingUserType) {
+        // Create premium account after successful payment
+        try {
+          const userData = JSON.parse(pendingUserData);
+          const res = await fetch('/api/create-premium-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...userData,
+              userType: pendingUserType,
+              paymentConfirmed: true
+            })
+          });
+          
+          if (res.ok) {
+            // Clear pending data
+            localStorage.removeItem('pendingUserData');
+            localStorage.removeItem('pendingUserType');
+            
+            toast({
+              title: "Account Created Successfully!",
+              description: `Welcome to PingJob! Your ${pendingUserType === 'recruiter' ? 'Recruiter Pro' : 'Enterprise Client'} account is now active.`,
+            });
+          } else {
+            throw new Error('Failed to create account');
+          }
+        } catch (error) {
+          toast({
+            title: "Account Creation Failed",
+            description: "Payment was successful but account creation failed. Please contact support.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Payment Successful",
+          description: "Welcome to PingJob Pro! Your subscription is now active.",
+        });
+      }
+      
       setLocation("/dashboard");
     }
     setIsProcessing(false);
@@ -97,9 +137,11 @@ export default function Checkout() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Get plan from URL parameters
+  // Get plan from URL parameters or localStorage (from registration flow)
   const urlParams = new URLSearchParams(window.location.search);
-  const plan = urlParams.get("plan") || "recruiter";
+  const urlPlan = urlParams.get("plan");
+  const pendingUserType = localStorage.getItem('pendingUserType');
+  const plan = urlPlan || pendingUserType || "recruiter";
 
   const planDetails = {
     recruiter: {
@@ -114,6 +156,20 @@ export default function Checkout() {
         "Advanced analytics",
         "Custom branding",
         "Social media auto-posting"
+      ]
+    },
+    client: {
+      name: "Enterprise Client",
+      price: "$199",
+      period: "month",
+      features: [
+        "Premium company profile",
+        "Featured job listings",
+        "Advanced employer branding",
+        "Priority candidate access",
+        "Dedicated account manager",
+        "Custom integration support",
+        "Advanced analytics dashboard"
       ]
     }
   };

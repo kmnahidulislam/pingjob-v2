@@ -305,12 +305,20 @@ export function setupAuth(app: Express) {
       const sanitizedFirstName = validator.escape(firstName.trim());
       const sanitizedLastName = validator.escape(lastName.trim());
       
-      // SECURITY: Allow recruiter and client accounts for testing
-      // In production, premium accounts would require payment verification
-      const allowedUserTypes = ["job_seeker", "recruiter", "client"];
-      if (userType && !allowedUserTypes.includes(userType)) {
+      // SECURITY: Premium accounts require payment - redirect to payment page
+      if (userType && (userType === "recruiter" || userType === "client")) {
+        return res.status(402).json({ 
+          message: "Premium account types require payment. Redirecting to payment page.",
+          requiresPayment: true,
+          userType: userType,
+          userData: { email, firstName, lastName }
+        });
+      }
+      
+      // Only allow job_seeker for free registration
+      if (userType && userType !== "job_seeker") {
         return res.status(400).json({ 
-          message: "Invalid user type. Must be job_seeker, recruiter, or client." 
+          message: "Invalid user type. Free registration only supports job_seeker accounts." 
         });
       }
       
@@ -332,13 +340,12 @@ export function setupAuth(app: Express) {
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Insert new user with validated data - allow specified userType or default to job_seeker
-      const finalUserType = userType || 'job_seeker';
+      // Insert new user with validated data - only job_seeker for free registration
       const insertResult = await pool.query(`
         INSERT INTO users (id, email, password, first_name, last_name, user_type)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id, email, first_name, last_name, user_type
-      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), finalUserType]);
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), 'job_seeker']);
       
       const user = insertResult.rows[0];
       
