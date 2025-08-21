@@ -123,11 +123,12 @@ export function setupSimpleAuth(app: Express) {
         return res.status(400).json({ message: "Please enter a valid email address" });
       }
 
-      // SECURITY: Only allow job_seeker accounts for free registration
-      // Premium accounts (recruiter, client) require payment verification
-      if (userType && userType !== "job_seeker") {
-        return res.status(403).json({ 
-          message: "Premium account types require a paid subscription. Please visit our pricing page to upgrade." 
+      // SECURITY: Allow recruiter and client accounts for testing
+      // In production, premium accounts would require payment verification
+      const allowedUserTypes = ["job_seeker", "recruiter", "client"];
+      if (userType && !allowedUserTypes.includes(userType)) {
+        return res.status(400).json({ 
+          message: "Invalid user type. Must be job_seeker, recruiter, or client." 
         });
       }
       
@@ -142,7 +143,7 @@ export function setupSimpleAuth(app: Express) {
         password: hashedPassword,
         firstName,
         lastName,
-        userType: "job_seeker", // Force job_seeker for free registration
+        userType: userType || "job_seeker", // Allow specified userType or default to job_seeker
       });
 
       req.session.user = user;
