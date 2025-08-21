@@ -461,7 +461,13 @@ export default function AuthPage() {
                 
                 <TabsContent value="register" className="space-y-4">
                   <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                    <form onSubmit={registerForm.handleSubmit((data) => {
+                      console.log('Form validation passed:', data);
+                      onRegister(data);
+                    }, (errors) => {
+                      console.log('Form validation errors:', errors);
+                      alert('Form validation failed: ' + JSON.stringify(errors));
+                    })} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={registerForm.control}
