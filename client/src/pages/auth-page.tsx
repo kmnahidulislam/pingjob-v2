@@ -151,11 +151,11 @@ export default function AuthPage() {
   };
 
   const onRegister = (values: z.infer<typeof registerSchema>) => {
-    console.log('🔥 AUTH PAGE: onRegister called with:', values);
+    alert(`Registration called for ${values.userType}: ${values.email}`);
     
     // For premium accounts, redirect directly to checkout
     if (values.userType === 'recruiter' || values.userType === 'client') {
-      console.log('🔥 PREMIUM ACCOUNT: Redirecting to checkout immediately');
+      alert('Redirecting to checkout for premium account!');
       localStorage.setItem('pendingUserData', JSON.stringify({
         email: values.email,
         firstName: values.firstName,
