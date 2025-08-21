@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
-// Logo will be referenced directly from public folder
+import logoPath from "@assets/logo_1749581218265.png";
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
@@ -198,7 +198,7 @@ export default function JobDetailsSimple() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <Link href="/">
             <img 
-              src="./logos/pingjob-logo.svg" 
+              src={logoPath} 
               alt="PingJob" 
               className="h-10 cursor-pointer hover:opacity-80 transition-opacity"
             />

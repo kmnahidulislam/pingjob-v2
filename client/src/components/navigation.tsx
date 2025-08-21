@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
+import logoPath from "@assets/logo_1749581218265.png";
 import {
   Home,
   Users,
@@ -86,7 +87,7 @@ export default function Navigation() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
               <img 
-                src="/logos/pingjob-logo.svg" 
+                src={logoPath} 
                 alt="PingJob" 
                 className="h-8 w-auto hover:opacity-90 transition-opacity"
               />
