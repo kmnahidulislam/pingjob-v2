@@ -586,6 +586,9 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: 'Invalid company ID' });
       }
       
+      // Check if user is authenticated
+      const isUserAuthenticated = !!(req.user || req.session?.user);
+      
       // Get company basic info
       const company = await storage.getCompanyById(companyId);
       if (!company) {
@@ -596,7 +599,18 @@ export function registerRoutes(app: Express) {
       const openJobs = await storage.getCompanyJobs(companyId);
       
       // Get vendors for this company  
-      const vendors = await storage.getCompanyVendors(companyId);
+      const allVendors = await storage.getCompanyVendors(companyId);
+      
+      // Filter vendors based on authentication status
+      let vendors = allVendors;
+      
+      if (!isUserAuthenticated) {
+        // For unauthenticated users: limit to 3 vendors and remove email addresses
+        vendors = allVendors.slice(0, 3).map(vendor => ({
+          ...vendor,
+          email: null // Remove email for unauthenticated users
+        }));
+      }
       
       const result = {
         ...company,
@@ -604,7 +618,7 @@ export function registerRoutes(app: Express) {
         vendors
       };
       
-      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs, ${vendors.length} vendors`);
+      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
       res.json(result);
       
     } catch (error) {
