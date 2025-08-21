@@ -94,7 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
-      if (import.meta.env.DEV) console.log('🔐 Starting registration for:', credentials.email, credentials.userType);
+      console.log('🔐 REGISTRATION STARTED for:', credentials.email, credentials.userType);
+      if (credentials.userType === 'recruiter' || credentials.userType === 'client') {
+        console.log('🔐 PREMIUM ACCOUNT DETECTED - expecting 402 response');
+      }
       
       // Use direct fetch to handle 402 responses before apiRequest processes them
       const res = await fetch("/api/register", {
@@ -115,16 +118,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         // Handle payment required for premium accounts FIRST
         if (res.status === 402 && responseData.requiresPayment) {
-          if (import.meta.env.DEV) console.log('🔐 Premium account - processing payment redirect:', responseData);
+          console.log('🔐 PAYMENT REQUIRED - Processing 402 response:', responseData);
+          console.log('🔐 User data to store:', responseData.userData);
+          console.log('🔐 User type:', responseData.userType);
           
           // Store user data for payment flow
           localStorage.setItem('pendingUserData', JSON.stringify(responseData.userData));
           localStorage.setItem('pendingUserType', responseData.userType);
           
-          if (import.meta.env.DEV) console.log('🔐 Stored pending data, initiating redirect to /checkout');
+          console.log('🔐 Data stored in localStorage, initiating redirect...');
+          console.log('🔐 Current URL:', window.location.href);
           
-          // Redirect immediately and return success to prevent error handling
-          window.location.href = '/checkout';
+          // Add a small delay to ensure localStorage is written
+          setTimeout(() => {
+            console.log('🔐 REDIRECTING TO CHECKOUT...');
+            window.location.href = '/checkout';
+          }, 10);
           
           // Return a success response to avoid error state
           return { redirect: true, message: 'Redirecting to payment page...', success: true };
