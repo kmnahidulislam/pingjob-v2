@@ -145,17 +145,24 @@ export default function Checkout() {
 
   const planDetails = {
     recruiter: {
-      name: "Recruiter Pro",
-      price: "$49",
+      name: "Recruiter",
+      subtitle: "For recruiting professionals and HR teams",
+      price: "$19",
       period: "month",
       features: [
-        "Unlimited job postings",
-        "Advanced candidate search",
-        "AI-powered resume matching",
-        "Priority support",
-        "Advanced analytics",
-        "Custom branding",
-        "Social media auto-posting"
+        "Post up to 10 jobs per month",
+        "Access to candidate database",
+        "Advanced search filters",
+        "Resume parsing and ranking",
+        "Candidate application management",
+        "Interview scheduling tools",
+        "Team collaboration features",
+        "Analytics and reporting",
+        "Priority email support"
+      ],
+      limitations: [
+        "Limited to 10 job postings",
+        "Basic analytics only"
       ]
     },
     client: {
@@ -244,7 +251,7 @@ export default function Checkout() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Subscription</h1>
-          <p className="text-gray-600">Start your 14-day free trial today</p>
+          <p className="text-gray-600">Get started with PingJob today</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -252,37 +259,40 @@ export default function Checkout() {
           <div>
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{currentPlan.name}</CardTitle>
-                  <Badge variant="secondary">14-day trial</Badge>
-                </div>
-                <div className="text-2xl font-bold">
+                <CardTitle className="text-lg">{currentPlan.name}</CardTitle>
+                {currentPlan.subtitle && (
+                  <p className="text-sm text-gray-600 mt-1">{currentPlan.subtitle}</p>
+                )}
+                <div className="text-2xl font-bold mt-2">
                   {currentPlan.price}
                   <span className="text-sm font-normal text-gray-500">/{currentPlan.period}</span>
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3">
-                  {currentPlan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-600">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center space-x-2 text-blue-700 mb-2">
-                    <Clock className="h-4 w-4" />
-                    <span className="font-medium">Free Trial Details</span>
-                  </div>
-                  <ul className="text-sm text-blue-600 space-y-1">
-                    <li>• 14 days completely free</li>
-                    <li>• Full access to all Pro features</li>
-                    <li>• Cancel anytime during trial</li>
-                    <li>• No charges until trial ends</li>
+                <div className="mb-6">
+                  <h4 className="font-medium text-gray-900 mb-3">What's included:</h4>
+                  <ul className="space-y-2">
+                    {currentPlan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="h-4 w-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-gray-600">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
+
+                {currentPlan.limitations && (
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <h4 className="font-medium text-orange-800 mb-2">Limitations:</h4>
+                    <ul className="space-y-1">
+                      {currentPlan.limitations.map((limitation, index) => (
+                        <li key={index} className="text-sm text-orange-700">
+                          • {limitation}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -293,7 +303,7 @@ export default function Checkout() {
               <CardHeader>
                 <CardTitle>Payment Information</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Your trial starts immediately. You won't be charged until your trial ends.
+                  Complete your payment to activate your subscription immediately.
                 </p>
               </CardHeader>
               <CardContent>
