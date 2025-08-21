@@ -95,25 +95,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
       const res = await apiRequest("POST", "/api/register", credentials);
+      
       if (!res.ok) {
         const errorData = await res.json();
         
         // Handle payment required for premium accounts
         if (res.status === 402 && errorData.requiresPayment) {
+          if (import.meta.env.DEV) console.log('🔐 Premium account - redirecting to payment:', errorData);
+          
           // Store user data for payment flow
           localStorage.setItem('pendingUserData', JSON.stringify(errorData.userData));
           localStorage.setItem('pendingUserType', errorData.userType);
           
-          // Redirect to payment page
+          // Redirect to payment page immediately without throwing error
           window.location.href = '/checkout';
-          return; // Don't throw error, let redirect handle it
+          
+          // Return a success-like response to prevent error handling
+          return { redirect: true, message: 'Redirecting to payment page...' };
         }
         
         throw new Error(errorData.message || "Registration failed");
       }
+      
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (response: any) => {
+      // Handle payment redirect response
+      if (response?.redirect) {
+        if (import.meta.env.DEV) console.log('🔐 Payment redirect successful:', response.message);
+        // Don't show toast or redirect - user is already being redirected to checkout
+        return;
+      }
+      
+      // Normal registration success
+      const user = response as SelectUser;
       queryClient.setQueryData(["/api/user"], user);
       
       // Check for intended job redirect
