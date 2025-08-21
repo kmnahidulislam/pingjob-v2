@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +7,13 @@ import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { useAuth } from "@/hooks/use-auth";
+import JobApplicationModal from "@/components/modals/job-application-modal";
 
 export default function JobDetailsSimple() {
   const { id } = useParams();
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   // Handle apply button click
   const handleApply = () => {
@@ -26,8 +28,8 @@ export default function JobDetailsSimple() {
       return;
     }
 
-    // User is authenticated, redirect to application form
-    navigate(`/applications?job=${id}`);
+    // User is authenticated, open application modal
+    setIsApplicationModalOpen(true);
   };
 
   const { data: job, isLoading, error } = useQuery({
@@ -293,6 +295,15 @@ export default function JobDetailsSimple() {
         )}
         </div>
       </div>
+      
+      {/* Job Application Modal */}
+      {job && (
+        <JobApplicationModal
+          job={job}
+          isOpen={isApplicationModalOpen}
+          onClose={() => setIsApplicationModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
