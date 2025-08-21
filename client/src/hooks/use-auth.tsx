@@ -94,6 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
+      if (import.meta.env.DEV) console.log('🔐 Starting registration for:', credentials.email, credentials.userType);
+      
       // Use direct fetch to handle 402 responses before apiRequest processes them
       const res = await fetch("/api/register", {
         method: "POST",
@@ -105,8 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: "include",
       });
       
+      if (import.meta.env.DEV) console.log('🔐 Registration response status:', res.status);
+      
       if (!res.ok) {
         const errorData = await res.json();
+        if (import.meta.env.DEV) console.log('🔐 Registration error data:', errorData);
         
         // Handle payment required for premium accounts
         if (res.status === 402 && errorData.requiresPayment) {
@@ -116,8 +121,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('pendingUserData', JSON.stringify(errorData.userData));
           localStorage.setItem('pendingUserType', errorData.userType);
           
+          if (import.meta.env.DEV) console.log('🔐 Stored pending data, redirecting to /checkout');
+          
           // Redirect to payment page immediately without throwing error
-          window.location.href = '/checkout';
+          setTimeout(() => {
+            window.location.href = '/checkout';
+          }, 100);
           
           // Return a success-like response to prevent error handling
           return { redirect: true, message: 'Redirecting to payment page...' };
@@ -126,7 +135,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorData.message || "Registration failed");
       }
       
-      return await res.json();
+      const userData = await res.json();
+      if (import.meta.env.DEV) console.log('🔐 Registration successful:', userData);
+      return userData;
     },
     onSuccess: (response: any) => {
       // Handle payment redirect response
