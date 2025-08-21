@@ -7,6 +7,7 @@ import { storage } from "./storage";
 // insertJobApplicationSchema import removed - using direct object creation
 import { cleanPool as pool } from "./clean-neon";
 import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
+import Stripe from "stripe";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
   console.log('🔒 Auth check - Session exists:', !!req.session);
@@ -1253,8 +1254,7 @@ export function registerRoutes(app: Express) {
   // Stripe payment endpoints
   app.post('/api/create-subscription', async (req, res) => {
     try {
-      const Stripe = require('stripe');
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
       
       const { plan = 'recruiter' } = req.body;
       
