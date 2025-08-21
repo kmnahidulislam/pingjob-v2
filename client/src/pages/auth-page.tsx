@@ -151,6 +151,22 @@ export default function AuthPage() {
   };
 
   const onRegister = (values: z.infer<typeof registerSchema>) => {
+    console.log('🔥 AUTH PAGE: onRegister called with:', values);
+    
+    // For premium accounts, redirect directly to checkout
+    if (values.userType === 'recruiter' || values.userType === 'client') {
+      console.log('🔥 PREMIUM ACCOUNT: Redirecting to checkout immediately');
+      localStorage.setItem('pendingUserData', JSON.stringify({
+        email: values.email,
+        firstName: values.firstName,
+        lastName: values.lastName
+      }));
+      localStorage.setItem('pendingUserType', values.userType);
+      window.location.href = '/checkout';
+      return;
+    }
+    
+    // For regular accounts, proceed with normal registration
     registerMutation.mutate(values);
   };
 
