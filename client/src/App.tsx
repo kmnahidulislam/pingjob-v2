@@ -101,6 +101,7 @@ function Router() {
                        location.startsWith('/reset-password?') || 
                        location === '/forgot-password' ||
                        location === '/auth' ||
+                       location === '/checkout' ||
                        location === '/about' ||
                        location === '/privacy' ||
                        location === '/terms' ||
@@ -149,6 +150,7 @@ function Router() {
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
           <Route path="/auth" component={Auth} />
+          <Route path="/checkout" component={Checkout} />
           <Route path="/about" component={About} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
