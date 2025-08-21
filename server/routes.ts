@@ -71,6 +71,152 @@ export function registerRoutes(app: Express) {
     console.error('❌ Failed to initialize social media integration:', error);
   });
   
+  // Registration endpoint
+  app.post('/api/register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName, userType } = req.body;
+      
+      // Input validation
+      if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Please enter a valid email address" });
+      }
+
+      // SECURITY: Premium accounts require payment - redirect to payment page
+      if (userType && (userType === "recruiter" || userType === "client")) {
+        return res.status(402).json({ 
+          message: "Premium account types require payment. Redirecting to payment page.",
+          requiresPayment: true,
+          userType: userType,
+          userData: { email, firstName, lastName }
+        });
+      }
+      
+      // Only allow job_seeker for free registration
+      if (userType && userType !== "job_seeker") {
+        return res.status(400).json({ 
+          message: "Invalid user type. Free registration only supports job_seeker accounts." 
+        });
+      }
+      
+      // Check if user exists
+      const checkResult = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+      
+      if (checkResult.rows.length > 0) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      // Hash password using scrypt
+      const { hashPassword } = await import('./simple-auth');
+      const hashedPassword = await hashPassword(password);
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Insert new user
+      const insertResult = await pool.query(`
+        INSERT INTO users (id, email, password, first_name, last_name, user_type)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, email, first_name, last_name, user_type
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), 'job_seeker']);
+      
+      const user = insertResult.rows[0];
+      const userData = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
+      };
+      
+      // Set user in session
+      req.session.user = userData;
+      req.user = userData;
+      
+      res.status(201).json(userData);
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Premium user creation endpoint (after payment confirmation)
+  app.post("/api/create-premium-user", async (req, res) => {
+    try {
+      const { email, firstName, lastName, userType, paymentConfirmed } = req.body;
+      
+      // Validate payment confirmation
+      if (!paymentConfirmed) {
+        return res.status(400).json({ message: "Payment confirmation required" });
+      }
+      
+      // Validate required fields
+      if (!email || !firstName || !lastName || !userType) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Only allow premium user types
+      if (userType !== "recruiter" && userType !== "client") {
+        return res.status(400).json({ message: "Invalid user type for premium account" });
+      }
+      
+      // Check if user already exists
+      const checkResult = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+      
+      if (checkResult.rows.length > 0) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Generate a temporary password - user will need to set their password via password reset
+      const tempPassword = Math.random().toString(36).substr(2, 12);
+      const { hashPassword } = await import('./simple-auth');
+      const hashedPassword = await hashPassword(tempPassword);
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Insert new user
+      const insertResult = await pool.query(`
+        INSERT INTO users (id, email, password, first_name, last_name, user_type)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, email, first_name, last_name, user_type
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), userType]);
+      
+      const user = insertResult.rows[0];
+      const userData = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
+      };
+      
+      // Log them in immediately
+      req.session.user = userData;
+      req.user = userData;
+      
+      console.log(`Premium user created: ${email} (${userType}) - temp password: ${tempPassword}`);
+      
+      res.status(201).json({
+        ...userData,
+        message: "Premium account created successfully. Please check your email for login instructions."
+      });
+    } catch (error) {
+      console.error("Premium user creation error:", error);
+      res.status(500).json({ message: "Failed to create premium account" });
+    }
+  });
+
   // Login endpoint
   app.post('/api/login', async (req, res) => {
     try {
@@ -86,6 +232,13 @@ export function registerRoutes(app: Express) {
       }
       
       const user = result.rows[0];
+      
+      // Verify password
+      const { comparePasswords } = await import('./simple-auth');
+      if (!user.password || !(await comparePasswords(password, user.password))) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      
       const userData = {
         id: user.id,
         email: user.email,
