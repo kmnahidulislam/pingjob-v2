@@ -173,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, 100);
     },
     onError: (error: Error) => {
+      if (import.meta.env.DEV) console.log('🔐 Registration mutation error:', error);
       toast({
         title: "Registration failed",
         description: error.message,
