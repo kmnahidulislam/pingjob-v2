@@ -1250,6 +1250,83 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Stripe payment endpoints
+  app.post('/api/create-subscription', async (req, res) => {
+    try {
+      const Stripe = require('stripe');
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      
+      const { plan = 'recruiter' } = req.body;
+      
+      // Define subscription details
+      const subscriptionDetails = {
+        recruiter: { priceId: 'price_recruiter', amount: 4900 }, // $49.00
+        client: { priceId: 'price_enterprise', amount: 9900 }   // $99.00
+      };
+      
+      const details = subscriptionDetails[plan as keyof typeof subscriptionDetails] || subscriptionDetails.recruiter;
+      
+      // Create a PaymentIntent for the subscription
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: details.amount,
+        currency: 'usd',
+        metadata: {
+          plan: plan,
+          type: 'subscription'
+        }
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: details.amount,
+        plan: plan
+      });
+    } catch (error) {
+      console.error('Stripe error:', error);
+      res.status(500).json({ 
+        error: 'Failed to create payment intent',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Create premium user after successful payment
+  app.post('/api/create-premium-user', async (req, res) => {
+    try {
+      const { email, firstName, lastName, userType, paymentConfirmed } = req.body;
+      
+      if (!paymentConfirmed) {
+        return res.status(400).json({ message: 'Payment confirmation required' });
+      }
+
+      // Create the premium user in the database
+      const hashedPassword = 'pending_password_setup'; // User will set password via email
+      
+      const newUser = await storage.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        userType: userType as "job_seeker" | "recruiter" | "client" | "admin",
+        isVerified: true,
+        subscriptionStatus: 'active',
+        subscriptionPlan: userType
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Premium account created successfully',
+        userId: newUser.id 
+      });
+    } catch (error) {
+      console.error('Error creating premium user:', error);
+      res.status(500).json({ 
+        message: 'Failed to create premium account',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }
