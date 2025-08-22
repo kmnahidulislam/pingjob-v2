@@ -76,12 +76,15 @@ export default function Jobs() {
     }
   }, []);
 
-  // Use the fast jobs API for quick loading
-  const { data: searchResults, isLoading, refetch } = useQuery({
-    queryKey: ['/api/jobs', selectedCategory || 'all', maxJobs, filters.search, filters.location],
-    queryFn: async () => {
+  // Simple state for jobs
+  const [allJobsData, setAllJobsData] = useState<any[]>([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
+
+  // Fetch jobs when component mounts or category changes
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setIsLoadingJobs(true);
       try {
-        // Build query URL with optional category filtering
         let url = '/api/jobs?limit=' + maxJobs;
         if (selectedCategory) {
           url += `&categoryId=${selectedCategory}`;
@@ -110,16 +113,20 @@ export default function Jobs() {
           );
         }
         
-        return { results: filteredJobs, total: filteredJobs.length };
+        setAllJobsData(filteredJobs);
       } catch (error) {
         console.error('Error fetching jobs:', error);
-        return { results: [], total: 0 };
+        setAllJobsData([]);
+      } finally {
+        setIsLoadingJobs(false);
       }
-    }
-  });
+    };
 
-  // Extract jobs from search results
-  const allJobs = searchResults?.results || [];
+    fetchJobs();
+  }, [selectedCategory, maxJobs, filters.search, filters.location]);
+
+  // Extract jobs from state
+  const allJobs = allJobsData;
   
   // Pagination logic
   const totalPages = Math.ceil(allJobs.length / jobsPerPage);
@@ -131,9 +138,6 @@ export default function Jobs() {
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-    // Force complete query cache invalidation
-    queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
-    queryClient.refetchQueries({ queryKey: ['/api/jobs'] });
   };
   
   // Handle pagination
@@ -482,7 +486,7 @@ export default function Jobs() {
                   {selectedCategory ? `Jobs in Selected Category` : filters.search ? `Jobs matching "${filters.search}"` : 'All Jobs'}
                 </h1>
                 <p className="text-gray-600">
-                  {isLoading ? 'Loading...' : `${allJobs?.length || 0} total jobs • Page ${currentPage} of ${totalPages} • Showing ${jobs?.length || 0} jobs`}
+                  {isLoadingJobs ? 'Loading...' : `${allJobs?.length || 0} total jobs • Page ${currentPage} of ${totalPages} • Showing ${jobs?.length || 0} jobs`}
                 </p>
               </div>
               
@@ -504,7 +508,7 @@ export default function Jobs() {
 
             {/* Job Listings */}
             <div className="space-y-6">
-              {isLoading ? (
+              {isLoadingJobs ? (
                 <div className="space-y-4">
                   {[...Array(5)].map((_, i) => (
                     <Card key={i} className="animate-pulse">
