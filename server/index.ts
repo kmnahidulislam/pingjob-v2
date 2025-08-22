@@ -18,11 +18,6 @@ if (process.env.GOOGLE_CLIENT_ID) {
 }
 console.log('==================');
 
-// Initialize clean Neon.tech database before starting server
-initializeCleanDatabase().then(() => {
-  console.log("Database initialized successfully");
-}).catch(console.error);
-
 const app = express();
 
 // Essential middleware must come BEFORE authentication
@@ -103,14 +98,23 @@ app.use((req, res, next) => {
 // Use IIFE to handle async operations properly
 (async () => {
   try {
+    // Initialize database before starting server
+    console.log("Initializing database...");
+    const dbInitialized = await initializeCleanDatabase();
+    if (!dbInitialized) {
+      console.error("Failed to initialize database - exiting");
+      process.exit(1);
+    }
+    console.log("Database initialized successfully");
+
     registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    console.error('Server error:', err);
     res.status(status).json({ message });
-    throw err;
   });
 
   // Remove static HTML override to restore React app
