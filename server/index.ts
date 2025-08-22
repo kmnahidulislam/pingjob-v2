@@ -25,7 +25,11 @@ initializeCleanDatabase().then(() => {
 
 const app = express();
 
-// Import and setup authentication
+// Essential middleware must come BEFORE authentication
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Import and setup authentication AFTER middleware
 import { setupSimpleAuth } from "./simple-auth";
 setupSimpleAuth(app);
 
@@ -46,10 +50,7 @@ app.get('/ads.txt', (req, res) => {
   res.send('google.com, pub-9555763610767023, DIRECT, f08c47fec0942fa0');
 });
 
-
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// JSON parsing middleware already set up above
 
 // Serve static files from logos directory
 app.use('/logos', express.static('logos'));
