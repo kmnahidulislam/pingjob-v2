@@ -15,19 +15,13 @@ import { insertCompanySchema } from "@shared/schema";
 import { z } from "zod";
 import { Building, X, Upload } from "lucide-react";
 
-const companyFormSchema = insertCompanySchema.omit({ 
-  userId: true,
-  updatedAt: true,
-  createdAt: true,
-  status: true,
-  approvedBy: true,
-  followers: true,
-  logoUrl: true
-}).extend({
+const companyFormSchema = z.object({
   name: z.string().min(1, "Company name is required"),
   description: z.string().min(1, "Description is required"),
   website: z.string().optional(),
   phone: z.string().optional(),
+  email: z.string().optional(),
+  address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   country: z.string().optional(),
@@ -82,15 +76,17 @@ export default function CompanyCreate() {
     resolver: zodResolver(companyFormSchema),
     defaultValues: {
       name: "",
-      industry: "",
       description: "",
       website: "",
       phone: "",
+      email: "",
+      address: "",
       city: "",
       state: "",
       country: "",
       zipCode: "",
       location: "",
+      industry: "",
       size: "1-10",
     },
   });
