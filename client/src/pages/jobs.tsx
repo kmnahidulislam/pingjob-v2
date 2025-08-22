@@ -78,7 +78,7 @@ export default function Jobs() {
 
   // Use the fast jobs API for quick loading
   const { data: searchResults, isLoading, refetch } = useQuery({
-    queryKey: ['/api/jobs', selectedCategory, maxJobs, filters.search, filters.location],
+    queryKey: ['/api/jobs', selectedCategory || 'all', maxJobs, filters.search, filters.location],
     queryFn: async () => {
       try {
         // Build query URL with optional category filtering
@@ -131,8 +131,9 @@ export default function Jobs() {
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-    // Force refetch immediately
-    setTimeout(() => refetch(), 100);
+    // Force complete query cache invalidation
+    queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
+    queryClient.refetchQueries({ queryKey: ['/api/jobs'] });
   };
   
   // Handle pagination
