@@ -90,6 +90,8 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
+        alert(`Making API call to: ${url}`);
+        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
@@ -136,6 +138,7 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
+    alert(`Clicked category: ${categoryId}`);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
   };
