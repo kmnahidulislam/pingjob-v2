@@ -188,6 +188,7 @@ function Router() {
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={JobsOriginal} />
+          <Route path="/company-create" component={CompanyCreate} />
           <Route path="/company/create" component={CompanyCreate} />
           <Route path="/companies/create" component={CompanyCreate} />
           <Route path="/companies/:id" component={CompanyDetails} />
