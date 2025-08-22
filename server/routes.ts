@@ -332,11 +332,25 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Fast endpoint for jobs page without resume counts
+  // Fast endpoint for jobs page with optional category filtering
   app.get('/api/jobs', async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-      const jobs = await storage.getFastJobs(limit);
+      const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+      
+      let jobs;
+      if (categoryId) {
+        // Get jobs by specific category, sorted by latest (most recent first)
+        jobs = await storage.getJobsByCategory(categoryId);
+        // Limit results if specified
+        if (limit) {
+          jobs = jobs.slice(0, limit);
+        }
+      } else {
+        // Get all jobs
+        jobs = await storage.getFastJobs(limit);
+      }
+      
       res.json(jobs);
     } catch (error) {
       console.error('Error fetching jobs:', error);

@@ -20,6 +20,7 @@ import { useLocation } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { JobCategories } from "@/components/job-categories";
 // AdBanner removed to prevent runtime errors
 
 // Helper function to highlight search terms
@@ -44,6 +45,10 @@ export default function Jobs() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companySearch, setCompanySearch] = useState("");
   const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 10;
+  const maxJobs = 50; // 5 pages * 10 jobs per page
   
   const [filters, setFilters] = useState({
     search: "",
@@ -67,11 +72,16 @@ export default function Jobs() {
 
   // Use the fast jobs API for quick loading
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['/api/jobs', filters],
+    queryKey: ['/api/jobs', filters, selectedCategory],
     queryFn: async () => {
       try {
-        // Use the fast jobs endpoint for better performance
-        const response = await fetch('/api/jobs');
+        // Build query URL with optional category filtering
+        let url = '/api/jobs?limit=' + maxJobs;
+        if (selectedCategory) {
+          url += `&categoryId=${selectedCategory}`;
+        }
+        
+        const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
         
@@ -103,11 +113,30 @@ export default function Jobs() {
   });
 
   // Extract jobs from search results
-  const jobs = searchResults?.results || [];
+  const allJobs = searchResults?.results || [];
+  
+  // Pagination logic
+  const totalPages = Math.ceil(allJobs.length / jobsPerPage);
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const endIndex = startIndex + jobsPerPage;
+  const jobs = allJobs.slice(startIndex, endIndex);
+  
+  // Handle category selection
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setCurrentPage(1); // Reset to first page when category changes
+  };
+  
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   // Debug logging
-  console.log('Jobs page - Total jobs received:', jobs.length);
-  console.log('Jobs page - Search results:', searchResults);
+  console.log('Jobs page - Total jobs received:', allJobs.length);
+  console.log('Jobs page - Current page jobs:', jobs.length);
+  console.log('Jobs page - Selected category:', selectedCategory);
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
@@ -240,6 +269,34 @@ export default function Jobs() {
                       onClick={() => setFilters({ search: "", location: "" })}
                     >
                       Clear Search
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Job Categories */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Filter by Category</h2>
+                <JobCategories 
+                  selectedCategory={selectedCategory}
+                  onCategorySelect={handleCategorySelect}
+                  isMobile={false}
+                  showAll={true}
+                  limit={20}
+                />
+                {selectedCategory && (
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCategory("");
+                        setCurrentPage(1);
+                      }}
+                    >
+                      Clear Category Filter
                     </Button>
                   </div>
                 )}
@@ -417,10 +474,10 @@ export default function Jobs() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {filters.search ? `Jobs matching "${filters.search}"` : 'All Jobs'}
+                  {selectedCategory ? `Jobs in Selected Category` : filters.search ? `Jobs matching "${filters.search}"` : 'All Jobs'}
                 </h1>
                 <p className="text-gray-600">
-                  {isLoading ? 'Loading...' : `${jobs?.length || 0} jobs found`}
+                  {isLoading ? 'Loading...' : `${allJobs?.length || 0} total jobs • Page ${currentPage} of ${totalPages} • Showing ${jobs?.length || 0} jobs`}
                 </p>
               </div>
               
@@ -582,6 +639,43 @@ export default function Jobs() {
                 </>
               )}
             </div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-4 mt-8">
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                
+                <div className="flex space-x-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={currentPage === pageNum ? "bg-linkedin-blue hover:bg-linkedin-dark" : ""}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
         </div>
       </div>
       
