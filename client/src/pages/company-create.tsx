@@ -169,8 +169,26 @@ export default function CompanyCreate() {
       console.error("Error response:", error.response);
       console.error("Error response data:", error.response?.data);
       console.error("Error status:", error.response?.status);
+      console.error("Error stack:", error.stack);
       
-      const errorMessage = error.response?.data?.message || error.message || "Failed to create company";
+      // Show user-friendly error based on the actual error
+      let errorMessage = "Failed to create company";
+      
+      if (error.message) {
+        // If it's a network or parsing error, show that
+        if (error.message.includes("JSON")) {
+          errorMessage = "Server response error - please try again";
+        } else if (error.message.includes("401")) {
+          errorMessage = "Please log in again";
+        } else if (error.message.includes("403")) {
+          errorMessage = "You don't have permission to create companies";
+        } else if (error.message.includes("500")) {
+          errorMessage = "Server error - please try again later";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Error creating company",
         description: errorMessage,
