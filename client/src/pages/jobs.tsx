@@ -88,9 +88,11 @@ export default function Jobs() {
         }
         
         
+        console.log("🔥 Making API call to:", url);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
+        console.log("🔥 Received", jobs.length, "jobs from API");
         
         // Apply client-side filtering for search terms
         let filteredJobs = jobs;
@@ -130,8 +132,10 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
+    console.log("🔥 Category clicked:", categoryId);
     setSelectedCategory(categoryId);
     setCurrentPage(1); // Reset to first page when category changes
+    console.log("🔥 Updated selectedCategory to:", categoryId);
   };
   
   // Handle pagination
