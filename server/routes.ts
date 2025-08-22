@@ -10,20 +10,11 @@ import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 import Stripe from "stripe";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
-  console.log('🔒 Auth check for', req.method, req.path);
-  console.log('🔒 Auth check - Session exists:', !!req.session);
-  console.log('🔒 Auth check - Session user:', !!req.session?.user);
-  console.log('🔒 Auth check - Passport user:', !!req.user);
-  console.log('🔒 Auth check - Headers:', req.headers['content-type']);
-  
   if (req.user || req.session?.user) {
     // Ensure req.user is set for consistency
     req.user = req.user || req.session.user;
-    console.log('🔒 Auth check - PASSED for user:', req.user.email);
     next();
   } else {
-    console.log('🔒 Auth check - FAILED - returning 401');
-    console.log('🔒 Session data:', req.session);
     res.status(401).json({ message: "Authentication required" });
   }
 };
@@ -979,19 +970,6 @@ export function registerRoutes(app: Express) {
   // Company creation endpoint
   app.post('/api/companies', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('=== COMPANY CREATION REQUEST ===');
-      console.log('Request body:', JSON.stringify(req.body, null, 2));
-      console.log('User:', req.user ? { id: req.user.id, email: req.user.email, userType: req.user.userType } : 'No user');
-      console.log('Request headers:', req.headers['content-type']);
-      
-      // Validate required fields
-      if (!req.body.name || !req.body.description) {
-        console.log('❌ Missing required fields:', { name: !!req.body.name, description: !!req.body.description });
-        return res.status(400).json({ 
-          message: "Missing required fields: name and description are required" 
-        });
-      }
-      
       const companyData = {
         ...req.body,
         userId: req.user.id,
@@ -1001,32 +979,15 @@ export function registerRoutes(app: Express) {
           : 'pending'
       };
 
-      console.log('Creating company with data:', companyData);
-      
       const company = await storage.createCompany(companyData);
       
-      console.log('Company created successfully:', company.id);
       res.json({
         id: company.id,
         message: 'Company created successfully'
       });
     } catch (error: any) {
       console.error("Error creating company:", error);
-      
-      // Handle specific database errors
-      if (error.message && error.message.includes('duplicate key')) {
-        return res.status(409).json({ message: "Company with this name already exists" });
-      }
-      
-      if (error.message && error.message.includes('foreign key')) {
-        return res.status(400).json({ message: "Invalid data - please check all fields" });
-      }
-      
-      // Generic error response
-      res.status(500).json({ 
-        message: "Failed to create company",
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      res.status(500).json({ message: "Failed to create company" });
     }
   });
 
