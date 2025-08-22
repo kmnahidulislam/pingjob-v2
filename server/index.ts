@@ -25,18 +25,9 @@ initializeCleanDatabase().then(() => {
 
 const app = express();
 
-// Basic session setup
-app.use(session({
-  secret: 'auth-secret-key-dev',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: false, 
-    httpOnly: true, 
-    maxAge: 1000 * 60 * 60 * 24,
-    sameSite: 'lax'
-  }
-}));
+// Import and setup authentication
+import { setupSimpleAuth } from "./simple-auth";
+setupSimpleAuth(app);
 
 // Serve ads.txt file for Google AdSense verification (HIGHEST PRIORITY)
 app.get('/ads.txt', (req, res) => {
@@ -76,7 +67,7 @@ app.get('/test-login-with-browser.html', (req, res) => {
   }
 });
 
-// Session management is now handled by working-auth.ts
+// Session management is now handled by simple-auth.ts
 
 app.use((req, res, next) => {
   const start = Date.now();
