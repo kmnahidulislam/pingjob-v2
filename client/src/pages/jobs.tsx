@@ -76,10 +76,9 @@ export default function Jobs() {
     }
   }, []);
 
-  // Use the fast jobs API for quick loading  
-  console.log("🔥 Query key dependencies:", { filters, selectedCategory, maxJobs });
+  // Use the fast jobs API for quick loading
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['/api/jobs', filters, selectedCategory, maxJobs],
+    queryKey: ['/api/jobs', selectedCategory, maxJobs, filters.search, filters.location],
     queryFn: async () => {
       try {
         // Build query URL with optional category filtering
@@ -88,12 +87,9 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        
-        console.log("🔥 Making API call to:", url);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
-        console.log("🔥 Received", jobs.length, "jobs from API");
         
         // Apply client-side filtering for search terms
         let filteredJobs = jobs;
@@ -133,10 +129,10 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
-    console.log("🔥 Category clicked:", categoryId);
     setSelectedCategory(categoryId);
-    setCurrentPage(1); // Reset to first page when category changes
-    console.log("🔥 Updated selectedCategory to:", categoryId);
+    setCurrentPage(1);
+    // Force query invalidation
+    queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
   };
   
   // Handle pagination
