@@ -250,18 +250,17 @@ export default function CompanyCreate() {
   };
 
   const handleSubmit = (data: z.infer<typeof companyFormSchema>) => {
-    if (import.meta.env.DEV) console.log("=== COMPANY FORM SUBMISSION ===");
-    if (import.meta.env.DEV) console.log("Form submitted with data:", data);
-    if (import.meta.env.DEV) console.log("Form errors:", companyForm.formState.errors);
-    if (import.meta.env.DEV) console.log("Form is valid:", companyForm.formState.isValid);
-    if (import.meta.env.DEV) console.log("Form state:", companyForm.formState);
-    if (import.meta.env.DEV) console.log("Logo file:", logoFile);
-    if (import.meta.env.DEV) console.log("Mutation is pending:", createCompanyMutation.isPending);
+    console.log("=== COMPANY FORM SUBMISSION ===");
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", companyForm.formState.errors);
+    console.log("Form is valid:", companyForm.formState.isValid);
+    console.log("Logo file:", logoFile);
+    console.log("Mutation is pending:", createCompanyMutation.isPending);
     
     // Check for validation errors
     const errors = companyForm.formState.errors;
     if (Object.keys(errors).length > 0) {
-      if (import.meta.env.DEV) console.log("VALIDATION FAILED - Errors:", errors);
+      console.log("VALIDATION FAILED - Errors:", errors);
       toast({
         title: "Validation Error",
         description: `Please check required fields: ${Object.keys(errors).join(', ')}`,
@@ -272,16 +271,12 @@ export default function CompanyCreate() {
     
     // Prevent double submission
     if (createCompanyMutation.isPending) {
-      if (import.meta.env.DEV) console.log("MUTATION ALREADY PENDING - Preventing double submission");
+      console.log("MUTATION ALREADY PENDING - Preventing double submission");
       return;
     }
     
-    if (import.meta.env.DEV) console.log("VALIDATION PASSED - Calling mutation");
-    try {
-      createCompanyMutation.mutate(data);
-    } catch (error) {
-      console.error("Error calling mutation:", error);
-    }
+    console.log("VALIDATION PASSED - Calling mutation");
+    createCompanyMutation.mutate(data);
   };
 
   if (!user) {
