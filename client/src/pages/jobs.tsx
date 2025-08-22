@@ -90,32 +90,10 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        alert(`Making API call to: ${url}`);
-        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
-        
-        // Apply client-side filtering for search terms
-        let filteredJobs = jobs;
-        
-        if (filters.search) {
-          filteredJobs = jobs.filter((job: any) => 
-            job.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-            job.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
-            job.company?.name?.toLowerCase().includes(filters.search.toLowerCase())
-          );
-        }
-        
-        if (filters.location) {
-          filteredJobs = filteredJobs.filter((job: any) => 
-            job.location?.toLowerCase().includes(filters.location.toLowerCase()) ||
-            job.city?.toLowerCase().includes(filters.location.toLowerCase()) ||
-            job.state?.toLowerCase().includes(filters.location.toLowerCase())
-          );
-        }
-        
-        setAllJobsData(filteredJobs);
+        setAllJobsData(jobs);
       } catch (error) {
         console.error('Error fetching jobs:', error);
         setAllJobsData([]);
@@ -125,7 +103,7 @@ export default function Jobs() {
     };
 
     fetchJobs();
-  }, [selectedCategory, maxJobs, filters.search, filters.location]);
+  }, [selectedCategory]);
 
   // Extract jobs from state
   const allJobs = allJobsData;
@@ -138,7 +116,6 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
-    alert(`Clicked category: ${categoryId}`);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
   };

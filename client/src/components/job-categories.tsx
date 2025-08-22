@@ -101,10 +101,7 @@ export function JobCategories({
       {displayCategories.map((category) => (
         <button
           key={category.id}
-          onClick={() => {
-            alert(`Category clicked: ${category.name} (ID: ${category.id})`);
-            onCategorySelect?.(category.id.toString());
-          }}
+          onClick={() => onCategorySelect?.(category.id.toString())}
           className={`w-full flex items-center justify-between p-2 rounded-lg border transition-colors ${
             selectedCategory === category.id.toString()
               ? 'bg-blue-50 border-blue-200 text-blue-700'
