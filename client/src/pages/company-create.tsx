@@ -17,7 +17,7 @@ import { Building, X, Upload } from "lucide-react";
 
 const companyFormSchema = z.object({
   name: z.string().min(1, "Company name is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
   website: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().optional(),
