@@ -52,7 +52,10 @@ export default function Jobs() {
   
   const [filters, setFilters] = useState({
     search: "",
-    location: ""
+    location: "",
+    jobType: "",
+    experienceLevel: "",
+    industry: ""
   });
 
   // Read search and location parameters from URL on page load
@@ -65,7 +68,10 @@ export default function Jobs() {
       setFilters(prev => ({
         ...prev,
         search: searchParam || "",
-        location: locationParam || ""
+        location: locationParam || "",
+        jobType: "",
+        experienceLevel: "",
+        industry: ""
       }));
     }
   }, []);
@@ -81,10 +87,6 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        console.log("=== API CALL DEBUG ===");
-        console.log("Fetching URL:", url);
-        console.log("Selected category:", selectedCategory);
-        console.log("====================");
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
@@ -128,12 +130,8 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
-    console.log("=== CATEGORY SELECTION DEBUG ===");
-    console.log("Selected category ID:", categoryId);
-    console.log("Previous category:", selectedCategory);
     setSelectedCategory(categoryId);
     setCurrentPage(1); // Reset to first page when category changes
-    console.log("================================");
   };
   
   // Handle pagination
@@ -142,10 +140,6 @@ export default function Jobs() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-  // Debug logging
-  console.log('Jobs page - Total jobs received:', allJobs.length);
-  console.log('Jobs page - Current page jobs:', jobs.length);
-  console.log('Jobs page - Selected category:', selectedCategory);
 
   // Fetch companies for job creation
   const { data: companies = [], isLoading: companiesLoading } = useQuery<Company[]>({
@@ -171,8 +165,8 @@ export default function Jobs() {
       city: "",
       zipCode: "",
       salary: "",
-      employmentType: "full_time",
-      experienceLevel: "mid",
+      employmentType: "full_time" as const,
+      experienceLevel: "mid" as const,
       categoryId: 1,
       companyId: 1,
       skills: ""
@@ -275,7 +269,7 @@ export default function Jobs() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setFilters({ search: "", location: "" })}
+                      onClick={() => setFilters({ search: "", location: "", jobType: "", experienceLevel: "", industry: "" })}
                     >
                       Clear Search
                     </Button>
