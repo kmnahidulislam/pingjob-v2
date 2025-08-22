@@ -99,16 +99,20 @@ export function JobCategories({
   return (
     <div className="space-y-3">
       {displayCategories.map((category) => (
-        <div key={category.id} className="flex items-center justify-between">
-          <Link href={`/categories/${category.id}/jobs`}>
-            <span className="text-sm font-medium text-blue-600 hover:underline">
-              {category.name}
-            </span>
-          </Link>
+        <button
+          key={category.id}
+          onClick={() => onCategorySelect?.(category.id.toString())}
+          className={`w-full flex items-center justify-between p-2 rounded-lg border transition-colors ${
+            selectedCategory === category.id.toString()
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
+              : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          <span className="text-sm font-medium">{category.name}</span>
           <Badge variant="secondary" className="text-xs">
             {category.jobCount} jobs
           </Badge>
-        </div>
+        </button>
       ))}
       
       {!showAll && categories.length > limit && (
