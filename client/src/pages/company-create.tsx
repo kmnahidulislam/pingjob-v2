@@ -142,7 +142,8 @@ export default function CompanyCreate() {
       if (import.meta.env.DEV) console.log("Creating company with data:", finalCompanyData);
       if (import.meta.env.DEV) console.log("Making company creation request to /api/companies");
       
-      const result = await apiRequest('POST', '/api/companies', finalCompanyData);
+      const response = await apiRequest('POST', '/api/companies', finalCompanyData);
+      const result = await response.json();
       if (import.meta.env.DEV) console.log("Company creation result:", result);
       return result;
     },
