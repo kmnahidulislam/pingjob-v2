@@ -218,55 +218,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Login endpoint
-  app.post('/api/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      const result = await pool.query(
-        'SELECT * FROM users WHERE email = $1',
-        [email]
-      );
-      
-      if (result.rows.length === 0) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-      
-      const user = result.rows[0];
-      
-      // Verify password
-      const { comparePasswords } = await import('./simple-auth');
-      if (!user.password || !(await comparePasswords(password, user.password))) {
-        return res.status(401).json({ message: "Invalid email or password" });
-      }
-      
-      const userData = {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        userType: user.user_type
-      };
-      
-      // Set user in session and force save
-      req.session.user = userData;
-      req.user = userData;
-      
-      // Force session save to ensure persistence
-      req.session.save((saveErr: any) => {
-        if (saveErr) {
-          console.error('Session save error:', saveErr);
-          return res.status(500).json({ message: "Session save failed" });
-        }
-        
-        console.log('✅ Session saved successfully for user:', userData.email);
-        res.json(userData);
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Login failed' });
-    }
-  });
+
 
   // User authentication endpoints
   app.get('/api/user', (req: any, res) => {
@@ -1306,42 +1258,7 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Create premium user after successful payment
-  app.post('/api/create-premium-user', async (req, res) => {
-    try {
-      const { email, firstName, lastName, userType, paymentConfirmed } = req.body;
-      
-      if (!paymentConfirmed) {
-        return res.status(400).json({ message: 'Payment confirmation required' });
-      }
 
-      // Create the premium user in the database
-      const hashedPassword = 'pending_password_setup'; // User will set password via email
-      
-      const newUser = await storage.createUser({
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        userType: userType as "job_seeker" | "recruiter" | "client" | "admin",
-        isVerified: true,
-        subscriptionStatus: 'active',
-        subscriptionPlan: userType
-      });
-
-      res.json({ 
-        success: true, 
-        message: 'Premium account created successfully',
-        userId: newUser.id 
-      });
-    } catch (error) {
-      console.error('Error creating premium user:', error);
-      res.status(500).json({ 
-        message: 'Failed to create premium account',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
 
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
