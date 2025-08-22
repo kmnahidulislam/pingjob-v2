@@ -17,18 +17,24 @@ import { Building, X, Upload } from "lucide-react";
 
 const companyFormSchema = insertCompanySchema.omit({ 
   userId: true,
-  updatedAt: true 
+  updatedAt: true,
+  createdAt: true,
+  status: true,
+  approvedBy: true,
+  followers: true,
+  logoUrl: true
 }).extend({
   name: z.string().min(1, "Company name is required"),
-  industry: z.string().min(1, "Industry is required"),
   description: z.string().min(1, "Description is required"),
   website: z.string().optional(),
   phone: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  country: z.string().min(1, "Country is required"),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
   zipCode: z.string().optional(),
   location: z.string().optional(),
+  industry: z.string().optional(),
+  size: z.string().optional(),
 });
 
 export default function CompanyCreate() {
@@ -123,11 +129,18 @@ export default function CompanyCreate() {
         }
       }
       
+      // Get selected country and state names from the UI
+      const selectedCountry = countries?.find((c: any) => c.id === selectedCountryId);
+      const selectedState = states?.find((s: any) => s.id === selectedStateId);
+      
       // Create company with logo URL and userId
       const finalCompanyData = {
         ...companyData,
         userId: user?.id || 'admin',
-        logoUrl
+        logoUrl,
+        country: selectedCountry?.name || companyData.country,
+        state: selectedState?.name || companyData.state,
+        countryId: selectedCountryId // For backend compatibility
       };
       
       if (import.meta.env.DEV) console.log("Creating company with data:", finalCompanyData);
