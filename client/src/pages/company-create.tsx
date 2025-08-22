@@ -142,25 +142,50 @@ export default function CompanyCreate() {
       if (import.meta.env.DEV) console.log("Creating company with data:", finalCompanyData);
       if (import.meta.env.DEV) console.log("Making company creation request to /api/companies");
       
-      const response = await apiRequest('POST', '/api/companies', finalCompanyData);
+      // Use direct fetch instead of apiRequest to get better error info
+      const response = await fetch('/api/companies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(finalCompanyData),
+        credentials: 'include'
+      });
       
       if (import.meta.env.DEV) console.log("Company creation response:", response);
       if (import.meta.env.DEV) console.log("Response status:", response.status);
       if (import.meta.env.DEV) console.log("Response ok:", response.ok);
       
-      // Check if response is ok before parsing JSON
+      // Get response text first to debug
+      const responseText = await response.text();
+      if (import.meta.env.DEV) console.log("Response text:", responseText);
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+        if (response.status === 401) {
+          throw new Error("Please log in again to create a company");
+        }
+        
+        // Try to parse error as JSON, fallback to text
+        let errorMessage = responseText;
+        try {
+          const errorJson = JSON.parse(responseText);
+          errorMessage = errorJson.message || errorMessage;
+        } catch {
+          // Use raw text if JSON parsing fails
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorMessage}`);
       }
       
       // Parse JSON safely
       let result;
       try {
-        result = await response.json();
+        result = JSON.parse(responseText);
         if (import.meta.env.DEV) console.log("Company creation result:", result);
       } catch (jsonError) {
         console.error("Failed to parse JSON response:", jsonError);
+        console.error("Response was:", responseText);
         throw new Error("Invalid server response format");
       }
       

@@ -10,9 +10,11 @@ import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 import Stripe from "stripe";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
+  console.log('🔒 Auth check for', req.method, req.path);
   console.log('🔒 Auth check - Session exists:', !!req.session);
   console.log('🔒 Auth check - Session user:', !!req.session?.user);
   console.log('🔒 Auth check - Passport user:', !!req.user);
+  console.log('🔒 Auth check - Headers:', req.headers['content-type']);
   
   if (req.user || req.session?.user) {
     // Ensure req.user is set for consistency
@@ -21,6 +23,7 @@ const isAuthenticated = (req: any, res: any, next: any) => {
     next();
   } else {
     console.log('🔒 Auth check - FAILED - returning 401');
+    console.log('🔒 Session data:', req.session);
     res.status(401).json({ message: "Authentication required" });
   }
 };
