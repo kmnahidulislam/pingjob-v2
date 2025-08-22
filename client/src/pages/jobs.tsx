@@ -77,7 +77,7 @@ export default function Jobs() {
   }, []);
 
   // Use the fast jobs API for quick loading
-  const { data: searchResults, isLoading } = useQuery({
+  const { data: searchResults, isLoading, refetch } = useQuery({
     queryKey: ['/api/jobs', selectedCategory, maxJobs, filters.search, filters.location],
     queryFn: async () => {
       try {
@@ -87,8 +87,6 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        console.log("🔥 MAKING REQUEST TO:", url);
-        console.log("🔥 SELECTED CATEGORY IS:", selectedCategory);
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
@@ -131,12 +129,10 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
-    console.log("🔥 CLICKING CATEGORY:", categoryId);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-    // Force query invalidation
-    queryClient.invalidateQueries({ queryKey: ['/api/jobs'] });
-    console.log("🔥 STATE UPDATED AND QUERY INVALIDATED");
+    // Force refetch immediately
+    setTimeout(() => refetch(), 100);
   };
   
   // Handle pagination
