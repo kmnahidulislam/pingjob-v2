@@ -143,8 +143,27 @@ export default function CompanyCreate() {
       if (import.meta.env.DEV) console.log("Making company creation request to /api/companies");
       
       const response = await apiRequest('POST', '/api/companies', finalCompanyData);
-      const result = await response.json();
-      if (import.meta.env.DEV) console.log("Company creation result:", result);
+      
+      if (import.meta.env.DEV) console.log("Company creation response:", response);
+      if (import.meta.env.DEV) console.log("Response status:", response.status);
+      if (import.meta.env.DEV) console.log("Response ok:", response.ok);
+      
+      // Check if response is ok before parsing JSON
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      // Parse JSON safely
+      let result;
+      try {
+        result = await response.json();
+        if (import.meta.env.DEV) console.log("Company creation result:", result);
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        throw new Error("Invalid server response format");
+      }
+      
       return result;
     },
     onSuccess: () => {
@@ -176,7 +195,7 @@ export default function CompanyCreate() {
       
       if (error.message) {
         // If it's a network or parsing error, show that
-        if (error.message.includes("JSON")) {
+        if (error.message.includes("JSON") || error.message.includes("Invalid server response")) {
           errorMessage = "Server response error - please try again";
         } else if (error.message.includes("401")) {
           errorMessage = "Please log in again";
