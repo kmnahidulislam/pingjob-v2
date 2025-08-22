@@ -82,6 +82,8 @@ export default function Jobs() {
 
   // Fetch jobs when component mounts or category changes
   useEffect(() => {
+    console.log(`🔥 useEffect TRIGGERED - selectedCategory: ${selectedCategory}`);
+    
     const fetchJobs = async () => {
       setIsLoadingJobs(true);
       try {
@@ -89,6 +91,8 @@ export default function Jobs() {
         if (selectedCategory) {
           url += `&categoryId=${selectedCategory}`;
         }
+        
+        console.log(`🔥 MAKING FETCH TO: ${url}`);
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
@@ -116,8 +120,11 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
+    console.log(`🔥 CATEGORY CLICKED: ${categoryId}`);
+    console.log(`🔥 CURRENT selectedCategory BEFORE: ${selectedCategory}`);
     setSelectedCategory(categoryId);
     setCurrentPage(1);
+    console.log(`🔥 setSelectedCategory called with: ${categoryId}`);
   };
   
   // Handle pagination
