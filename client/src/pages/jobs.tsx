@@ -72,7 +72,7 @@ export default function Jobs() {
 
   // Use the fast jobs API for quick loading
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['/api/jobs', filters, selectedCategory],
+    queryKey: ['/api/jobs', filters, selectedCategory, maxJobs],
     queryFn: async () => {
       try {
         // Build query URL with optional category filtering
