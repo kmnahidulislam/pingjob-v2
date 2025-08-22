@@ -980,6 +980,13 @@ export function registerRoutes(app: Express) {
       console.log('Request body:', req.body);
       console.log('User:', req.user);
       
+      // Validate required fields
+      if (!req.body.name || !req.body.description) {
+        return res.status(400).json({ 
+          message: "Missing required fields: name and description are required" 
+        });
+      }
+      
       const companyData = {
         ...req.body,
         userId: req.user.id,
@@ -998,9 +1005,23 @@ export function registerRoutes(app: Express) {
         id: company.id,
         message: 'Company created successfully'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating company:", error);
-      res.status(500).json({ message: "Failed to create company" });
+      
+      // Handle specific database errors
+      if (error.message && error.message.includes('duplicate key')) {
+        return res.status(409).json({ message: "Company with this name already exists" });
+      }
+      
+      if (error.message && error.message.includes('foreign key')) {
+        return res.status(400).json({ message: "Invalid data - please check all fields" });
+      }
+      
+      // Generic error response
+      res.status(500).json({ 
+        message: "Failed to create company",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 
