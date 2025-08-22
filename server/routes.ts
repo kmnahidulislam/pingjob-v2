@@ -338,17 +338,27 @@ export function registerRoutes(app: Express) {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
       
+      console.log("=== JOBS API DEBUG ===");
+      console.log("Query params:", req.query);
+      console.log("Parsed limit:", limit);
+      console.log("Parsed categoryId:", categoryId);
+      console.log("====================");
+      
       let jobs;
       if (categoryId) {
+        console.log(`Fetching jobs for category ${categoryId}`);
         // Get jobs by specific category, sorted by latest (most recent first)
         jobs = await storage.getJobsByCategory(categoryId);
+        console.log(`Found ${jobs.length} jobs for category ${categoryId}`);
         // Limit results if specified
         if (limit) {
           jobs = jobs.slice(0, limit);
         }
       } else {
+        console.log("Fetching all jobs (no category filter)");
         // Get all jobs
         jobs = await storage.getFastJobs(limit);
+        console.log(`Found ${jobs.length} total jobs`);
       }
       
       res.json(jobs);

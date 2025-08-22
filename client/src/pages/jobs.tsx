@@ -81,6 +81,11 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
+        console.log("=== API CALL DEBUG ===");
+        console.log("Fetching URL:", url);
+        console.log("Selected category:", selectedCategory);
+        console.log("====================");
+        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
@@ -123,8 +128,12 @@ export default function Jobs() {
   
   // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
+    console.log("=== CATEGORY SELECTION DEBUG ===");
+    console.log("Selected category ID:", categoryId);
+    console.log("Previous category:", selectedCategory);
     setSelectedCategory(categoryId);
     setCurrentPage(1); // Reset to first page when category changes
+    console.log("================================");
   };
   
   // Handle pagination
