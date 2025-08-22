@@ -253,11 +253,21 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             <div className="flex items-center space-x-4 flex-1">
               {showCompany && (
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={
-                    job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
-                      ? (job.company.logoUrl.startsWith('http') ? job.company.logoUrl : `/${job.company.logoUrl.replace(/ /g, '%20')}`)
-                      : undefined
-                  } />
+                  <AvatarImage 
+                    src={
+                      job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
+                        ? (job.company.logoUrl.startsWith('http') 
+                            ? job.company.logoUrl 
+                            : job.company.logoUrl.startsWith('/uploads/') 
+                              ? job.company.logoUrl.replace(/ /g, '%20')
+                              : `/uploads/${job.company.logoUrl.replace('logos/', '').replace(/ /g, '%20')}`)
+                        : undefined
+                    }
+                    onError={(e: any) => {
+                      // Fallback to Building icon on error
+                      e.target.style.display = 'none';
+                    }}
+                  />
                   <AvatarFallback className="bg-linkedin-blue text-white">
                     <Building className="h-6 w-6" />
                   </AvatarFallback>
