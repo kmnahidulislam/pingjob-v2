@@ -977,11 +977,13 @@ export function registerRoutes(app: Express) {
   app.post('/api/companies', isAuthenticated, async (req: any, res) => {
     try {
       console.log('=== COMPANY CREATION REQUEST ===');
-      console.log('Request body:', req.body);
-      console.log('User:', req.user);
+      console.log('Request body:', JSON.stringify(req.body, null, 2));
+      console.log('User:', req.user ? { id: req.user.id, email: req.user.email, userType: req.user.userType } : 'No user');
+      console.log('Request headers:', req.headers['content-type']);
       
       // Validate required fields
       if (!req.body.name || !req.body.description) {
+        console.log('❌ Missing required fields:', { name: !!req.body.name, description: !!req.body.description });
         return res.status(400).json({ 
           message: "Missing required fields: name and description are required" 
         });
