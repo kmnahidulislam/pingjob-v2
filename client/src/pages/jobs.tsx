@@ -68,7 +68,7 @@ export default function Jobs() {
     const locationParam = urlParams.get('location');
     const categoryParam = urlParams.get('categoryId');
     
-    console.log('🔍 URL Debug:', {
+    console.log('DEBUG URL:', {
       searchString,
       windowSearch: window.location.search,
       currentSearch,
@@ -88,7 +88,7 @@ export default function Jobs() {
     }
     
     if (categoryParam) {
-      console.log('🎯 Setting category to:', categoryParam);
+      console.log('SETTING CATEGORY TO:', categoryParam);
       setSelectedCategory(categoryParam);
     }
   }, [searchString, location]);
@@ -107,15 +107,15 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        console.log('🚀 Fetching from URL:', url);
-        console.log('🎯 Selected category:', selectedCategory);
+        console.log('FETCHING FROM URL:', url);
+        console.log('SELECTED CATEGORY:', selectedCategory);
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
         
-        console.log('📊 Jobs received:', jobs.length);
-        console.log('📝 First few job titles:', jobs.slice(0, 3).map((j: any) => j.title));
+        console.log('JOBS RECEIVED:', jobs.length);
+        console.log('FIRST FEW JOB TITLES:', jobs.slice(0, 3).map((j: any) => j.title));
         
         setAllJobsData(jobs);
       } catch (error) {
