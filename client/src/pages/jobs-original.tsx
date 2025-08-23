@@ -17,11 +17,17 @@ export default function JobsOriginal() {
     location: ""
   });
 
-  // Read search and location parameters from URL on page load
+  // Category filtering state
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  // Read search, location, and category parameters from URL on page load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search');
     const locationParam = urlParams.get('location');
+    const categoryParam = urlParams.get('categoryId');
+    
+    console.log('DEBUG URL PARAMS:', { searchParam, locationParam, categoryParam });
     
     if (searchParam || locationParam) {
       setFilters(prev => ({
@@ -30,11 +36,31 @@ export default function JobsOriginal() {
         location: locationParam || ""
       }));
     }
+    
+    if (categoryParam) {
+      console.log('SETTING CATEGORY TO:', categoryParam);
+      setSelectedCategory(categoryParam);
+    }
   }, []);
 
-  // Fetch jobs using fast endpoint
+  // Fetch jobs using fast endpoint with category filtering
   const { data: jobs = [], isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs'],
+    queryKey: ['/api/jobs', selectedCategory],
+    queryFn: async () => {
+      let url = '/api/jobs?limit=50';
+      if (selectedCategory) {
+        url += `&categoryId=${selectedCategory}`;
+      }
+      console.log('FETCHING JOBS FROM:', url);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch jobs');
+      const data = await response.json();
+      console.log('JOBS RECEIVED:', data.length);
+      if (data.length > 0) {
+        console.log('FIRST JOB TITLES:', data.slice(0, 3).map((j: any) => j.title));
+      }
+      return data;
+    }
   });
 
   // Fetch categories for left sidebar
