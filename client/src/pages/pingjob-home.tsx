@@ -830,7 +830,7 @@ export default function PingJobHome() {
                   categories.slice(0, 20).map((category: any) => (
                     <div key={category.id} className="flex justify-between items-center">
                       <Link 
-                        href={`/jobs?category=${category.id}`}
+                        href={`/jobs?categoryId=${category.id}`}
                         className="text-blue-600 hover:text-blue-800 text-sm"
                       >
                         {category.name}
