@@ -17,6 +17,10 @@ export default function JobsOriginal() {
     location: ""
   });
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 10;
+
   // Category filtering state
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
@@ -84,6 +88,18 @@ export default function JobsOriginal() {
     
     return matchesSearch && matchesLocation;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const startIndex = (currentPage - 1) * jobsPerPage;
+  const endIndex = startIndex + jobsPerPage;
+  const currentJobs = filteredJobs.slice(startIndex, endIndex);
+
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -209,7 +225,7 @@ export default function JobsOriginal() {
                 </div>
               )}
               
-              {!jobsLoading && filteredJobs && Array.isArray(filteredJobs) && filteredJobs.map((job: any) => (
+              {!jobsLoading && currentJobs && Array.isArray(currentJobs) && currentJobs.map((job: any) => (
                 <Card key={job.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
@@ -314,6 +330,41 @@ export default function JobsOriginal() {
                 </Card>
               ))}
             </div>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8 space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const page = i + 1;
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      onClick={() => handlePageChange(page)}
+                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+                
+                <Button
+                  variant="outline"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </div>
 
 
