@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertJobSchema, type InsertJob, type Company } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -40,7 +40,8 @@ const highlightSearchTerms = (text: string, searchTerm: string) => {
 export default function Jobs() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
+  const searchString = useSearch();
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [companySearch, setCompanySearch] = useState("");
@@ -60,7 +61,7 @@ export default function Jobs() {
 
   // Read search and location parameters from URL on page load
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(searchString);
     const searchParam = urlParams.get('search');
     const locationParam = urlParams.get('location');
     const categoryParam = urlParams.get('categoryId');
@@ -79,7 +80,7 @@ export default function Jobs() {
     if (categoryParam) {
       setSelectedCategory(categoryParam);
     }
-  }, []);
+  }, [searchString]);
 
   // Simple state for jobs
   const [allJobsData, setAllJobsData] = useState<any[]>([]);
