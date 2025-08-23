@@ -485,11 +485,50 @@ export const storage = {
   async getJobsByCategory(categoryId: number) {
     try {
       const categoryJobs = await db
-        .select()
+        .select({
+          id: jobs.id,
+          companyId: jobs.companyId,
+          recruiterId: jobs.recruiterId,
+          categoryId: jobs.categoryId,
+          title: jobs.title,
+          description: jobs.description,
+          requirements: jobs.requirements,
+          location: jobs.location,
+          country: jobs.country,
+          state: jobs.state,
+          city: jobs.city,
+          zipCode: jobs.zipCode,
+          jobType: jobs.jobType,
+          employmentType: jobs.employmentType,
+          experienceLevel: jobs.experienceLevel,
+          salary: jobs.salary,
+          benefits: jobs.benefits,
+          skills: jobs.skills,
+          isActive: jobs.isActive,
+          applicationCount: jobs.applicationCount,
+          createdAt: jobs.createdAt,
+          updatedAt: jobs.updatedAt,
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description
+        })
         .from(jobs)
-        .where(and(eq(jobs.categoryId, categoryId), eq(jobs.isActive, true)));
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .where(and(eq(jobs.categoryId, categoryId), eq(jobs.isActive, true)))
+        .orderBy(desc(jobs.createdAt));
       
-      return categoryJobs;
+      // Transform the results to include company object
+      return categoryJobs.map(job => ({
+        ...job,
+        company: {
+          id: job.companyId,
+          name: job.companyName || "Company Name",
+          logoUrl: job.companyLogoUrl,
+          website: job.companyWebsite,
+          description: job.companyDescription
+        }
+      }));
     } catch (error) {
       console.error(`Error fetching jobs for category ${categoryId}:`, error);
       return [];
