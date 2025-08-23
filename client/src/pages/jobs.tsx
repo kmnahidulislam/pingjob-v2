@@ -115,7 +115,7 @@ export default function Jobs() {
         const jobs = await response.json();
         
         console.log('📊 Jobs received:', jobs.length);
-        console.log('📝 First few job titles:', jobs.slice(0, 3).map(j => j.title));
+        console.log('📝 First few job titles:', jobs.slice(0, 3).map((j: any) => j.title));
         
         setAllJobsData(jobs);
       } catch (error) {
