@@ -65,9 +65,6 @@ export default function Jobs() {
     const locationParam = urlParams.get('location');
     const categoryParam = urlParams.get('categoryId');
     
-    console.log('URL params:', { searchParam, locationParam, categoryParam });
-    console.log('Current URL:', window.location.href);
-    
     if (searchParam || locationParam) {
       setFilters(prev => ({
         ...prev,
@@ -80,7 +77,6 @@ export default function Jobs() {
     }
     
     if (categoryParam) {
-      console.log('Setting selectedCategory to:', categoryParam);
       setSelectedCategory(categoryParam);
     }
   }, []);
@@ -99,13 +95,9 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
-        console.log('Fetching jobs from URL:', url);
-        console.log('selectedCategory state:', selectedCategory);
-        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
-        console.log('Jobs received:', jobs.length);
         setAllJobsData(jobs);
       } catch (error) {
         console.error('Error fetching jobs:', error);
