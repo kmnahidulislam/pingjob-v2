@@ -31,7 +31,6 @@ export default function JobsOriginal() {
     const locationParam = urlParams.get('location');
     const categoryParam = urlParams.get('categoryId');
     
-    console.log('DEBUG URL PARAMS:', { searchParam, locationParam, categoryParam });
     
     if (searchParam || locationParam) {
       setFilters(prev => ({
@@ -42,7 +41,6 @@ export default function JobsOriginal() {
     }
     
     if (categoryParam) {
-      console.log('SETTING CATEGORY TO:', categoryParam);
       setSelectedCategory(categoryParam);
     }
   }, []);
@@ -55,14 +53,9 @@ export default function JobsOriginal() {
       if (selectedCategory) {
         url += `&categoryId=${selectedCategory}`;
       }
-      console.log('FETCHING JOBS FROM:', url);
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch jobs');
       const data = await response.json();
-      console.log('JOBS RECEIVED:', data.length);
-      if (data.length > 0) {
-        console.log('FIRST JOB TITLES:', data.slice(0, 3).map((j: any) => j.title));
-      }
       return data;
     }
   });
