@@ -91,7 +91,7 @@ export default function Jobs() {
       console.log('SETTING CATEGORY TO:', categoryParam);
       setSelectedCategory(categoryParam);
     }
-  }, [searchString, location]);
+  }, [searchString]);
 
   // Simple state for jobs
   const [allJobsData, setAllJobsData] = useState<any[]>([]);
