@@ -61,10 +61,20 @@ export default function Jobs() {
 
   // Read search and location parameters from URL on page load
   useEffect(() => {
-    const urlParams = new URLSearchParams(searchString);
+    // Check both current search string and window location
+    const currentSearch = searchString || window.location.search;
+    const urlParams = new URLSearchParams(currentSearch);
     const searchParam = urlParams.get('search');
     const locationParam = urlParams.get('location');
     const categoryParam = urlParams.get('categoryId');
+    
+    console.log('🔍 URL Debug:', {
+      searchString,
+      windowSearch: window.location.search,
+      currentSearch,
+      categoryParam,
+      href: window.location.href
+    });
     
     if (searchParam || locationParam) {
       setFilters(prev => ({
@@ -78,9 +88,10 @@ export default function Jobs() {
     }
     
     if (categoryParam) {
+      console.log('🎯 Setting category to:', categoryParam);
       setSelectedCategory(categoryParam);
     }
-  }, [searchString]);
+  }, [searchString, location]);
 
   // Simple state for jobs
   const [allJobsData, setAllJobsData] = useState<any[]>([]);
@@ -96,9 +107,16 @@ export default function Jobs() {
           url += `&categoryId=${selectedCategory}`;
         }
         
+        console.log('🚀 Fetching from URL:', url);
+        console.log('🎯 Selected category:', selectedCategory);
+        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
         const jobs = await response.json();
+        
+        console.log('📊 Jobs received:', jobs.length);
+        console.log('📝 First few job titles:', jobs.slice(0, 3).map(j => j.title));
+        
         setAllJobsData(jobs);
       } catch (error) {
         console.error('Error fetching jobs:', error);
