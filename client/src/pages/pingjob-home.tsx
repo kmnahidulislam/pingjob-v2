@@ -1198,7 +1198,9 @@ export default function PingJobHome() {
           <h2 className="mobile-title mb-4">Job Categories</h2>
           <JobCategories 
             selectedCategory={selectedCategory}
-            onCategorySelect={setSelectedCategory}
+            onCategorySelect={(categoryId) => {
+              window.location.href = `/jobs?categoryId=${categoryId}`;
+            }}
             isMobile={true}
           />
         </div>
