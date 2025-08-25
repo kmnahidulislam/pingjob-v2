@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import JobCard from "@/components/job-card";
 import { Building2, MapPin, Clock, DollarSign, Users, RefreshCw, Briefcase } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
@@ -219,108 +220,12 @@ export default function JobsOriginal() {
               )}
               
               {!jobsLoading && currentJobs && Array.isArray(currentJobs) && currentJobs.map((job: any) => (
-                <Card key={job.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      {/* Company Logo */}
-                      <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "logos/NULL" ? (
-                          <img 
-                            src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={job.company?.name}
-                            className="w-full h-full object-contain p-1"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white">
-                            <Building2 className="h-6 w-6" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Job Details */}
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                              {job.title}
-                            </h3>
-                            <p className="text-blue-600 font-medium mb-2">
-                              {job.company?.name || 'Company Name'}
-                            </p>
-                          </div>
-                          
-                          {/* Vendor Count Badge */}
-                          <Badge variant="outline" className="ml-2">
-                            {Math.floor(Math.random() * 15) + 1} vendors
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {(() => {
-                              if (job.city && job.state) {
-                                return `${job.city}, ${job.state}`;
-                              }
-                              if (job.location) {
-                                return job.location
-                                  .replace(/, United States$/, '')
-                                  .replace(/ United States$/, '')
-                                  .replace(/United States,?\s*/, '')
-                                  .trim() || 'Remote';
-                              }
-                              return 'Remote';
-                            })()}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {job.employmentType?.replace('_', ' ') || 'Full time'}
-                          </div>
-                          {job.salary && (
-                            <div className="flex items-center">
-                              <DollarSign className="h-4 w-4 mr-1" />
-                              {job.salary}
-                            </div>
-                          )}
-                        </div>
-
-                        <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                          {job.description}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Users className="h-4 w-4 mr-1" />
-                            {Math.floor(Math.random() * 100) + 10} applicants
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <Link href={`/jobs/${job.id}`}>
-                              <Button variant="outline" size="sm">
-                                View Details
-                              </Button>
-                            </Link>
-                            {user ? (
-                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                                Apply Now
-                              </Button>
-                            ) : (
-                              <Link href="/auth">
-                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                                  Apply Now
-                                </Button>
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="text-xs text-gray-500 mt-2">
-                          {new Date(job.createdAt || Date.now()).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <JobCard 
+                  key={job.id} 
+                  job={job} 
+                  compact={false} 
+                  showCompany={true} 
+                />
               ))}
             </div>
             
