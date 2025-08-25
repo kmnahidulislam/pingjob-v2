@@ -538,78 +538,107 @@ export default function PingJobHome() {
       {/* Desktop Main Content */}
       <main className="desktop-only">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Hero Title */}
+          <div className="mb-16">
+            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+              Find Your <span className="text-blue-600">Dream Job</span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Connect with top companies and discover opportunities that match your skills and aspirations
+            </p>
+          </div>
+          
           {/* Hero Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 pt-8">
-            <div className="flex items-center justify-center space-x-2 text-green-600">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-semibold">100% Client-Only Jobs</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">100% Client-Only Jobs</h3>
+              <p className="text-sm text-gray-600">Direct opportunities from hiring companies</p>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-blue-600">
-              <Rocket className="h-5 w-5" />
-              <span className="font-semibold">10X Recruiter Engagement</span>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Rocket className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">10X Recruiter Engagement</h3>
+              <p className="text-sm text-gray-600">Higher response rates than traditional job boards</p>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-purple-600">
-              <Target className="h-5 w-5" />
-              <span className="font-semibold">One Clear Goal</span>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Target className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">One Clear Goal</h3>
+              <p className="text-sm text-gray-600">Focused on connecting talent with opportunity</p>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-indigo-600">
-              <Bot className="h-5 w-5" />
-              <span className="font-semibold">AI-Powered Matching</span>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Bot className="h-6 w-6 text-indigo-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">AI-Powered Matching</h3>
+              <p className="text-sm text-gray-600">Smart algorithms match you with relevant jobs</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-            <div className="flex items-center justify-center space-x-2 text-orange-600">
-              <BarChart3 className="h-5 w-5" />
-              <span className="font-semibold">Real-Time Analytics</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-2xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Real-Time Analytics</h3>
+              <p className="text-sm text-gray-600">Track your application progress and market trends</p>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-red-600">
-              <Star className="h-5 w-5" />
-              <span className="font-semibold">Resume Score™</span>
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Star className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 mb-2">Resume Score™</h3>
+              <p className="text-sm text-gray-600">Get instant feedback on your resume quality</p>
             </div>
           </div>
 
           {/* Real-time Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <Card className="p-6 bg-white/90 backdrop-blur-md border border-blue-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Briefcase className="h-6 w-6 text-blue-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
+                  <Briefcase className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-blue-600">{jobStats.totalJobs}</div>
-                <div className="text-sm text-gray-600">Active Jobs</div>
+                <div className="text-3xl font-bold text-blue-600 mb-1">{jobStats.totalJobs}</div>
+                <div className="text-sm font-medium text-gray-600">Active Jobs</div>
               </div>
             </Card>
             
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+            <Card className="p-6 bg-white/90 backdrop-blur-md border border-green-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Building2 className="h-6 w-6 text-green-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-green-600 group-hover:to-green-700 transition-all duration-300">
+                  <Building2 className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-green-600">{jobStats.activeCompanies}</div>
-                <div className="text-sm text-gray-600">Top Companies</div>
+                <div className="text-3xl font-bold text-green-600 mb-1">{jobStats.activeCompanies}</div>
+                <div className="text-sm font-medium text-gray-600">Companies</div>
               </div>
             </Card>
             
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+            <Card className="p-6 bg-white/90 backdrop-blur-md border border-purple-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-purple-600 group-hover:to-purple-700 transition-all duration-300">
+                  <TrendingUp className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-purple-600">{jobStats.totalCategories}</div>
-                <div className="text-sm text-gray-600">Categories</div>
+                <div className="text-3xl font-bold text-purple-600 mb-1">{jobStats.totalCategories}</div>
+                <div className="text-sm font-medium text-gray-600">Categories</div>
               </div>
             </Card>
             
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+            <Card className="p-6 bg-white/90 backdrop-blur-md border border-orange-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
               <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Clock className="h-6 w-6 text-orange-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-300">
+                  <Clock className="h-8 w-8 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-orange-600">{jobStats.todayJobs}</div>
-                <div className="text-sm text-gray-600">Posted Today</div>
+                <div className="text-3xl font-bold text-orange-600 mb-1">{jobStats.todayJobs}</div>
+                <div className="text-sm font-medium text-gray-600">Posted Today</div>
               </div>
             </Card>
           </div>
@@ -800,18 +829,21 @@ export default function PingJobHome() {
       )}
 
       {/* Main Content Area with Sidebar and Jobs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50/50">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             
             {/* Top Job Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Job Categories</CardTitle>
+            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
+                  <Briefcase className="h-5 w-5 text-blue-600 mr-2" />
+                  Top Job Categories
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 p-6">
                 {Array.isArray(categories) && categories.length > 0 ? (
                   categories.slice(0, 20).map((category: any) => (
                     <div key={category.id} className="flex justify-between items-center">
@@ -835,11 +867,14 @@ export default function PingJobHome() {
             </Card>
 
             {/* Top Companies */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Top Companies</CardTitle>
+            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
+                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
+                  <Building2 className="h-5 w-5 text-green-600 mr-2" />
+                  Top Companies
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 p-6">
                 {topCompanies.slice(0, 20).map((company: any, index: number) => (
                   <div key={company.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -902,14 +937,14 @@ export default function PingJobHome() {
           
           {/* Latest Job Opportunities Section */}
           <div id="jobs-section" className="lg:col-span-3">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center space-x-4 mb-4">
-                <h2 className="text-3xl font-bold text-gray-900">Latest Job Opportunities</h2>
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Latest Job Opportunities</h2>
                 <Button
                   onClick={() => refetchJobs()}
                   variant="outline"
                   size="sm"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   <TrendingUp className="h-4 w-4 mr-1" />
                   Refresh
@@ -917,8 +952,8 @@ export default function PingJobHome() {
               </div>
               {jobsLoading && (
                 <div className="flex justify-center items-center mt-4">
-                  <span className="text-sm text-blue-600">
-                    <Clock className="h-4 w-4 inline mr-1" />
+                  <span className="text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+                    <Clock className="h-4 w-4 inline mr-1 animate-spin" />
                     Updating...
                   </span>
                 </div>
@@ -926,10 +961,10 @@ export default function PingJobHome() {
             </div>
             
             {currentJobs.length > 0 ? (
-              <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {currentJobs.map((job: any, index: number) => (
-                  <Card key={`${job.id}-page-${currentJobPage}`} className="hover:shadow-lg transition-shadow duration-300">
-                    <CardHeader className="pb-4">
+                  <Card key={`${job.id}-page-${currentJobPage}`} className="border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] bg-white/80 backdrop-blur-sm">
+                    <CardHeader className="pb-6 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-t-lg">
                       
                       {/* Company Logo and Name */}
                       <div className="flex items-start space-x-4 mb-4">
@@ -972,13 +1007,13 @@ export default function PingJobHome() {
                       </div>
                       
                       {/* Job Title */}
-                      <CardTitle className="text-lg font-semibold text-gray-800 mb-3 line-clamp-2">
+                      <CardTitle className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
                         {job.title}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6">
                       {/* Job Description */}
-                      <p className="text-sm text-gray-700 line-clamp-3 mb-4">
+                      <p className="text-sm text-gray-700 line-clamp-3 mb-6 leading-relaxed">
                         {job.description}
                       </p>
                       
@@ -997,12 +1032,12 @@ export default function PingJobHome() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex gap-3 mt-6">
                         {/* Admin Edit Button */}
                         {(user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && (
                           <Button 
                             variant="outline" 
-                            className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white" 
+                            className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
                             size="sm"
                             onClick={(e) => {
                               e.preventDefault();
@@ -1010,16 +1045,16 @@ export default function PingJobHome() {
                             }}
                           >
                             <Edit className="h-4 w-4 mr-1" />
-                            Edit Job
+                            Edit
                           </Button>
                         )}
                         <Link href={`/jobs/${job.id}`} className="flex-1">
-                          <Button variant="outline" className="w-full" size="sm">
+                          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg" size="sm">
                             View Details
                           </Button>
                         </Link>
                         <Button 
-                          className="w-full flex-1" 
+                          className="w-full flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 shadow-md hover:shadow-lg" 
                           size="sm"
                           onClick={(e) => {
                             e.preventDefault();
@@ -1034,25 +1069,27 @@ export default function PingJobHome() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <Briefcase className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Available</h3>
-                <p className="text-gray-600 mb-6">Check back soon for new opportunities</p>
-                <Button className="px-8">
+              <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Briefcase className="h-12 w-12 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">No Jobs Available</h3>
+                <p className="text-gray-600 mb-8 text-lg">Check back soon for new opportunities</p>
+                <Button className="px-10 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   Post a Job
-                  <Plus className="h-4 w-4 ml-2" />
+                  <Plus className="h-5 w-5 ml-2" />
                 </Button>
               </div>
             )}
             
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center mt-8 space-x-2">
+              <div className="flex justify-center items-center mt-12 space-x-3">
                 <Button
                   variant="outline"
                   onClick={() => handleJobPageChange(currentJobPage - 1)}
                   disabled={currentJobPage === 1}
-                  className="px-3 py-2"
+                  className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Previous
@@ -1063,7 +1100,10 @@ export default function PingJobHome() {
                     key={page}
                     variant={currentJobPage === page ? "default" : "outline"}
                     onClick={() => handleJobPageChange(page)}
-                    className="px-3 py-2 min-w-[2.5rem]"
+                    className={currentJobPage === page 
+                      ? "px-4 py-2 min-w-[2.5rem] bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" 
+                      : "px-4 py-2 min-w-[2.5rem] border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
+                    }
                   >
                     {page}
                   </Button>
@@ -1073,7 +1113,7 @@ export default function PingJobHome() {
                   variant="outline"
                   onClick={() => handleJobPageChange(currentJobPage + 1)}
                   disabled={currentJobPage === totalPages}
-                  className="px-3 py-2"
+                  className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   Next
                   <ChevronRight className="h-4 w-4 ml-1" />
