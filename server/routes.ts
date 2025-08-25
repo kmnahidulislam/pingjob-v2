@@ -1092,7 +1092,7 @@ export function registerRoutes(app: Express) {
             description: job.description || '',
             employmentType: job.employmentType || 'full_time',
             experienceLevel: job.experienceLevel || 'Mid-level',
-            salary: job.salary
+            salary: job.salary || undefined
           };
           
           const results = await socialMediaPoster.postJobToAllPlatforms(socialMediaJob);
@@ -1157,7 +1157,7 @@ export function registerRoutes(app: Express) {
             description: updatedJob.description || '',
             employmentType: updatedJob.employmentType || 'full_time',
             experienceLevel: updatedJob.experienceLevel || 'Mid-level',
-            salary: updatedJob.salary
+            salary: updatedJob.salary || undefined
           };
           
           const results = await socialMediaPoster.postJobToAllPlatforms(socialMediaJob);
