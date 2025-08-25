@@ -29,7 +29,8 @@ import {
   Clock,
   Calendar,
   DollarSign,
-  Plus
+  Plus,
+  Edit
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -1012,6 +1013,21 @@ export default function PingJobHome() {
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
+                        {/* Admin Edit Button */}
+                        {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
+                          <Button 
+                            variant="outline" 
+                            className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/admin/edit-job/${job.id}`;
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edit Job
+                          </Button>
+                        )}
                         <Link href={`/jobs/${job.id}`} className="flex-1">
                           <Button variant="outline" className="w-full" size="sm">
                             View Details
