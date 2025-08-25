@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Building2, MapPin, Clock, DollarSign, Users, Filter, SortAsc, Briefcase, Plus } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Users, Filter, SortAsc, Briefcase, Plus, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -629,6 +629,18 @@ export default function Jobs() {
                             Posted {new Date(job.createdAt).toLocaleDateString()}
                           </span>
                           <div className="flex flex-col space-y-2">
+                            {/* Admin Edit Button */}
+                            {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                                onClick={() => navigate(`/admin/edit-job/${job.id}`)}
+                              >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit Job
+                              </Button>
+                            )}
                             <Button 
                               size="sm" 
                               variant="outline"
