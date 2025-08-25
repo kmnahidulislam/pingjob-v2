@@ -431,23 +431,8 @@ export default function PingJobHome() {
       {/* Mobile Header */}
       <div className="mobile-nav mobile-only">
         <div className="mobile-nav-content">
-          <Link href="/">
-            <img 
-              src={logoPath} 
-              alt="PingJob" 
-              className="mobile-logo mobile-touch-target"
-              loading="eager"
-              draggable={false}
-              onError={(e) => {
-                console.error('Logo failed to load on mobile');
-                e.currentTarget.style.display = 'none';
-              }}
-              onLoad={(e) => {
-                console.log('Mobile logo loaded successfully');
-                e.currentTarget.style.opacity = '1';
-              }}
-              style={{ opacity: '0', transition: 'opacity 0.3s ease' }}
-            />
+          <Link href="/" className="font-bold text-xl text-blue-600">
+            PingJob
           </Link>
           
           {user ? (
@@ -595,6 +580,16 @@ export default function PingJobHome() {
                 </div>
                 <div className="text-2xl font-bold text-blue-600">{jobStats.totalJobs}</div>
                 <div className="text-sm text-gray-600">Active Jobs</div>
+              </div>
+            </Card>
+            
+            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Building2 className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="text-2xl font-bold text-green-600">{jobStats.activeCompanies}</div>
+                <div className="text-sm text-gray-600">Top Companies</div>
               </div>
             </Card>
             
