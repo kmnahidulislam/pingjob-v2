@@ -170,7 +170,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       const cleaned = job.company.location.replace(', United States', '').replace(' United States', '').replace('United States', '').trim();
       if (cleaned) {
         // Parse company location conservatively
-        const parts = cleaned.split(',').map(part => part.trim()).filter(Boolean);
+        const parts = cleaned.split(',').map((part: string) => part.trim()).filter(Boolean);
         if (parts.length >= 2) {
           return parts.slice(-2).join(', '); // Get last two parts (likely city, state)
         } else if (parts.length === 1) {
@@ -382,7 +382,10 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               </Link>
               
               {/* Admin Actions */}
-              {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
+              {(() => {
+                console.log('🔧 DEBUG: Checking edit conditions for user:', user?.email, 'userType:', user?.userType);
+                return (user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin');
+              })() && (
                 <div className="flex space-x-1">
                   <Button
                     variant="outline"

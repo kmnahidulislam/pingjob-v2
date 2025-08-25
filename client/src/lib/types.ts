@@ -25,6 +25,9 @@ export interface JobWithCompany extends Job {
   company?: Company;
   recruiter?: User;
   applications?: JobApplication[];
+  resumeCount?: number;
+  candidateCount?: number;
+  applicationCount?: number | null;
 }
 
 export interface JobApplicationWithDetails extends JobApplication {
@@ -46,7 +49,7 @@ export interface MessageWithUser extends Message {
 
 export interface GroupWithDetails extends Group {
   creator?: User;
-  memberCount?: number;
+  memberCount?: number | null;
   role?: string;
   joinedAt?: Date;
 }
