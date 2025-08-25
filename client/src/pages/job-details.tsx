@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import JobApplicationModal from "@/components/modals/job-application-modal";
+import JobEditModal from "@/components/modals/job-edit-modal";
 import {
   Building,
   MapPin,
@@ -21,6 +22,7 @@ import {
   ArrowLeft,
   Bookmark,
   Share2,
+  Edit,
   Phone,
   Mail,
   Globe
@@ -174,6 +176,7 @@ export default function JobDetails() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { data: job, isLoading, error } = useQuery<JobWithCompany>({
@@ -417,6 +420,21 @@ export default function JobDetails() {
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </Button>
+                
+                {/* Admin and Paid Subscriber Edit Button */}
+                {(user?.userType === 'admin' || 
+                  (user?.userType === 'client' && job?.recruiterId === user?.id) ||
+                  (user?.email === 'krupas@vedsoft.com')) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit Job
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -549,6 +567,15 @@ export default function JobDetails() {
           job={job}
           isOpen={isApplicationModalOpen}
           onClose={() => setIsApplicationModalOpen(false)}
+        />
+      )}
+      
+      {/* Edit Modal */}
+      {job && (
+        <JobEditModal
+          job={job}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
         />
       )}
 
