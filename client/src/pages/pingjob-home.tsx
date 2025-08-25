@@ -601,16 +601,6 @@ export default function PingJobHome() {
             <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <Building2 className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="text-2xl font-bold text-green-600">{jobStats.activeCompanies}</div>
-                <div className="text-sm text-gray-600">Top Companies</div>
-              </div>
-            </Card>
-            
-            <Card className="p-4 bg-white/80 backdrop-blur border-0 shadow-sm">
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-2">
                   <TrendingUp className="h-6 w-6 text-purple-600" />
                 </div>
                 <div className="text-2xl font-bold text-purple-600">{jobStats.totalCategories}</div>
