@@ -541,42 +541,33 @@ export default function PingJobHome() {
         <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          {/* Hero Title */}
-          <div className="mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              Find Your <span className="text-blue-600">Dream Job</span>
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-              Connect with top companies and discover opportunities that match your skills and aspirations
-            </p>
-          </div>
           
           {/* Hero Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-4 w-4 text-green-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">100% Client-Only Jobs</h3>
               <p className="text-sm text-gray-600">Direct opportunities from hiring companies</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Rocket className="h-6 w-6 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Rocket className="h-4 w-4 text-blue-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">10X Recruiter Engagement</h3>
               <p className="text-sm text-gray-600">Higher response rates than traditional job boards</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Target className="h-6 w-6 text-purple-600" />
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Target className="h-4 w-4 text-purple-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">One Clear Goal</h3>
               <p className="text-sm text-gray-600">Focused on connecting talent with opportunity</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Bot className="h-6 w-6 text-indigo-600" />
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Bot className="h-4 w-4 text-indigo-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">AI-Powered Matching</h3>
               <p className="text-sm text-gray-600">Smart algorithms match you with relevant jobs</p>
@@ -585,15 +576,15 @@ export default function PingJobHome() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-2xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-6 w-6 text-orange-600" />
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-4 w-4 text-orange-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Real-Time Analytics</h3>
               <p className="text-sm text-gray-600">Track your application progress and market trends</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Star className="h-6 w-6 text-red-600" />
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Star className="h-4 w-4 text-red-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Resume Score™</h3>
               <p className="text-sm text-gray-600">Get instant feedback on your resume quality</p>
