@@ -867,48 +867,54 @@ export default function PingJobHome() {
               </CardHeader>
               <CardContent className="space-y-3 p-6">
                 {topCompanies.slice(0, 20).map((company: any, index: number) => (
-                  <div key={company.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-blue-600">{index + 1}</span>
-                    </div>
-                    
-                    <div className="flex-shrink-0 w-10 h-8 border border-gray-200 rounded overflow-hidden bg-white">
-                      {company.logoUrl && company.logoUrl !== "NULL" ? (
-                        <img 
-                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
-                          alt={company.name}
-                          className="w-full h-full object-contain p-1"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">${company.name.charAt(0)}</div>`;
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs">
-                          {company.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900">
-                        {company.name}
-                      </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        {(company.jobCount || 0) > 0 && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <Briefcase className="h-3 w-3 mr-1" />
-                            {company.jobCount} jobs
-                          </span>
+                  <div key={company.id} className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-start space-x-4">
+                      {/* Logo */}
+                      <div className="flex-shrink-0 w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-white">
+                        {company.logoUrl && company.logoUrl !== "NULL" ? (
+                          <img 
+                            src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                            alt={company.name}
+                            className="w-full h-full object-contain p-2"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm">${company.name.charAt(0)}</div>`;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm">
+                            {company.name.charAt(0)}
+                          </div>
                         )}
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <Users className="h-3 w-3 mr-1" />
-                          {company.vendor_count || 0} vendors
-                        </span>
+                      </div>
+                      
+                      {/* Company Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded">
+                            #{index + 1}
+                          </span>
+                          <h3 className="font-semibold text-gray-900 text-sm">
+                            {company.name}
+                          </h3>
+                        </div>
+                        
+                        <div className="flex items-center space-x-3 mt-2">
+                          {(company.jobCount || 0) > 0 && (
+                            <div className="flex items-center space-x-1 text-green-700">
+                              <Briefcase className="h-3 w-3" />
+                              <span className="text-xs font-medium">{company.jobCount}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center space-x-1 text-blue-700">
+                            <Users className="h-3 w-3" />
+                            <span className="text-xs font-medium">{company.vendor_count || 0}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
