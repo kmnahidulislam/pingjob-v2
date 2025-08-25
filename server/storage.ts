@@ -603,7 +603,7 @@ export const storage = {
 
   async getTopCompanies() {
     try {
-      // Get companies with actual job counts using raw SQL
+      // Get companies with actual job counts and vendor counts using raw SQL
       const result = await db.execute(sql`
         SELECT 
           c.id,
@@ -615,9 +615,11 @@ export const storage = {
           c.user_id as "userId",
           c.approved_by as "approvedBy",
           c.created_at as "createdAt",
-          COUNT(j.id)::int as "jobCount"
+          COUNT(DISTINCT j.id)::int as "jobCount",
+          COUNT(DISTINCT v.id)::int as "vendor_count"
         FROM companies c
         LEFT JOIN jobs j ON c.id = j.company_id
+        LEFT JOIN vendors v ON c.id = v.company_id AND v.status = 'approved'
         WHERE c.approved_by IS NOT NULL
         GROUP BY c.id, c.name, c.logo_url, c.industry, c.location, c.description, c.user_id, c.approved_by, c.created_at
         ORDER BY "jobCount" DESC
