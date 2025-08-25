@@ -905,12 +905,10 @@ export default function PingJobHome() {
                             {company.jobCount} jobs
                           </span>
                         )}
-                        {(company.vendor_count || 0) > 0 && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            <Users className="h-3 w-3 mr-1" />
-                            {company.vendor_count} vendors
-                          </span>
-                        )}
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <Users className="h-3 w-3 mr-1" />
+                          {company.vendor_count || 0} vendors
+                        </span>
                       </div>
                     </div>
                   </div>
