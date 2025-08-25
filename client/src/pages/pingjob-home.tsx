@@ -1014,10 +1014,7 @@ export default function PingJobHome() {
                       </div>
                       <div className="flex gap-2 mt-4">
                         {/* Admin Edit Button */}
-                        {(() => {
-                          console.log('🔥 EDIT BUTTON: Checking conditions for user:', user?.email, 'userType:', user?.userType);
-                          return (user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin');
-                        })() && (
+                        {(user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && (
                           <Button 
                             variant="outline" 
                             className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white" 
