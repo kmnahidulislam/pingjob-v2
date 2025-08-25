@@ -868,8 +868,8 @@ export default function PingJobHome() {
               <CardContent className="space-y-3 p-6">
                 {topCompanies.slice(0, 20).map((company: any, index: number) => (
                   <div key={company.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-bold text-blue-600">{index + 1}</span>
+                    <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-blue-600">{index + 1}</span>
                     </div>
                     
                     <div className="flex-shrink-0 w-10 h-8 border border-gray-200 rounded overflow-hidden bg-white">
@@ -895,20 +895,20 @@ export default function PingJobHome() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900 truncate">
+                      <h3 className="font-medium text-sm text-gray-900">
                         {company.name}
                       </h3>
-                      <div className="flex items-center space-x-3 mt-1">
+                      <div className="flex items-center space-x-2 mt-1">
                         {(company.jobCount || 0) > 0 && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <Briefcase className="h-3 w-3 mr-1" />
-                            {company.jobCount}
+                            {company.jobCount} jobs
                           </span>
                         )}
                         {(company.vendorCount || 0) > 0 && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             <Users className="h-3 w-3 mr-1" />
-                            {company.vendorCount}
+                            {company.vendorCount} vendors
                           </span>
                         )}
                       </div>
