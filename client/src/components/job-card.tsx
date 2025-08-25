@@ -382,10 +382,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               </Link>
               
               {/* Admin Actions */}
-              {(() => {
-                console.log('🔧 DEBUG: Checking edit conditions for user:', user?.email, 'userType:', user?.userType);
-                return (user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin');
-              })() && (
+              {(user?.email === 'krupas@vedsoft.com' || user?.userType === 'admin') && (
                 <div className="flex space-x-1">
                   <Button
                     variant="outline"
