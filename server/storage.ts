@@ -905,9 +905,17 @@ export const storage = {
           categoryId: jobs.categoryId,
           isActive: jobs.isActive,
           createdAt: jobs.createdAt,
-          updatedAt: jobs.updatedAt
+          updatedAt: jobs.updatedAt,
+          company: {
+            id: companies.id,
+            name: companies.name,
+            logoUrl: companies.logoUrl,
+            location: companies.location,
+            industry: companies.industry
+          }
         })
         .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
         .where(searchCondition)
         .orderBy(desc(jobs.createdAt))
         .limit(limit);
