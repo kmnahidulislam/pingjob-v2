@@ -737,7 +737,7 @@ export const storage = {
         WHERE c.approved_by IS NOT NULL
         GROUP BY c.id, c.name, c.logo_url, c.industry, c.location, c.description, c.user_id, c.approved_by, c.created_at
         ORDER BY "jobCount" DESC
-        LIMIT 20
+        LIMIT 100
       `);
       
       return result.rows as any[];
