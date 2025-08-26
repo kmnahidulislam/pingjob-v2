@@ -550,10 +550,11 @@ export default function Jobs() {
                               <img 
                                 src={job.company.logoUrl.startsWith('http') 
                                       ? job.company.logoUrl 
-                                      : `/${job.company.logoUrl}`} 
+                                      : `/${job.company.logoUrl.replace(/ /g, '%20')}`} 
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e: any) => {
+                                  console.log('Logo failed to load:', job.company?.logoUrl, 'Full src:', e.target.src);
                                   e.target.style.display = 'none';
                                   e.target.nextSibling.style.display = 'flex';
                                 }}
