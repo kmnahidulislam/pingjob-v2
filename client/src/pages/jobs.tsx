@@ -550,7 +550,9 @@ export default function Jobs() {
                               <img 
                                 src={job.company.logoUrl.startsWith('http') 
                                       ? job.company.logoUrl 
-                                      : `/uploads/${job.company.logoUrl.replace('logos/', '').replace(/ /g, '%20')}`} 
+                                      : job.company.logoUrl.startsWith('logos/') 
+                                        ? `/uploads/${job.company.logoUrl.replace('logos/', '')}`
+                                        : `/uploads/${job.company.logoUrl}`} 
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e: any) => {
@@ -609,10 +611,10 @@ export default function Jobs() {
                                 <Users className="h-4 w-4 mr-1" />
                                 {job.experienceLevel || 'Mid level'}
                               </div>
-                              {(job.applicationCount !== undefined && job.applicationCount > 0) && (
+                              {(job.applicationCount !== undefined && Number(job.applicationCount) > 0) && (
                                 <div className="flex items-center">
                                   <FileText className="h-4 w-4 mr-1" />
-                                  {job.applicationCount} applicant{job.applicationCount !== 1 ? 's' : ''}
+                                  {job.applicationCount} applicant{Number(job.applicationCount) !== 1 ? 's' : ''}
                                 </div>
                               )}
                             </div>
