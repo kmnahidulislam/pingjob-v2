@@ -554,9 +554,12 @@ export default function Jobs() {
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e: any) => {
-                                  console.log('Logo failed to load:', job.company?.logoUrl, 'Full src:', e.target.src);
+                                  console.log('❌ JOBS PAGE Logo failed:', job.company?.logoUrl, 'Full src:', e.target.src);
                                   e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'flex';
+                                  const parent = e.target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">LOGO FAILED</div>';
+                                  }
                                 }}
                               />
                             ) : null}
