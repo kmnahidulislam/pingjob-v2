@@ -550,9 +550,7 @@ export default function Jobs() {
                               <img 
                                 src={job.company.logoUrl.startsWith('http') 
                                       ? job.company.logoUrl 
-                                      : job.company.logoUrl.startsWith('logos/') 
-                                        ? `/uploads/${job.company.logoUrl.replace('logos/', '')}`
-                                        : `/uploads/${job.company.logoUrl}`} 
+                                      : `/uploads/${job.company.logoUrl.replace('logos/', '')}`} 
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e: any) => {
