@@ -316,16 +316,29 @@ export default function HomeV2() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
-                        {job.company?.logoUrl && (
-                          <img 
-                            src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                            alt={job.company.name}
-                            className="w-8 h-8 object-contain mr-3"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        )}
+                        <div className="w-8 h-8 mr-3 border-2 border-red-500 bg-yellow-200 rounded-full overflow-hidden flex-shrink-0">
+                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                            <img 
+                              src={job.company.logoUrl.startsWith('http') 
+                                    ? job.company.logoUrl 
+                                    : `/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                              alt={job.company.name}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                console.log('❌ HOME-V2 Logo failed:', job.company?.logoUrl, 'Full src:', (e.target as HTMLImageElement).src);
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const parent = (e.target as HTMLImageElement).parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">NO</div>';
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs font-bold rounded-full">
+                              LOGO
+                            </div>
+                          )}
+                        </div>
                         <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
                       </div>
                       
