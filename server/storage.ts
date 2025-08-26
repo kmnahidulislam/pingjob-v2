@@ -13,6 +13,8 @@ import {
   type InsertCompany,
   type InsertJobApplication
 } from "../shared/schema";
+import fs from "fs";
+import path from "path";
 
 export const storage = {
   // Job applications - SIMPLIFIED: No auto-assignment
@@ -51,6 +53,9 @@ export const storage = {
 
     const [application] = await db.insert(jobApplications).values(cleanData).returning();
     console.log('✅ Created application:', application.id);
+    
+    // Note: Resume scoring will be implemented in a future update
+    console.log('📝 Application created, resume scoring will be added later');
     
     return {
       ...application,
@@ -153,6 +158,102 @@ export const storage = {
     }));
     
     return transformedApplications;
+  },
+
+  async getUserApplications(userId: string, limit?: number) {
+    console.log(`🔍 Fetching applications for user ID: ${userId}`);
+    
+    let applicationsQuery = db
+      .select({
+        id: jobApplications.id,
+        jobId: jobApplications.jobId,
+        applicantId: jobApplications.applicantId,
+        status: jobApplications.status,
+        appliedAt: jobApplications.appliedAt,
+        coverLetter: jobApplications.coverLetter,
+        resumeUrl: jobApplications.resumeUrl,
+        matchScore: jobApplications.matchScore,
+        skillsScore: jobApplications.skillsScore,
+        experienceScore: jobApplications.experienceScore,
+        educationScore: jobApplications.educationScore,
+        companyScore: jobApplications.companyScore,
+        isProcessed: jobApplications.isProcessed,
+        // Job information
+        jobTitle: jobs.title,
+        jobLocation: jobs.location,
+        jobSalary: jobs.salary,
+        jobEmploymentType: jobs.employmentType,
+        jobRequirements: jobs.requirements,
+        // Company information
+        companyId: companies.id,
+        companyName: companies.name,
+        companyLogoUrl: companies.logoUrl,
+        companyWebsite: companies.website
+      })
+      .from(jobApplications)
+      .innerJoin(jobs, eq(jobApplications.jobId, jobs.id))
+      .leftJoin(companies, eq(jobs.companyId, companies.id))
+      .where(eq(jobApplications.applicantId, userId))
+      .orderBy(desc(jobApplications.appliedAt));
+
+    if (limit) {
+      applicationsQuery = applicationsQuery.limit(limit) as any;
+    }
+
+    const rawApplications = await applicationsQuery;
+    console.log(`Found ${rawApplications.length} applications for user ${userId}`);
+    
+    // Transform the data to include job and company objects
+    const transformedApplications = rawApplications.map(app => ({
+      id: app.id,
+      jobId: app.jobId,
+      applicantId: app.applicantId,
+      status: app.status,
+      appliedAt: app.appliedAt,
+      coverLetter: app.coverLetter,
+      resumeUrl: app.resumeUrl,
+      matchScore: app.matchScore,
+      skillsScore: app.skillsScore,
+      experienceScore: app.experienceScore,
+      educationScore: app.educationScore,
+      companyScore: app.companyScore,
+      isProcessed: app.isProcessed,
+      createdAt: app.appliedAt, // For compatibility
+      job: {
+        id: app.jobId,
+        title: app.jobTitle,
+        location: app.jobLocation,
+        salary: app.jobSalary,
+        employmentType: app.jobEmploymentType,
+        requirements: app.jobRequirements,
+        company: {
+          id: app.companyId,
+          name: app.companyName || "Unknown Company",
+          logoUrl: app.companyLogoUrl,
+          website: app.companyWebsite
+        }
+      }
+    }));
+    
+    return transformedApplications;
+  },
+
+  async updateApplicationScore(applicationId: number, scoreData: any) {
+    console.log(`📊 Updating scores for application: ${applicationId}`);
+    
+    await db
+      .update(jobApplications)
+      .set({
+        matchScore: scoreData.matchScore,
+        skillsScore: scoreData.skillsScore,
+        experienceScore: scoreData.experienceScore,
+        educationScore: scoreData.educationScore,
+        companyScore: scoreData.companyScore,
+        isProcessed: scoreData.isProcessed
+      })
+      .where(eq(jobApplications.id, applicationId));
+    
+    console.log(`✅ Updated scores for application: ${applicationId}`);
   },
 
   async getJobApplicationsForRecruiters(recruiterId: string) {

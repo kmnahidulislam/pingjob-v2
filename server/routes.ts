@@ -232,9 +232,131 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Get user applications endpoint
+  app.get('/api/applications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      
+      const applications = await storage.getUserApplications(userId, limit);
+      res.json(applications);
+    } catch (error) {
+      console.error("Error fetching user applications:", error);
+      res.status(500).json({ message: "Failed to fetch applications" });
+    }
+  });
+
   // Old /api/applications endpoint - DISABLED
   app.post('/api/applications', (req, res) => {
     res.status(410).json({ message: "This endpoint has been disabled. Use /api/apply instead." });
+  });
+
+  // Get application scores endpoint
+  app.get('/api/applications/scores', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const applications = await storage.getUserApplications(userId);
+      
+      // Return just the scores data
+      const scores = applications.map(app => ({
+        id: app.id,
+        jobId: app.jobId,
+        matchScore: app.matchScore,
+        skillsScore: app.skillsScore,
+        experienceScore: app.experienceScore,
+        educationScore: app.educationScore,
+        companyScore: app.companyScore,
+        isProcessed: app.isProcessed,
+        jobTitle: app.job?.title
+      }));
+      
+      res.json(scores);
+    } catch (error) {
+      console.error("Error fetching application scores:", error);
+      res.status(500).json({ message: "Failed to fetch application scores" });
+    }
+  });
+
+  // Get individual application score endpoint
+  app.get('/api/applications/:id/score', isAuthenticated, async (req: any, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: 'Invalid application ID' });
+      }
+
+      // Get the specific application
+      const applications = await storage.getUserApplications(userId);
+      const application = applications.find(app => app.id === applicationId);
+      
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found' });
+      }
+      
+      res.json({
+        id: application.id,
+        jobId: application.jobId,
+        matchScore: application.matchScore,
+        skillsScore: application.skillsScore,
+        experienceScore: application.experienceScore,
+        educationScore: application.educationScore,
+        companyScore: application.companyScore,
+        isProcessed: application.isProcessed,
+        jobTitle: application.job?.title,
+        breakdown: {
+          skillsMatched: application.isProcessed ? ["Skills analysis available"] : [],
+          experienceMatch: application.experienceScore > 0,
+          educationMatch: application.educationScore > 0,
+          companyMatch: application.companyScore > 0
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching application score:", error);
+      res.status(500).json({ message: "Failed to fetch application score" });
+    }
+  });
+
+  // Trigger scoring for unprocessed applications (manual endpoint)
+  app.post('/api/applications/:id/score', isAuthenticated, async (req: any, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: 'Invalid application ID' });
+      }
+
+      // Verify the application belongs to the user
+      const applications = await storage.getUserApplications(userId);
+      const application = applications.find(app => app.id === applicationId);
+      
+      if (!application) {
+        return res.status(404).json({ message: 'Application not found' });
+      }
+      
+      // Simple mock scoring - replace with real implementation later
+      const mockScore = Math.floor(Math.random() * 8) + 3; // Score between 3-10
+      
+      await storage.updateApplicationScore(applicationId, {
+        matchScore: mockScore,
+        skillsScore: Math.floor(mockScore * 0.6),
+        experienceScore: Math.floor(mockScore * 0.2), 
+        educationScore: Math.floor(mockScore * 0.2),
+        companyScore: 0,
+        isProcessed: true
+      });
+      
+      res.json({
+        message: 'Resume scoring completed',
+        score: mockScore,
+        processed: true
+      });
+    } catch (error) {
+      console.error("Error scoring application:", error);
+      res.status(500).json({ message: "Failed to score application" });
+    }
   });
 
   // Simple /api/apply endpoint (what the frontend actually uses)
