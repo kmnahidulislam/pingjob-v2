@@ -926,21 +926,22 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Get vendors for a specific job (based on company) - check auth separately
+  // Get vendors for a specific job (based on company) - use same auth logic as other endpoints
   app.get('/api/jobs/:id/vendors', async (req: any, res) => {
     try {
       const { id } = req.params;
       const allVendors = await storage.getJobVendors(parseInt(id));
       
-      // Manually check authentication status using session middleware approach
-      let isUserAuthenticated = false;
+      // Use the same authentication check as isAuthenticated middleware
+      // but don't block - just determine if user is authenticated
+      const isUserAuthenticated = !!(req.user || req.session?.user);
       
-      // Check for session-based authentication (same as isAuthenticated middleware)
-      if (req.session && req.session.user && req.session.user.id) {
-        isUserAuthenticated = true;
-        console.log('✅ User authenticated via session:', req.session.user.id);
+      if (isUserAuthenticated) {
+        // Set req.user for consistency (same as isAuthenticated middleware)
+        req.user = req.user || req.session.user;
+        console.log('✅ User authenticated:', req.user.id);
       } else {
-        console.log('❌ User not authenticated - no valid session found');
+        console.log('❌ User not authenticated');
       }
       
       if (!isUserAuthenticated) {
