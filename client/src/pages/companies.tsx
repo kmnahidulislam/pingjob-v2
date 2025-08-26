@@ -716,7 +716,6 @@ export default function CompaniesPage() {
   const searchQuery = urlParams.get('search') || "";
 
   const companiesPerPage = 20;
-  const totalPages = Math.ceil(topCompanies.length / companiesPerPage);
 
   // Load top 100 companies prioritized by vendor and job count
   const { data: topCompanies = [], isLoading } = useQuery({
@@ -837,6 +836,9 @@ export default function CompaniesPage() {
 
 
 
+  // Calculate pagination
+  const totalPages = Math.ceil(topCompanies.length / companiesPerPage);
+  
   // Get current page companies
   const currentCompanies = topCompanies.slice(
     (currentPage - 1) * companiesPerPage,
