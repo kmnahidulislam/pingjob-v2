@@ -317,18 +317,19 @@ export default function HomeV2() {
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
                         <div className="w-8 h-8 mr-3 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
-                          {job.company?.logoUrl ? (
+                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "" ? (
                             <img 
                               src={job.company.logoUrl.startsWith('http') 
                                     ? job.company.logoUrl 
-                                    : `/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                    : `/${job.company.logoUrl}`} 
                               alt={job.company.name}
-                              className="w-full h-full object-contain"
+                              className="w-full h-full object-contain p-1"
                               onError={(e) => {
+                                console.log('Logo failed to load:', job.company?.logoUrl);
                                 const target = e.target as HTMLImageElement;
                                 const parent = target.parentElement;
                                 if (parent) {
-                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs font-bold rounded-full"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm8-1a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd" /></svg></div>';
+                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-linkedin-blue text-white rounded-full"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm8-1a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd" /></svg></div>';
                                 }
                               }}
                             />
