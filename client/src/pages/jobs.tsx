@@ -546,28 +546,22 @@ export default function Jobs() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
                           <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
-                              <img 
-                                src={job.company.logoUrl.startsWith('http') 
-                                      ? job.company.logoUrl 
-                                      : `/${job.company.logoUrl.replace(/ /g, '%20')}`} 
-                                alt={job.company.name}
-                                className="w-full h-full object-contain p-1"
-                                onError={(e: any) => {
-                                  console.log('❌ JOBS PAGE Logo failed:', job.company?.logoUrl, 'Full src:', e.target.src);
-                                  e.target.style.display = 'none';
-                                  const parent = e.target.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-linkedin-blue text-white text-xs">LOGO FAILED</div>';
-                                  }
-                                }}
-                              />
-                            ) : null}
-                            <div className={`w-full h-full flex items-center justify-center bg-linkedin-blue text-white ${
-                              job.company?.logoUrl && job.company.logoUrl !== "NULL" ? 'hidden' : 'flex'
-                            }`}>
-                              <Building2 className="h-6 w-6" />
-                            </div>
+                            <img 
+                              src={job.company?.logoUrl && job.company.logoUrl !== "NULL" 
+                                    ? (job.company.logoUrl.startsWith('http') 
+                                        ? job.company.logoUrl 
+                                        : `/${job.company.logoUrl.replace(/ /g, '%20')}`)
+                                    : '/placeholder-logo.png'} 
+                              alt={job.company?.name || 'Company'}
+                              className="w-full h-full object-contain p-1"
+                              onError={(e: any) => {
+                                console.log('❌ JOBS PAGE Logo failed:', job.company?.logoUrl, 'Full src:', e.target.src);
+                                const parent = e.target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-red-500 text-white text-xs font-bold">NO LOGO</div>';
+                                }
+                              }}
+                            />
                           </div>
                           
                           <div className="flex-1 min-w-0">
