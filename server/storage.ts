@@ -867,6 +867,27 @@ export const storage = {
     try {
       console.log('🔍 Searching jobs for query:', query);
       
+      // Split query into individual terms (e.g., "azure 89119" -> ["azure", "89119"])
+      const searchTerms = query.trim().split(/\s+/).filter(term => term.length > 0);
+      
+      // Build conditions for each term - each term must match at least one field
+      const termConditions = searchTerms.map(term => 
+        or(
+          ilike(jobs.title, `%${term}%`),
+          ilike(jobs.description, `%${term}%`),
+          ilike(jobs.location, `%${term}%`),
+          ilike(jobs.city, `%${term}%`),
+          ilike(jobs.state, `%${term}%`),
+          ilike(jobs.zipCode, `%${term}%`),
+          ilike(jobs.requirements, `%${term}%`)
+        )
+      );
+      
+      // All terms must match (AND logic)
+      const searchCondition = searchTerms.length > 1 
+        ? and(eq(jobs.isActive, true), ...termConditions)
+        : and(eq(jobs.isActive, true), termConditions[0]);
+
       const searchResults = await db
         .select({
           id: jobs.id,
@@ -887,24 +908,11 @@ export const storage = {
           updatedAt: jobs.updatedAt
         })
         .from(jobs)
-        .where(
-          and(
-            eq(jobs.isActive, true),
-            or(
-              ilike(jobs.title, `%${query}%`),
-              ilike(jobs.description, `%${query}%`),
-              ilike(jobs.location, `%${query}%`),
-              ilike(jobs.city, `%${query}%`),
-              ilike(jobs.state, `%${query}%`),
-              ilike(jobs.zipCode, `%${query}%`),
-              ilike(jobs.requirements, `%${query}%`)
-            )
-          )
-        )
+        .where(searchCondition)
         .orderBy(desc(jobs.createdAt))
         .limit(limit);
 
-      console.log(`🔍 Found ${searchResults.length} jobs for query "${query}"`);
+      console.log(`🔍 Found ${searchResults.length} jobs for query "${query}" (terms: ${searchTerms.join(', ')})`);
       
       return searchResults;
     } catch (error) {
