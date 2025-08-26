@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Building2, MapPin, Clock, DollarSign, Users, Filter, SortAsc, Briefcase, Plus, Edit } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Users, Filter, SortAsc, Briefcase, Plus, Edit, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -571,7 +571,10 @@ export default function Jobs() {
                               <div className="flex items-center">
                                 <MapPin className="h-4 w-4 mr-1" />
                                 {(() => {
-                                  // Format location without "United States"
+                                  // Format location WITH zip code
+                                  if (job.city && job.state && job.zipCode) {
+                                    return `${job.city}, ${job.state} ${job.zipCode}`;
+                                  }
                                   if (job.city && job.state) {
                                     return `${job.city}, ${job.state}`;
                                   }
@@ -599,6 +602,12 @@ export default function Jobs() {
                                 <Users className="h-4 w-4 mr-1" />
                                 {job.experienceLevel || 'Mid level'}
                               </div>
+                              {(job.applicationCount !== undefined && job.applicationCount > 0) && (
+                                <div className="flex items-center">
+                                  <FileText className="h-4 w-4 mr-1" />
+                                  {job.applicationCount} applicant{job.applicationCount !== 1 ? 's' : ''}
+                                </div>
+                              )}
                             </div>
                             
                             <div className="text-gray-700 text-sm mb-3">

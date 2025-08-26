@@ -373,7 +373,7 @@ export const storage = {
     }
   },
 
-  // Fast jobs endpoint without resume counts for performance
+  // Fast jobs endpoint with application counts and location data
   async getFastJobs(limit?: number) {
     try {
       let query = db
@@ -382,10 +382,14 @@ export const storage = {
           title: jobs.title,
           description: jobs.description,
           location: jobs.location,
+          city: jobs.city,
+          state: jobs.state,
+          zipCode: jobs.zipCode,
           salary: jobs.salary,
           employmentType: jobs.employmentType,
           requirements: jobs.requirements,
           benefits: jobs.benefits,
+          skills: jobs.skills,
           isActive: jobs.isActive,
           createdAt: jobs.createdAt,
           companyId: jobs.companyId,
@@ -395,7 +399,12 @@ export const storage = {
           companyLogoUrl: companies.logoUrl,
           companyWebsite: companies.website,
           companyDescription: companies.description,
-          categoryName: categories.name
+          categoryName: categories.name,
+          applicationCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${jobApplications} 
+            WHERE ${jobApplications.jobId} = ${jobs.id}
+          )`.as('applicationCount')
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
@@ -414,10 +423,14 @@ export const storage = {
         title: job.title,
         description: job.description,
         location: job.location,
+        city: job.city,
+        state: job.state,
+        zipCode: job.zipCode,
         salary: job.salary,
         employmentType: job.employmentType,
         requirements: job.requirements,
         benefits: job.benefits,
+        skills: job.skills,
         applicationDeadline: null,
         isActive: job.isActive,
         postedAt: job.createdAt,
@@ -437,7 +450,7 @@ export const storage = {
           id: job.categoryId,
           name: job.categoryName || "General"
         },
-        applicationCount: 0
+        applicationCount: job.applicationCount || 0
       }));
     } catch (error) {
       console.error('Error fetching fast jobs:', error);
