@@ -926,16 +926,24 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Get vendors for a specific job (based on company)
+  // Get vendors for a specific job (based on company) - check auth separately
   app.get('/api/jobs/:id/vendors', async (req: any, res) => {
     try {
       const { id } = req.params;
       const allVendors = await storage.getJobVendors(parseInt(id));
       
-      // Check if user is authenticated
-      const isAuthenticated = req.session?.user || req.user;
+      // Manually check authentication status using session middleware approach
+      let isUserAuthenticated = false;
       
-      if (!isAuthenticated) {
+      // Check for session-based authentication (same as isAuthenticated middleware)
+      if (req.session && req.session.user && req.session.user.id) {
+        isUserAuthenticated = true;
+        console.log('✅ User authenticated via session:', req.session.user.id);
+      } else {
+        console.log('❌ User not authenticated - no valid session found');
+      }
+      
+      if (!isUserAuthenticated) {
         // For non-authenticated users, show only 3 vendors based on:
         // 1. Most number of clients (estimated by how many jobs they have)
         // 2. Latest to be added (most recent createdAt)
