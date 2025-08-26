@@ -316,30 +316,36 @@ export default function HomeV2() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 mr-3 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
-                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "" ? (
-                            <img 
-                              src={job.company.logoUrl.startsWith('http') 
-                                    ? job.company.logoUrl 
-                                    : `/${job.company.logoUrl}`} 
-                              alt={job.company.name}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e) => {
-                                console.log('Logo failed to load:', job.company?.logoUrl);
-                                const target = e.target as HTMLImageElement;
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-linkedin-blue text-white rounded-full"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm8-1a1 1 0 100 2h2a1 1 0 100-2h-2z" clip-rule="evenodd" /></svg></div>';
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white rounded-full">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm8-1a1 1 0 100 2h2a1 1 0 100-2h-2z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          )}
+                        <div className="w-8 h-8 mr-3 rounded-full overflow-hidden flex-shrink-0 bg-red-500 border-2 border-yellow-400">
+                          {(() => {
+                            console.log('DEBUG: Company logo data:', job.company?.name, job.company?.logoUrl);
+                            if (job.company?.logoUrl && job.company.logoUrl !== "NULL" && job.company.logoUrl !== "") {
+                              console.log('TRYING TO LOAD LOGO:', `/${job.company.logoUrl}`);
+                              return (
+                                <img 
+                                  src={`/${job.company.logoUrl}`}
+                                  alt={job.company.name}
+                                  className="w-full h-full object-contain p-1"
+                                  onLoad={() => console.log('✅ Logo loaded successfully:', job.company?.logoUrl)}
+                                  onError={(e) => {
+                                    console.log('❌ Logo failed to load:', job.company?.logoUrl, 'Full src:', (e.target as HTMLImageElement).src);
+                                    const target = e.target as HTMLImageElement;
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-red-600 text-white text-xs font-bold rounded-full">FAIL</div>';
+                                    }
+                                  }}
+                                />
+                              );
+                            } else {
+                              console.log('NO LOGO URL, showing fallback');
+                              return (
+                                <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs font-bold rounded-full">
+                                  NO
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
                       </div>
