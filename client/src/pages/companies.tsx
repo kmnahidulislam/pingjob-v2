@@ -716,7 +716,7 @@ export default function CompaniesPage() {
   const searchQuery = urlParams.get('search') || "";
 
   const companiesPerPage = 20;
-  const totalPages = 5; // 100 companies / 20 per page = 5 pages
+  const totalPages = Math.ceil(topCompanies.length / companiesPerPage);
 
   // Load top 100 companies prioritized by vendor and job count
   const { data: topCompanies = [], isLoading } = useQuery({
