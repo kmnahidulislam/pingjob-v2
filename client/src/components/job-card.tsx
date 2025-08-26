@@ -252,24 +252,23 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-4 flex-1">
               {showCompany && (
-                <Avatar className="h-12 w-12">
+                <Avatar className="h-12 w-12 border-4 border-red-500">
                   <AvatarImage 
                     src={
                       job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
                         ? (job.company.logoUrl.startsWith('http') 
                             ? job.company.logoUrl 
-                            : job.company.logoUrl.startsWith('/uploads/') 
-                              ? job.company.logoUrl.replace(/ /g, '%20')
-                              : `/uploads/${job.company.logoUrl.replace('logos/', '').replace(/ /g, '%20')}`)
+                            : `/${job.company.logoUrl}`)
                         : undefined
                     }
+                    onLoad={() => console.log('✅ JobCard logo loaded:', job.company?.logoUrl)}
                     onError={(e: any) => {
-                      // Fallback to Building icon on error
+                      console.log('❌ JobCard logo failed:', job.company?.logoUrl, 'Tried:', e.target.src);
                       e.target.style.display = 'none';
                     }}
                   />
-                  <AvatarFallback className="bg-linkedin-blue text-white">
-                    <Building className="h-6 w-6" />
+                  <AvatarFallback className="bg-red-600 text-white text-xs font-bold">
+                    FAIL
                   </AvatarFallback>
                 </Avatar>
               )}
