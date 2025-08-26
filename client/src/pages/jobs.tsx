@@ -548,15 +548,22 @@ export default function Jobs() {
                           <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                               <img 
-                                src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                src={job.company.logoUrl.startsWith('http') 
+                                      ? job.company.logoUrl 
+                                      : `/uploads/${job.company.logoUrl.replace('logos/', '').replace(/ /g, '%20')}`} 
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-1"
+                                onError={(e: any) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-linkedin-blue text-white">
-                                <Building2 className="h-6 w-6" />
-                              </div>
-                            )}
+                            ) : null}
+                            <div className={`w-full h-full flex items-center justify-center bg-linkedin-blue text-white ${
+                              job.company?.logoUrl && job.company.logoUrl !== "NULL" ? 'hidden' : 'flex'
+                            }`}>
+                              <Building2 className="h-6 w-6" />
+                            </div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
