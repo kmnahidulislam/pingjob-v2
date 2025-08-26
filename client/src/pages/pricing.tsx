@@ -80,7 +80,7 @@ export default function Pricing() {
         "Limited to 10 job postings",
         "Basic analytics only"
       ],
-      buttonText: "Start Free Trial",
+      buttonText: "Sign up",
       buttonVariant: "default" as const
     },
     {
@@ -105,7 +105,7 @@ export default function Pricing() {
         "Onboarding and training"
       ],
       limitations: [],
-      buttonText: "Contact Sales",
+      buttonText: "Sign up",
       buttonVariant: "default" as const
     }
   ];
@@ -297,7 +297,7 @@ export default function Pricing() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Is there a free trial?</h3>
               <p className="text-gray-600 text-sm">
-                Yes, we offer a 14-day free trial for both Recruiter and Enterprise plans. No credit card required.
+                No, we do not offer a free trial for both Recruiter and Enterprise plans.
               </p>
             </div>
             <div>
