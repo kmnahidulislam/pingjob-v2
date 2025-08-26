@@ -545,23 +545,24 @@ export default function Jobs() {
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
-                          <div className="w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                            <img 
-                              src={job.company?.logoUrl && job.company.logoUrl !== "NULL" 
-                                    ? (job.company.logoUrl.startsWith('http') 
-                                        ? job.company.logoUrl 
-                                        : `/${job.company.logoUrl.replace(/ /g, '%20')}`)
-                                    : '/placeholder-logo.png'} 
-                              alt={job.company?.name || 'Company'}
-                              className="w-full h-full object-contain p-1"
-                              onError={(e: any) => {
-                                console.log('❌ JOBS PAGE Logo failed:', job.company?.logoUrl, 'Full src:', e.target.src);
-                                const parent = e.target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-red-500 text-white text-xs font-bold">NO LOGO</div>';
-                                }
-                              }}
-                            />
+                          <div className="w-12 h-12 border-2 border-red-500 rounded-lg overflow-hidden bg-yellow-200 flex-shrink-0">
+                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                              <img 
+                                src={job.company.logoUrl.startsWith('http') 
+                                      ? job.company.logoUrl 
+                                      : `/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                alt={job.company?.name || 'Company'}
+                                className="w-full h-full object-contain p-1"
+                                onError={(e: any) => {
+                                  console.log('❌ JOBS PAGE Logo failed:', job.company?.logoUrl, 'Full src:', e.target.src);
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-xs font-bold">
+                              LOGO
+                            </div>
                           </div>
                           
                           <div className="flex-1 min-w-0">
