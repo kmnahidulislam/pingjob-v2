@@ -109,6 +109,8 @@ export default function Jobs() {
           // Default behavior: show recent jobs from top companies (1 job per company)
           url += '&topCompanies=true';
         }
+        // Add cache busting to force fresh data
+        url += `&_t=${Date.now()}`;
         
         console.log('🚀 FETCHING FROM URL:', url);
         console.log('🎯 SELECTED CATEGORY:', selectedCategory);
