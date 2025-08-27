@@ -489,7 +489,7 @@ export const storage = {
             tc.description as company_description,
             tc.job_count,
             cat.name as category_name,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = j.id) as application_count,
+            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = j.id) as app_count,
             ROW_NUMBER() OVER (PARTITION BY j.company_id ORDER BY GREATEST(j.created_at, j.updated_at) DESC) as rn
           FROM jobs j
           INNER JOIN top_companies tc ON j.company_id = tc.id
@@ -521,7 +521,7 @@ export const storage = {
           company_description,
           category_name,
           job_count,
-          application_count
+          app_count
         FROM latest_jobs 
         WHERE rn = 1
         ORDER BY job_count DESC, created_at DESC
@@ -559,7 +559,7 @@ export const storage = {
           id: job.category_id,
           name: job.category_name || "General"
         },
-        applicationCount: job.application_count || 0,
+        applicationCount: job.app_count || 0,
         companyJobCount: job.job_count
       }));
     } catch (error) {
