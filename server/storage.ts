@@ -1035,6 +1035,11 @@ export const storage = {
           isActive: jobs.isActive,
           createdAt: jobs.createdAt,
           updatedAt: jobs.updatedAt,
+          applicationCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${users} 
+            WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
+          )`.as('applicationCount'),
           company: {
             id: companies.id,
             name: companies.name,
