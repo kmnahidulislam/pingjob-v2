@@ -110,8 +110,9 @@ export default function Jobs() {
           url += '&topCompanies=true';
         }
         
-        console.log('FETCHING FROM URL:', url);
-        console.log('SELECTED CATEGORY:', selectedCategory);
+        console.log('🚀 FETCHING FROM URL:', url);
+        console.log('🎯 SELECTED CATEGORY:', selectedCategory);
+        console.log('🏢 TOP COMPANIES MODE:', !selectedCategory);
         
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch jobs');
