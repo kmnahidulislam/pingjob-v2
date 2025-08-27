@@ -68,7 +68,13 @@ export default function JobsOriginal() {
         const data = await response.json();
         
         console.log('🔍 SEARCH RESULTS:', data.jobs?.length || 0, 'jobs found');
-        return data.jobs || [];
+        const jobs = data.jobs || [];
+        // Sort by date (newest first) - assuming jobs have createdAt or similar timestamp
+        return jobs.sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || a.updatedAt || a.id);
+          const dateB = new Date(b.createdAt || b.updatedAt || b.id);
+          return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+        });
       } else {
         // Default behavior: fetch jobs normally
         let url = '/api/jobs?limit=50';
@@ -95,7 +101,12 @@ export default function JobsOriginal() {
           console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
         }
         
-        return data;
+        // Sort by date (newest first) - assuming jobs have createdAt or similar timestamp
+        return data.sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || a.updatedAt || a.id);
+          const dateB = new Date(b.createdAt || b.updatedAt || b.id);
+          return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+        });
       }
     }
   });
