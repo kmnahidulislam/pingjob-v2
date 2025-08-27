@@ -22,3 +22,28 @@ export const formatDescription = (description: any): string => {
   
   return String(description).replace(/["\[\]]/g, '').trim();
 };
+
+// Format skills array - handle JSON strings or arrays
+export const formatSkills = (skills: any): string[] => {
+  if (!skills) return [];
+  
+  // If it's already an array, return as is
+  if (Array.isArray(skills)) {
+    return skills.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
+  }
+  
+  // If it's a string that looks like JSON, try to parse it
+  if (typeof skills === 'string') {
+    try {
+      const parsed = JSON.parse(skills);
+      if (Array.isArray(parsed)) {
+        return parsed.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
+      }
+    } catch {
+      // If parsing fails, try to split by comma
+      return skills.split(',').map(skill => skill.trim()).filter(Boolean);
+    }
+  }
+  
+  return [];
+};
