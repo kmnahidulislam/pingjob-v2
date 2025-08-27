@@ -489,7 +489,7 @@ export const storage = {
             tc.description as company_description,
             tc.job_count,
             cat.name as category_name,
-            ROW_NUMBER() OVER (PARTITION BY j.company_id ORDER BY j.created_at DESC) as rn
+            ROW_NUMBER() OVER (PARTITION BY j.company_id ORDER BY GREATEST(j.created_at, j.updated_at) DESC) as rn
           FROM jobs j
           INNER JOIN top_companies tc ON j.company_id = tc.id
           LEFT JOIN categories cat ON j.category_id = cat.id
