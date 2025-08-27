@@ -1019,8 +1019,8 @@ export function registerRoutes(app: Express) {
       // Search companies
       const companies = await storage.searchCompanies(query, 20);
       
-      // Search jobs by location (zip code, city, state)
-      const jobs = await storage.searchJobs(query, 20);
+      // Search jobs by location (zip code, city, state) - increased limit to get more results
+      const jobs = await storage.searchJobs(query, 100);
       
       res.json({ companies, jobs });
       

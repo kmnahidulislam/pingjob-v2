@@ -69,10 +69,10 @@ export default function JobsOriginal() {
         
         console.log('🔍 SEARCH RESULTS:', data.jobs?.length || 0, 'jobs found');
         const jobs = data.jobs || [];
-        // Sort by date (newest first) - assuming jobs have createdAt or similar timestamp
+        // Sort by date (newest first) - using proper field names from schema
         return jobs.sort((a: any, b: any) => {
-          const dateA = new Date(a.createdAt || a.updatedAt || a.id);
-          const dateB = new Date(b.createdAt || b.updatedAt || b.id);
+          const dateA = new Date(a.createdAt || a.updatedAt || 0);
+          const dateB = new Date(b.createdAt || b.updatedAt || 0);
           return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
         });
       } else {
@@ -101,10 +101,10 @@ export default function JobsOriginal() {
           console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
         }
         
-        // Sort by date (newest first) - assuming jobs have createdAt or similar timestamp
+        // Sort by date (newest first) - using proper field names from schema
         return data.sort((a: any, b: any) => {
-          const dateA = new Date(a.createdAt || a.updatedAt || a.id);
-          const dateB = new Date(b.createdAt || b.updatedAt || b.id);
+          const dateA = new Date(a.createdAt || a.updatedAt || 0);
+          const dateB = new Date(b.createdAt || b.updatedAt || 0);
           return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
         });
       }
