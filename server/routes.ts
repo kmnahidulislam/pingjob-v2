@@ -488,13 +488,13 @@ export function registerRoutes(app: Express) {
           
           return {
             ...job,
-            potentialMatches: matchingCandidates.length
+            applicationCount: matchingCandidates.length
           };
         } catch (error) {
           console.error('Error calculating candidate count for job', job.id, error);
           return {
             ...job,
-            potentialMatches: 0
+            applicationCount: 0
           };
         }
       }));
