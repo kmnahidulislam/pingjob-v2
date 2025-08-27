@@ -118,6 +118,39 @@ export default function JobsOriginal() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Search Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Input
+                type="text"
+                placeholder="Search jobs, companies, or skills..."
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                className="w-full"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    const searchValue = e.target.value;
+                    if (searchValue.trim()) {
+                      setFilters(prev => ({ ...prev, search: searchValue }));
+                    }
+                  }
+                }}
+              />
+            </div>
+            <div className="flex-1">
+              <Input
+                type="text"
+                placeholder="Location (city, state, or remote)"
+                value={filters.location}
+                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           {/* Left Sidebar - Top Job Categories */}
