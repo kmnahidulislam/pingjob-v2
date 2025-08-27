@@ -402,8 +402,8 @@ export const storage = {
           categoryName: categories.name,
           applicationCount: sql<number>`(
             SELECT COUNT(*) 
-            FROM ${jobApplications} 
-            WHERE ${jobApplications.jobId} = ${jobs.id}
+            FROM ${users} 
+            WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
           )`.as('applicationCount')
         })
         .from(jobs)
@@ -489,7 +489,7 @@ export const storage = {
             tc.description as company_description,
             tc.job_count,
             cat.name as category_name,
-            (SELECT COUNT(*) FROM job_applications ja WHERE ja.job_id = j.id) as app_count,
+            (SELECT COUNT(*) FROM users u WHERE u.user_type = 'job_seeker' AND u.category_id = j.category_id) as app_count,
             ROW_NUMBER() OVER (PARTITION BY j.company_id ORDER BY GREATEST(j.created_at, j.updated_at) DESC) as rn
           FROM jobs j
           INNER JOIN top_companies tc ON j.company_id = tc.id
@@ -782,8 +782,8 @@ export const storage = {
           companyDescription: companies.description,
           categoryName: categories.name,
           applicationCount: sql<number>`(
-            SELECT COUNT(*) FROM ${jobApplications} 
-            WHERE ${jobApplications.jobId} = ${jobs.id}
+            SELECT COUNT(*) FROM ${users} 
+            WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
           )`.as('applicationCount')
         })
         .from(jobs)

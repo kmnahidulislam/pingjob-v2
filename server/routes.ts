@@ -477,29 +477,7 @@ export function registerRoutes(app: Express) {
         jobs = await storage.getFastJobs(limit);
       }
       
-      // Add candidate count (category-based potential matches) to each job
-      const jobsWithCandidateCounts = await Promise.all(jobs.map(async (job: any) => {
-        try {
-          // Get job seekers with matching category for potential matches
-          const seekers = await storage.getJobSeekers();
-          const matchingCandidates = seekers.filter((seeker: any) => 
-            seeker.categoryId === job.categoryId
-          );
-          
-          return {
-            ...job,
-            applicationCount: matchingCandidates.length
-          };
-        } catch (error) {
-          console.error('Error calculating candidate count for job', job.id, error);
-          return {
-            ...job,
-            applicationCount: 0
-          };
-        }
-      }));
-      
-      res.json(jobsWithCandidateCounts);
+      res.json(jobs);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       res.status(500).json({ message: "Failed to fetch jobs" });
