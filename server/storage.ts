@@ -522,7 +522,7 @@ export const storage = {
           job_count
         FROM latest_jobs 
         WHERE rn = 1
-        ORDER BY created_at DESC
+        ORDER BY job_count DESC, created_at DESC
       `);
       
       return result.rows.map((job: any) => ({
