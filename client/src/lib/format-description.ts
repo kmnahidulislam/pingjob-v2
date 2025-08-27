@@ -48,9 +48,10 @@ export const formatSkills = (skills: any): string[] => {
       }
     } catch (error) {
       console.log('formatSkills JSON parse failed:', error);
-      // If parsing fails, try to split by comma
-      const result = skills.split(',').map(skill => skill.trim()).filter(Boolean);
-      console.log('formatSkills split result:', result);
+      // If parsing fails, clean up and try to split by comma
+      const cleanedSkills = skills.replace(/^\{|\}$/g, '').replace(/\\"/g, '"');
+      const result = cleanedSkills.split('","').map(skill => skill.replace(/^"|"$/g, '').trim()).filter(Boolean);
+      console.log('formatSkills cleaned and split result:', result);
       return result;
     }
   }

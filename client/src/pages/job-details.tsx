@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { JobWithCompany } from "@/lib/types";
-import { formatDescription } from "@/lib/format-description";
+import { formatDescription, formatSkills } from "@/lib/format-description";
 
 // Service name mapping
 const serviceNameMap: { [key: string]: string } = {
@@ -326,18 +326,7 @@ export default function JobDetails() {
 
   // Handle skills array safely
   const skillsArray: string[] = React.useMemo(() => {
-    if (!job.skills) return [];
-    if (Array.isArray(job.skills)) return job.skills;
-    if (typeof job.skills === 'string') {
-      try {
-        const parsed = JSON.parse(job.skills);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        const skillsStr = job.skills as string;
-        return skillsStr.split(',').map((s: string) => s.trim()).filter(Boolean);
-      }
-    }
-    return [];
+    return formatSkills(job.skills);
   }, [job.skills]);
 
   return (
