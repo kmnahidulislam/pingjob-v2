@@ -346,10 +346,18 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <Clock className="h-4 w-4 mr-1" />
                 {formatTimeAgo(job.createdAt)}
               </span>
-              <span className="flex items-center">
-                <Users className="h-4 w-4 mr-1" />
-                {job.applicationCount || 0} applicants
-              </span>
+              <div className="flex items-center space-x-3">
+                <span className="flex items-center">
+                  <Users className="h-4 w-4 mr-1" />
+                  {job.applicationCount || 0} applied
+                </span>
+                {job.potentialMatches > 0 && (
+                  <span className="flex items-center text-blue-600">
+                    <Users className="h-4 w-4 mr-1" />
+                    {job.potentialMatches} matches
+                  </span>
+                )}
+              </div>
               {/* Admin Resume Count for Full JobCard - Clickable */}
               {user?.userType === 'admin' && job.resumeCount !== undefined && (
                 <button
