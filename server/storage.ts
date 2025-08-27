@@ -1040,6 +1040,12 @@ export const storage = {
             FROM ${users} 
             WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
           )`.as('applicationCount'),
+          resumeCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${jobApplications} ja
+            JOIN ${users} u ON ja.userId = u.id
+            WHERE ja.jobId = ${jobs.id} AND u.userType = 'job_seeker' AND ja.resumeUrl IS NOT NULL
+          )`.as('resumeCount'),
           company: {
             id: companies.id,
             name: companies.name,
@@ -1055,12 +1061,6 @@ export const storage = {
         .limit(limit);
 
       console.log(`🔍 Found ${searchResults.length} jobs for query "${query}" (terms: ${searchTerms.join(', ')})`);
-      
-      // Debug: Check first result to ensure applicationCount is included
-      if (searchResults.length > 0) {
-        console.log('🔍 First search result applicationCount:', searchResults[0].applicationCount);
-        console.log('🔍 First search result keys:', Object.keys(searchResults[0]));
-      }
       
       return searchResults;
     } catch (error) {
