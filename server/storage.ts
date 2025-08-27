@@ -989,7 +989,7 @@ export const storage = {
       // Split query into individual terms (e.g., "azure 89119" -> ["azure", "89119"])
       const searchTerms = query.trim().split(/\s+/).filter(term => term.length > 0);
       
-      // Build conditions for each term - each term must match at least one field
+      // Build conditions for each term - each term must match at least one field INCLUDING company name
       const termConditions = searchTerms.map(term => 
         or(
           ilike(jobs.title, `%${term}%`),
@@ -998,14 +998,24 @@ export const storage = {
           ilike(jobs.city, `%${term}%`),
           ilike(jobs.state, `%${term}%`),
           ilike(jobs.zipCode, `%${term}%`),
-          ilike(jobs.requirements, `%${term}%`)
+          ilike(jobs.requirements, `%${term}%`),
+          ilike(companies.name, `%${term}%`)  // ADDED: Search in company name
         )
       );
       
-      // All terms must match (AND logic)
-      const searchCondition = searchTerms.length > 1 
-        ? and(eq(jobs.isActive, true), ...termConditions)
-        : and(eq(jobs.isActive, true), termConditions[0]);
+      // For company searches, use OR logic if terms seem to be parts of a company name
+      // Check if the query looks like a company name (multiple words, common company terms)
+      const companyKeywords = ['inc', 'corp', 'llc', 'ltd', 'company', 'companies', 'group', 'solutions', 'systems', 'technologies', 'services', 'investments', 'financial', 'bank', 'consulting'];
+      const hasCompanyKeyword = searchTerms.some(term => 
+        companyKeywords.includes(term.toLowerCase())
+      );
+      
+      // Use OR logic for likely company searches, AND logic for skill/job searches
+      const searchCondition = (searchTerms.length > 1 && hasCompanyKeyword)
+        ? and(eq(jobs.isActive, true), or(...termConditions))  // Company search - any term can match
+        : searchTerms.length > 1 
+          ? and(eq(jobs.isActive, true), ...termConditions)    // Multi-term job search - all must match
+          : and(eq(jobs.isActive, true), termConditions[0]);   // Single term - must match
 
       const searchResults = await db
         .select({
