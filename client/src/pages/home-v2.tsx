@@ -149,40 +149,6 @@ export default function HomeV2() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <img src={logoPath} alt="PingJob" className="h-8 w-auto cursor-pointer" />
-              </Link>
-            </div>
-            
-            <nav className="hidden md:flex space-x-8">
-              <Link href="/jobs" className="text-gray-900 hover:text-blue-600 font-medium">Jobs</Link>
-              <Link href="/companies" className="text-gray-900 hover:text-blue-600 font-medium">Companies</Link>
-            </nav>
-
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <Link href="/dashboard" className="text-gray-900 hover:text-blue-600 font-medium">Dashboard</Link>
-                  <button
-                    onClick={() => logoutMutation.mutate()}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <Link href="/auth" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-20">
