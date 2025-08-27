@@ -559,7 +559,7 @@ export const storage = {
           id: job.category_id,
           name: job.category_name || "General"
         },
-        applicationCount: job.app_count || 0,
+        applicationCount: Number(job.app_count) || 0,
         companyJobCount: job.job_count
       }));
     } catch (error) {
@@ -780,7 +780,11 @@ export const storage = {
           companyLogoUrl: companies.logoUrl,
           companyWebsite: companies.website,
           companyDescription: companies.description,
-          categoryName: categories.name
+          categoryName: categories.name,
+          applicationCount: sql<number>`(
+            SELECT COUNT(*) FROM ${jobApplications} 
+            WHERE ${jobApplications.jobId} = ${jobs.id}
+          )`.as('applicationCount')
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
@@ -817,7 +821,8 @@ export const storage = {
         category: {
           id: job.categoryId,
           name: job.categoryName || "General"
-        }
+        },
+        applicationCount: job.applicationCount || 0
       };
     } catch (error) {
       console.error(`Error fetching job ${jobId}:`, error);
