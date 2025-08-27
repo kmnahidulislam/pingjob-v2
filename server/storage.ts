@@ -1056,6 +1056,12 @@ export const storage = {
 
       console.log(`🔍 Found ${searchResults.length} jobs for query "${query}" (terms: ${searchTerms.join(', ')})`);
       
+      // Debug: Check first result to ensure applicationCount is included
+      if (searchResults.length > 0) {
+        console.log('🔍 First search result applicationCount:', searchResults[0].applicationCount);
+        console.log('🔍 First search result keys:', Object.keys(searchResults[0]));
+      }
+      
       return searchResults;
     } catch (error) {
       console.error('Error searching jobs:', error);
