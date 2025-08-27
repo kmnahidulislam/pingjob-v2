@@ -23,6 +23,7 @@ import {
   FileText
 } from "lucide-react";
 import type { JobWithCompany } from "@/lib/types";
+import { formatDescription } from "@/lib/format-description";
 
 interface JobCardProps {
   job: JobWithCompany;
@@ -131,6 +132,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
   const skillsArray = Array.isArray(job.skills) ? job.skills : 
     (job.skills ? String(job.skills).split(',').map((s: string) => s.trim()) : []);
+
 
   // Format location - ALWAYS returns a location string
   const formatLocation = (job: any) => {
@@ -334,7 +336,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
             {/* Description */}
             <p className="text-gray-600 text-sm line-clamp-3">
-              {job.description}
+              {formatDescription(job.description)}
             </p>
           </div>
 

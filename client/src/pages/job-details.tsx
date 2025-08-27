@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { JobWithCompany } from "@/lib/types";
+import { formatDescription } from "@/lib/format-description";
 
 // Service name mapping
 const serviceNameMap: { [key: string]: string } = {
@@ -481,7 +482,7 @@ export default function JobDetails() {
                 <h2 className="text-xl font-semibold mb-4">About this job</h2>
                 <div className="prose max-w-none">
                   <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {job.description}
+                    {formatDescription(job.description)}
                   </p>
                 </div>
               </div>

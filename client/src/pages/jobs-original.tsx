@@ -9,6 +9,7 @@ import { Building2, MapPin, Clock, DollarSign, Users, RefreshCw, Briefcase } fro
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { formatDescription } from "@/lib/format-description";
 
 export default function JobsOriginal() {
   const { user } = useAuth();
@@ -89,7 +90,7 @@ export default function JobsOriginal() {
   const filteredJobs = jobs.filter((job: any) => {
     const matchesSearch = !filters.search || 
       job.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      formatDescription(job.description)?.toLowerCase().includes(filters.search.toLowerCase()) ||
       job.company?.name?.toLowerCase().includes(filters.search.toLowerCase());
     
     const matchesLocation = !filters.location ||
