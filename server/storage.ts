@@ -594,7 +594,12 @@ export const storage = {
           categoryName: categories.name,
           city: jobs.city,
           state: jobs.state,
-          zipCode: jobs.zipCode
+          zipCode: jobs.zipCode,
+          applicationCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${users} 
+            WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
+          )`.as('applicationCount')
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
@@ -681,6 +686,7 @@ export const storage = {
         zipCode: job.zipCode,
         vendorCount: vendorCountMap.get(job.companyId!) || 0,
         categoryResumeCount: 0, // Simplified - remove resume counting for now
+        applicationCount: job.applicationCount || 0, // Use the SQL calculated category-based count
         company: {
           id: job.companyId,
           name: job.companyName || "Unknown Company",
@@ -695,9 +701,7 @@ export const storage = {
         category: {
           id: job.categoryId,
           name: job.categoryName || "General"
-        },
-        applicationCount: realApplicants,
-        categoryMatchedApplicants: categoryMatchedApplicants
+        }
       };
     });
     } catch (error) {
