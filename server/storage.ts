@@ -1043,7 +1043,7 @@ export const storage = {
           resumeCount: sql<number>`(
             SELECT COUNT(*) 
             FROM ${jobApplications} ja
-            JOIN ${users} u ON ja.userId = u.id
+            JOIN ${users} u ON ja.applicantId = u.id
             WHERE ja.jobId = ${jobs.id} AND u.userType = 'job_seeker' AND ja.resumeUrl IS NOT NULL
           )`.as('resumeCount'),
           company: {
