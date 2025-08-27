@@ -105,6 +105,9 @@ export default function Jobs() {
         let url = '/api/jobs?limit=' + maxJobs;
         if (selectedCategory) {
           url += `&categoryId=${selectedCategory}`;
+        } else {
+          // Default behavior: show recent jobs from top companies (1 job per company)
+          url += '&topCompanies=true';
         }
         
         console.log('FETCHING FROM URL:', url);

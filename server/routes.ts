@@ -459,6 +459,7 @@ export function registerRoutes(app: Express) {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
       const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+      const topCompanies = req.query.topCompanies === 'true';
       
       let jobs;
       if (categoryId) {
@@ -468,6 +469,9 @@ export function registerRoutes(app: Express) {
         if (limit) {
           jobs = jobs.slice(0, limit);
         }
+      } else if (topCompanies) {
+        // Get recent jobs from top companies (1 job per company)
+        jobs = await storage.getJobsFromTopCompanies(limit || 50);
       } else {
         // Get all jobs
         jobs = await storage.getFastJobs(limit);

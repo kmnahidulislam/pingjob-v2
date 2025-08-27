@@ -458,6 +458,114 @@ export const storage = {
     }
   },
 
+  async getJobsFromTopCompanies(limit: number = 50) {
+    try {
+      // Get recent jobs from top companies (1 job per company)
+      const result = await db.execute(sql`
+        WITH top_companies AS (
+          SELECT 
+            c.id,
+            c.name,
+            c.logo_url,
+            c.website,
+            c.description,
+            COUNT(DISTINCT j.id) as job_count,
+            COUNT(DISTINCT v.id) as vendor_count
+          FROM companies c
+          LEFT JOIN jobs j ON c.id = j.company_id AND j.is_active = true
+          LEFT JOIN vendors v ON c.id = v.company_id AND v.status = 'approved'
+          WHERE c.approved_by IS NOT NULL
+          GROUP BY c.id, c.name, c.logo_url, c.website, c.description
+          HAVING COUNT(DISTINCT j.id) > 0
+          ORDER BY job_count DESC, vendor_count DESC
+          LIMIT ${limit}
+        ),
+        latest_jobs AS (
+          SELECT 
+            j.*,
+            tc.name as company_name,
+            tc.logo_url as company_logo_url,
+            tc.website as company_website,
+            tc.description as company_description,
+            tc.job_count,
+            cat.name as category_name,
+            ROW_NUMBER() OVER (PARTITION BY j.company_id ORDER BY j.created_at DESC) as rn
+          FROM jobs j
+          INNER JOIN top_companies tc ON j.company_id = tc.id
+          LEFT JOIN categories cat ON j.category_id = cat.id
+          WHERE j.is_active = true
+        )
+        SELECT 
+          id,
+          title,
+          description,
+          location,
+          city,
+          state,
+          zip_code,
+          salary,
+          employment_type,
+          requirements,
+          benefits,
+          skills,
+          is_active,
+          created_at,
+          updated_at,
+          company_id,
+          category_id,
+          recruiter_id,
+          company_name,
+          company_logo_url,
+          company_website,
+          company_description,
+          category_name,
+          job_count
+        FROM latest_jobs 
+        WHERE rn = 1
+        ORDER BY job_count DESC, created_at DESC
+      `);
+      
+      return result.rows.map((job: any) => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        city: job.city,
+        state: job.state,
+        zipCode: job.zip_code,
+        salary: job.salary,
+        employmentType: job.employment_type,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        skills: job.skills,
+        applicationDeadline: null,
+        isActive: job.is_active,
+        postedAt: job.created_at,
+        createdAt: job.created_at,
+        updatedAt: job.updated_at,
+        companyId: job.company_id,
+        categoryId: job.category_id,
+        recruiterId: job.recruiter_id,
+        company: {
+          id: job.company_id,
+          name: job.company_name || "Unknown Company",
+          logoUrl: job.company_logo_url,
+          website: job.company_website,
+          description: job.company_description
+        },
+        category: {
+          id: job.category_id,
+          name: job.category_name || "General"
+        },
+        applicationCount: 0,
+        companyJobCount: job.job_count
+      }));
+    } catch (error) {
+      console.error('Error fetching jobs from top companies:', error);
+      return [];
+    }
+  },
+
   async getAdminJobs(limit?: number, offset?: number) {
     try {
       // First get the jobs with company and category data
