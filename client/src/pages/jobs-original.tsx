@@ -47,35 +47,56 @@ export default function JobsOriginal() {
     }
   }, []);
 
-  // Fetch jobs using fast endpoint with category filtering
+  // Fetch jobs using fast endpoint with category filtering and search
   const { data: jobs = [], isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs', selectedCategory],
+    queryKey: ['/api/jobs', selectedCategory, filters.search, filters.location],
     queryFn: async () => {
-      let url = '/api/jobs?limit=50';
-      if (selectedCategory) {
-        url += `&categoryId=${selectedCategory}`;
+      // If we have search terms, use the search API
+      if (filters.search.trim() || filters.location.trim()) {
+        let searchUrl = '/api/search?';
+        if (filters.search.trim()) {
+          searchUrl += `q=${encodeURIComponent(filters.search)}&`;
+        }
+        if (filters.location.trim()) {
+          searchUrl += `location=${encodeURIComponent(filters.location)}&`;
+        }
+        
+        console.log('🔍 SEARCHING WITH URL:', searchUrl);
+        
+        const response = await fetch(searchUrl);
+        if (!response.ok) throw new Error('Failed to search jobs');
+        const data = await response.json();
+        
+        console.log('🔍 SEARCH RESULTS:', data.jobs?.length || 0, 'jobs found');
+        return data.jobs || [];
       } else {
-        // Default behavior: show recent jobs from top companies (1 job per company)
-        url += '&topCompanies=true';
+        // Default behavior: fetch jobs normally
+        let url = '/api/jobs?limit=50';
+        if (selectedCategory) {
+          url += `&categoryId=${selectedCategory}`;
+        } else {
+          // Default behavior: show recent jobs from top companies (1 job per company)
+          url += '&topCompanies=true';
+        }
+        // Add cache busting to force fresh data
+        url += `&_t=${Date.now()}`;
+        
+        console.log('🚀 FETCHING FROM URL:', url);
+        console.log('🎯 SELECTED CATEGORY:', selectedCategory);
+        console.log('🏢 TOP COMPANIES MODE:', !selectedCategory);
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch jobs');
+        const data = await response.json();
+        
+        console.log('✅ JOBS RECEIVED:', data.length);
+        console.log('🏆 FIRST FEW JOB TITLES:', data.slice(0, 3).map((j: any) => j.title));
+        if (data[0]) {
+          console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
+        }
+        
+        return data;
       }
-      // Add cache busting to force fresh data
-      url += `&_t=${Date.now()}`;
-      
-      console.log('🚀 FETCHING FROM URL:', url);
-      console.log('🎯 SELECTED CATEGORY:', selectedCategory);
-      console.log('🏢 TOP COMPANIES MODE:', !selectedCategory);
-      
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
-      const data = await response.json();
-      
-      console.log('✅ JOBS RECEIVED:', data.length);
-      console.log('🏆 FIRST FEW JOB TITLES:', data.slice(0, 3).map((j: any) => j.title));
-      if (data[0]) {
-        console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
-      }
-      
-      return data;
     }
   });
 
@@ -86,20 +107,8 @@ export default function JobsOriginal() {
 
 
 
-  // Filter jobs based on search
-  const filteredJobs = jobs.filter((job: any) => {
-    const matchesSearch = !filters.search || 
-      job.title?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      formatDescription(job.description)?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.company?.name?.toLowerCase().includes(filters.search.toLowerCase());
-    
-    const matchesLocation = !filters.location ||
-      job.location?.toLowerCase().includes(filters.location.toLowerCase()) ||
-      job.city?.toLowerCase().includes(filters.location.toLowerCase()) ||
-      job.state?.toLowerCase().includes(filters.location.toLowerCase());
-    
-    return matchesSearch && matchesLocation;
-  });
+  // Use jobs directly since filtering is now handled by the API
+  const filteredJobs = jobs;
 
   // Pagination logic
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
