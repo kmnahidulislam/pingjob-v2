@@ -25,37 +25,26 @@ export const formatDescription = (description: any): string => {
 
 // Format skills array - handle JSON strings or arrays  
 export const formatSkills = (skills: any): string[] => {
-  console.log('formatSkills input:', skills, typeof skills);
-  
   if (!skills) return [];
   
   // If it's already an array, return as is
   if (Array.isArray(skills)) {
-    const result = skills.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
-    console.log('formatSkills array result:', result);
-    return result;
+    return skills.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
   }
   
   // If it's a string that looks like JSON, try to parse it
   if (typeof skills === 'string') {
     try {
       const parsed = JSON.parse(skills);
-      console.log('formatSkills parsed JSON:', parsed);
       if (Array.isArray(parsed)) {
-        const result = parsed.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
-        console.log('formatSkills JSON array result:', result);
-        return result;
+        return parsed.map(skill => String(skill).replace(/["\[\]]/g, '').trim()).filter(Boolean);
       }
-    } catch (error) {
-      console.log('formatSkills JSON parse failed:', error);
+    } catch {
       // If parsing fails, clean up and try to split by comma
       const cleanedSkills = skills.replace(/^\{|\}$/g, '').replace(/\\"/g, '"');
-      const result = cleanedSkills.split('","').map(skill => skill.replace(/^"|"$/g, '').trim()).filter(Boolean);
-      console.log('formatSkills cleaned and split result:', result);
-      return result;
+      return cleanedSkills.split('","').map(skill => skill.replace(/^"|"$/g, '').trim()).filter(Boolean);
     }
   }
   
-  console.log('formatSkills default return:', []);
   return [];
 };

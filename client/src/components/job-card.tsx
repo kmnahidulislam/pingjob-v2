@@ -337,6 +337,13 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             <p className="text-gray-600 text-sm line-clamp-3">
               {formatDescription(job.description)}
             </p>
+
+            {/* DEBUG: Check if skills are being displayed here */}
+            {import.meta.env.DEV && job.skills && (
+              <div className="text-red-500 text-xs mt-2 p-2 bg-red-100">
+                DEBUG - Raw skills: {typeof job.skills === 'string' ? job.skills.substring(0, 100) + '...' : JSON.stringify(job.skills).substring(0, 100) + '...'}
+              </div>
+            )}
           </div>
 
           {/* Footer */}
