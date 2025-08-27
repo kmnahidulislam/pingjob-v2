@@ -53,10 +53,27 @@ export default function JobsOriginal() {
       let url = '/api/jobs?limit=50';
       if (selectedCategory) {
         url += `&categoryId=${selectedCategory}`;
+      } else {
+        // Default behavior: show recent jobs from top companies (1 job per company)
+        url += '&topCompanies=true';
       }
+      // Add cache busting to force fresh data
+      url += `&_t=${Date.now()}`;
+      
+      console.log('🚀 FETCHING FROM URL:', url);
+      console.log('🎯 SELECTED CATEGORY:', selectedCategory);
+      console.log('🏢 TOP COMPANIES MODE:', !selectedCategory);
+      
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch jobs');
       const data = await response.json();
+      
+      console.log('✅ JOBS RECEIVED:', data.length);
+      console.log('🏆 FIRST FEW JOB TITLES:', data.slice(0, 3).map((j: any) => j.title));
+      if (data[0]) {
+        console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
+      }
+      
       return data;
     }
   });
