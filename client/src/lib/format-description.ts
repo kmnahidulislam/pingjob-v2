@@ -53,23 +53,39 @@ export const formatSkills = (skills: any): string[] => {
     if (!skill) return false;
     
     // Skip skills that are too long (likely description text)
-    if (skill.length > 80) return false;
+    if (skill.length > 60) return false;
     
     // Skip skills that contain common description phrases
     const descriptionPhrases = [
       'proven ability', 'experience with', 'understanding of', 'familiarity with',
       'hands-on', 'strong background', 'knowledge of', 'proficiency in',
       'expertise in', 'solid experience', 'comfortable with', 'building new use cases',
-      'supporting user', 'proactively engaging', 'working with'
+      'supporting user', 'proactively engaging', 'working with', 'app testing',
+      'custom builds', 'internal app access', 'network dependencies', 'tunnel configurations',
+      'certificate authorities', 'onboarding unique device types', 'user acceptance testing',
+      'production rollout', 'business units', 'gather requirements'
     ];
     
     const lowerSkill = skill.toLowerCase();
     if (descriptionPhrases.some(phrase => lowerSkill.includes(phrase))) return false;
     
-    // Skip skills that look like sentences (contain multiple spaces and common sentence words)
-    const sentenceWords = ['the', 'and', 'with', 'for', 'in', 'on', 'to', 'of', 'is', 'are'];
+    // Skip skills that look like job tasks/activities rather than technical skills
+    const taskPatterns = [
+      /testing$/i, /access$/i, /builds$/i, /cases$/i, /rollout$/i, /requirements$/i,
+      /configurations$/i, /dependencies$/i, /authorities$/i, /types$/i, /units$/i
+    ];
+    if (taskPatterns.some(pattern => pattern.test(skill))) return false;
+    
+    // Skip skills that look like sentences or phrases (contain common connecting words)
+    const sentenceWords = ['the', 'and', 'with', 'for', 'in', 'on', 'to', 'of', 'is', 'are', 'or'];
     const words = skill.toLowerCase().split(/\s+/);
-    if (words.length > 8 && words.some(word => sentenceWords.includes(word))) return false;
+    
+    // More aggressive filtering for shorter phrases that contain connecting words
+    if (words.length > 2 && words.some(word => sentenceWords.includes(word))) return false;
+    
+    // Skip generic phrases that don't represent specific technical skills
+    const genericPhrases = ['use case', 'new use', 'user acceptance', 'business unit'];
+    if (genericPhrases.some(phrase => lowerSkill.includes(phrase))) return false;
     
     return true;
   });
