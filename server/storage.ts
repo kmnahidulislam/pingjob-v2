@@ -1043,8 +1043,7 @@ export const storage = {
           resumeCount: sql<number>`(
             SELECT COUNT(*) 
             FROM ${jobApplications} ja
-            JOIN ${users} u ON ja.applicant_id = u.id
-            WHERE ja.job_id = ${jobs.id} AND u.user_type = 'job_seeker' AND ja.resume_url IS NOT NULL
+            WHERE ja.job_id = ${jobs.id} AND ja.resume_url IS NOT NULL
           )`.as('resumeCount'),
           company: {
             id: companies.id,
@@ -1061,17 +1060,6 @@ export const storage = {
         .limit(limit);
 
       console.log(`🔍 Found ${searchResults.length} jobs for query "${query}" (terms: ${searchTerms.join(', ')})`);
-      
-      // Debug: Check if resumeCount is included
-      if (searchResults.length > 0) {
-        console.log('🔍 First search result structure:', {
-          id: searchResults[0].id,
-          title: searchResults[0].title.substring(0, 30),
-          applicationCount: searchResults[0].applicationCount,
-          resumeCount: searchResults[0].resumeCount,
-          hasResumeCount: 'resumeCount' in searchResults[0]
-        });
-      }
       
       return searchResults;
     } catch (error) {
