@@ -810,6 +810,11 @@ export function registerRoutes(app: Express) {
             contentType = 'application/pdf';
             detectedExt = '.pdf';
             console.log('✅ Detected PDF file based on signature');
+          } else if (buffer[0] === 0xD0 && buffer[1] === 0xCF && buffer[2] === 0x11 && buffer[3] === 0xE0) {
+            // Microsoft Office document (DOC, XLS, PPT - Compound Document format)
+            contentType = 'application/msword';
+            detectedExt = '.doc';
+            console.log('✅ Detected DOC file based on Compound Document signature');
           } else {
             console.log(`❌ Unknown file signature, defaulting to DOCX for resume files`);
             // Default to DOCX for resume files since they're likely Word documents
