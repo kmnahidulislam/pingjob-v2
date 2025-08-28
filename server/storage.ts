@@ -1390,5 +1390,24 @@ export const storage = {
       console.error('Error creating job:', error);
       throw error;
     }
+  },
+
+  async deleteJob(jobId: number) {
+    try {
+      console.log('Deleting job:', jobId);
+      
+      // First delete all job applications for this job
+      await db.delete(jobApplications).where(eq(jobApplications.jobId, jobId));
+      console.log('Deleted job applications for job:', jobId);
+      
+      // Then delete the job itself
+      const deletedJob = await db.delete(jobs).where(eq(jobs.id, jobId)).returning();
+      console.log('Deleted job:', deletedJob);
+      
+      return deletedJob[0];
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      throw error;
+    }
   }
 };

@@ -1324,6 +1324,42 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Delete job endpoint
+  app.delete('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const jobId = parseInt(req.params.id);
+      
+      if (isNaN(jobId)) {
+        return res.status(400).json({ message: 'Invalid job ID' });
+      }
+
+      // Check if job exists
+      const existingJob = await storage.getJobById(jobId);
+      if (!existingJob) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+
+      // Verify user owns the job or has permission to delete (recruiter/admin)
+      const user = req.user;
+      console.log('Delete job - User:', user?.email, 'UserType:', user?.userType);
+      
+      if (user.userType !== 'admin' && user.userType !== 'recruiter') {
+        console.log('❌ User not authorized to delete jobs. UserType:', user.userType);
+        return res.status(403).json({ message: 'Unauthorized to delete jobs' });
+      }
+
+      // Delete the job
+      await storage.deleteJob(jobId);
+      
+      res.json({
+        message: 'Job deleted successfully'
+      });
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      res.status(500).json({ message: "Failed to delete job" });
+    }
+  });
+
   app.post('/api/logout', (req: any, res) => {
     console.log('=== LOGOUT ATTEMPT START ===');
     console.log('Session before destroy:', !!req.session?.user);
