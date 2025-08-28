@@ -47,18 +47,9 @@ export default function ResumeApplicationsModal({
   });
 
   const handleDownloadResume = (resumeUrl: string, fileName?: string) => {
-    // Create a download link for the resume
-    const link = document.createElement('a');
-    link.href = resumeUrl;
-    // Let the server determine the filename and extension via Content-Disposition header
-    if (fileName && fileName.includes('.')) {
-      link.download = fileName; // Use provided filename if it has an extension
-    }
-    // Otherwise, don't set download attribute - let server handle it
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Open directly in a new tab and let the browser handle the download
+    // This preserves the server's Content-Type and Content-Disposition headers
+    window.open(resumeUrl, '_blank');
   };
 
   const formatDate = (dateString: string) => {
