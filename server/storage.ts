@@ -894,7 +894,7 @@ export const storage = {
       const recruiterJobs = await db
         .select()
         .from(jobs)
-        .where(eq(jobs.recruiterId, recruiterId))
+        .where(and(eq(jobs.recruiterId, recruiterId), eq(jobs.isActive, true)))
         .orderBy(desc(jobs.createdAt));
 
       const transformedJobs = recruiterJobs.map(job => ({
@@ -1394,23 +1394,20 @@ export const storage = {
 
   async deleteJob(jobId: number) {
     try {
-      console.log('Deleting job:', jobId);
+      console.log('Soft deleting job (marking inactive):', jobId);
       
-      // First delete all job applications for this job
-      await db.delete(jobApplications).where(eq(jobApplications.jobId, jobId));
-      console.log('Deleted job applications for job:', jobId);
+      // Instead of hard delete, mark the job as inactive
+      const updatedJob = await db
+        .update(jobs)
+        .set({ isActive: false })
+        .where(eq(jobs.id, jobId))
+        .returning();
       
-      // Delete job candidate assignments (foreign key constraint)
-      await db.delete(jobCandidateAssignments).where(eq(jobCandidateAssignments.jobId, jobId));
-      console.log('Deleted job candidate assignments for job:', jobId);
+      console.log('Marked job as inactive:', updatedJob);
       
-      // Then delete the job itself
-      const deletedJob = await db.delete(jobs).where(eq(jobs.id, jobId)).returning();
-      console.log('Deleted job:', deletedJob);
-      
-      return deletedJob[0];
+      return updatedJob[0];
     } catch (error) {
-      console.error('Error deleting job:', error);
+      console.error('Error soft deleting job:', error);
       throw error;
     }
   }
