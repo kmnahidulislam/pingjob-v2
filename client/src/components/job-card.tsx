@@ -210,7 +210,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
                 <div className="flex items-center gap-2">
                   {/* Admin Resume Count Badge - Clickable */}
-                  {user?.userType === 'admin' && job.resumeCount !== undefined && Number(job.resumeCount) > 0 && (
+                  {((user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && job.resumeCount !== undefined && Number(job.resumeCount) > 0) && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -351,7 +351,8 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 {job.applicationCount || 0} applicants
               </span>
               {/* Admin Resume Count for Full JobCard - Clickable */}
-              {user?.userType === 'admin' && job.resumeCount !== undefined && Number(job.resumeCount) > 0 && (
+              {/* Debug: Show for specific user emails and admin types */}
+              {((user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && job.resumeCount !== undefined && Number(job.resumeCount) > 0) && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
