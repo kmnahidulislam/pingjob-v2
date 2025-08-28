@@ -351,15 +351,6 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 {job.applicationCount || 0} applicants
               </span>
               {/* Admin Resume Count for Full JobCard - Clickable */}
-              {/* Debug logging for resume count visibility */}
-              {job.id === 83769 && console.log('Job 83769 debug:', { 
-                user: user,
-                userType: user?.userType, 
-                userEmail: user?.email,
-                resumeCount: job.resumeCount, 
-                resumeCountNumber: Number(job.resumeCount),
-                showResume: user?.userType === 'admin' && job.resumeCount !== undefined && Number(job.resumeCount) > 0
-              })}
               {user?.userType === 'admin' && job.resumeCount !== undefined && Number(job.resumeCount) > 0 && (
                 <button
                   onClick={(e) => {

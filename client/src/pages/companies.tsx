@@ -756,7 +756,11 @@ export default function CompaniesPage() {
       console.log('Company edit mutation received data:', companyData);
       
       // If there's a logo file, use FormData for file upload  
-      if (companyData.logoFile && companyData.logoFile instanceof File && companyData.logoFile.size > 0) {
+      const hasRealFile = companyData.logoFile && 
+        companyData.logoFile instanceof File && 
+        companyData.logoFile.size > 0;
+      
+      if (hasRealFile) {
         console.log('Using FormData for file upload');
         const formData = new FormData();
         formData.append('logo', companyData.logoFile);
@@ -787,6 +791,11 @@ export default function CompaniesPage() {
           )
         );
         console.log('Clean data to send:', cleanData);
+        
+        // Ensure we have at least some data to send
+        if (Object.keys(cleanData).length === 0) {
+          throw new Error('No data to update');
+        }
         
         // Regular JSON update without file upload
         const response = await apiRequest('PATCH', `/api/companies/${companyData.id}`, cleanData);
