@@ -115,7 +115,7 @@ export default function Navigation() {
           {/* Search and User Actions */}
           <div className="flex items-center space-x-4 ml-8">
             {/* Global Search */}
-            <div className="relative hidden xl:block">
+            <div className="relative hidden lg:block">
               <form onSubmit={handleSearch}>
                 <Input
                   type="text"
