@@ -686,7 +686,7 @@ export const storage = {
         zipCode: job.zipCode,
         vendorCount: vendorCountMap.get(job.companyId!) || 0,
         categoryResumeCount: 0, // Simplified - remove resume counting for now
-        applicationCount: job.applicationCount || 0, // Use the SQL calculated category-based count
+        applicationCount: realApplicants + categoryMatchedApplicants, // FIXED: Combine real applications + category matches
         company: {
           id: job.companyId,
           name: job.companyName || "Unknown Company",
