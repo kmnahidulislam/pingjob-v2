@@ -26,7 +26,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // Import and setup authentication AFTER middleware
 import { setupSimpleAuth } from "./simple-auth";
+import { setupAuth } from "./auth";
 setupSimpleAuth(app);
+setupAuth(app);
 
 // Serve ads.txt file for Google AdSense verification (HIGHEST PRIORITY)
 app.get('/ads.txt', (req, res) => {
