@@ -1325,7 +1325,7 @@ export function registerRoutes(app: Express) {
   });
 
   // Delete job endpoint
-  app.delete('/api/jobs/:id', async (req: any, res) => {
+  app.delete('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
     try {
       console.log('=== DELETE JOB REQUEST START ===');
       console.log('User from req.user:', req.user);
