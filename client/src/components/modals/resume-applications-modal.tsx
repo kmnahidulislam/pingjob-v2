@@ -46,10 +46,41 @@ export default function ResumeApplicationsModal({
     enabled: isOpen && !!job.id,
   });
 
-  const handleDownloadResume = (resumeUrl: string, fileName?: string) => {
-    // Open directly in a new tab and let the browser handle the download
-    // This preserves the server's Content-Type and Content-Disposition headers
-    window.open(resumeUrl, '_blank');
+  const handleDownloadResume = async (resumeUrl: string, fileName?: string) => {
+    try {
+      // Fetch the file to get the proper headers and content
+      const response = await fetch(resumeUrl);
+      if (!response.ok) throw new Error('Download failed');
+      
+      // Get the filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let downloadFileName = 'resume.docx'; // default
+      
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="([^"]+)"/);
+        if (fileNameMatch) {
+          downloadFileName = fileNameMatch[1];
+        }
+      }
+      
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = downloadFileName;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to direct link
+      window.open(resumeUrl, '_blank');
+    }
   };
 
   const formatDate = (dateString: string) => {
