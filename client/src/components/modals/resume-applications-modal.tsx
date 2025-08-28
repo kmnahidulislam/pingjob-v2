@@ -56,12 +56,21 @@ export default function ResumeApplicationsModal({
       const contentDisposition = response.headers.get('Content-Disposition');
       let downloadFileName = 'resume.docx'; // default
       
+      console.log('Content-Disposition header:', contentDisposition);
+      
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="([^"]+)"/);
         if (fileNameMatch) {
           downloadFileName = fileNameMatch[1];
+          console.log('Extracted filename:', downloadFileName);
+        } else {
+          console.log('Could not extract filename from header');
         }
+      } else {
+        console.log('No Content-Disposition header found');
       }
+      
+      console.log('Final download filename:', downloadFileName);
       
       // Create blob and download
       const blob = await response.blob();
