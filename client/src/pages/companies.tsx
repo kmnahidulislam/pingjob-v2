@@ -755,8 +755,8 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // If there's a logo file, use FormData for file upload
-      if (companyData.logoFile) {
+      // If there's a logo file, use FormData for file upload  
+      if (companyData.logoFile && companyData.logoFile instanceof File) {
         console.log('Using FormData for file upload');
         const formData = new FormData();
         formData.append('logo', companyData.logoFile);
@@ -780,10 +780,10 @@ export default function CompaniesPage() {
         return response.json();
       } else {
         console.log('Using JSON for regular update');
-        // Create a clean copy without undefined values
+        // Create a clean copy without undefined values, but keep empty strings
         const cleanData = Object.fromEntries(
           Object.entries(companyData).filter(([key, value]) => 
-            value !== undefined && value !== null && value !== ''
+            key !== 'logoFile' && value !== undefined && value !== null
           )
         );
         console.log('Clean data to send:', cleanData);
