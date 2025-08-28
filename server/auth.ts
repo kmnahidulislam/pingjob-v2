@@ -181,27 +181,39 @@ export function setupAuth(app: Express) {
   });
 
   app.get('/api/user', (req: any, res) => {
-    console.log('GET /api/user - Session exists:', !!req.session);
-    console.log('GET /api/user - Session user (direct):', !!req.session?.user);
-    console.log('GET /api/user - Passport user:', !!req.user);
-    console.log('GET /api/user - Session ID:', req.sessionID);
+    console.log('🔐 === /api/user endpoint called ===');
+    console.log('🔐 Session exists:', !!req.session);
+    console.log('🔐 Session user (direct):', !!req.session?.user);
+    console.log('🔐 Passport user:', !!req.user);
     
     // Check both session.user and req.user (Passport)  
     const user = req.user || req.session?.user;
     if (user) {
-      console.log('🔐 User found, formatting response for:', user.email);
+      console.log('🔐 Raw user data before transformation:', {
+        id: user.id,
+        email: user.email,
+        user_type: user.user_type,
+        first_name: user.first_name,
+        last_name: user.last_name
+      });
+      
+      // FORCE transformation to camelCase - this MUST work
       const userResponse = {
         id: user.id,
         email: user.email,
-        firstName: user.first_name || user.firstName,
-        lastName: user.last_name || user.lastName,
-        userType: user.user_type || user.userType,
-        profileImageUrl: user.profile_image_url || user.profileImageUrl
+        firstName: user.first_name || user.firstName || 'Unknown',
+        lastName: user.last_name || user.lastName || 'User', 
+        userType: user.user_type || user.userType || 'job_seeker',
+        profileImageUrl: user.profile_image_url || user.profileImageUrl || null
       };
-      console.log('🔐 Formatted user response userType:', userResponse.userType);
+      
+      console.log('🔐 TRANSFORMED user response:', userResponse);
+      console.log('🔐 userType value:', userResponse.userType);
+      
       return res.status(200).json(userResponse);
     }
-    console.log('🔐 No authenticated user found in session or passport');
+    
+    console.log('🔐 No authenticated user found');
     return res.status(401).json({ message: "Not authenticated" });
   });
 

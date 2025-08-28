@@ -242,7 +242,8 @@ export function setupSimpleAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req: any, res) => {
+  // Note: /api/user endpoint moved to auth.ts - removing duplicate
+  app.get("/api/user-simple", (req: any, res) => {
     if (!req.session?.user) return res.sendStatus(401);
     res.json(req.session.user);
   });
