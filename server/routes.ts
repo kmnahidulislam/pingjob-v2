@@ -291,9 +291,9 @@ export function registerRoutes(app: Express) {
         jobTitle: application.job?.title,
         breakdown: {
           skillsMatched: application.isProcessed ? ["Skills analysis available"] : [],
-          experienceMatch: application.experienceScore > 0,
-          educationMatch: application.educationScore > 0,
-          companyMatch: application.companyScore > 0
+          experienceMatch: (application.experienceScore || 0) > 0,
+          educationMatch: (application.educationScore || 0) > 0,
+          companyMatch: (application.companyScore || 0) > 0
         }
       });
     } catch (error) {

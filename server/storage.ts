@@ -780,12 +780,18 @@ export const storage = {
         companyId: job.companyId,
         categoryId: job.categoryId,
         recruiterId: job.recruiterId,
+        vendorCount: 0, // Add missing property
+        categoryResumeCount: 0, // Add missing property
         company: {
           id: job.companyId,
           name: job.companyName || "Unknown Company",
           logoUrl: job.companyLogoUrl,
           website: job.companyWebsite,
-          description: job.companyDescription
+          description: job.companyDescription,
+          city: job.city,
+          state: job.state,
+          zipCode: job.zipCode,
+          vendorCount: 0
         },
         category: {
           id: job.categoryId,
@@ -976,7 +982,7 @@ export const storage = {
     };
   },
 
-  async getRecruiterJobs(recruiterId: string) {
+  async getJobsByRecruiterId(recruiterId: string) {
     try {
       console.log('🔐 Fetching jobs for recruiter:', recruiterId);
       
