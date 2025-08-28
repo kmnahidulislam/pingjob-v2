@@ -710,6 +710,95 @@ export const storage = {
     }
   },
 
+  // Get recruiter jobs (jobs posted by recruiters, not admins)
+  async getRecruiterJobs(limit?: number) {
+    try {
+      let query = db
+        .select({
+          id: jobs.id,
+          title: jobs.title,
+          description: jobs.description,
+          location: jobs.location,
+          city: jobs.city,
+          state: jobs.state,
+          zipCode: jobs.zipCode,
+          salary: jobs.salary,
+          employmentType: jobs.employmentType,
+          requirements: jobs.requirements,
+          benefits: jobs.benefits,
+          skills: jobs.skills,
+          isActive: jobs.isActive,
+          createdAt: jobs.createdAt,
+          companyId: jobs.companyId,
+          categoryId: jobs.categoryId,
+          recruiterId: jobs.recruiterId,
+          companyName: companies.name,
+          companyLogoUrl: companies.logoUrl,
+          companyWebsite: companies.website,
+          companyDescription: companies.description,
+          categoryName: categories.name,
+          applicationCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${users} 
+            WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
+          )`.as('applicationCount')
+        })
+        .from(jobs)
+        .leftJoin(companies, eq(jobs.companyId, companies.id))
+        .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .leftJoin(users, eq(jobs.recruiterId, users.id))
+        .where(and(
+          eq(jobs.isActive, true),
+          eq(users.userType, 'recruiter') // Only jobs from recruiters
+        ))
+        .orderBy(desc(jobs.createdAt));
+      
+      if (limit) {
+        query = query.limit(limit) as any;
+      }
+      
+      const recruiterJobsResults = await query;
+      
+      return recruiterJobsResults.map(job => ({
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        city: job.city,
+        state: job.state,
+        zipCode: job.zipCode,
+        salary: job.salary,
+        employmentType: job.employmentType,
+        requirements: job.requirements,
+        benefits: job.benefits,
+        skills: job.skills,
+        applicationDeadline: null,
+        isActive: job.isActive,
+        postedAt: job.createdAt,
+        createdAt: job.createdAt,
+        updatedAt: job.createdAt,
+        companyId: job.companyId,
+        categoryId: job.categoryId,
+        recruiterId: job.recruiterId,
+        company: {
+          id: job.companyId,
+          name: job.companyName || "Unknown Company",
+          logoUrl: job.companyLogoUrl,
+          website: job.companyWebsite,
+          description: job.companyDescription
+        },
+        category: {
+          id: job.categoryId,
+          name: job.categoryName || "General"
+        },
+        applicationCount: job.applicationCount || 0
+      }));
+    } catch (error) {
+      console.error('Error fetching recruiter jobs:', error);
+      return [];
+    }
+  },
+
   async getJobsByCategory(categoryId: number) {
     try {
       const categoryJobs = await db
@@ -951,8 +1040,6 @@ export const storage = {
 
   async searchCompanies(query: string, limit: number = 50) {
     try {
-      console.log('🔍 Searching companies with query:', query);
-      
       const searchResults = await db
         .select({
           id: companies.id,
@@ -980,9 +1067,6 @@ export const storage = {
         .orderBy(companies.name)
         .limit(limit);
 
-      console.log(`🔍 Found ${searchResults.length} companies for "${query}":`, 
-        searchResults.slice(0, 3).map(c => c.name));
-      
       return searchResults;
     } catch (error) {
       console.error('Error searching companies:', error);
