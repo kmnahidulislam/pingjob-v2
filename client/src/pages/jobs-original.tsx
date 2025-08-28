@@ -268,12 +268,105 @@ export default function JobsOriginal() {
               )}
               
               {!jobsLoading && currentJobs && Array.isArray(currentJobs) && currentJobs.map((job: any) => (
-                <JobCard 
-                  key={job.id} 
-                  job={job} 
-                  compact={false} 
-                  showCompany={true} 
-                />
+                <Card key={job.id} className="border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] bg-white/80 backdrop-blur-sm">
+                  <CardHeader className="pb-6 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-t-lg">
+                    
+                    {/* Company Logo and Name */}
+                    <div className="flex items-start space-x-4 mb-4">
+                      {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                        <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
+                          <img 
+                            src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                            alt={job.company.name}
+                            className="w-full h-full object-contain p-2"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                          <div 
+                            className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl"
+                            style={{display: 'none'}}
+                          >
+                            {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
+                          {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-gray-800 truncate">
+                          {job.company?.name || 'Company Name'}
+                        </h3>
+                        <div className="text-xs text-gray-600 mb-1">
+                          {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || 
+                           [job.city, job.state, job.zipCode].filter(Boolean).join(', ') || 
+                           job.location || 'Location not specified'}
+                        </div>
+                        {job.company?.vendorCount && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {job.company.vendorCount} vendors
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Job Title */}
+                    <CardTitle className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
+                      {job.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {/* Job Description */}
+                    <p className="text-sm text-gray-700 line-clamp-3 mb-6 leading-relaxed">
+                      {formatDescription(job.description)}
+                    </p>
+                    
+                    {/* Job Stats */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <Users className="h-3 w-3 mr-1" />
+                          <span>{job.applicationCount || job.applicantCount || 0} applicants</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : new Date().toLocaleDateString())}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 mt-6">
+                      <Link href={`/jobs/${job.id}`} className="flex-1">
+                        <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+                      <Button 
+                        className="w-full flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!user) {
+                            // Store the intended job destination
+                            const redirectPath = `/jobs/${job.id}`;
+                            localStorage.setItem('postAuthRedirect', redirectPath);
+                            window.location.href = '/auth';
+                          } else {
+                            window.location.href = `/jobs/${job.id}`;
+                          }
+                        }}
+                      >
+                        Apply Now
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
             
