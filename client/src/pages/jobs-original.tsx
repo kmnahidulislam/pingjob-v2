@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import JobCard from "@/components/job-card";
-import { Building2, MapPin, Clock, DollarSign, Users, Briefcase } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Users, Briefcase, ArrowLeft, Home } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -135,9 +135,59 @@ export default function JobsOriginal() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/">
+                <img src={logoPath} alt="PingJob" className="h-8 w-auto mr-4 cursor-pointer" />
+              </Link>
+              <nav className="hidden md:flex space-x-8">
+                <Link href="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Home
+                </Link>
+                <Link href="/jobs" className="text-blue-600 px-3 py-2 text-sm font-medium border-b-2 border-blue-600">
+                  Jobs
+                </Link>
+                <Link href="/companies" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Companies
+                </Link>
+              </nav>
+            </div>
+            <div className="flex items-center">
+              {user ? (
+                <Link href="/dashboard">
+                  <Button variant="outline" className="ml-4">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/auth">
+                  <Button className="ml-4">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Breadcrumb/Back Navigation */}
+        <div className="mb-6">
+          <Link href="/">
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">Job Opportunities</h1>
+          <p className="text-gray-600 mt-1">Discover your next career opportunity</p>
+        </div>
         
         {/* Search Section */}
         <div className="mb-8">
