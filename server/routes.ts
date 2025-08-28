@@ -839,6 +839,7 @@ export function registerRoutes(app: Express) {
       // Set headers for file download with original filename
       res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', `attachment; filename="${originalFilename}"`);
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition'); // Allow frontend to read this header
       
       // Stream the file
       const fileStream = fs.createReadStream(filePath);
