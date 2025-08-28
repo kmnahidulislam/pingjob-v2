@@ -185,22 +185,23 @@ export function setupAuth(app: Express) {
     console.log('GET /api/user - Session user (direct):', !!req.session?.user);
     console.log('GET /api/user - Passport user:', !!req.user);
     console.log('GET /api/user - Session ID:', req.sessionID);
-    console.log('GET /api/user - Full session data:', req.session);
     
-    // Check both session.user and req.user (Passport)
+    // Check both session.user and req.user (Passport)  
     const user = req.user || req.session?.user;
     if (user) {
-      console.log('Returning authenticated user:', user.email);
+      console.log('🔐 User found, formatting response for:', user.email);
       const userResponse = {
         id: user.id,
         email: user.email,
         firstName: user.first_name || user.firstName,
         lastName: user.last_name || user.lastName,
-        userType: user.user_type || user.userType
+        userType: user.user_type || user.userType,
+        profileImageUrl: user.profile_image_url || user.profileImageUrl
       };
+      console.log('🔐 Formatted user response userType:', userResponse.userType);
       return res.status(200).json(userResponse);
     }
-    console.log('No authenticated user found in session or passport');
+    console.log('🔐 No authenticated user found in session or passport');
     return res.status(401).json({ message: "Not authenticated" });
   });
 
