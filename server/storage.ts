@@ -524,7 +524,7 @@ export const storage = {
           app_count
         FROM latest_jobs 
         WHERE rn = 1
-        ORDER BY job_count DESC, created_at DESC
+        ORDER BY GREATEST(created_at, updated_at) DESC
       `);
       
       return result.rows.map((job: any) => ({
