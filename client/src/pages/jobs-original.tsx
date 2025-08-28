@@ -102,12 +102,8 @@ export default function JobsOriginal() {
           console.log('🏢 FIRST JOB COMPANY:', data[0].company?.name, 'Job Count:', data[0].companyJobCount);
         }
         
-        // Sort by date (newest first) - using proper field names from schema
-        return data.sort((a: any, b: any) => {
-          const dateA = new Date(a.createdAt || a.updatedAt || 0);
-          const dateB = new Date(b.createdAt || b.updatedAt || 0);
-          return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
-        });
+        // Return data as-is, backend already sorted by company job count
+        return data;
       }
     }
   });
