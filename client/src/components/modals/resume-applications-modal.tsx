@@ -48,8 +48,13 @@ export default function ResumeApplicationsModal({
 
   const handleDownloadResume = async (resumeUrl: string, fileName?: string) => {
     try {
+      // Convert /uploads/filename to /api/resume/filename to get proper headers
+      const filename = resumeUrl.replace('/uploads/', '');
+      const apiUrl = `/api/resume/${filename}`;
+      console.log('DEBUG - Converting URL:', resumeUrl, '→', apiUrl);
+      
       // Fetch the file to get the proper headers and content
-      const response = await fetch(resumeUrl);
+      const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('Download failed');
       
       // Get the filename from Content-Disposition header
