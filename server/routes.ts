@@ -772,22 +772,47 @@ export function registerRoutes(app: Express) {
 
       console.log('File exists: true - serving file');
       
-      // Determine content type based on file extension
+      // Determine content type based on file extension or file signature
       let contentType = 'application/octet-stream';
+      let detectedExt = '';
       const ext = path.extname(filename).toLowerCase();
       
       if (ext === '.pdf') {
         contentType = 'application/pdf';
+        detectedExt = '.pdf';
       } else if (ext === '.doc') {
         contentType = 'application/msword';
+        detectedExt = '.doc';
       } else if (ext === '.docx') {
         contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        detectedExt = '.docx';
       } else if (ext === '.txt') {
         contentType = 'text/plain';
+        detectedExt = '.txt';
+      } else {
+        // No extension - try to detect file type by reading file signature
+        try {
+          const buffer = fs.readFileSync(filePath, { start: 0, end: 4 });
+          
+          // Check for ZIP signature (DOCX files are ZIP archives)
+          if (buffer[0] === 0x50 && buffer[1] === 0x4B && (buffer[2] === 0x03 || buffer[2] === 0x05)) {
+            // Likely a DOCX file (ZIP-based Office format)
+            contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            detectedExt = '.docx';
+            console.log('Detected DOCX file based on ZIP signature');
+          } else if (buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) {
+            // PDF signature
+            contentType = 'application/pdf';
+            detectedExt = '.pdf';
+            console.log('Detected PDF file based on signature');
+          }
+        } catch (err) {
+          console.log('Could not detect file type, using default');
+        }
       }
 
       // Load filename mapping
-      let originalFilename = `resume${ext}`;
+      let originalFilename = `resume${detectedExt || ext || '.docx'}`;
       try {
         const mappingPath = path.join('.', 'filename-mapping.json');
         if (fs.existsSync(mappingPath)) {
