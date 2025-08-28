@@ -1327,12 +1327,7 @@ export function registerRoutes(app: Express) {
   // Delete job endpoint
   app.delete('/api/jobs/:id', isAuthenticated, async (req: any, res) => {
     try {
-      console.log('=== DELETE JOB REQUEST START ===');
-      console.log('User from req.user:', req.user);
-      console.log('User from session:', req.session?.user);
-      
       const jobId = parseInt(req.params.id);
-      console.log('Job ID to delete:', jobId);
       
       if (isNaN(jobId)) {
         return res.status(400).json({ message: 'Invalid job ID' });
@@ -1343,14 +1338,11 @@ export function registerRoutes(app: Express) {
       if (!existingJob) {
         return res.status(404).json({ message: 'Job not found' });
       }
-      console.log('Job exists:', existingJob.id);
 
       // Verify user owns the job or has permission to delete (recruiter/admin)
       const user = req.user || req.session?.user;
-      console.log('Delete job - User:', user?.email, 'UserType:', user?.userType || user?.user_type);
       
       if (!user || (user.userType !== 'admin' && user.userType !== 'recruiter' && user.user_type !== 'admin' && user.user_type !== 'recruiter')) {
-        console.log('❌ User not authorized to delete jobs. UserType:', user?.userType || user?.user_type || 'undefined');
         return res.status(403).json({ message: 'Unauthorized to delete jobs' });
       }
 

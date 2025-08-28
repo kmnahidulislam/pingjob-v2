@@ -1400,6 +1400,10 @@ export const storage = {
       await db.delete(jobApplications).where(eq(jobApplications.jobId, jobId));
       console.log('Deleted job applications for job:', jobId);
       
+      // Delete job candidate assignments (foreign key constraint)
+      await db.delete(jobCandidateAssignments).where(eq(jobCandidateAssignments.jobId, jobId));
+      console.log('Deleted job candidate assignments for job:', jobId);
+      
       // Then delete the job itself
       const deletedJob = await db.delete(jobs).where(eq(jobs.id, jobId)).returning();
       console.log('Deleted job:', deletedJob);
