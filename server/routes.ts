@@ -792,22 +792,35 @@ export function registerRoutes(app: Express) {
       } else {
         // No extension - try to detect file type by reading file signature
         try {
-          const buffer = fs.readFileSync(filePath, { start: 0, end: 4 });
+          const fd = fs.openSync(filePath, 'r');
+          const buffer = Buffer.alloc(4);
+          fs.readSync(fd, buffer, 0, 4, 0);
+          fs.closeSync(fd);
+          
+          console.log(`File signature for ${filename}: [${buffer[0]}, ${buffer[1]}, ${buffer[2]}, ${buffer[3]}] (hex: ${buffer.toString('hex')})`);
           
           // Check for ZIP signature (DOCX files are ZIP archives)
           if (buffer[0] === 0x50 && buffer[1] === 0x4B && (buffer[2] === 0x03 || buffer[2] === 0x05)) {
             // Likely a DOCX file (ZIP-based Office format)
             contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
             detectedExt = '.docx';
-            console.log('Detected DOCX file based on ZIP signature');
+            console.log('✅ Detected DOCX file based on ZIP signature');
           } else if (buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) {
             // PDF signature
             contentType = 'application/pdf';
             detectedExt = '.pdf';
-            console.log('Detected PDF file based on signature');
+            console.log('✅ Detected PDF file based on signature');
+          } else {
+            console.log(`❌ Unknown file signature, defaulting to DOCX for resume files`);
+            // Default to DOCX for resume files since they're likely Word documents
+            contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            detectedExt = '.docx';
           }
         } catch (err) {
-          console.log('Could not detect file type, using default');
+          console.log('Could not detect file type, using default:', err);
+          // Default to DOCX for resume files
+          contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          detectedExt = '.docx';
         }
       }
 
