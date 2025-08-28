@@ -951,6 +951,8 @@ export const storage = {
 
   async searchCompanies(query: string, limit: number = 50) {
     try {
+      console.log('🔍 Searching companies with query:', query);
+      
       const searchResults = await db
         .select({
           id: companies.id,
@@ -978,6 +980,9 @@ export const storage = {
         .orderBy(companies.name)
         .limit(limit);
 
+      console.log(`🔍 Found ${searchResults.length} companies for "${query}":`, 
+        searchResults.slice(0, 3).map(c => c.name));
+      
       return searchResults;
     } catch (error) {
       console.error('Error searching companies:', error);
