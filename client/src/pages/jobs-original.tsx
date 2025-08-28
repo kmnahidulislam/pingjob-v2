@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import JobCard from "@/components/job-card";
-import { Building2, MapPin, Clock, DollarSign, Users, RefreshCw, Briefcase } from "lucide-react";
+import { Building2, MapPin, Clock, DollarSign, Users, Briefcase } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -151,7 +151,7 @@ export default function JobsOriginal() {
                 className="w-full"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    const searchValue = e.target.value;
+                    const searchValue = (e.target as HTMLInputElement).value;
                     if (searchValue.trim()) {
                       setFilters(prev => ({ ...prev, search: searchValue }));
                     }
@@ -201,10 +201,6 @@ export default function JobsOriginal() {
           <div className="lg:col-span-3">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
             </div>
 
             <div className="space-y-4">

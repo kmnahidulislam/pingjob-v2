@@ -942,7 +942,7 @@ export default function PingJobHome() {
                   className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   <TrendingUp className="h-4 w-4 mr-1" />
-                  Refresh
+                  Update
                 </Button>
               </div>
               {jobsLoading && (

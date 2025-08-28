@@ -135,7 +135,7 @@ export default function JobDetailsSimple() {
                 </p>
                 <p className="text-gray-600 mb-4">Job ID: {id}</p>
                 <Button onClick={() => window.location.reload()}>
-                  Refresh Page
+                  Try Again
                 </Button>
               </CardContent>
             </Card>
@@ -181,7 +181,7 @@ export default function JobDetailsSimple() {
                 <h2 className="text-xl font-semibold mb-2">Job Not Found</h2>
                 <p className="text-gray-600 mb-4">Job ID: {id}</p>
                 <Button onClick={() => window.location.reload()}>
-                  Refresh Page
+                  Try Again
                 </Button>
               </CardContent>
             </Card>

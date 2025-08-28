@@ -11,7 +11,6 @@ import {
   Users,
   Briefcase,
   Eye,
-  RefreshCw
 } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -316,10 +315,6 @@ export default function PublicHome() {
           <div className="lg:col-span-3">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
             </div>
 
             <div className="space-y-4">
