@@ -457,29 +457,10 @@ export function registerRoutes(app: Express) {
         // Get recent jobs from top companies (1 job per company)
         jobs = await storage.getJobsFromTopCompanies(limit || 50);
       } else {
-        // PRIORITY ORDERING: Admin jobs first (top 100), then recruiter jobs
-        console.log('🎯 Fetching jobs with priority ordering: Admin jobs first, then recruiter jobs');
-        
-        const adminJobs = await storage.getAdminJobs(100); // Get top 100 admin jobs
-        console.log(`✅ Found ${adminJobs.length} admin jobs`);
-        
-        let allJobs = [...adminJobs];
-        
-        // If we need more jobs and limit allows, add recruiter jobs
-        if (!limit || adminJobs.length < limit) {
-          const remainingLimit = limit ? limit - adminJobs.length : undefined;
-          const recruiterJobs = await storage.getRecruiterJobs(remainingLimit);
-          console.log(`✅ Found ${recruiterJobs.length} recruiter jobs`);
-          allJobs = [...adminJobs, ...recruiterJobs];
-        }
-        
-        // Apply final limit if specified
-        if (limit) {
-          allJobs = allJobs.slice(0, limit);
-        }
-        
-        console.log(`✅ Total jobs returned: ${allJobs.length} (${adminJobs.length} admin + ${allJobs.length - adminJobs.length} recruiter)`);
-        jobs = allJobs;
+        // Original feature: Show companies with most jobs first (latest job from each company)
+        console.log('🎯 Fetching jobs from top companies (companies with most jobs first)');
+        jobs = await storage.getJobsFromTopCompanies(limit || 50);
+        console.log(`✅ Found ${jobs.length} jobs from top companies`);
       }
       
       res.json(jobs);
