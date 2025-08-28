@@ -50,7 +50,11 @@ export default function ResumeApplicationsModal({
     // Create a download link for the resume
     const link = document.createElement('a');
     link.href = resumeUrl;
-    link.download = fileName || 'resume.pdf';
+    // Let the server determine the filename and extension via Content-Disposition header
+    if (fileName && fileName.includes('.')) {
+      link.download = fileName; // Use provided filename if it has an extension
+    }
+    // Otherwise, don't set download attribute - let server handle it
     link.target = '_blank';
     document.body.appendChild(link);
     link.click();
@@ -144,7 +148,7 @@ export default function ResumeApplicationsModal({
                             size="sm"
                             onClick={() => handleDownloadResume(
                               application.resumeUrl,
-                              application.originalFilename || `${application.user?.firstName}_${application.user?.lastName}_resume`
+                              application.originalFilename // Don't provide fallback - let server handle filename
                             )}
                             className="flex items-center gap-2"
                           >
