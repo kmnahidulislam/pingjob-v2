@@ -50,6 +50,7 @@ export default function JobsOriginal() {
   // Fetch jobs using fast endpoint with category filtering and search
   const { data: jobs = [], isLoading: jobsLoading } = useQuery({
     queryKey: ['/api/jobs', selectedCategory, filters.search, filters.location],
+    staleTime: 0, // Force fresh data fetch
     queryFn: async () => {
       // If we have search terms, use the search API
       if (filters.search.trim() || filters.location.trim()) {
