@@ -579,7 +579,15 @@ export function registerRoutes(app: Express) {
 
   app.get('/api/companies', async (req, res) => {
     try {
-      const { limit = 100, offset = 0 } = req.query;
+      const { limit = 100, offset = 0, q } = req.query;
+      
+      // If search query is provided, use search functionality
+      if (q && typeof q === 'string' && q.length >= 2) {
+        const companies = await storage.searchCompanies(q, parseInt(limit as string));
+        return res.json(companies);
+      }
+      
+      // Otherwise return paginated list
       const companies = await storage.getCompanies(
         parseInt(limit as string), 
         parseInt(offset as string)
