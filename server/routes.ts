@@ -755,22 +755,11 @@ export function registerRoutes(app: Express) {
   app.get('/api/resume/:filename', async (req, res) => {
     try {
       const filename = req.params.filename;
-      console.log(`Resume download request: filename="${filename}"`);
-      
       const filePath = path.join('uploads', filename);
-      console.log(`Looking for file at: ${filePath}`);
       
       if (!fs.existsSync(filePath)) {
-        console.log('File exists: false');
-        console.log(`Resume file not found: ${filename}`);
-        
-        const availableFiles = fs.readdirSync('uploads');
-        console.log('Available files in uploads:', availableFiles);
-        
         return res.status(404).json({ error: 'Resume file not found' });
       }
-
-      console.log('File exists: true - serving file');
       
       // Determine content type based on file extension or file signature
       let contentType = 'application/octet-stream';
@@ -797,32 +786,25 @@ export function registerRoutes(app: Express) {
           fs.readSync(fd, buffer, 0, 4, 0);
           fs.closeSync(fd);
           
-          console.log(`File signature for ${filename}: [${buffer[0]}, ${buffer[1]}, ${buffer[2]}, ${buffer[3]}] (hex: ${buffer.toString('hex')})`);
-          
           // Check for ZIP signature (DOCX files are ZIP archives)
           if (buffer[0] === 0x50 && buffer[1] === 0x4B && (buffer[2] === 0x03 || buffer[2] === 0x05)) {
             // Likely a DOCX file (ZIP-based Office format)
             contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
             detectedExt = '.docx';
-            console.log('✅ Detected DOCX file based on ZIP signature');
           } else if (buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) {
             // PDF signature
             contentType = 'application/pdf';
             detectedExt = '.pdf';
-            console.log('✅ Detected PDF file based on signature');
           } else if (buffer[0] === 0xD0 && buffer[1] === 0xCF && buffer[2] === 0x11 && buffer[3] === 0xE0) {
             // Microsoft Office document (DOC, XLS, PPT - Compound Document format)
             contentType = 'application/msword';
             detectedExt = '.doc';
-            console.log('✅ Detected DOC file based on Compound Document signature');
           } else {
-            console.log(`❌ Unknown file signature, defaulting to DOCX for resume files`);
             // Default to DOCX for resume files since they're likely Word documents
             contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
             detectedExt = '.docx';
           }
         } catch (err) {
-          console.log('Could not detect file type, using default:', err);
           // Default to DOCX for resume files
           contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
           detectedExt = '.docx';
@@ -838,7 +820,7 @@ export function registerRoutes(app: Express) {
           originalFilename = mapping[filename] || originalFilename;
         }
       } catch (error) {
-        console.log('Could not load filename mapping, using default');
+        // Could not load filename mapping, using default
       }
 
       // Set headers for file download with original filename
@@ -849,8 +831,6 @@ export function registerRoutes(app: Express) {
       // Stream the file
       const fileStream = fs.createReadStream(filePath);
       fileStream.pipe(res);
-      
-      console.log(`Resume file served successfully: ${filename} as ${originalFilename}`);
       
     } catch (error) {
       console.error('Error serving resume file:', error);
