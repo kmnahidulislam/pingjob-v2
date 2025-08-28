@@ -214,23 +214,7 @@ export function registerRoutes(app: Express) {
 
 
 
-  // User authentication endpoints
-  app.get('/api/user', (req: any, res) => {
-    console.log('GET /api/user - Session exists:', !!req.session);
-    console.log('GET /api/user - Session user (direct):', !!req.session?.user);
-    console.log('GET /api/user - Passport user:', !!req.user);
-    console.log('GET /api/user - Session ID:', req.session?.id);
-    console.log('GET /api/user - Full session data:', req.session);
-    
-    if (req.user || req.session?.user) {
-      const user = req.user || req.session.user;
-      console.log('Returning authenticated user:', user.email);
-      res.json(user);
-    } else {
-      console.log('No authenticated user found in session or passport');
-      res.status(401).json({ message: "Not authenticated" });
-    }
-  });
+  // Note: /api/user endpoint is defined in auth.ts - removed duplicate
 
   // Get user applications endpoint
   app.get('/api/applications', isAuthenticated, async (req: any, res) => {
