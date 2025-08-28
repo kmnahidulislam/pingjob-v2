@@ -113,16 +113,16 @@ export default function Navigation() {
           </div>
 
           {/* Search and User Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4 ml-8">
             {/* Global Search */}
-            <div className="relative hidden lg:block">
+            <div className="relative hidden xl:block">
               <form onSubmit={handleSearch}>
                 <Input
                   type="text"
                   placeholder={location.includes('/companies') ? "Search companies..." : "Search jobs, companies..."}
                   value={searchQuery}
                   onChange={handleSearchInputChange}
-                  className="w-72 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
+                  className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-linkedin-blue focus:border-transparent"
                 />
                 <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
               </form>
