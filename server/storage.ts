@@ -965,11 +965,14 @@ export const storage = {
         })
         .from(companies)
         .where(
-          or(
-            ilike(companies.name, `%${query}%`),
-            ilike(companies.industry, `%${query}%`),
-            ilike(companies.location, `%${query}%`),
-            ilike(companies.description, `%${query}%`)
+          and(
+            eq(companies.status, 'approved'),
+            or(
+              ilike(companies.name, `%${query}%`),
+              ilike(companies.industry, `%${query}%`),
+              ilike(companies.location, `%${query}%`),
+              ilike(companies.description, `%${query}%`)
+            )
           )
         )
         .orderBy(companies.name)
