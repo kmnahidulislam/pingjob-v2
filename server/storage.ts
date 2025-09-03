@@ -1626,7 +1626,7 @@ export const storage = {
         WHERE receiver_id = ${userId} AND is_read = false
       `);
       
-      return parseInt(result.rows[0]?.count) || 0;
+      return parseInt(result.rows[0]?.count as string) || 0;
     } catch (error) {
       console.error('Error fetching unread message count:', error);
       return 0;
