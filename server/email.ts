@@ -10,12 +10,15 @@ function getBaseUrl(): string {
   return 'http://localhost:5000';
 }
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
-}
+let mailService: MailService | null = null;
 
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY!);
+if (!process.env.SENDGRID_API_KEY) {
+  console.warn("⚠️  SENDGRID_API_KEY not set - email functionality will be disabled");
+} else {
+  mailService = new MailService();
+  mailService.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid service initialized');
+}
 
 interface EmailParams {
   to: string;
@@ -26,8 +29,19 @@ interface EmailParams {
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
+  if (!mailService) {
+    console.log('📧 Email sending disabled - SendGrid not configured');
+    return false;
+  }
+  
   try {
     const fromEmail = params.from || process.env.SENDGRID_VERIFIED_SENDER_EMAIL || 'noreply@pingjob.com';
+    console.log('📧 Attempting to send email via SendGrid...', {
+      to: params.to,
+      from: fromEmail,
+      subject: params.subject
+    });
+    
     await mailService.send({
       to: params.to,
       from: fromEmail,
@@ -35,9 +49,26 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       text: params.text,
       html: params.html,
     });
+    
+    console.log('✅ Email sent successfully via SendGrid');
     return true;
   } catch (error) {
-    console.error('SendGrid email error:', error);
+    console.error('❌ SendGrid email error:', error);
+    console.error('Error details:', {
+      code: (error as any).code,
+      message: (error as any).message,
+      response: (error as any).response?.body
+    });
+    
+    // The most common SendGrid 401 issues:
+    if ((error as any).code === 401) {
+      console.error('🔑 SendGrid 401 Unauthorized - Common causes:');
+      console.error('1. Invalid or expired API key');
+      console.error('2. Unverified sender email address');
+      console.error('3. API key lacks Mail Send permissions');
+      console.error('Check your SendGrid dashboard: https://app.sendgrid.com/');
+    }
+    
     return false;
   }
 }

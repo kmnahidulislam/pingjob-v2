@@ -1512,7 +1512,10 @@ export function registerRoutes(app: Express) {
     try {
       const { email, firstName, lastName, message } = req.body;
       const inviterUserId = req.user.id;
-      const inviterName = `${req.user.firstName} ${req.user.lastName}`.trim();
+      
+      console.log('🔍 DEBUG - req.user object:', req.user);
+      
+      const inviterName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'PingJob User';
       
       if (!email || !firstName || !lastName) {
         return res.status(400).json({ message: 'Email, first name, and last name are required' });
