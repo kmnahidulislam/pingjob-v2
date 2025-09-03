@@ -1517,23 +1517,45 @@ export const storage = {
   async getConversations(userId: string) {
     try {
       const result = await db.execute(sql`
-        SELECT DISTINCT
-          CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
+        WITH conversation_partners AS (
+          SELECT DISTINCT
+            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
+            MAX(m.sent_at) as last_message_time
+          FROM messages m
+          WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+          GROUP BY other_user_id
+        ),
+        last_messages AS (
+          SELECT DISTINCT ON (
+            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END
+          ) 
+            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
+            m.content as last_message
+          FROM messages m
+          WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+          ORDER BY 
+            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END,
+            m.sent_at DESC
+        )
+        SELECT 
+          cp.other_user_id,
           u.first_name,
           u.last_name,
           u.profile_image_url,
           u.headline,
-          MAX(m.sent_at) as last_message_time,
-          (SELECT content FROM messages m2 WHERE 
-           (m2.sender_id = ${userId} AND m2.receiver_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)) OR
-           (m2.receiver_id = ${userId} AND m2.sender_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END))
-           ORDER BY m2.sent_at DESC LIMIT 1) as last_message,
-          COUNT(CASE WHEN m.receiver_id = ${userId} AND m.read_at IS NULL THEN 1 END) as unread_count
-        FROM messages m
-        JOIN users u ON u.id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)
-        WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
-        GROUP BY other_user_id, u.first_name, u.last_name, u.profile_image_url, u.headline
-        ORDER BY last_message_time DESC
+          cp.last_message_time,
+          lm.last_message,
+          COALESCE((
+            SELECT COUNT(*) 
+            FROM messages m3 
+            WHERE m3.receiver_id = ${userId} 
+              AND m3.sender_id = cp.other_user_id 
+              AND m3.read_at IS NULL
+          ), 0) as unread_count
+        FROM conversation_partners cp
+        JOIN users u ON u.id = cp.other_user_id
+        LEFT JOIN last_messages lm ON lm.other_user_id = cp.other_user_id
+        ORDER BY cp.last_message_time DESC
       `);
       
       return result.rows.map((row: any) => ({

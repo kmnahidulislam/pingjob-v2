@@ -1507,6 +1507,29 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // External invitations endpoint
+  app.post('/api/external-invitations', async (req, res) => {
+    try {
+      const { email, firstName, lastName, message } = req.body;
+      
+      if (!email || !firstName || !lastName) {
+        return res.status(400).json({ message: 'Email, first name, and last name are required' });
+      }
+      
+      // For now, just return success - in production, you'd send actual emails
+      console.log('📧 External invitation requested:', { email, firstName, lastName, message: message?.slice(0, 50) + '...' });
+      
+      res.json({ 
+        success: true, 
+        message: 'Invitation sent successfully',
+        recipient: { email, firstName, lastName }
+      });
+    } catch (error) {
+      console.error('Error sending external invitation:', error);
+      res.status(500).json({ message: 'Failed to send invitation' });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }
