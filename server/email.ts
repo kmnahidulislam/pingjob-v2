@@ -41,6 +41,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       from: fromEmail,
       subject: params.subject
     });
+    console.log('🔍 DEBUG - SENDGRID_VERIFIED_SENDER_EMAIL:', process.env.SENDGRID_VERIFIED_SENDER_EMAIL);
     
     await mailService.send({
       to: params.to,
@@ -150,7 +151,7 @@ export async function sendInvitationEmail(
   try {
     return await sendEmail({
       to: recipientEmail,
-      from: 'krupashankar@gmail.com', // Use verified sender identity
+      // Don't specify 'from' - let sendEmail use SENDGRID_VERIFIED_SENDER_EMAIL
       subject,
       html: htmlContent,
       text: textContent
