@@ -44,6 +44,44 @@ function JobApplicationsSection() {
     enabled: true
   });
 
+  // Update application status mutation
+  const updateApplicationStatusMutation = useMutation({
+    mutationFn: async ({ applicationId, status }: { applicationId: number; status: string }) => {
+      const response = await apiRequest('PATCH', `/api/applications/${applicationId}/status`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Status Updated",
+        description: "Application status has been updated successfully."
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update application status",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'reviewed':
+        return 'bg-blue-100 text-blue-800';
+      case 'interview':
+        return 'bg-purple-100 text-purple-800';
+      case 'hired':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   if (isLoading) {
     return (
@@ -100,6 +138,9 @@ function JobApplicationsSection() {
                     {app.matchScore > 0 && (
                       <Badge variant="secondary">Score: {app.matchScore}/12</Badge>
                     )}
+                    <Badge className={getStatusColor(app.status)}>
+                      {app.status?.replace('_', ' ').toUpperCase() || 'PENDING'}
+                    </Badge>
                   </div>
                   
                   <div className="text-sm text-gray-600 space-y-1">
@@ -186,6 +227,31 @@ function JobApplicationsSection() {
                         Contact
                       </a>
                     </Button>
+                  )}
+                  
+                  {/* Status Update Dropdown */}
+                  <Select 
+                    value={app.status || 'pending'} 
+                    onValueChange={(newStatus) => updateApplicationStatusMutation.mutate({ 
+                      applicationId: app.id, 
+                      status: newStatus 
+                    })}
+                    disabled={updateApplicationStatusMutation.isPending}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="Update Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="reviewed">Reviewed</SelectItem>
+                      <SelectItem value="interview">Interview</SelectItem>
+                      <SelectItem value="hired">Hired</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {updateApplicationStatusMutation.isPending && (
+                    <div className="text-xs text-gray-500">Updating...</div>
                   )}
                 </div>
               </div>
