@@ -60,13 +60,20 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       response: (error as any).response?.body
     });
     
-    // The most common SendGrid 401 issues:
+    // Handle common SendGrid errors:
     if ((error as any).code === 401) {
       console.error('🔑 SendGrid 401 Unauthorized - Common causes:');
       console.error('1. Invalid or expired API key');
       console.error('2. Unverified sender email address');
       console.error('3. API key lacks Mail Send permissions');
       console.error('Check your SendGrid dashboard: https://app.sendgrid.com/');
+    } else if ((error as any).code === 403) {
+      console.error('🚫 SendGrid 403 Forbidden - Sender verification required:');
+      console.error(`1. The sender email "${params.from}" is not verified in SendGrid`);
+      console.error('2. Go to SendGrid Dashboard → Settings → Sender Authentication');
+      console.error('3. Verify your sender email or use a verified sender');
+      console.error('4. Or set SENDGRID_VERIFIED_SENDER_EMAIL environment variable');
+      console.error('SendGrid Dashboard: https://app.sendgrid.com/settings/sender_auth');
     }
     
     return false;

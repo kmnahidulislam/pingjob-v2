@@ -1515,7 +1515,8 @@ export function registerRoutes(app: Express) {
       
       console.log('🔍 DEBUG - req.user object:', req.user);
       
-      const inviterName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'PingJob User';
+      // Fix: user object uses snake_case (first_name, last_name) not camelCase
+      const inviterName = `${req.user.first_name || ''} ${req.user.last_name || ''}`.trim() || 'PingJob User';
       
       if (!email || !firstName || !lastName) {
         return res.status(400).json({ message: 'Email, first name, and last name are required' });
