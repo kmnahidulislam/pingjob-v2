@@ -1624,6 +1624,20 @@ export function registerRoutes(app: Express) {
       // Generate unique invite token
       const inviteToken = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
+      // Store invitation token for later retrieval
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
+      
+      invitationTokens.set(inviteToken, {
+        email,
+        firstName,
+        lastName,
+        message: message || '',
+        inviterUserId,
+        createdAt: new Date(),
+        expiresAt
+      });
+      
       console.log('📧 Sending invitation email:', { 
         email, 
         firstName, 
@@ -1652,12 +1666,104 @@ export function registerRoutes(app: Express) {
         });
       } else {
         console.error('❌ Failed to send invitation email via SendGrid');
+        // Remove token if email failed
+        invitationTokens.delete(inviteToken);
         res.status(500).json({ message: 'Failed to send invitation email' });
       }
       
     } catch (error) {
       console.error('Error sending external invitation:', error);
       res.status(500).json({ message: 'Failed to send invitation' });
+    }
+  });
+
+  // In-memory storage for invitation tokens (in production, use database)
+  const invitationTokens = new Map<string, {
+    email: string;
+    firstName: string;
+    lastName: string;
+    message: string;
+    inviterUserId: string;
+    createdAt: Date;
+    expiresAt: Date;
+  }>();
+
+  // Get invitation details by token
+  app.get('/api/external-invitations/:token/details', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const invitation = invitationTokens.get(token);
+      
+      if (!invitation) {
+        return res.status(404).json({ message: 'Invitation not found or expired' });
+      }
+      
+      if (invitation.expiresAt < new Date()) {
+        invitationTokens.delete(token);
+        return res.status(404).json({ message: 'Invitation expired' });
+      }
+      
+      res.json({
+        email: invitation.email,
+        firstName: invitation.firstName,
+        lastName: invitation.lastName,
+        message: invitation.message,
+        expiresAt: invitation.expiresAt
+      });
+    } catch (error) {
+      console.error('Error fetching invitation details:', error);
+      res.status(500).json({ message: 'Failed to fetch invitation details' });
+    }
+  });
+
+  // Accept invitation and create user account
+  app.post('/api/external-invitations/:token/accept', async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { firstName, lastName, password } = req.body;
+      
+      const invitation = invitationTokens.get(token);
+      
+      if (!invitation) {
+        return res.status(404).json({ message: 'Invitation not found or expired' });
+      }
+      
+      if (invitation.expiresAt < new Date()) {
+        invitationTokens.delete(token);
+        return res.status(404).json({ message: 'Invitation expired' });
+      }
+      
+      // Create user account
+      const userData = {
+        email: invitation.email,
+        firstName: firstName || invitation.firstName,
+        lastName: lastName || invitation.lastName,
+        password,
+        userType: 'job_seeker' as const
+      };
+      
+      const newUser = await storage.createUser(userData);
+      
+      // Remove the token after successful acceptance
+      invitationTokens.delete(token);
+      
+      res.json({
+        success: true,
+        message: 'Account created successfully',
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName
+        }
+      });
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+      if (error.message?.includes('already exists')) {
+        res.status(400).json({ message: 'An account with this email already exists' });
+      } else {
+        res.status(500).json({ message: 'Failed to create account' });
+      }
     }
   });
 
