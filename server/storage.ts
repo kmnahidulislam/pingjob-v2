@@ -1208,26 +1208,7 @@ export const storage = {
   // Get job seekers for profiles sidebar
   async getJobSeekers() {
     try {
-      console.log('🔧 getJobSeekers - Starting query...');
-      
-      // First try without the categoryId filter to see if we get any results
-      const allJobSeekersResult = await db
-        .select({
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-          headline: users.headline,
-          categoryId: users.categoryId,
-          profileImageUrl: users.profileImageUrl
-        })
-        .from(users)
-        .where(eq(users.userType, 'job_seeker'))
-        .limit(10);
-      
-      console.log('🔧 ALL job seekers (first 10):', allJobSeekersResult.slice(0, 3).map(r => ({ id: r.id, firstName: r.firstName, categoryId: r.categoryId })));
-      
-      // Now try with the category filter
+      // Simple approach - get all job seekers, let frontend filter
       const result = await db
         .select({
           id: users.id,
@@ -1239,14 +1220,12 @@ export const storage = {
           profileImageUrl: users.profileImageUrl
         })
         .from(users)
-        .where(and(
-          eq(users.userType, 'job_seeker'),
-          isNotNull(users.categoryId)
-        ))
-        .limit(100);
+        .where(eq(users.userType, 'job_seeker'));
         
-      console.log('🔧 getJobSeekers - WITH categories:', result.length, 'results');
-      console.log('🔧 getJobSeekers - Sample results from DB:', result.slice(0, 3).map(r => ({ id: r.id, firstName: r.firstName, categoryId: r.categoryId })));
+      console.log('🔧 SIMPLE: Got', result.length, 'job seekers');
+      console.log('🔧 SIMPLE: With categories:', result.filter(r => r.categoryId).length);
+      console.log('🔧 SIMPLE: Category 135 count:', result.filter(r => r.categoryId === 135).length);
+      
       return result;
     } catch (error) {
       console.error('Error fetching job seekers:', error);
