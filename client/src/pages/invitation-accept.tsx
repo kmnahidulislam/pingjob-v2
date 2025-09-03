@@ -26,6 +26,9 @@ export default function InvitationAccept() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
+  // Debug logging
+  console.log('🔍 InvitationAccept component loaded, params:', params);
+  
   const [invitation, setInvitation] = useState<InvitationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
