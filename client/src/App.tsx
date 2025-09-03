@@ -134,6 +134,15 @@ function Router() {
     }
   }
 
+  // Special handling for invitation routes - they should work regardless of auth status
+  if (location.startsWith('/invite/')) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <InvitationAccept />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
