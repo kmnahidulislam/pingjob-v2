@@ -479,6 +479,33 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Update application status endpoint for recruiters
+  app.patch('/api/applications/:id/status', async (req, res) => {
+    try {
+      const applicationId = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (isNaN(applicationId)) {
+        return res.status(400).json({ message: 'Invalid application ID' });
+      }
+
+      if (!status || !['pending', 'reviewed', 'interview', 'hired', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status' });
+      }
+
+      // Update the application status
+      await storage.updateApplicationStatus(applicationId, status);
+      
+      res.json({ 
+        message: 'Application status updated successfully',
+        status: status
+      });
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      res.status(500).json({ message: 'Failed to update application status' });
+    }
+  });
+
   // Basic endpoints to keep system functional
   app.get('/api/categories', async (req, res) => {
     try {

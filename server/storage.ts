@@ -256,6 +256,19 @@ export const storage = {
     console.log(`✅ Updated scores for application: ${applicationId}`);
   },
 
+  async updateApplicationStatus(applicationId: number, status: string) {
+    console.log(`📝 Updating status for application ${applicationId} to: ${status}`);
+    
+    await db
+      .update(jobApplications)
+      .set({
+        status: status as any
+      })
+      .where(eq(jobApplications.id, applicationId));
+    
+    console.log(`✅ Updated application ${applicationId} status to: ${status}`);
+  },
+
   async getJobApplicationsForRecruiters(recruiterId: string) {
     console.log('Retrieved user', recruiterId, 'with category:', 'checking...');
     
