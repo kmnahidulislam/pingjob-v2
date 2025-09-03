@@ -543,15 +543,9 @@ export function registerRoutes(app: Express) {
     try {
       const jobs = await storage.getRecruiterJobs(req.user.id);
       
-      // Add candidate count and resume count for each job
+      // Add resume count for each job (candidate count is already in applicationCount)
       const jobsWithCounts = await Promise.all(jobs.map(async (job: any) => {
         try {
-          // Get job seekers with matching category
-          const seekers = await storage.getJobSeekers();
-          const matchingCandidates = seekers.filter((seeker: any) => 
-            seeker.categoryId === job.categoryId
-          );
-          
           // Get actual resume applications for this job
           const applications = await storage.getJobApplicationsForJob(job.id);
           const resumeApplications = applications.filter((app: any) => 
@@ -560,14 +554,14 @@ export function registerRoutes(app: Express) {
           
           return {
             ...job,
-            candidateCount: matchingCandidates.length,
+            candidateCount: job.applicationCount || 0, // Use pre-calculated count from storage
             resumeCount: resumeApplications.length
           };
         } catch (error) {
           console.error('Error calculating counts for job', job.id, error);
           return {
             ...job,
-            candidateCount: 0,
+            candidateCount: job.applicationCount || 0, // Use pre-calculated count from storage
             resumeCount: 0
           };
         }
