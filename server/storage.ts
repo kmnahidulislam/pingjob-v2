@@ -8,6 +8,7 @@ import {
   jobApplications,
   jobCandidateAssignments,
   vendors,
+  externalInvitations,
   type UpsertUser,
   type InsertJob,
   type InsertCompany,
@@ -1701,5 +1702,38 @@ export const storage = {
       console.error('Error fetching connections:', error);
       return [];
     }
+  },
+
+  // External invitation methods
+  async createExternalInvitation(data: any) {
+    const [invitation] = await db.insert(externalInvitations).values({
+      inviterUserId: data.inviterUserId,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      message: data.message,
+      inviteToken: data.inviteToken,
+      expiresAt: data.expiresAt,
+      status: data.status || 'pending'
+    }).returning();
+    return invitation;
+  },
+
+  async getExternalInvitationByToken(token: string) {
+    const [invitation] = await db.select().from(externalInvitations)
+      .where(eq(externalInvitations.inviteToken, token));
+    return invitation;
+  },
+
+  async getExternalInvitations() {
+    return await db.select().from(externalInvitations);
+  },
+
+  async updateExternalInvitationStatus(token: string, status: 'pending' | 'accepted' | 'declined' | 'expired') {
+    const [invitation] = await db.update(externalInvitations)
+      .set({ status })
+      .where(eq(externalInvitations.inviteToken, token))
+      .returning();
+    return invitation;
   }
 };

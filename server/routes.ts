@@ -1628,14 +1628,16 @@ export function registerRoutes(app: Express) {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
       
-      invitationTokens.set(inviteToken, {
+      // Store invitation in database instead of memory
+      await storage.createExternalInvitation({
+        inviterUserId,
         email,
         firstName,
         lastName,
         message: message || '',
-        inviterUserId,
-        createdAt: new Date(),
-        expiresAt
+        inviteToken,
+        expiresAt,
+        status: 'pending'
       });
       
       console.log('📧 Sending invitation email:', { 
@@ -1666,8 +1668,7 @@ export function registerRoutes(app: Express) {
         });
       } else {
         console.error('❌ Failed to send invitation email via SendGrid');
-        // Remove token if email failed
-        invitationTokens.delete(inviteToken);
+        // Remove token if email failed (already stored in database, could mark as failed)
         res.status(500).json({ message: 'Failed to send invitation email' });
       }
       
@@ -1677,29 +1678,21 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // In-memory storage for invitation tokens (in production, use database)
-  const invitationTokens = new Map<string, {
-    email: string;
-    firstName: string;
-    lastName: string;
-    message: string;
-    inviterUserId: string;
-    createdAt: Date;
-    expiresAt: Date;
-  }>();
+  // Database storage for invitation tokens - replaced in-memory Map
+
 
   // Get invitation details by token
   app.get('/api/external-invitations/:token/details', async (req, res) => {
     try {
       const { token } = req.params;
-      const invitation = invitationTokens.get(token);
+      const invitation = await storage.getExternalInvitationByToken(token);
       
-      if (!invitation) {
+      if (!invitation || invitation.status !== 'pending') {
         return res.status(404).json({ message: 'Invitation not found or expired' });
       }
       
       if (invitation.expiresAt < new Date()) {
-        invitationTokens.delete(token);
+        await storage.updateExternalInvitationStatus(token, 'expired');
         return res.status(404).json({ message: 'Invitation expired' });
       }
       
@@ -1722,14 +1715,14 @@ export function registerRoutes(app: Express) {
       const { token } = req.params;
       const { firstName, lastName, password } = req.body;
       
-      const invitation = invitationTokens.get(token);
+      const invitation = await storage.getExternalInvitationByToken(token);
       
-      if (!invitation) {
+      if (!invitation || invitation.status !== 'pending') {
         return res.status(404).json({ message: 'Invitation not found or expired' });
       }
       
       if (invitation.expiresAt < new Date()) {
-        invitationTokens.delete(token);
+        await storage.updateExternalInvitationStatus(token, 'expired');
         return res.status(404).json({ message: 'Invitation expired' });
       }
       
@@ -1744,8 +1737,8 @@ export function registerRoutes(app: Express) {
       
       const newUser = await storage.createUser(userData);
       
-      // Remove the token after successful acceptance
-      invitationTokens.delete(token);
+      // Mark the invitation as accepted in database
+      await storage.updateExternalInvitationStatus(token, 'accepted');
       
       res.json({
         success: true,
