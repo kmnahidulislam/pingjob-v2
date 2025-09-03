@@ -1680,6 +1680,16 @@ export function registerRoutes(app: Express) {
 
   // Database storage for invitation tokens - replaced in-memory Map
 
+  // Get all external invitations (for debugging/admin)
+  app.get('/api/external-invitations', async (req, res) => {
+    try {
+      const invitations = await storage.getExternalInvitations();
+      res.json(invitations);
+    } catch (error) {
+      console.error('Error fetching external invitations:', error);
+      res.status(500).json({ message: 'Failed to fetch invitations' });
+    }
+  });
 
   // Get invitation details by token
   app.get('/api/external-invitations/:token/details', async (req, res) => {
