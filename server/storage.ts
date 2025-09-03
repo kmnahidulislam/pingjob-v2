@@ -1526,16 +1526,20 @@ export const storage = {
           GROUP BY other_user_id
         ),
         last_messages AS (
-          SELECT DISTINCT ON (
-            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END
-          ) 
-            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
-            m.content as last_message
-          FROM messages m
-          WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
-          ORDER BY 
-            CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END,
-            m.sent_at DESC
+          SELECT DISTINCT ON (other_user_id)
+            other_user_id,
+            content as last_message
+          FROM (
+            SELECT 
+              CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
+              m.content,
+              m.sent_at
+            FROM messages m
+            WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+            ORDER BY 
+              CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END,
+              m.sent_at DESC
+          ) sub
         )
         SELECT 
           cp.other_user_id,
