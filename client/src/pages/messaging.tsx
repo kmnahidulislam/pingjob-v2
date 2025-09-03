@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,6 +29,8 @@ export default function Messaging() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showNewConversationDialog, setShowNewConversationDialog] = useState(false);
+  const [newConversationSearch, setNewConversationSearch] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversations } = useQuery({
@@ -65,11 +68,17 @@ export default function Messaging() {
 
   const startConversationMutation = useMutation({
     mutationFn: (data: { receiverId: string; content: string }) =>
-      apiRequest('POST', '/api/messages', data),
-    onSuccess: () => {
+      apiRequest('/api/messages', 'POST', data),
+    onSuccess: (data: any, variables) => {
       setMessageInput("");
-      queryClient.invalidateQueries({ queryKey: [`/api/messages/${selectedConversation}`] });
+      setShowNewConversationDialog(false);
+      setSelectedConversation(variables.receiverId);
+      queryClient.invalidateQueries({ queryKey: [`/api/messages/${variables.receiverId}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      toast({
+        title: "Success",
+        description: "Conversation started successfully",
+      });
     },
     onError: (error: any) => {
       toast({
@@ -102,6 +111,26 @@ export default function Messaging() {
     conv.otherUser?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Get connections that don't already have conversations
+  const existingConversationUserIds = (conversations || []).map((conv: any) => conv.otherUser?.id);
+  const availableConnections = (connections || []).filter((conn: any) => 
+    !existingConversationUserIds.includes(conn.user?.id)
+  );
+
+  // Filter available connections for new conversation dialog
+  const filteredAvailableConnections = availableConnections.filter((conn: any) =>
+    conn.user?.firstName?.toLowerCase().includes(newConversationSearch.toLowerCase()) ||
+    conn.user?.lastName?.toLowerCase().includes(newConversationSearch.toLowerCase())
+  );
+
+  const handleStartConversation = (receiverId: string) => {
+    const initialMessage = `Hi! I'd like to connect with you.`;
+    startConversationMutation.mutate({
+      receiverId,
+      content: initialMessage
+    });
+  };
 
   const selectedUser = (connections || []).find((conn: any) => conn.user?.id === selectedConversation)?.user;
 
@@ -139,9 +168,74 @@ export default function Messaging() {
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Messages
                 </span>
-                <Button variant="ghost" size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <Dialog open={showNewConversationDialog} onOpenChange={setShowNewConversationDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Start New Conversation</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Search */}
+                      <div className="relative">
+                        <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+                        <Input
+                          placeholder="Search connections..."
+                          value={newConversationSearch}
+                          onChange={(e) => setNewConversationSearch(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+
+                      {/* Available Connections */}
+                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                        {filteredAvailableConnections.length > 0 ? (
+                          <div className="space-y-2">
+                            {filteredAvailableConnections.map((connection: any) => (
+                              <div
+                                key={connection.user.id}
+                                onClick={() => handleStartConversation(connection.user.id)}
+                                className="p-3 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <Avatar className="h-10 w-10">
+                                    <AvatarImage src={connection.user.profileImageUrl || undefined} />
+                                    <AvatarFallback className="bg-linkedin-blue text-white">
+                                      {connection.user.firstName?.[0]}{connection.user.lastName?.[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-sm">
+                                      {connection.user.firstName} {connection.user.lastName}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 truncate">
+                                      {connection.user.headline || 'Professional'}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-6">
+                            <Users className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">
+                              {newConversationSearch 
+                                ? 'No connections found matching your search' 
+                                : availableConnections.length === 0 
+                                  ? 'All your connections already have conversations'
+                                  : 'No available connections'
+                              }
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardTitle>
               
               {/* Search */}
