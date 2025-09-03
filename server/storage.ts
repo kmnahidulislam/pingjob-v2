@@ -1222,9 +1222,6 @@ export const storage = {
         .from(users)
         .where(eq(users.userType, 'job_seeker'));
         
-      console.log('🔧 SIMPLE: Got', result.length, 'job seekers');
-      console.log('🔧 SIMPLE: With categories:', result.filter(r => r.categoryId).length);
-      console.log('🔧 SIMPLE: Category 135 count:', result.filter(r => r.categoryId === 135).length);
       
       return result;
     } catch (error) {
@@ -1526,12 +1523,12 @@ export const storage = {
           u.last_name,
           u.profile_image_url,
           u.headline,
-          MAX(m.created_at) as last_message_time,
+          MAX(m.sent_at) as last_message_time,
           (SELECT content FROM messages m2 WHERE 
            (m2.sender_id = ${userId} AND m2.receiver_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)) OR
            (m2.receiver_id = ${userId} AND m2.sender_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END))
-           ORDER BY m2.created_at DESC LIMIT 1) as last_message,
-          COUNT(CASE WHEN m.receiver_id = ${userId} AND m.is_read = false THEN 1 END) as unread_count
+           ORDER BY m2.sent_at DESC LIMIT 1) as last_message,
+          COUNT(CASE WHEN m.receiver_id = ${userId} AND m.read_at IS NULL THEN 1 END) as unread_count
         FROM messages m
         JOIN users u ON u.id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)
         WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
@@ -1565,8 +1562,8 @@ export const storage = {
           m.sender_id,
           m.receiver_id,
           m.content,
-          m.is_read,
-          m.created_at,
+          m.read_at,
+          m.sent_at,
           u.first_name as sender_first_name,
           u.last_name as sender_last_name,
           u.profile_image_url as sender_profile_image
@@ -1574,14 +1571,14 @@ export const storage = {
         JOIN users u ON u.id = m.sender_id
         WHERE (m.sender_id = ${senderId} AND m.receiver_id = ${receiverId}) OR
               (m.sender_id = ${receiverId} AND m.receiver_id = ${senderId})
-        ORDER BY m.created_at ASC
+        ORDER BY m.sent_at ASC
       `);
       
       // Mark messages as read for the current user
       await db.execute(sql`
         UPDATE messages 
-        SET is_read = true 
-        WHERE receiver_id = ${senderId} AND sender_id = ${receiverId} AND is_read = false
+        SET read_at = NOW() 
+        WHERE receiver_id = ${senderId} AND sender_id = ${receiverId} AND read_at IS NULL
       `);
       
       return result.rows.map((row: any) => ({
@@ -1589,8 +1586,8 @@ export const storage = {
         senderId: row.sender_id,
         receiverId: row.receiver_id,
         content: row.content,
-        isRead: row.is_read,
-        createdAt: row.created_at,
+        isRead: row.read_at !== null,
+        createdAt: row.sent_at,
         sender: {
           firstName: row.sender_first_name,
           lastName: row.sender_last_name,
@@ -1606,9 +1603,9 @@ export const storage = {
   async sendMessage(senderId: string, receiverId: string, content: string) {
     try {
       const result = await db.execute(sql`
-        INSERT INTO messages (sender_id, receiver_id, content, is_read, created_at)
-        VALUES (${senderId}, ${receiverId}, ${content}, false, NOW())
-        RETURNING id, sender_id, receiver_id, content, is_read, created_at
+        INSERT INTO messages (sender_id, receiver_id, content, sent_at)
+        VALUES (${senderId}, ${receiverId}, ${content}, NOW())
+        RETURNING id, sender_id, receiver_id, content, sent_at
       `);
       
       return result.rows[0];
@@ -1623,7 +1620,7 @@ export const storage = {
       const result = await db.execute(sql`
         SELECT COUNT(*) as count
         FROM messages
-        WHERE receiver_id = ${userId} AND is_read = false
+        WHERE receiver_id = ${userId} AND read_at IS NULL
       `);
       
       return parseInt(result.rows[0]?.count as string) || 0;
@@ -1635,6 +1632,7 @@ export const storage = {
 
   async getConnections(userId: string) {
     try {
+      // Based on the actual connections table structure: sender_id, receiver_id, status
       const result = await db.execute(sql`
         SELECT 
           u.id,
@@ -1644,8 +1642,8 @@ export const storage = {
           u.headline,
           u.user_type
         FROM connections c
-        JOIN users u ON (u.id = c.user_id OR u.id = c.connected_user_id)
-        WHERE (c.user_id = ${userId} OR c.connected_user_id = ${userId}) 
+        JOIN users u ON (u.id = c.sender_id OR u.id = c.receiver_id)
+        WHERE (c.sender_id = ${userId} OR c.receiver_id = ${userId}) 
           AND c.status = 'accepted'
           AND u.id != ${userId}
       `);

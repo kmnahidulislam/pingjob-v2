@@ -519,21 +519,6 @@ export function registerRoutes(app: Express) {
     try {
       const jobSeekers = await storage.getJobSeekers();
       
-      // Debug logging - force cache refresh
-      console.log('🔍 DEBUG: Fresh request - Total job seekers fetched:', jobSeekers.length);
-      console.log('🔍 DEBUG: Sample job seekers with categories:', jobSeekers.slice(0, 5).map((s: any) => ({ 
-        id: s.id, 
-        firstName: s.firstName,
-        categoryId: s.categoryId, 
-        type: typeof s.categoryId 
-      })));
-      console.log('🔍 DEBUG: Category 135 job seekers:', jobSeekers.filter((s: any) => s.categoryId === 135).length);
-      console.log('🔍 DEBUG: Category 75 job seekers:', jobSeekers.filter((s: any) => s.categoryId === 75).length);
-      
-      // Disable caching for debugging
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.set('Pragma', 'no-cache');
-      res.set('Expires', '0');
       
       res.json(jobSeekers);
     } catch (error) {

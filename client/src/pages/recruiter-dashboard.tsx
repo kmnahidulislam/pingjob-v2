@@ -353,15 +353,10 @@ export default function RecruiterDashboard() {
       }
       
       const allJobSeekers = await response.json();
-      console.log('🔍 DEBUG: Job categoryId:', job.categoryId, typeof job.categoryId);
-      console.log('🔍 DEBUG: Total job seekers:', allJobSeekers.length);
-      console.log('🔍 DEBUG: Sample job seeker categories:', allJobSeekers.slice(0, 3).map((s: any) => ({ id: s.id, categoryId: s.categoryId, type: typeof s.categoryId })));
       
       const matchingCandidates = allJobSeekers.filter((seeker: any) => 
         parseInt(seeker.categoryId) === parseInt(job.categoryId)
       );
-      
-      console.log('🔍 DEBUG: Matching candidates found:', matchingCandidates.length);
       
       // Transform to assignment-like structure for compatibility
       const candidateAssignments = matchingCandidates.map((candidate: any) => ({
