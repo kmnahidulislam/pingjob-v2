@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { eq, and, desc, sql, or, ilike, ne, isNull } from "drizzle-orm";
+import { eq, and, desc, sql, or, ilike, ne, isNull, isNotNull } from "drizzle-orm";
 import { 
   users, 
   jobs, 
@@ -1208,7 +1208,7 @@ export const storage = {
   // Get job seekers for profiles sidebar
   async getJobSeekers() {
     try {
-      return await db
+      const result = await db
         .select({
           id: users.id,
           firstName: users.firstName,
@@ -1219,8 +1219,13 @@ export const storage = {
           profileImageUrl: users.profileImageUrl
         })
         .from(users)
-        .where(eq(users.userType, 'job_seeker'))
-        .limit(20);
+        .where(and(
+          eq(users.userType, 'job_seeker'),
+          isNotNull(users.categoryId)
+        ));
+        
+      console.log('🔧 getJobSeekers - Sample results from DB:', result.slice(0, 3).map(r => ({ id: r.id, firstName: r.firstName, categoryId: r.categoryId })));
+      return result;
     } catch (error) {
       console.error('Error fetching job seekers:', error);
       return [];
