@@ -95,6 +95,29 @@ export default function Applications() {
     }
   });
 
+  // Process resume mutation (trigger real scoring)
+  const processResumeMutation = useMutation({
+    mutationFn: async (applicationId: number) => {
+      const response = await apiRequest(`/api/applications/${applicationId}/score`, 'POST');
+      return response;
+    },
+    onSuccess: (data: any) => {
+      toast({ 
+        title: "Resume Processed!", 
+        description: `Match score: ${data.score}/12 - ${data.message}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/applications/scores'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Processing Failed", 
+        description: error.message || "Failed to process resume",
+        variant: "destructive"
+      });
+    }
+  });
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'applied':
@@ -296,7 +319,15 @@ export default function Applications() {
                         </div>
                       ) : (
                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-[200px] text-center">
-                          <div className="text-gray-500">Score calculating...</div>
+                          <div className="text-gray-500 mb-2">Score calculating...</div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => processResumeMutation.mutate(application.id)}
+                            disabled={processResumeMutation.isPending}
+                          >
+                            {processResumeMutation.isPending ? 'Processing...' : 'Process Resume'}
+                          </Button>
                         </div>
                       )}
                     </div>
