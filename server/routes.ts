@@ -1508,22 +1508,50 @@ export function registerRoutes(app: Express) {
   });
 
   // External invitations endpoint
-  app.post('/api/external-invitations', async (req, res) => {
+  app.post('/api/external-invitations', isAuthenticated, async (req: any, res) => {
     try {
       const { email, firstName, lastName, message } = req.body;
+      const inviterUserId = req.user.id;
+      const inviterName = `${req.user.firstName} ${req.user.lastName}`.trim();
       
       if (!email || !firstName || !lastName) {
         return res.status(400).json({ message: 'Email, first name, and last name are required' });
       }
       
-      // For now, just return success - in production, you'd send actual emails
-      console.log('📧 External invitation requested:', { email, firstName, lastName, message: message?.slice(0, 50) + '...' });
+      // Generate unique invite token
+      const inviteToken = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      res.json({ 
-        success: true, 
-        message: 'Invitation sent successfully',
-        recipient: { email, firstName, lastName }
+      console.log('📧 Sending invitation email:', { 
+        email, 
+        firstName, 
+        lastName, 
+        inviterName,
+        messagePreview: message?.slice(0, 50) + '...' 
       });
+      
+      // Import and use the SendGrid email function
+      const { sendInvitationEmail } = await import('./email');
+      
+      const emailSent = await sendInvitationEmail(
+        email,
+        `${firstName} ${lastName}`.trim(),
+        inviterName,
+        inviteToken,
+        message
+      );
+      
+      if (emailSent) {
+        console.log('✅ Invitation email sent successfully via SendGrid');
+        res.json({ 
+          success: true, 
+          message: 'Invitation sent successfully',
+          recipient: { email, firstName, lastName }
+        });
+      } else {
+        console.error('❌ Failed to send invitation email via SendGrid');
+        res.status(500).json({ message: 'Failed to send invitation email' });
+      }
+      
     } catch (error) {
       console.error('Error sending external invitation:', error);
       res.status(500).json({ message: 'Failed to send invitation' });
