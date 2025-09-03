@@ -98,7 +98,7 @@ export default function Applications() {
   // Process resume mutation (trigger real scoring)
   const processResumeMutation = useMutation({
     mutationFn: async (applicationId: number) => {
-      const response = await apiRequest(`/api/applications/${applicationId}/score`, 'POST');
+      const response = await apiRequest('POST', `/api/applications/${applicationId}/score`, {});
       return response;
     },
     onSuccess: (data: any) => {
