@@ -98,12 +98,12 @@ export default function Messaging() {
     scrollToBottom();
   }, [messages]);
 
-  const filteredConversations = conversations?.filter((conv: any) =>
+  const filteredConversations = (conversations || []).filter((conv: any) =>
     conv.otherUser?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  );
 
-  const selectedUser = connections?.find((conn: any) => conn.user?.id === selectedConversation)?.user;
+  const selectedUser = (connections || []).find((conn: any) => conn.user?.id === selectedConversation)?.user;
 
   const formatMessageTime = (date: string | Date) => {
     const messageDate = new Date(date);
@@ -254,8 +254,8 @@ export default function Messaging() {
                 {/* Messages */}
                 <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-4">
                   <div className="space-y-4">
-                    {messages && messages.length > 0 ? (
-                      messages.map((message: any) => (
+                    {(messages || []).length > 0 ? (
+                      (messages || []).map((message: any) => (
                         <div
                           key={message.id}
                           className={`flex ${message.senderId === user?.id ? 'justify-end' : 'justify-start'}`}

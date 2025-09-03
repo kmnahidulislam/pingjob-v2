@@ -1448,6 +1448,69 @@ export function registerRoutes(app: Express) {
 
 
 
+  // Messaging API endpoints
+  app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const conversations = await storage.getConversations(userId);
+      res.json(conversations);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ message: 'Failed to fetch conversations' });
+    }
+  });
+
+  app.get('/api/messages/:receiverId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const receiverId = req.params.receiverId;
+      const messages = await storage.getMessages(userId, receiverId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  app.post('/api/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { receiverId, content } = req.body;
+      
+      if (!receiverId || !content?.trim()) {
+        return res.status(400).json({ message: 'Receiver ID and content are required' });
+      }
+      
+      const message = await storage.sendMessage(userId, receiverId, content.trim());
+      res.json(message);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      res.status(500).json({ message: 'Failed to send message' });
+    }
+  });
+
+  app.get('/api/messages/unread/count', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const count = await storage.getUnreadMessageCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error('Error fetching unread message count:', error);
+      res.status(500).json({ message: 'Failed to fetch unread message count' });
+    }
+  });
+
+  app.get('/api/connections', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const connections = await storage.getConnections(userId);
+      res.json(connections);
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      res.status(500).json({ message: 'Failed to fetch connections' });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }

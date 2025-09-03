@@ -1508,5 +1508,155 @@ export const storage = {
       console.error('Error soft deleting job:', error);
       throw error;
     }
+  },
+
+  // Messaging functionality
+  async getConversations(userId: string) {
+    try {
+      const result = await db.execute(sql`
+        SELECT DISTINCT
+          CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END as other_user_id,
+          u.first_name,
+          u.last_name,
+          u.profile_image_url,
+          u.headline,
+          MAX(m.created_at) as last_message_time,
+          (SELECT content FROM messages m2 WHERE 
+           (m2.sender_id = ${userId} AND m2.receiver_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)) OR
+           (m2.receiver_id = ${userId} AND m2.sender_id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END))
+           ORDER BY m2.created_at DESC LIMIT 1) as last_message,
+          COUNT(CASE WHEN m.receiver_id = ${userId} AND m.is_read = false THEN 1 END) as unread_count
+        FROM messages m
+        JOIN users u ON u.id = (CASE WHEN m.sender_id = ${userId} THEN m.receiver_id ELSE m.sender_id END)
+        WHERE m.sender_id = ${userId} OR m.receiver_id = ${userId}
+        GROUP BY other_user_id, u.first_name, u.last_name, u.profile_image_url, u.headline
+        ORDER BY last_message_time DESC
+      `);
+      
+      return result.rows.map((row: any) => ({
+        otherUser: {
+          id: row.other_user_id,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          profileImageUrl: row.profile_image_url,
+          headline: row.headline
+        },
+        lastMessage: row.last_message,
+        lastMessageTime: row.last_message_time,
+        unreadCount: parseInt(row.unread_count) || 0
+      }));
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      return [];
+    }
+  },
+
+  async getMessages(senderId: string, receiverId: string) {
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          m.id,
+          m.sender_id,
+          m.receiver_id,
+          m.content,
+          m.is_read,
+          m.created_at,
+          u.first_name as sender_first_name,
+          u.last_name as sender_last_name,
+          u.profile_image_url as sender_profile_image
+        FROM messages m
+        JOIN users u ON u.id = m.sender_id
+        WHERE (m.sender_id = ${senderId} AND m.receiver_id = ${receiverId}) OR
+              (m.sender_id = ${receiverId} AND m.receiver_id = ${senderId})
+        ORDER BY m.created_at ASC
+      `);
+      
+      // Mark messages as read for the current user
+      await db.execute(sql`
+        UPDATE messages 
+        SET is_read = true 
+        WHERE receiver_id = ${senderId} AND sender_id = ${receiverId} AND is_read = false
+      `);
+      
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        senderId: row.sender_id,
+        receiverId: row.receiver_id,
+        content: row.content,
+        isRead: row.is_read,
+        createdAt: row.created_at,
+        sender: {
+          firstName: row.sender_first_name,
+          lastName: row.sender_last_name,
+          profileImageUrl: row.sender_profile_image
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      return [];
+    }
+  },
+
+  async sendMessage(senderId: string, receiverId: string, content: string) {
+    try {
+      const result = await db.execute(sql`
+        INSERT INTO messages (sender_id, receiver_id, content, is_read, created_at)
+        VALUES (${senderId}, ${receiverId}, ${content}, false, NOW())
+        RETURNING id, sender_id, receiver_id, content, is_read, created_at
+      `);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+  },
+
+  async getUnreadMessageCount(userId: string) {
+    try {
+      const result = await db.execute(sql`
+        SELECT COUNT(*) as count
+        FROM messages
+        WHERE receiver_id = ${userId} AND is_read = false
+      `);
+      
+      return parseInt(result.rows[0]?.count) || 0;
+    } catch (error) {
+      console.error('Error fetching unread message count:', error);
+      return 0;
+    }
+  },
+
+  async getConnections(userId: string) {
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          u.id,
+          u.first_name,
+          u.last_name,
+          u.profile_image_url,
+          u.headline,
+          u.user_type
+        FROM connections c
+        JOIN users u ON (u.id = c.user_id OR u.id = c.connected_user_id)
+        WHERE (c.user_id = ${userId} OR c.connected_user_id = ${userId}) 
+          AND c.status = 'accepted'
+          AND u.id != ${userId}
+      `);
+      
+      return result.rows.map((row: any) => ({
+        user: {
+          id: row.id,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          profileImageUrl: row.profile_image_url,
+          headline: row.headline,
+          userType: row.user_type
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      return [];
+    }
   }
 };
