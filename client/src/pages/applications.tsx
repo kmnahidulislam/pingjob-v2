@@ -279,7 +279,7 @@ export default function Applications() {
                         </p>
                       </div>
                       
-                      {applicationScores && applicationScores[application.id] ? (
+                      {applicationScores && applicationScores[application.id] && applicationScores[application.id].isProcessed ? (
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 min-w-[200px]">
                           <div className="text-center">
                             <div className="text-2xl font-bold text-blue-900 mb-2">
