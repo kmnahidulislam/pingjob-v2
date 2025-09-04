@@ -75,8 +75,8 @@ function Router() {
   
   // Track page views when routes change
   useAnalytics();
-  // Track visits for analytics (temporarily disabled due to import issue)
-  // useVisitTracker();
+  // Track visits for analytics
+  useVisitTracker();
 
   // Handle navigation using useEffect to prevent setState during render
   useEffect(() => {

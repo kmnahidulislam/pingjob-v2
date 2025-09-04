@@ -18,7 +18,7 @@ export default function VisitStats() {
   }
 
   const topPages = Object.entries(stats.visitsByPage)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([,a], [,b]) => (b as number) - (a as number))
     .slice(0, 10);
 
   return (
@@ -129,7 +129,7 @@ export default function VisitStats() {
                       <p className="text-xs text-gray-500">{page}</p>
                     </div>
                   </div>
-                  <div className="text-sm font-medium">{count.toLocaleString()}</div>
+                  <div className="text-sm font-medium">{(count as number).toLocaleString()}</div>
                 </div>
               ))}
             </div>
