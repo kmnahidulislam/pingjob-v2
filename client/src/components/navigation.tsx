@@ -38,6 +38,14 @@ export default function Navigation() {
 
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'recruiter' || user?.userType === 'client';
   const isRealAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+  
+  // Debug logging for admin detection
+  console.log('Admin debug:', { 
+    userEmail: user?.email, 
+    userType: user?.userType, 
+    isAdmin, 
+    isRealAdmin 
+  });
 
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
