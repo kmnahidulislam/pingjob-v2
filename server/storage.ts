@@ -161,6 +161,31 @@ export const storage = {
     return transformedApplications;
   },
 
+  // User management
+  async createUser(userData: any) {
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Check if user already exists
+    const existingUser = await db.select().from(users).where(eq(users.email, userData.email)).limit(1);
+    if (existingUser.length > 0) {
+      throw new Error('A user with this email already exists');
+    }
+    
+    const cleanUserData = {
+      id: userId,
+      email: userData.email,
+      password: userData.password,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      userType: userData.userType || 'job_seeker',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const [newUser] = await db.insert(users).values(cleanUserData).returning();
+    return newUser;
+  },
+
   async getUserApplications(userId: string, limit?: number) {
     console.log(`🔍 Fetching applications for user ID: ${userId}`);
     
