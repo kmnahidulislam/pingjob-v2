@@ -33,18 +33,18 @@ export default function Messaging() {
   const [newConversationSearch, setNewConversationSearch] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: conversations } = useQuery({
+  const { data: conversations = [] } = useQuery({
     queryKey: ['/api/conversations'],
     enabled: !!user
   });
 
-  const { data: messages } = useQuery({
+  const { data: messages = [] } = useQuery({
     queryKey: [`/api/messages/${selectedConversation}`],
     enabled: !!selectedConversation,
     refetchInterval: 5000 // Poll for new messages every 5 seconds
   });
 
-  const { data: connections } = useQuery({
+  const { data: connections = [] } = useQuery({
     queryKey: ['/api/connections'],
     enabled: !!user
   });

@@ -427,7 +427,7 @@ export default function NetworkPage() {
                         {/* Show message button for all connections (null status means connected from invitation) */}
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedUser(connection.user)}>
+                            <Button size="sm" variant="outline" onClick={() => setSelectedUser(null)}>
                               <MessageCircle className="h-4 w-4 mr-1" />
                               Message
                             </Button>
