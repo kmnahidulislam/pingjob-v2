@@ -1752,8 +1752,8 @@ export function registerRoutes(app: Express) {
         const client = await pool.connect();
         try {
           await client.query(`
-            INSERT INTO connections (sender_id, receiver_id, status, created_at, updated_at)
-            VALUES ($1, $2, 'accepted', NOW(), NOW())
+            INSERT INTO connections (sender_id, receiver_id, status, created_at)
+            VALUES ($1, $2, 'accepted', NOW())
           `, [invitation.inviterUserId, newUser.id]);
           console.log(`✅ Automatic connection created between inviter ${invitation.inviterUserId} and new user ${newUser.id}`);
         } finally {
