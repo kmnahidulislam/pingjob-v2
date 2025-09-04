@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { cleanPool as pool } from "./clean-neon";
 import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 import Stripe from "stripe";
+import { VisitTracker } from "./visit-tracker";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
   if (req.user || req.session?.user) {
@@ -1801,6 +1802,53 @@ export function registerRoutes(app: Express) {
       } else {
         res.status(500).json({ message: 'Failed to create account' });
       }
+    }
+  });
+
+  // Initialize visit tracker
+  const visitTracker = new VisitTracker();
+
+  // Visit tracking endpoints
+  app.post('/api/track-visit', async (req, res) => {
+    try {
+      const { page } = req.body;
+      const ip = req.ip || req.connection.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+      const userId = req.user?.id || null;
+      const sessionId = req.session?.id || null;
+
+      await visitTracker.trackVisit({
+        page,
+        ip,
+        userAgent,
+        userId,
+        sessionId
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error tracking visit:', error);
+      res.status(500).json({ message: 'Failed to track visit' });
+    }
+  });
+
+  app.get('/api/visit-stats', async (req, res) => {
+    try {
+      const stats = await visitTracker.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching visit stats:', error);
+      res.status(500).json({ message: 'Failed to fetch visit stats' });
+    }
+  });
+
+  app.get('/api/total-visits', async (req, res) => {
+    try {
+      const totalVisits = await visitTracker.getTotalVisits();
+      res.json({ totalVisits });
+    } catch (error) {
+      console.error('Error fetching total visits:', error);
+      res.status(500).json({ message: 'Failed to fetch total visits' });
     }
   });
 
