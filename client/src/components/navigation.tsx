@@ -38,14 +38,6 @@ export default function Navigation() {
 
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'recruiter' || user?.userType === 'client';
   const isRealAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
-  
-  // Debug logging for admin detection
-  console.log('Admin debug:', { 
-    userEmail: user?.email, 
-    userType: user?.userType, 
-    isAdmin, 
-    isRealAdmin 
-  });
 
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
@@ -59,6 +51,9 @@ export default function Navigation() {
     ...(isAdmin && user?.userType !== 'recruiter' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
     ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
   ];
+  
+  // Debug: log navigation items to see what's being generated
+  console.log('Navigation items:', navigationItems.map(item => item.name));
 
   const isActive = (href: string) => {
     if (href === "/" && location === "/") return true;
