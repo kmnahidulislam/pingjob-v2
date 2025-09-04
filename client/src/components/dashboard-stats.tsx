@@ -73,7 +73,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{connections?.length || 0}</div>
+          <div className="text-2xl font-bold">{(connections as any[])?.length || 0}</div>
           <p className="text-xs text-muted-foreground">Total connections</p>
         </CardContent>
       </Card>
@@ -84,7 +84,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Briefcase className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{jobApplications?.length || 0}</div>
+          <div className="text-2xl font-bold">{(jobApplications as any[])?.length || 0}</div>
           <p className="text-xs text-muted-foreground">This month</p>
         </CardContent>
       </Card>
@@ -99,7 +99,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Briefcase className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{allJobs?.length || 0}</div>
+          <div className="text-2xl font-bold">{(allJobs as any[])?.length || 0}</div>
           <p className="text-xs text-muted-foreground">Currently posted</p>
         </CardContent>
       </Card>
@@ -147,7 +147,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{company?.followers || 0}</div>
+          <div className="text-2xl font-bold">{(company as any)?.followers || 0}</div>
           <p className="text-xs text-muted-foreground">Company followers</p>
         </CardContent>
       </Card>
