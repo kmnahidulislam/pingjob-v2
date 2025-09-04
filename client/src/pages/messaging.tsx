@@ -133,15 +133,6 @@ export default function Messaging() {
   };
 
   const selectedUser = (connections || []).find((conn: any) => conn.user?.id === selectedConversation)?.user;
-  
-  // Debug logging
-  console.log('🔍 Messaging Debug:', {
-    selectedConversation,
-    connectionsCount: (connections || []).length,
-    conversationsCount: (conversations || []).length,
-    selectedUser: selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : 'NOT FOUND',
-    messagesCount: (messages || []).length
-  });
 
   const formatMessageTime = (date: string | Date | null | undefined) => {
     if (!date) return 'now';
