@@ -46,10 +46,10 @@ export default function Navigation() {
     { name: "Applications", href: "/applications", icon: FileText },
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
+    ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
     ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
     ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
     ...(isAdmin && user?.userType !== 'recruiter' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
-    ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
   ];
   
 
