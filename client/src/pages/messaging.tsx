@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -19,7 +21,8 @@ import {
   Plus,
   Phone,
   Video,
-  Info
+  Info,
+  Trash2
 } from "lucide-react";
 
 export default function Messaging() {
@@ -89,6 +92,26 @@ export default function Messaging() {
       toast({
         title: "Error",
         description: error.message || "Failed to send message",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteConversationMutation = useMutation({
+    mutationFn: (otherUserId: string) =>
+      apiRequest(`/api/conversations/${otherUserId}`, 'DELETE'),
+    onSuccess: () => {
+      setSelectedConversation(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
+      toast({
+        title: "Success",
+        description: "Conversation deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error", 
+        description: error.message || "Failed to delete conversation",
         variant: "destructive"
       });
     }
@@ -361,9 +384,42 @@ export default function Messaging() {
                       <Button variant="ghost" size="sm">
                         <Info className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete conversation
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete all messages in this conversation with {selectedUser.firstName} {selectedUser.lastName}. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteConversationMutation.mutate(selectedConversation!)}
+                                  disabled={deleteConversationMutation.isPending}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  {deleteConversationMutation.isPending ? "Deleting..." : "Delete"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </CardHeader>

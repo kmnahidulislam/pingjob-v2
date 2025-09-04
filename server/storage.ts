@@ -1697,6 +1697,23 @@ export const storage = {
     }
   },
 
+  async deleteConversation(userId: string, otherUserId: string) {
+    try {
+      // Delete all messages between the two users
+      await db.execute(sql`
+        DELETE FROM messages 
+        WHERE (sender_id = ${userId} AND receiver_id = ${otherUserId}) OR
+              (sender_id = ${otherUserId} AND receiver_id = ${userId})
+      `);
+      
+      console.log(`Deleted conversation between ${userId} and ${otherUserId}`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      throw error;
+    }
+  },
+
   async getConnections(userId: string) {
     try {
       // Based on the actual connections table structure: sender_id, receiver_id, status

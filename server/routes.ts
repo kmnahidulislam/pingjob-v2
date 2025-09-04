@@ -1595,6 +1595,23 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  app.delete('/api/conversations/:otherUserId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const otherUserId = req.params.otherUserId;
+      
+      if (!otherUserId) {
+        return res.status(400).json({ message: 'Other user ID is required' });
+      }
+      
+      await storage.deleteConversation(userId, otherUserId);
+      res.json({ message: 'Conversation deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      res.status(500).json({ message: 'Failed to delete conversation' });
+    }
+  });
+
   app.get('/api/connections', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
