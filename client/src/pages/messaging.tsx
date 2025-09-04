@@ -137,30 +137,35 @@ export default function Messaging() {
   const formatMessageTime = (date: string | Date | null | undefined) => {
     if (!date) return 'now';
     
-    const messageDate = new Date(date);
-    
-    // Check if the date is valid
-    if (isNaN(messageDate.getTime())) {
-      return 'now';
-    }
-    
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - messageDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    try {
+      const messageDate = new Date(date);
+      
+      // Check if the date is valid
+      if (isNaN(messageDate.getTime()) || messageDate.getTime() === 0) {
+        return 'now';
+      }
+      
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - messageDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) {
-      return messageDate.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit', 
-        hour12: true 
-      });
-    } else if (diffDays < 7) {
-      return messageDate.toLocaleDateString('en-US', { weekday: 'short' });
-    } else {
-      return messageDate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      if (diffDays === 1) {
+        return messageDate.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit', 
+          hour12: true 
+        });
+      } else if (diffDays < 7) {
+        return messageDate.toLocaleDateString('en-US', { weekday: 'short' });
+      } else {
+        return messageDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+    } catch (error) {
+      console.warn('Date formatting error:', error);
+      return 'now';
     }
   };
 

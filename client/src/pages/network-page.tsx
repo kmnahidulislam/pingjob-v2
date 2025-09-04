@@ -546,7 +546,7 @@ export default function NetworkPage() {
                         </h3>
                         <p className="text-sm text-muted-foreground line-clamp-1">{conversation.content}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(conversation.createdAt).toLocaleDateString()}
+                          {conversation.createdAt ? new Date(conversation.createdAt).toLocaleDateString() : 'Recently'}
                         </p>
                       </div>
                       {!conversation.isRead && (
