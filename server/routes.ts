@@ -1747,6 +1747,23 @@ export function registerRoutes(app: Express) {
       
       const newUser = await storage.createUser(userData);
       
+      // Automatically create a connection between the inviter and the new user
+      try {
+        const client = await pool.connect();
+        try {
+          await client.query(`
+            INSERT INTO connections (sender_id, receiver_id, status, created_at, updated_at)
+            VALUES ($1, $2, 'accepted', NOW(), NOW())
+          `, [invitation.inviterUserId, newUser.id]);
+          console.log(`✅ Automatic connection created between inviter ${invitation.inviterUserId} and new user ${newUser.id}`);
+        } finally {
+          client.release();
+        }
+      } catch (connectionError) {
+        console.log(`⚠️ Could not create automatic connection: ${connectionError.message}`);
+        // Don't fail the entire invitation process if connection creation fails
+      }
+      
       // Mark the invitation as accepted in database
       await storage.updateExternalInvitationStatus(token, 'accepted');
       
