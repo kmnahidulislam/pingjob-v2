@@ -404,64 +404,61 @@ export default function NetworkPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {connections.map((connection) => {
-                    console.log('🔍 Connection debug:', connection.status, connection);
-                    return (
-                      <div key={connection.user.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={connection.user.profileImageUrl} />
-                          <AvatarFallback>
-                            {connection.user.firstName?.[0]}{connection.user.lastName?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-semibold">
-                            {connection.user.firstName} {connection.user.lastName}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{connection.user.headline}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={connection.status === "accepted" ? "default" : "secondary"}
-                          >
-                            {connection.status}
-                          </Badge>
-                          {/* Always show the message button for now to debug */}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedUser(connection.user)}>
-                                <MessageCircle className="h-4 w-4 mr-1" />
-                                Message
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>
-                                  Send Message to {connection.user.firstName} {connection.user.lastName}
-                                </DialogTitle>
-                              </DialogHeader>
-                              <div className="space-y-4">
-                                <Textarea
-                                  placeholder="Type your message..."
-                                  value={messageContent}
-                                  onChange={(e) => setMessageContent(e.target.value)}
-                                  rows={4}
-                                />
-                                <Button
-                                  onClick={() => handleSendMessage(connection.user.id)}
-                                  disabled={sendMessageMutation.isPending || !messageContent.trim()}
-                                  className="w-full"
-                                >
-                                  <Send className="h-4 w-4 mr-2" />
-                                  Send Message
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
+                  {connections.map((connection) => (
+                    <div key={connection.user.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={connection.user.profileImageUrl} />
+                        <AvatarFallback>
+                          {connection.user.firstName?.[0]}{connection.user.lastName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-semibold">
+                          {connection.user.firstName} {connection.user.lastName}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{connection.user.headline}</p>
                       </div>
-                    );
-                  })}
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={connection.status === "accepted" ? "default" : "secondary"}
+                        >
+                          {connection.status || "connected"}
+                        </Badge>
+                        {/* Show message button for all connections (null status means connected from invitation) */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" onClick={() => setSelectedUser(connection.user)}>
+                              <MessageCircle className="h-4 w-4 mr-1" />
+                              Message
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Send Message to {connection.user.firstName} {connection.user.lastName}
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <Textarea
+                                placeholder="Type your message..."
+                                value={messageContent}
+                                onChange={(e) => setMessageContent(e.target.value)}
+                                rows={4}
+                              />
+                              <Button
+                                onClick={() => handleSendMessage(connection.user.id)}
+                                disabled={sendMessageMutation.isPending || !messageContent.trim()}
+                                className="w-full"
+                              >
+                                <Send className="h-4 w-4 mr-2" />
+                                Send Message
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>

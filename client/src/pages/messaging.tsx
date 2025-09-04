@@ -134,8 +134,16 @@ export default function Messaging() {
 
   const selectedUser = (connections || []).find((conn: any) => conn.user?.id === selectedConversation)?.user;
 
-  const formatMessageTime = (date: string | Date) => {
+  const formatMessageTime = (date: string | Date | null | undefined) => {
+    if (!date) return 'now';
+    
     const messageDate = new Date(date);
+    
+    // Check if the date is valid
+    if (isNaN(messageDate.getTime())) {
+      return 'now';
+    }
+    
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - messageDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
