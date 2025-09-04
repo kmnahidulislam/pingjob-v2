@@ -8,7 +8,7 @@ import { storage } from "./storage";
 import { cleanPool as pool } from "./clean-neon";
 import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 import Stripe from "stripe";
-import { VisitTracker } from "./visit-tracker";
+import { visitTracker } from "./visit-tracker";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
   if (req.user || req.session?.user) {
@@ -1777,7 +1777,7 @@ export function registerRoutes(app: Express) {
         } finally {
           client.release();
         }
-      } catch (connectionError) {
+      } catch (connectionError: any) {
         console.log(`⚠️ Could not create automatic connection: ${connectionError.message}`);
         // Don't fail the entire invitation process if connection creation fails
       }
@@ -1795,7 +1795,7 @@ export function registerRoutes(app: Express) {
           lastName: newUser.lastName
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accepting invitation:', error);
       if (error.message?.includes('already exists')) {
         res.status(400).json({ message: 'An account with this email already exists' });
@@ -1805,16 +1805,13 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Initialize visit tracker
-  const visitTracker = new VisitTracker();
-
   // Visit tracking endpoints
   app.post('/api/track-visit', async (req, res) => {
     try {
       const { page } = req.body;
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const userAgent = req.get('User-Agent') || 'unknown';
-      const userId = req.user?.id || null;
+      const userId = (req.user as any)?.id || null;
       const sessionId = req.session?.id || null;
 
       await visitTracker.trackVisit({
