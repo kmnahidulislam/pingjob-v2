@@ -404,27 +404,29 @@ export default function NetworkPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {connections.map((connection) => (
-                    <div key={connection.user.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={connection.user.profileImageUrl} />
-                        <AvatarFallback>
-                          {connection.user.firstName?.[0]}{connection.user.lastName?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">
-                          {connection.user.firstName} {connection.user.lastName}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{connection.user.headline}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={connection.status === "accepted" ? "default" : "secondary"}
-                        >
-                          {connection.status}
-                        </Badge>
-                        {connection.status === "accepted" && (
+                  {connections.map((connection) => {
+                    console.log('🔍 Connection debug:', connection.status, connection);
+                    return (
+                      <div key={connection.user.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={connection.user.profileImageUrl} />
+                          <AvatarFallback>
+                            {connection.user.firstName?.[0]}{connection.user.lastName?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">
+                            {connection.user.firstName} {connection.user.lastName}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{connection.user.headline}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={connection.status === "accepted" ? "default" : "secondary"}
+                          >
+                            {connection.status}
+                          </Badge>
+                          {/* Always show the message button for now to debug */}
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button size="sm" variant="outline" onClick={() => setSelectedUser(connection.user)}>
@@ -456,10 +458,10 @@ export default function NetworkPage() {
                               </div>
                             </DialogContent>
                           </Dialog>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
