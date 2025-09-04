@@ -177,9 +177,7 @@ export const storage = {
       password: userData.password,
       firstName: userData.firstName,
       lastName: userData.lastName,
-      userType: userData.userType || 'job_seeker',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      userType: userData.userType || 'job_seeker'
     };
     
     const [newUser] = await db.insert(users).values(cleanUserData).returning();
