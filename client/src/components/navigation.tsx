@@ -49,7 +49,7 @@ export default function Navigation() {
     ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
     ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
     ...(isAdmin && user?.userType !== 'recruiter' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
-    ...(isRealAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
+    ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
   ];
 
   const isActive = (href: string) => {
