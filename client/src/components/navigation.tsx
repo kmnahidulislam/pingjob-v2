@@ -52,8 +52,6 @@ export default function Navigation() {
     ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
   ];
   
-  // Debug: log navigation items to see what's being generated
-  console.log('Navigation items:', navigationItems.map(item => item.name));
 
   const isActive = (href: string) => {
     if (href === "/" && location === "/") return true;
@@ -218,7 +216,9 @@ export default function Navigation() {
         
         {/* Mobile Navigation Icons */}
         <div className="flex justify-around py-2">
-          {navigationItems.slice(0, 5).map((item) => (
+          {navigationItems.filter((item, index) => 
+            index < 4 || item.name === 'Traffic' || item.name === 'Dashboard'
+          ).map((item) => (
             <Link key={item.name} href={item.href}>
               <div className={`flex flex-col items-center space-y-1 px-2 py-2 transition-colors duration-200 ${
                 isActive(item.href)
