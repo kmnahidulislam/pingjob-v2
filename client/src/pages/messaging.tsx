@@ -33,21 +33,26 @@ export default function Messaging() {
   const [newConversationSearch, setNewConversationSearch] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: conversations = [] } = useQuery({
+  const { data: conversationsData, isLoading: conversationsLoading } = useQuery({
     queryKey: ['/api/conversations'],
     enabled: !!user
   });
 
-  const { data: messages = [] } = useQuery({
+  const { data: messagesData, isLoading: messagesLoading } = useQuery({
     queryKey: [`/api/messages/${selectedConversation}`],
     enabled: !!selectedConversation,
     refetchInterval: 5000 // Poll for new messages every 5 seconds
   });
 
-  const { data: connections = [] } = useQuery({
+  const { data: connectionsData, isLoading: connectionsLoading } = useQuery({
     queryKey: ['/api/connections'],
     enabled: !!user
   });
+
+  // Ensure data is always an array
+  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
+  const messages = Array.isArray(messagesData) ? messagesData : [];
+  const connections = Array.isArray(connectionsData) ? connectionsData : [];
 
   const sendMessageMutation = useMutation({
     mutationFn: (data: { receiverId: string; content: string }) =>
@@ -107,14 +112,14 @@ export default function Messaging() {
     scrollToBottom();
   }, [messages]);
 
-  const filteredConversations = (conversations || []).filter((conv: any) =>
+  const filteredConversations = conversations.filter((conv: any) =>
     conv.otherUser?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser?.lastName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Get connections that don't already have conversations
-  const existingConversationUserIds = (conversations || []).map((conv: any) => conv.otherUser?.id);
-  const availableConnections = (connections || []).filter((conn: any) => 
+  const existingConversationUserIds = conversations.map((conv: any) => conv.otherUser?.id);
+  const availableConnections = connections.filter((conn: any) => 
     !existingConversationUserIds.includes(conn.user?.id)
   );
 
@@ -132,7 +137,7 @@ export default function Messaging() {
     });
   };
 
-  const selectedUser = (connections || []).find((conn: any) => conn.user?.id === selectedConversation)?.user;
+  const selectedUser = connections.find((conn: any) => conn.user?.id === selectedConversation)?.user;
 
   const formatMessageTime = (date: string | Date | null | undefined) => {
     if (!date) return 'now';
@@ -264,11 +269,16 @@ export default function Messaging() {
             </CardHeader>
             
             <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-0">
-              {filteredConversations.length > 0 ? (
+              {conversationsLoading ? (
+                <div className="p-6 text-center">
+                  <div className="animate-spin h-6 w-6 border-2 border-linkedin-blue border-t-transparent rounded-full mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Loading conversations...</p>
+                </div>
+              ) : filteredConversations.length > 0 ? (
                 <div className="space-y-1">
                   {filteredConversations.map((conversation: any) => (
                     <div
-                      key={conversation.id}
+                      key={conversation.otherUser?.id}
                       onClick={() => setSelectedConversation(conversation.otherUser?.id)}
                       className={`p-3 cursor-pointer border-b hover:bg-gray-50 transition-colors ${
                         selectedConversation === conversation.otherUser?.id ? 'bg-blue-50 border-l-4 border-l-linkedin-blue' : ''
@@ -288,15 +298,15 @@ export default function Messaging() {
                               {conversation.otherUser?.firstName} {conversation.otherUser?.lastName}
                             </h4>
                             <span className="text-xs text-gray-500">
-                              {formatMessageTime(conversation.createdAt)}
+                              {formatMessageTime(conversation.lastMessageTime)}
                             </span>
                           </div>
                           <p className="text-sm text-gray-600 truncate">
-                            {conversation.content}
+                            {conversation.lastMessage || 'No messages yet'}
                           </p>
-                          {!conversation.isRead && (
-                            <Badge variant="destructive" className="mt-1 h-2 w-2 p-0 rounded-full">
-                              <span className="sr-only">Unread</span>
+                          {conversation.unreadCount > 0 && (
+                            <Badge variant="destructive" className="mt-1 text-xs px-2 py-1">
+                              {conversation.unreadCount}
                             </Badge>
                           )}
                         </div>
@@ -361,8 +371,13 @@ export default function Messaging() {
                 {/* Messages */}
                 <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-4">
                   <div className="space-y-4">
-                    {(messages || []).length > 0 ? (
-                      (messages || []).map((message: any) => (
+                    {messagesLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin h-6 w-6 border-2 border-linkedin-blue border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p className="text-sm text-gray-600">Loading messages...</p>
+                      </div>
+                    ) : messages.length > 0 ? (
+                      messages.map((message: any) => (
                         <div
                           key={message.id}
                           className={`flex ${message.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
