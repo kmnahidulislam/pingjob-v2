@@ -99,7 +99,7 @@ export default function Messaging() {
 
   const deleteConversationMutation = useMutation({
     mutationFn: (otherUserId: string) =>
-      apiRequest(`/api/conversations/${otherUserId}`, 'DELETE'),
+      apiRequest('DELETE', `/api/conversations/${otherUserId}`),
     onSuccess: () => {
       setSelectedConversation(null);
       queryClient.invalidateQueries({ queryKey: ['/api/conversations'] });
