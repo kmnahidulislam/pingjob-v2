@@ -171,10 +171,14 @@ export const storage = {
       throw new Error('A user with this email already exists');
     }
     
+    // Import the hashPassword function and hash the password
+    const { hashPassword } = await import('./simple-auth');
+    const hashedPassword = await hashPassword(userData.password);
+    
     const cleanUserData = {
       id: userId,
       email: userData.email,
-      password: userData.password,
+      password: hashedPassword,
       firstName: userData.firstName,
       lastName: userData.lastName,
       userType: userData.userType || 'job_seeker'
