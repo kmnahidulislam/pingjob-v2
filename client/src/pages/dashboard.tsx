@@ -564,7 +564,7 @@ function AdminDashboard() {
   // Company edit mutation
   const companyEditMutation = useMutation({
     mutationFn: async (companyData: any) => {
-      return await apiRequest('PUT', `/api/companies/${companyData.id}`, companyData);
+      return await apiRequest('PATCH', `/api/companies/${companyData.id}`, companyData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });

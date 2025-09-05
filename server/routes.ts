@@ -1311,9 +1311,11 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: 'Company not found' });
       }
 
-      // Filter out null, undefined, and empty string values
+      // Filter out fields that shouldn't be updated and null/undefined/empty values
+      const fieldsToExclude = ['id', 'createdAt', 'userId', 'approvedBy'];
       const updateData = Object.fromEntries(
         Object.entries(req.body).filter(([key, value]) => 
+          !fieldsToExclude.includes(key) &&
           value !== null && value !== undefined && value !== ''
         )
       );
