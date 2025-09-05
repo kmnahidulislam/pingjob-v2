@@ -188,7 +188,7 @@ export const storage = {
         industry: user.industry,
         profileImageUrl: user.profileImageUrl,
         resumeUrl: user.resumeUrl,
-        companyName: user.companyName || null,
+        companyName: null, // This field doesn't exist in schema
         userType: user.userType,
         subscriptionPlan: user.subscriptionPlan,
         subscriptionStatus: user.subscriptionStatus,
