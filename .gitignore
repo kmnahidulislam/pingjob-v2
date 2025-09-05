@@ -4,3 +4,25 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Mobile App Build Files
+*.apk
+*.ipa
+android/app/build/
+android/.gradle/
+android/*/build/
+ios/build/
+
+# Android SDK and Tools
+android-sdk/
+cmdtools.zip
+
+# Large Cache Files
+.cache/
+**/cache/
+**/*.cache
+
+# Temporary Files
+*.tmp
+*.temp
+.env.local
