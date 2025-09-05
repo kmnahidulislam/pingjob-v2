@@ -172,6 +172,11 @@ export const storage = {
       if (!user) {
         return null;
       }
+
+      // Fetch related profile data
+      const userExperiences = await db.select().from(experiences).where(eq(experiences.userId, userId)).orderBy(desc(experiences.startDate));
+      const userEducation = await db.select().from(education).where(eq(education.userId, userId)).orderBy(desc(education.startDate));
+      const userSkills = await db.select().from(skills).where(eq(skills.userId, userId)).orderBy(skills.name);
       
       // Transform the database fields to match the expected format
       return {
@@ -196,6 +201,9 @@ export const storage = {
         facebookUrl: user.facebookUrl,
         twitterUrl: user.twitterUrl,
         instagramUrl: user.instagramUrl,
+        experiences: userExperiences,
+        education: userEducation,
+        skills: userSkills,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       };
