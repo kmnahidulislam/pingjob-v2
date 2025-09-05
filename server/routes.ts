@@ -1852,8 +1852,16 @@ export function registerRoutes(app: Express) {
   // Admin vendor management endpoints
   app.get('/api/admin/vendors/pending', isAuthenticated, async (req: any, res) => {
     try {
-      // Check if user is admin
-      if (req.user.userType !== 'admin') {
+      // Check if user is admin - handle both userType and user_type fields
+      const user = req.user || req.session?.user;
+      console.log('🔍 Admin check - User object:', { 
+        userType: user?.userType, 
+        user_type: user?.user_type,
+        email: user?.email 
+      });
+      
+      const isAdmin = user?.userType === 'admin' || user?.user_type === 'admin';
+      if (!isAdmin) {
         return res.status(403).json({ message: 'Access denied. Admin only.' });
       }
 
@@ -1867,8 +1875,10 @@ export function registerRoutes(app: Express) {
 
   app.patch('/api/admin/vendors/:vendorId/status', isAuthenticated, async (req: any, res) => {
     try {
-      // Check if user is admin
-      if (req.user.userType !== 'admin') {
+      // Check if user is admin - handle both userType and user_type fields
+      const user = req.user || req.session?.user;
+      const isAdmin = user?.userType === 'admin' || user?.user_type === 'admin';
+      if (!isAdmin) {
         return res.status(403).json({ message: 'Access denied. Admin only.' });
       }
 
