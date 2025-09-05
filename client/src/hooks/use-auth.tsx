@@ -156,7 +156,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Normal registration success
       const user = response as SelectUser;
+      if (import.meta.env.DEV) console.log('🔐 Registration success, setting user data:', user);
+      
+      // Update the query cache
       queryClient.setQueryData(["/api/user"], user);
+      
+      // Invalidate and refetch the user query to ensure state is synced
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       
       // Check for intended job redirect
       const intendedJobId = localStorage.getItem('intendedJobId');
@@ -165,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (import.meta.env.DEV) console.log('🔐 New user, navigating to intended job:', intendedJobId);
         setTimeout(() => {
           window.location.href = `/jobs/${intendedJobId}`;
-        }, 100);
+        }, 200);
         return;
       }
       
@@ -174,10 +180,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Your account has been created successfully.",
       });
       
-      // Default redirect to dashboard
+      // Default redirect to dashboard with longer delay to ensure session is established
       setTimeout(() => {
+        if (import.meta.env.DEV) console.log('🔐 Redirecting to dashboard after registration');
         window.location.href = '/dashboard';
-      }, 100);
+      }, 200);
     },
     onError: (error: Error) => {
       if (import.meta.env.DEV) console.log('🔐 Registration mutation error:', error);
