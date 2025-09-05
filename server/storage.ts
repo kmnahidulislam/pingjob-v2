@@ -1383,6 +1383,56 @@ export const storage = {
     }
   },
 
+  // Get pending vendors for admin approval
+  async getPendingVendors() {
+    try {
+      const result = await db
+        .select({
+          id: vendors.id,
+          companyId: vendors.companyId,
+          name: vendors.name,
+          email: vendors.email,
+          phone: vendors.phone,
+          services: vendors.services,
+          status: vendors.status,
+          createdAt: vendors.createdAt,
+          companyName: companies.name
+        })
+        .from(vendors)
+        .innerJoin(companies, eq(vendors.companyId, companies.id))
+        .where(eq(vendors.status, 'pending'))
+        .orderBy(vendors.createdAt);
+
+      console.log(`✅ Found ${result.length} pending vendors`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching pending vendors:', error);
+      return [];
+    }
+  },
+
+  // Update vendor status (approve/reject)
+  async updateVendorStatus(vendorId: number, status: string, approvedBy?: number) {
+    try {
+      const updateData: any = { status };
+      if (approvedBy) {
+        updateData.approvedBy = approvedBy;
+      }
+
+      const [updatedVendor] = await db
+        .update(vendors)
+        .set(updateData)
+        .where(eq(vendors.id, vendorId))
+        .returning();
+
+      console.log(`✅ Updated vendor ${vendorId} status to ${status}`);
+      return updatedVendor;
+    } catch (error) {
+      console.error('Error updating vendor status:', error);
+      throw error;
+    }
+  },
+
   // Get company by ID
   async getCompanyById(companyId: number) {
     try {

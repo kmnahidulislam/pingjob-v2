@@ -1849,6 +1849,48 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Admin vendor management endpoints
+  app.get('/api/admin/vendors/pending', isAuthenticated, async (req: any, res) => {
+    try {
+      // Check if user is admin
+      if (req.user.userType !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin only.' });
+      }
+
+      const pendingVendors = await storage.getPendingVendors();
+      res.json(pendingVendors);
+    } catch (error) {
+      console.error('Error fetching pending vendors:', error);
+      res.status(500).json({ message: 'Failed to fetch pending vendors' });
+    }
+  });
+
+  app.patch('/api/admin/vendors/:vendorId/status', isAuthenticated, async (req: any, res) => {
+    try {
+      // Check if user is admin
+      if (req.user.userType !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin only.' });
+      }
+
+      const vendorId = parseInt(req.params.vendorId);
+      const { status } = req.body;
+
+      if (isNaN(vendorId)) {
+        return res.status(400).json({ message: 'Invalid vendor ID' });
+      }
+
+      if (!status || !['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status. Must be approved or rejected.' });
+      }
+
+      const updatedVendor = await storage.updateVendorStatus(vendorId, status, req.user.id);
+      res.json(updatedVendor);
+    } catch (error) {
+      console.error('Error updating vendor status:', error);
+      res.status(500).json({ message: 'Failed to update vendor status' });
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
   return app;
 }
