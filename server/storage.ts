@@ -615,7 +615,8 @@ export const storage = {
           job_count,
           app_count
         FROM latest_jobs 
-        WHERE rn = 1
+        WHERE rn = 1 
+          AND recruiter_id IN ('admin', 'admin-krupa')
         ORDER BY job_count DESC
       `);
       
@@ -662,7 +663,7 @@ export const storage = {
 
   async getAdminJobs(limit?: number, offset?: number) {
     try {
-      // First get the jobs with company and category data
+      // First get the jobs with company and category data - ONLY admin-posted jobs
       let query = db
         .select({
           id: jobs.id,
@@ -696,6 +697,7 @@ export const storage = {
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
         .leftJoin(categories, eq(jobs.categoryId, categories.id))
+        .where(sql`${jobs.recruiterId} IN ('admin', 'admin-krupa')`)
         .orderBy(desc(jobs.updatedAt), desc(jobs.createdAt));
 
       // Apply pagination if provided
