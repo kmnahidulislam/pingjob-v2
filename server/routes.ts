@@ -637,6 +637,13 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ message: 'Profile not found' });
       }
       
+      // Prevent caching to ensure fresh data
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
       res.json(profile);
     } catch (error) {
       console.error('Error fetching user profile:', error);
