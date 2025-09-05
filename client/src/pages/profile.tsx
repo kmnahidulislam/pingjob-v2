@@ -95,7 +95,7 @@ export default function Profile() {
     onSuccess: () => {
       toast({ title: "Experience added successfully" });
       queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/experience/${profileId}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowExperienceForm(false);
       setNewExperience({ title: '', company: '', location: '', startDate: '', endDate: '', isCurrent: false, description: '' });
     },
@@ -122,7 +122,7 @@ export default function Profile() {
     onSuccess: () => {
       toast({ title: "Education added successfully" });
       queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/education/${profileId}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowEducationForm(false);
       setNewEducation({ institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', grade: '', description: '' });
     },
@@ -149,7 +149,7 @@ export default function Profile() {
     onSuccess: () => {
       toast({ title: "Skill added successfully" });
       queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/skills/${profileId}`] });
+      queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowSkillForm(false);
       setNewSkill({ name: '' });
     },
@@ -274,7 +274,7 @@ export default function Profile() {
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                   {isOwnProfile ? (
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => setShowCreateModal(true)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Profile
                     </Button>
