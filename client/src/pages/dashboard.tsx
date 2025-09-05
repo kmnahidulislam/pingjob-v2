@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ import {
   Star,
   ChevronsUpDown
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "wouter";
 import JobCard from "@/components/job-card";
 
@@ -448,6 +449,8 @@ function AdminDashboard() {
   const [vendorDialogOpen, setVendorDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [companyEditOpen, setCompanyEditOpen] = useState(false);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
 
   // Sync application counts mutation
   const syncMutation = useMutation({
@@ -493,6 +496,40 @@ function AdminDashboard() {
   const { data: stats = {} } = useQuery({
     queryKey: ['/api/admin/stats'],
   });
+
+  // Fetch countries, states, and cities for location dropdowns
+  const { data: countries } = useQuery({
+    queryKey: ['/api/countries'],
+  });
+
+  const { data: states } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    enabled: !!selectedCountryId,
+  });
+
+  const { data: cities } = useQuery({
+    queryKey: ['/api/cities', selectedStateId], 
+    enabled: !!selectedStateId,
+  });
+
+  // Handle country/state selection for existing companies
+  React.useEffect(() => {
+    if (editingCompany && countries && countries.length > 0 && editingCompany.country) {
+      const countryObj = countries.find((c: any) => c.name === editingCompany.country);
+      if (countryObj) {
+        setSelectedCountryId(countryObj.id);
+      }
+    }
+  }, [editingCompany, countries]);
+
+  React.useEffect(() => {
+    if (editingCompany && states && states.length > 0 && editingCompany.state) {
+      const stateObj = states.find((s: any) => s.name === editingCompany.state);
+      if (stateObj) {
+        setSelectedStateId(stateObj.id);
+      }
+    }
+  }, [editingCompany, states]);
 
   // Approve/Reject company mutation
   const companyStatusMutation = useMutation({
@@ -1023,31 +1060,84 @@ function AdminDashboard() {
               
               <div className="grid grid-cols-3 gap-4">
                 <div>
+                  <label className="text-sm font-medium">Country *</label>
+                  <Select 
+                    value={editingCompany.country || ''} 
+                    onValueChange={(value) => {
+                      const countryObj = countries?.find((c: any) => c.name === value);
+                      if (countryObj) {
+                        setSelectedCountryId(countryObj.id);
+                        setSelectedStateId(null);
+                        setEditingCompany({
+                          ...editingCompany, 
+                          country: value,
+                          state: '',
+                          city: ''
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries?.map((country: any) => (
+                        <SelectItem key={country.id} value={country.name}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">State *</label>
+                  <Select 
+                    value={editingCompany.state || ''} 
+                    onValueChange={(value) => {
+                      const stateObj = states?.find((s: any) => s.name === value);
+                      if (stateObj) {
+                        setSelectedStateId(stateObj.id);
+                        setEditingCompany({
+                          ...editingCompany, 
+                          state: value,
+                          city: ''
+                        });
+                      }
+                    }}
+                    disabled={!selectedCountryId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={selectedCountryId ? "Select state" : "Select country first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {states?.map((state: any) => (
+                        <SelectItem key={state.id} value={state.name}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <label className="text-sm font-medium">City</label>
-                  <input
-                    type="text"
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.city || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, city: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">State</label>
-                  <input
-                    type="text"
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.state || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, state: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Country</label>
-                  <input
-                    type="text"
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    defaultValue={editingCompany.country || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, country: e.target.value})}
-                  />
+                  <Select 
+                    value={editingCompany.city || ''} 
+                    onValueChange={(value) => {
+                      setEditingCompany({...editingCompany, city: value});
+                    }}
+                    disabled={!selectedStateId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities?.map((city: any) => (
+                        <SelectItem key={city.id} value={city.name}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
