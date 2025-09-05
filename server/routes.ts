@@ -1260,6 +1260,35 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company status update endpoint for admin approvals
+  app.patch('/api/companies/:id/status', async (req, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      const { status, approvedBy } = req.body;
+
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: 'Invalid company ID' });
+      }
+
+      if (!status || !['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status. Must be approved or rejected.' });
+      }
+
+      // Update company status
+      const updateData: any = { status };
+      if (approvedBy) {
+        updateData.approvedBy = approvedBy;
+      }
+
+      const updatedCompany = await storage.updateCompany(companyId, updateData);
+      console.log(`✅ Updated company ${companyId} status to ${status}`);
+      res.json(updatedCompany);
+    } catch (error) {
+      console.error('Error updating company status:', error);
+      res.status(500).json({ message: 'Failed to update company status' });
+    }
+  });
+
   // Company update endpoint
   app.patch('/api/companies/:id', isAuthenticated, async (req: any, res) => {
     try {
