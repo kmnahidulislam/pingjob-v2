@@ -21,6 +21,7 @@ import {
   FileText,
   Download
 } from "lucide-react";
+import ResumeScoreCard from "@/components/resume-score-card";
 
 // Job Applications Component for Recruiters
 function JobApplicationsSection() {
@@ -162,6 +163,11 @@ function JobApplicationsSection() {
                       </p>
                     </div>
                   )}
+
+                  {/* Resume Score Analysis Section */}
+                  <div className="mt-4">
+                    <ResumeScoreCard application={app} />
+                  </div>
 
                   {/* Individual Resume Section for Each Application */}
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
