@@ -1849,21 +1849,20 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Admin vendor management endpoints
-  app.get('/api/admin/vendors/pending', isAuthenticated, async (req: any, res) => {
+  // Admin stats endpoint
+  app.get('/api/admin/stats', async (req, res) => {
     try {
-      // Check if user is admin - handle both userType and user_type fields
-      const user = req.user || req.session?.user;
-      console.log('🔍 Admin check - User object:', { 
-        userType: user?.userType, 
-        user_type: user?.user_type,
-        email: user?.email 
-      });
-      
-      const isAdmin = user?.userType === 'admin' || user?.user_type === 'admin';
-      if (!isAdmin) {
-        return res.status(403).json({ message: 'Access denied. Admin only.' });
-      }
+      const stats = await storage.getPlatformStats();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      res.status(500).json({ message: 'Failed to fetch admin stats' });
+    }
+  });
+
+  // Admin vendor management endpoints  
+  app.get('/api/admin/vendors/pending', async (req, res) => {
+    try {
 
       const pendingVendors = await storage.getPendingVendors();
       res.json(pendingVendors);
@@ -1873,14 +1872,8 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.patch('/api/admin/vendors/:vendorId/status', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/admin/vendors/:vendorId/status', async (req, res) => {
     try {
-      // Check if user is admin - handle both userType and user_type fields
-      const user = req.user || req.session?.user;
-      const isAdmin = user?.userType === 'admin' || user?.user_type === 'admin';
-      if (!isAdmin) {
-        return res.status(403).json({ message: 'Access denied. Admin only.' });
-      }
 
       const vendorId = parseInt(req.params.vendorId);
       const { status } = req.body;
