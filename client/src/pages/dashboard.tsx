@@ -498,23 +498,23 @@ function AdminDashboard() {
   });
 
   // Fetch countries, states, and cities for location dropdowns
-  const { data: countries } = useQuery({
+  const { data: countries = [] } = useQuery({
     queryKey: ['/api/countries'],
   });
 
-  const { data: states } = useQuery({
+  const { data: states = [] } = useQuery({
     queryKey: ['/api/states', selectedCountryId],
     enabled: !!selectedCountryId,
   });
 
-  const { data: cities } = useQuery({
+  const { data: cities = [] } = useQuery({
     queryKey: ['/api/cities', selectedStateId], 
     enabled: !!selectedStateId,
   });
 
   // Handle country/state selection for existing companies
   React.useEffect(() => {
-    if (editingCompany && countries && countries.length > 0 && editingCompany.country) {
+    if (editingCompany && Array.isArray(countries) && countries.length > 0 && editingCompany.country) {
       const countryObj = countries.find((c: any) => c.name === editingCompany.country);
       if (countryObj) {
         setSelectedCountryId(countryObj.id);
@@ -523,7 +523,7 @@ function AdminDashboard() {
   }, [editingCompany, countries]);
 
   React.useEffect(() => {
-    if (editingCompany && states && states.length > 0 && editingCompany.state) {
+    if (editingCompany && Array.isArray(states) && states.length > 0 && editingCompany.state) {
       const stateObj = states.find((s: any) => s.name === editingCompany.state);
       if (stateObj) {
         setSelectedStateId(stateObj.id);
@@ -1072,7 +1072,7 @@ function AdminDashboard() {
                   <Select 
                     value={editingCompany.country || ''} 
                     onValueChange={(value) => {
-                      const countryObj = countries?.find((c: any) => c.name === value);
+                      const countryObj = Array.isArray(countries) ? countries.find((c: any) => c.name === value) : null;
                       if (countryObj) {
                         setSelectedCountryId(countryObj.id);
                         setSelectedStateId(null);
@@ -1089,11 +1089,11 @@ function AdminDashboard() {
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      {countries?.map((country: any) => (
+                      {Array.isArray(countries) ? countries.map((country: any) => (
                         <SelectItem key={country.id} value={country.name}>
                           {country.name}
                         </SelectItem>
-                      ))}
+                      )) : null}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1102,7 +1102,7 @@ function AdminDashboard() {
                   <Select 
                     value={editingCompany.state || ''} 
                     onValueChange={(value) => {
-                      const stateObj = states?.find((s: any) => s.name === value);
+                      const stateObj = Array.isArray(states) ? states.find((s: any) => s.name === value) : null;
                       if (stateObj) {
                         setSelectedStateId(stateObj.id);
                         setEditingCompany({
@@ -1118,11 +1118,11 @@ function AdminDashboard() {
                       <SelectValue placeholder={selectedCountryId ? "Select state" : "Select country first"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {states?.map((state: any) => (
+                      {Array.isArray(states) ? states.map((state: any) => (
                         <SelectItem key={state.id} value={state.name}>
                           {state.name}
                         </SelectItem>
-                      ))}
+                      )) : null}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1139,7 +1139,7 @@ function AdminDashboard() {
                       <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {cities && cities.length > 0 ? (
+                      {Array.isArray(cities) && cities.length > 0 ? (
                         cities.map((city: any) => (
                           <SelectItem key={city.id} value={city.name}>
                             {city.name}
@@ -1155,7 +1155,7 @@ function AdminDashboard() {
                   {/* Debug info */}
                   {import.meta.env.DEV && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Debug: selectedStateId={selectedStateId}, cities={cities?.length || 0}
+                      Debug: selectedStateId={selectedStateId}, cities={Array.isArray(cities) ? cities.length : 0}
                     </div>
                   )}
                 </div>
