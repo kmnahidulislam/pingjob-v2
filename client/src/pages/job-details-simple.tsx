@@ -253,7 +253,7 @@ export default function JobDetailsSimple() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Users className="h-5 w-5 mr-2" />
-                Recommended Staffing Partners
+                Approved Vendors
               </CardTitle>
               {isLimited && (
                 <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">

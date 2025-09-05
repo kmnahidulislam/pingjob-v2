@@ -1279,7 +1279,8 @@ export const storage = {
       // First try the job_vendors table for proper vendor associations
       const jobVendorResult = await db.execute(sql`
         SELECT v.id, v.name, v.phone, v.services, v.status, v.company_id,
-               c.city, c.state, c.zip_code, c.location as address, c.website
+               v.vendor_city as city, v.vendor_state as state, v.vendor_zip_code as zip_code, 
+               v.vendor_address as address, c.website
         FROM vendors v
         JOIN job_vendors jv ON v.id = jv.vendor_id
         JOIN companies c ON v.company_id = c.id
@@ -1314,10 +1315,10 @@ export const storage = {
           status: vendors.status,
           companyId: vendors.companyId,
           createdAt: vendors.createdAt,
-          city: companies.city,
-          state: companies.state,
-          zipCode: companies.zipCode,
-          address: companies.location,
+          city: vendors.vendorCity,
+          state: vendors.vendorState,
+          zipCode: vendors.vendorZipCode,
+          address: vendors.vendorAddress,
           website: companies.website
         })
         .from(vendors)
