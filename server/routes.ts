@@ -118,12 +118,12 @@ export function registerRoutes(app: Express) {
       const hashedPassword = await hashPassword(password);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Insert new user
+      // Insert new user with free status for job seekers
       const insertResult = await pool.query(`
-        INSERT INTO users (id, email, password, first_name, last_name, user_type)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, email, first_name, last_name, user_type
-      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), 'job_seeker']);
+        INSERT INTO users (id, email, password, first_name, last_name, user_type, subscription_status, subscription_plan)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, email, first_name, last_name, user_type, subscription_status, subscription_plan
+      `, [userId, email.toLowerCase().trim(), hashedPassword, firstName.trim(), lastName.trim(), 'job_seeker', 'free', 'free']);
       
       const user = insertResult.rows[0];
       const userData = {

@@ -118,14 +118,21 @@ export default function Auth() {
       return await res.json();
     },
     onSuccess: (user) => {
+      console.log('🔐 Registration success callback, user:', user);
+      
+      // Update the query cache immediately (this was missing!)
+      queryClient.setQueryData(["/api/user"], user);
+      
       toast({
         title: "Account created!",
-        description: "Welcome to PingJob! Your free trial has started.",
+        description: "Welcome to PingJob! Your free account is ready to use.",
       });
+      
       // Redirect to payment if it's a paid plan
       if (plan === "recruiter") {
         setLocation("/checkout?plan=recruiter");
       } else {
+        console.log('🔐 Registration success, redirecting to dashboard');
         setLocation("/dashboard");
       }
     },
