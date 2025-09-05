@@ -36,8 +36,10 @@ export default function Navigation() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'recruiter' || user?.userType === 'client';
+  // Simplified admin check - only real admins get admin-level access  
   const isRealAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
+  // Paid users get traffic analytics but not admin dashboard
+  const hasPaidAccess = user?.userType === 'recruiter' || user?.userType === 'client';
 
   const navigationItems = [
     { name: "Home", href: "/", icon: Home },
@@ -46,10 +48,12 @@ export default function Navigation() {
     { name: "Applications", href: "/applications", icon: FileText },
     { name: "Messaging", href: "/messaging", icon: MessageCircle },
     { name: "Companies", href: "/companies", icon: Building },
-    ...(isAdmin ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
-    ...(user?.userType === 'recruiter' ? [{ name: "Recruiter Dashboard", href: "/recruiter-dashboard", icon: BarChart3 }] : []),
-    ...(user?.userType === 'client' ? [{ name: "Enterprise Dashboard", href: "/enterprise-dashboard", icon: BarChart3 }] : []),
-    ...(isAdmin && user?.userType !== 'recruiter' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
+    // Traffic page for all paid users and admins
+    ...((isRealAdmin || hasPaidAccess) ? [{ name: "Traffic", href: "/traffic", icon: TrendingUp }] : []),
+    // Role-specific dashboards
+    ...(user?.userType === 'recruiter' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
+    ...(user?.userType === 'client' ? [{ name: "Dashboard", href: "/dashboard", icon: BarChart3 }] : []),
+    ...(isRealAdmin ? [{ name: "Admin", href: "/dashboard", icon: BarChart3 }] : []),
   ];
   
 

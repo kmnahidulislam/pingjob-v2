@@ -1208,21 +1208,24 @@ function AdminDashboard() {
   );
 }
 
-// Main Dashboard Component - Routes based on user subscription level
+// Import RecruiterDashboard and EnterpriseDashboard
+import RecruiterDashboard from './recruiter-dashboard';
+import EnterpriseDashboard from './enterprise-dashboard';
+
+// Main Dashboard Component - Routes based on user type
 export default function Dashboard() {
   const { user } = useAuth();
 
   // Check if user is admin (specific admin emails get full admin access)
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
-  
-  // Check if user has paid subscription (clients and recruiters get admin features)
-  const hasPaidSubscription = user?.userType === 'client' || user?.userType === 'recruiter';
 
-  // Route to appropriate dashboard based on subscription level
-  // Only specific admins and paid subscribers get AdminDashboard
-  // All other users (including general job_seekers) get simplified JobSeekerDashboard
-  if (isAdmin || hasPaidSubscription) {
+  // Route to appropriate dashboard based on user type
+  if (isAdmin) {
     return <AdminDashboard />;
+  } else if (user?.userType === 'recruiter') {
+    return <RecruiterDashboard />;
+  } else if (user?.userType === 'client') {
+    return <EnterpriseDashboard />;
   } else {
     return <JobSeekerDashboard />;
   }
