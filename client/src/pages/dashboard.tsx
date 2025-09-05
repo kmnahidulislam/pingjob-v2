@@ -531,6 +531,14 @@ function AdminDashboard() {
     }
   }, [editingCompany, states]);
 
+  // Reset state and city IDs when editing company changes
+  React.useEffect(() => {
+    if (editingCompany) {
+      setSelectedCountryId(null);
+      setSelectedStateId(null);
+    }
+  }, [editingCompany?.id]);
+
   // Approve/Reject company mutation
   const companyStatusMutation = useMutation({
     mutationFn: async ({ companyId, status }: { companyId: number; status: string }) => {
@@ -1131,13 +1139,25 @@ function AdminDashboard() {
                       <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {cities?.map((city: any) => (
-                        <SelectItem key={city.id} value={city.name}>
-                          {city.name}
+                      {cities && cities.length > 0 ? (
+                        cities.map((city: any) => (
+                          <SelectItem key={city.id} value={city.name}>
+                            {city.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          {selectedStateId ? "No cities available" : "Select state first"}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
+                  {/* Debug info */}
+                  {import.meta.env.DEV && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Debug: selectedStateId={selectedStateId}, cities={cities?.length || 0}
+                    </div>
+                  )}
                 </div>
               </div>
               
