@@ -223,16 +223,7 @@ export default function Jobs() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Logo Header */}
-      <div className="absolute top-4 left-4 z-10">
-        <Link href="/">
-          <img 
-            src={logoPath} 
-            alt="PingJob Logo" 
-            className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-          />
-        </Link>
-      </div>
+      {/* Removed duplicate logo header - main navigation handles this */}
       
       {/* Top Banner Advertisement */}
       <div className="bg-white border-b">
