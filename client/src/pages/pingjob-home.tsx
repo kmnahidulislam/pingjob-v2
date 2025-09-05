@@ -548,28 +548,28 @@ export default function PingJobHome() {
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-4 w-4 text-green-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">100% Client-Only Jobs</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">100% Client-Only Jobs</h3>
               <p className="text-sm text-gray-600">Direct opportunities from hiring companies</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Rocket className="h-4 w-4 text-blue-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">10X Recruiter Engagement</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">10X Recruiter Engagement</h3>
               <p className="text-sm text-gray-600">Higher response rates than traditional job boards</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Target className="h-4 w-4 text-purple-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">One Clear Goal</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">One Clear Goal</h3>
               <p className="text-sm text-gray-600">Presenting Qualified Talent Directly.</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Bot className="h-4 w-4 text-indigo-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">AI-Powered Matching</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">AI-Powered Matching</h3>
               <p className="text-sm text-gray-600">Smart algorithms match you with relevant jobs</p>
             </div>
           </div>
@@ -579,14 +579,14 @@ export default function PingJobHome() {
               <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="h-4 w-4 text-orange-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Real-Time Analytics</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Real-Time Analytics</h3>
               <p className="text-sm text-gray-600">Track your application progress and market trends</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Star className="h-4 w-4 text-red-600" />
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Resume Score™</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Resume Score™</h3>
               <p className="text-sm text-gray-600">Get instant feedback on your resume quality</p>
             </div>
           </div>
