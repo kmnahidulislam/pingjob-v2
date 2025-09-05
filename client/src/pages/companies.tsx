@@ -113,7 +113,7 @@ function VendorManagement({ companyId }: { companyId: number }) {
       phone: formData.get('phone'),
       services: formData.get('services'),
       description: formData.get('description'),
-      status: 'active',
+      // Remove status field to let backend default to 'pending'
     });
   };
 
