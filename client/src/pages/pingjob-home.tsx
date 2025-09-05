@@ -563,7 +563,7 @@ export default function PingJobHome() {
                 <Target className="h-4 w-4 text-purple-600" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">One Clear Goal</h3>
-              <p className="text-sm text-gray-600">Focused on connecting talent with opportunity</p>
+              <p className="text-sm text-gray-600">Presenting Qualified Talent Directly.</p>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
               <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
