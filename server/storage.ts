@@ -1383,6 +1383,23 @@ export const storage = {
     }
   },
 
+  // Get pending companies for admin approval
+  async getPendingCompanies() {
+    try {
+      const result = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.status, 'pending'))
+        .orderBy(companies.createdAt);
+
+      console.log(`✅ Found ${result.length} pending companies`);
+      return result;
+    } catch (error) {
+      console.error('Error fetching pending companies:', error);
+      return [];
+    }
+  },
+
   // Get pending vendors for admin approval
   async getPendingVendors() {
     try {

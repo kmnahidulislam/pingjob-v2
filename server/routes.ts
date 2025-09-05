@@ -611,7 +611,13 @@ export function registerRoutes(app: Express) {
   });
 
   app.get('/api/companies/pending', async (req, res) => {
-    res.json([]);
+    try {
+      const pendingCompanies = await storage.getPendingCompanies();
+      res.json(pendingCompanies);
+    } catch (error) {
+      console.error('Error fetching pending companies:', error);
+      res.status(500).json({ message: 'Failed to fetch pending companies' });
+    }
   });
 
   // Job seekers endpoint for profiles sidebar
