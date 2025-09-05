@@ -1905,5 +1905,61 @@ export const storage = {
       .where(eq(externalInvitations.inviteToken, token))
       .returning();
     return invitation;
+  },
+
+  // Profile sections - Experience, Education, Skills
+  async addExperience(userId: string, experienceData: any) {
+    try {
+      const [experience] = await db.insert(experiences).values({
+        userId,
+        title: experienceData.title,
+        company: experienceData.company,
+        location: experienceData.location,
+        startDate: new Date(experienceData.startDate),
+        endDate: experienceData.endDate ? new Date(experienceData.endDate) : null,
+        isCurrent: experienceData.isCurrent || false,
+        description: experienceData.description
+      }).returning();
+      
+      return experience;
+    } catch (error) {
+      console.error('Error adding experience:', error);
+      throw error;
+    }
+  },
+
+  async addEducation(userId: string, educationData: any) {
+    try {
+      const [edu] = await db.insert(education).values({
+        userId,
+        institution: educationData.institution,
+        degree: educationData.degree,
+        fieldOfStudy: educationData.fieldOfStudy,
+        startDate: new Date(educationData.startDate),
+        endDate: educationData.endDate ? new Date(educationData.endDate) : null,
+        grade: educationData.grade,
+        description: educationData.description
+      }).returning();
+      
+      return edu;
+    } catch (error) {
+      console.error('Error adding education:', error);
+      throw error;
+    }
+  },
+
+  async addSkill(userId: string, skillData: any) {
+    try {
+      const [skill] = await db.insert(skills).values({
+        userId,
+        name: skillData.name,
+        endorsements: skillData.endorsements || 0
+      }).returning();
+      
+      return skill;
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      throw error;
+    }
   }
 };

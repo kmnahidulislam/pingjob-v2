@@ -33,6 +33,12 @@ export default function Profile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showExperienceForm, setShowExperienceForm] = useState(false);
+  const [showEducationForm, setShowEducationForm] = useState(false);
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [newExperience, setNewExperience] = useState({ title: '', company: '', location: '', startDate: '', endDate: '', isCurrent: false, description: '' });
+  const [newEducation, setNewEducation] = useState({ institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', grade: '', description: '' });
+  const [newSkill, setNewSkill] = useState({ name: '' });
 
   const profileId = id || user?.id;
   const isOwnProfile = !id || id === user?.id;
@@ -69,6 +75,88 @@ export default function Profile() {
       toast({
         title: "Error",
         description: error.message || "Failed to send connection request",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Mutations for adding profile sections
+  const addExperienceMutation = useMutation({
+    mutationFn: async (experienceData: any) => {
+      const res = await fetch('/api/experience', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(experienceData),
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to add experience');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Experience added successfully" });
+      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/experience/${profileId}`] });
+      setShowExperienceForm(false);
+      setNewExperience({ title: '', company: '', location: '', startDate: '', endDate: '', isCurrent: false, description: '' });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add experience",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const addEducationMutation = useMutation({
+    mutationFn: async (educationData: any) => {
+      const res = await fetch('/api/education', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(educationData),
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to add education');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Education added successfully" });
+      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/education/${profileId}`] });
+      setShowEducationForm(false);
+      setNewEducation({ institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', grade: '', description: '' });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add education",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const addSkillMutation = useMutation({
+    mutationFn: async (skillData: any) => {
+      const res = await fetch('/api/skills', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(skillData),
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to add skill');
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Skill added successfully" });
+      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/skills/${profileId}`] });
+      setShowSkillForm(false);
+      setNewSkill({ name: '' });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add skill",
         variant: "destructive"
       });
     }
@@ -238,12 +326,99 @@ export default function Profile() {
                 Experience
               </CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => setShowExperienceForm(!showExperienceForm)}>
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
             </CardHeader>
             <CardContent className="space-y-6">
+              {showExperienceForm && isOwnProfile && (
+                <div className="mb-4 p-4 border rounded">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-sm font-medium">Job Title *</label>
+                      <input
+                        type="text"
+                        value={newExperience.title}
+                        onChange={(e) => setNewExperience({ ...newExperience, title: e.target.value })}
+                        placeholder="e.g. Software Engineer"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Company *</label>
+                      <input
+                        type="text"
+                        value={newExperience.company}
+                        onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
+                        placeholder="e.g. Google"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Location</label>
+                      <input
+                        type="text"
+                        value={newExperience.location}
+                        onChange={(e) => setNewExperience({ ...newExperience, location: e.target.value })}
+                        placeholder="e.g. San Francisco, CA"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Start Date *</label>
+                      <input
+                        type="date"
+                        value={newExperience.startDate}
+                        onChange={(e) => setNewExperience({ ...newExperience, startDate: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">End Date</label>
+                      <input
+                        type="date"
+                        value={newExperience.endDate}
+                        onChange={(e) => setNewExperience({ ...newExperience, endDate: e.target.value })}
+                        disabled={newExperience.isCurrent}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                      />
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isCurrent"
+                        checked={newExperience.isCurrent}
+                        onChange={(e) => setNewExperience({ ...newExperience, isCurrent: e.target.checked, endDate: e.target.checked ? '' : newExperience.endDate })}
+                        className="mr-2"
+                      />
+                      <label htmlFor="isCurrent" className="text-sm font-medium">I currently work here</label>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-sm font-medium">Description</label>
+                      <textarea
+                        value={newExperience.description}
+                        onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
+                        placeholder="Describe your role and achievements..."
+                        rows={3}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col-span-2 flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => addExperienceMutation.mutate(newExperience)}
+                        disabled={!newExperience.title.trim() || !newExperience.company.trim() || !newExperience.startDate || addExperienceMutation.isPending}
+                      >
+                        {addExperienceMutation.isPending ? 'Adding...' : 'Add Experience'}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setShowExperienceForm(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {profile.experiences && profile.experiences.length > 0 ? (
                 profile.experiences.map((exp: any) => (
                   <div key={exp.id} className="border-l-2 border-linkedin-blue pl-4">
@@ -274,12 +449,98 @@ export default function Profile() {
                 Education
               </CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => setShowEducationForm(!showEducationForm)}>
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
             </CardHeader>
             <CardContent className="space-y-6">
+              {showEducationForm && isOwnProfile && (
+                <div className="mb-4 p-4 border rounded">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-sm font-medium">Institution *</label>
+                      <input
+                        type="text"
+                        value={newEducation.institution}
+                        onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
+                        placeholder="e.g. Harvard University"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Degree *</label>
+                      <input
+                        type="text"
+                        value={newEducation.degree}
+                        onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
+                        placeholder="e.g. Bachelor of Science"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Field of Study</label>
+                      <input
+                        type="text"
+                        value={newEducation.fieldOfStudy}
+                        onChange={(e) => setNewEducation({ ...newEducation, fieldOfStudy: e.target.value })}
+                        placeholder="e.g. Computer Science"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Grade/GPA</label>
+                      <input
+                        type="text"
+                        value={newEducation.grade}
+                        onChange={(e) => setNewEducation({ ...newEducation, grade: e.target.value })}
+                        placeholder="e.g. 3.8/4.0"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Start Date *</label>
+                      <input
+                        type="date"
+                        value={newEducation.startDate}
+                        onChange={(e) => setNewEducation({ ...newEducation, startDate: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">End Date</label>
+                      <input
+                        type="date"
+                        value={newEducation.endDate}
+                        onChange={(e) => setNewEducation({ ...newEducation, endDate: e.target.value })}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-sm font-medium">Description</label>
+                      <textarea
+                        value={newEducation.description}
+                        onChange={(e) => setNewEducation({ ...newEducation, description: e.target.value })}
+                        placeholder="Additional details about your education..."
+                        rows={2}
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col-span-2 flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => addEducationMutation.mutate(newEducation)}
+                        disabled={!newEducation.institution.trim() || !newEducation.degree.trim() || !newEducation.startDate || addEducationMutation.isPending}
+                      >
+                        {addEducationMutation.isPending ? 'Adding...' : 'Add Education'}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setShowEducationForm(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {profile.education && profile.education.length > 0 ? (
                 profile.education.map((edu: any) => (
                   <div key={edu.id} className="border-l-2 border-success-green pl-4">
@@ -309,12 +570,40 @@ export default function Profile() {
                 Skills
               </CardTitle>
               {isOwnProfile && (
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => setShowSkillForm(!showSkillForm)}>
                   <Plus className="h-4 w-4" />
                 </Button>
               )}
             </CardHeader>
             <CardContent>
+              {showSkillForm && isOwnProfile && (
+                <div className="mb-4 p-4 border rounded">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium">Skill Name</label>
+                      <input
+                        type="text"
+                        value={newSkill.name}
+                        onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
+                        placeholder="e.g. React, JavaScript, Project Management"
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => addSkillMutation.mutate(newSkill)}
+                        disabled={!newSkill.name.trim() || addSkillMutation.isPending}
+                      >
+                        {addSkillMutation.isPending ? 'Adding...' : 'Add Skill'}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setShowSkillForm(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {profile.skills && profile.skills.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {profile.skills.map((skill: any) => (

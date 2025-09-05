@@ -644,6 +644,46 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Profile sections endpoints
+  app.post('/api/experience', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const experienceData = req.body;
+      
+      const experience = await storage.addExperience(userId, experienceData);
+      res.status(201).json(experience);
+    } catch (error) {
+      console.error('Error adding experience:', error);
+      res.status(500).json({ message: 'Failed to add experience' });
+    }
+  });
+
+  app.post('/api/education', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const educationData = req.body;
+      
+      const education = await storage.addEducation(userId, educationData);
+      res.status(201).json(education);
+    } catch (error) {
+      console.error('Error adding education:', error);
+      res.status(500).json({ message: 'Failed to add education' });
+    }
+  });
+
+  app.post('/api/skills', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const skillData = req.body;
+      
+      const skill = await storage.addSkill(userId, skillData);
+      res.status(201).json(skill);
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      res.status(500).json({ message: 'Failed to add skill' });
+    }
+  });
+
   // Job seekers endpoint for profiles sidebar
   app.get('/api/job-seekers', async (req, res) => {
     try {
