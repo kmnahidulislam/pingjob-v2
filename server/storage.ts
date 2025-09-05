@@ -1279,8 +1279,9 @@ export const storage = {
       // First try the job_vendors table for proper vendor associations
       const jobVendorResult = await db.execute(sql`
         SELECT v.id, v.name, v.phone, v.services, v.status, v.company_id,
-               v.vendor_city as city, v.vendor_state as state, v.vendor_zip_code as zip_code, 
-               v.vendor_address as address, c.website
+               v.vendor_city, v.vendor_state, v.vendor_zip_code, v.vendor_address,
+               c.city as company_city, c.state as company_state, c.zip_code as company_zip_code, 
+               c.location as company_address, c.website
         FROM vendors v
         JOIN job_vendors jv ON v.id = jv.vendor_id
         JOIN companies c ON v.company_id = c.id
@@ -1297,10 +1298,10 @@ export const storage = {
           services: row.services,
           status: row.status,
           companyId: row.company_id,
-          city: row.city,
-          state: row.state,
-          zipCode: row.zip_code,
-          address: row.address,
+          city: row.vendor_city || row.company_city,
+          state: row.vendor_state || row.company_state,
+          zipCode: row.vendor_zip_code || row.company_zip_code,
+          address: row.vendor_address || row.company_address,
           website: row.website
         }));
       }
@@ -1315,10 +1316,14 @@ export const storage = {
           status: vendors.status,
           companyId: vendors.companyId,
           createdAt: vendors.createdAt,
-          city: vendors.vendorCity,
-          state: vendors.vendorState,
-          zipCode: vendors.vendorZipCode,
-          address: vendors.vendorAddress,
+          vendorCity: vendors.vendorCity,
+          vendorState: vendors.vendorState,
+          vendorZipCode: vendors.vendorZipCode,
+          vendorAddress: vendors.vendorAddress,
+          companyCity: companies.city,
+          companyState: companies.state,
+          companyZipCode: companies.zipCode,
+          companyAddress: companies.location,
           website: companies.website
         })
         .from(vendors)
@@ -1330,7 +1335,20 @@ export const storage = {
         ));
 
       console.log(`✅ Found ${result.length} vendors via fallback for job ${jobId}`);
-      return result;
+      return result.map((vendor: any) => ({
+        id: vendor.id,
+        name: vendor.name,
+        phone: vendor.phone,
+        services: vendor.services,
+        status: vendor.status,
+        companyId: vendor.companyId,
+        createdAt: vendor.createdAt,
+        city: vendor.vendorCity || vendor.companyCity,
+        state: vendor.vendorState || vendor.companyState,
+        zipCode: vendor.vendorZipCode || vendor.companyZipCode,
+        address: vendor.vendorAddress || vendor.companyAddress,
+        website: vendor.website
+      }));
     } catch (error) {
       console.error('Error fetching job vendors:', error);
       return [];
