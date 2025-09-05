@@ -214,7 +214,7 @@ export default function Auth() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/">
           <div className="flex justify-center items-center space-x-2 cursor-pointer">
-            <img src={logo} alt="PingJob" className="h-8 w-8" />
+            <img src={logo} alt="PingJob" className="h-8 w-auto" />
             <span className="text-2xl font-bold text-gray-900">PingJob</span>
           </div>
         </Link>
