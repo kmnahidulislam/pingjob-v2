@@ -138,7 +138,14 @@ export function registerRoutes(app: Express) {
       req.session.user = userData;
       req.user = userData;
       
-      res.status(201).json(userData);
+      // Save the session to ensure user stays logged in
+      req.session.save((saveErr: any) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+          return res.status(500).json({ message: "Registration completed but login failed" });
+        }
+        res.status(201).json(userData);
+      });
     } catch (error) {
       console.error("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
