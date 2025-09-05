@@ -45,7 +45,9 @@ export default function Profile() {
 
   const { data: profile = {}, isLoading, error } = useQuery({
     queryKey: [`/api/profile/${profileId}`],
-    enabled: !!profileId
+    enabled: !!profileId,
+    staleTime: 0,  // Always consider data stale
+    cacheTime: 0   // Don't cache data
   });
 
   const { data: connections } = useQuery({
@@ -94,7 +96,7 @@ export default function Profile() {
     },
     onSuccess: () => {
       toast({ title: "Experience added successfully" });
-      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.removeQueries({ queryKey: [`/api/profile/${profileId}`] });
       queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowExperienceForm(false);
       setNewExperience({ title: '', company: '', location: '', startDate: '', endDate: '', isCurrent: false, description: '' });
@@ -121,7 +123,7 @@ export default function Profile() {
     },
     onSuccess: () => {
       toast({ title: "Education added successfully" });
-      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.removeQueries({ queryKey: [`/api/profile/${profileId}`] });
       queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowEducationForm(false);
       setNewEducation({ institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', grade: '', description: '' });
@@ -148,7 +150,7 @@ export default function Profile() {
     },
     onSuccess: () => {
       toast({ title: "Skill added successfully" });
-      queryClient.invalidateQueries({ queryKey: [`/api/profile/${profileId}`] });
+      queryClient.removeQueries({ queryKey: [`/api/profile/${profileId}`] });
       queryClient.refetchQueries({ queryKey: [`/api/profile/${profileId}`] });
       setShowSkillForm(false);
       setNewSkill({ name: '' });

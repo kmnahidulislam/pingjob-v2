@@ -72,10 +72,8 @@ export default function CreateProfileModal({
         description: "Your professional profile has been updated"
       });
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/profile'] });
-      // Also invalidate the specific profile query pattern used in Profile component
-      queryClient.invalidateQueries({ queryKey: [`/api/profile`], exact: false });
-      queryClient.refetchQueries({ queryKey: [`/api/profile`], exact: false });
+      queryClient.removeQueries({ queryKey: ['/api/profile'], exact: false });
+      queryClient.refetchQueries({ queryKey: ['/api/profile'], exact: false });
       onComplete();
       onClose();
     },
