@@ -162,6 +162,46 @@ export const storage = {
   },
 
   // User management
+  async getUserProfile(userId: string) {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      
+      if (!user) {
+        return null;
+      }
+      
+      // Transform the database fields to match the expected format
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        bio: user.bio || null,
+        location: user.location || null,
+        website: user.website || null,
+        phone: user.phone || null,
+        headline: user.headline,
+        summary: user.summary,
+        industry: user.industry,
+        profileImageUrl: user.profileImageUrl,
+        resumeUrl: user.resumeUrl,
+        companyName: user.companyName || null,
+        userType: user.userType,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionStatus: user.subscriptionStatus,
+        categoryId: user.categoryId,
+        facebookUrl: user.facebookUrl,
+        twitterUrl: user.twitterUrl,
+        instagramUrl: user.instagramUrl,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      };
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      throw error;
+    }
+  },
+
   async createUser(userData: any) {
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
