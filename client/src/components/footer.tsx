@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import logo from "@assets/logo_1749581218265.png";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -40,15 +40,6 @@ export default function Footer() {
                 aria-label="Follow us on Instagram"
               >
                 <Instagram className="h-5 w-5" />
-              </a>
-              <a
-                href="https://linkedin.com/company/pingjob"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Follow us on LinkedIn"
-              >
-                <Linkedin className="h-5 w-5" />
               </a>
               <a
                 href="https://twitter.com/pingjob"
