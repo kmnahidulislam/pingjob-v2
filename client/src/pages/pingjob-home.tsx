@@ -599,7 +599,7 @@ export default function PingJobHome() {
                   <Briefcase className="h-8 w-8 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-blue-600 mb-1">{jobStats.totalJobs}</div>
-                <div className="text-sm font-medium text-gray-600">Active Jobs</div>
+                <div className="text-xs font-medium text-gray-600">Active Jobs</div>
               </div>
             </Card>
             
@@ -609,7 +609,7 @@ export default function PingJobHome() {
                   <Building2 className="h-8 w-8 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-green-600 mb-1">{jobStats.activeCompanies}</div>
-                <div className="text-sm font-medium text-gray-600">Companies</div>
+                <div className="text-xs font-medium text-gray-600">Companies</div>
               </div>
             </Card>
             
@@ -619,7 +619,7 @@ export default function PingJobHome() {
                   <TrendingUp className="h-8 w-8 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-purple-600 mb-1">{jobStats.totalCategories}</div>
-                <div className="text-sm font-medium text-gray-600">Categories</div>
+                <div className="text-xs font-medium text-gray-600">Categories</div>
               </div>
             </Card>
             
@@ -629,7 +629,7 @@ export default function PingJobHome() {
                   <Clock className="h-8 w-8 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-orange-600 mb-1">{jobStats.todayJobs}</div>
-                <div className="text-sm font-medium text-gray-600">Posted Today</div>
+                <div className="text-xs font-medium text-gray-600">Posted Today</div>
               </div>
             </Card>
           </div>
@@ -1194,7 +1194,7 @@ export default function PingJobHome() {
                 <div className="text-center">
                   <Briefcase className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                   <div className="text-xl font-bold text-blue-600">{jobStats.totalJobs}</div>
-                  <div className="text-sm text-gray-600">Active Jobs</div>
+                  <div className="text-xs text-gray-600">Active Jobs</div>
                 </div>
               </div>
               
@@ -1202,7 +1202,7 @@ export default function PingJobHome() {
                 <div className="text-center">
                   <Building2 className="h-8 w-8 text-green-600 mx-auto mb-2" />
                   <div className="text-xl font-bold text-green-600">{jobStats.activeCompanies}</div>
-                  <div className="text-sm text-gray-600">Companies</div>
+                  <div className="text-xs text-gray-600">Companies</div>
                 </div>
               </div>
             </div>
