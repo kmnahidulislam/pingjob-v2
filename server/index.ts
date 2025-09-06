@@ -4,7 +4,7 @@ import fs from "fs";
 import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeCleanDatabase } from "./clean-neon";
+import { initializeCleanDatabase, cleanPool } from "./clean-neon";
 
 // Production environment setup - use environment variables as-is
 console.log("Production mode - using environment DATABASE_URL");
@@ -123,8 +123,34 @@ app.use((req, res, next) => {
 
   // Use environment PORT or default to 5000 for cloud deployments
   const port = parseInt(process.env.PORT || "5000", 10);
-  const server = app.listen(port, "0.0.0.0", () => {
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '0.0.0.0';
+  
+  console.log(`🚀 Starting server on ${host}:${port} (ENV: ${process.env.NODE_ENV || 'development'})`);
+  
+  const server = app.listen(port, host, () => {
+    console.log(`✅ Server successfully listening on ${host}:${port}`);
     log(`serving on port ${port}`);
+  });
+  
+  // Handle server startup errors
+  server.on('error', (error: any) => {
+    console.error('❌ Server startup error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`💥 Port ${port} is already in use`);
+    }
+    process.exit(1);
+  });
+  
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Server closed');
+      cleanPool.end(() => {
+        console.log('✅ Database pool closed');
+        process.exit(0);
+      });
+    });
   });
 
   // importantly only setup vite in development and after
@@ -136,6 +162,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
   } catch (error) {
-    console.error('Server startup error:', error);
+    console.error('💥 CRITICAL SERVER STARTUP ERROR:', error);
+    process.exit(1);
   }
 })();
