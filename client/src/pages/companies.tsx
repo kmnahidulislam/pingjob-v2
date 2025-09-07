@@ -330,7 +330,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany, onEditCompany 
         <div className="flex flex-col items-center text-center space-y-4">
           {/* Company Logo */}
           <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-            {company.logoUrl && company.logoUrl !== "NULL" ? (
+            {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
               <img 
                 src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                 alt={company.name}
@@ -482,7 +482,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50">
-              {company.logoUrl && company.logoUrl !== "NULL" ? (
+              {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
                 <img 
                   src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
                   alt={company.name}
@@ -1120,7 +1120,7 @@ export default function CompaniesPage() {
               <div>
                 <label className="text-sm font-medium">Company Logo</label>
                 <div className="mt-1 space-y-2">
-                  {editingCompany.logoUrl && editingCompany.logoUrl !== 'logos/NULL' && (
+                  {editingCompany.logoUrl && editingCompany.logoUrl !== 'logos/NULL' && editingCompany.logoUrl !== 'NULL' && (
                     <div className="flex items-center space-x-2">
                       <img 
                         src={`/${editingCompany.logoUrl.replace(/ /g, '%20')}`} 
