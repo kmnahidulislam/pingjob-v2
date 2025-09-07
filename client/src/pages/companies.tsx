@@ -534,10 +534,6 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
               <p className="text-gray-600">
                 {[companyDetails?.city, companyDetails?.state, companyDetails?.zipCode, companyDetails?.country].filter(Boolean).join(', ') || companyDetails?.location || company.location || 'Not specified'}
               </p>
-              {/* Debug info - remove this later */}
-              <p className="text-xs text-gray-400">
-                Debug: city={companyDetails?.city}, state={companyDetails?.state}, zip={companyDetails?.zipCode}, country={companyDetails?.country}
-              </p>
             </div>
             {(companyDetails?.website && companyDetails.website !== 'NULL') && (
               <div>
