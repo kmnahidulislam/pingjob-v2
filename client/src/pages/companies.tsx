@@ -707,6 +707,8 @@ export default function CompaniesPage() {
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [companyEditOpen, setCompanyEditOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCountryId, setSelectedCountryId] = useState<string>('');
+  const [selectedStateId, setSelectedStateId] = useState<string>('');
   
   // Check if user is admin
   const isAdmin = user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com';
@@ -736,6 +738,38 @@ export default function CompaniesPage() {
       if (!response.ok) throw new Error('Failed to fetch platform stats');
       return response.json();
     }
+  });
+
+  // Fetch countries for dropdown
+  const { data: countries = [] } = useQuery({
+    queryKey: ['/api/countries'],
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    }
+  });
+
+  // Fetch states for selected country
+  const { data: states = [] } = useQuery({
+    queryKey: ['/api/states', selectedCountryId],
+    queryFn: async () => {
+      const response = await fetch(`/api/states/${selectedCountryId}`);
+      if (!response.ok) throw new Error('Failed to fetch states');
+      return response.json();
+    },
+    enabled: !!selectedCountryId
+  });
+
+  // Fetch cities for selected state
+  const { data: cities = [] } = useQuery({
+    queryKey: ['/api/cities', selectedStateId],
+    queryFn: async () => {
+      const response = await fetch(`/api/cities/${selectedStateId}`);
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
+    enabled: !!selectedStateId
   });
 
   // Search companies when query is provided
@@ -787,13 +821,18 @@ export default function CompaniesPage() {
         // Create a clean copy without undefined values, but keep empty strings
         const cleanData = Object.fromEntries(
           Object.entries(companyData).filter(([key, value]) => 
-            key !== 'logoFile' && value !== undefined && value !== null
+            key !== 'logoFile' && 
+            key !== 'createdAt' && 
+            key !== 'approvedBy' && 
+            value !== undefined && 
+            value !== null &&
+            !(typeof value === 'object' && Object.keys(value).length === 0) // Filter out empty objects
           )
         );
         console.log('Clean data to send:', cleanData);
         
         // Ensure we have at least some data to send
-        if (Object.keys(cleanData).length === 0) {
+        if (Object.keys(cleanData).length <= 1) { // Allow if we have at least the ID
           throw new Error('No data to update');
         }
         
@@ -860,7 +899,12 @@ export default function CompaniesPage() {
 
   const handleEditCompany = (company: any) => {
     console.log('Setting editing company:', company);
-    setEditingCompany(company);
+    // Create a clean copy without problematic fields
+    const cleanCompany = {
+      ...company,
+      logoFile: undefined // Remove any existing logoFile
+    };
+    setEditingCompany(cleanCompany);
     setCompanyEditOpen(true);
   };
 
