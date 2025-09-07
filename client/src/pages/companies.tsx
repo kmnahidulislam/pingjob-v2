@@ -850,7 +850,8 @@ export default function CompaniesPage() {
             key !== 'approvedBy' && 
             value !== undefined && 
             value !== null &&
-            !(typeof value === 'object' && Object.keys(value).length === 0) // Filter out empty objects
+            !(typeof value === 'object' && Object.keys(value).length === 0) && // Filter out empty objects
+            value !== '' // Allow empty strings for optional fields
           )
         );
         console.log('Clean data to send:', cleanData);
@@ -872,15 +873,19 @@ export default function CompaniesPage() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
       queryClient.invalidateQueries({ queryKey: ['/api/search'] });
+      // Force invalidate all company-related queries
       queryClient.invalidateQueries({ queryKey: [`/api/companies/${editingCompany?.id}/details`] });
-      setCompanyEditOpen(false);
-      setEditingCompany(null);
+      queryClient.removeQueries({ queryKey: [`/api/companies/${editingCompany?.id}/details`] });
       
-      // Refresh the selected company data if it's currently being viewed
+      setCompanyEditOpen(false);
+      
+      // Force refresh the company details if currently viewing
       if (selectedCompany && editingCompany && selectedCompany.id === editingCompany.id) {
-        setSelectedCompany(null);
-        setTimeout(() => setSelectedCompany(editingCompany), 100);
+        // Update with fresh data from the mutation response
+        setSelectedCompany({...selectedCompany, ...editingCompany});
       }
+      
+      setEditingCompany(null);
     },
     onError: (error: any) => {
       toast({
@@ -1172,10 +1177,12 @@ export default function CompaniesPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
+                      console.log('File selected:', file);
                       if (file) {
+                        console.log('Setting logoFile to:', file);
                         setEditingCompany({...editingCompany, logoFile: file});
                       } else {
-                        // Remove logoFile property completely if no file
+                        console.log('No file selected, removing logoFile');
                         const cleanCompany = {...editingCompany};
                         delete cleanCompany.logoFile;
                         setEditingCompany(cleanCompany);
