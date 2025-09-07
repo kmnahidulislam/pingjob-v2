@@ -90,6 +90,29 @@ export function registerRoutes(app: Express) {
     console.error('❌ Failed to initialize social media integration:', error);
   });
   
+  // Company logo upload endpoint
+  app.post('/api/upload/company-logo', uploadLimiter, logoUpload.single('logo'), (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: 'No logo file uploaded' });
+      }
+
+      // Create logos directory if it doesn't exist
+      const logosDir = path.join(process.cwd(), 'uploads', 'logos');
+      if (!fs.existsSync(logosDir)) {
+        fs.mkdirSync(logosDir, { recursive: true });
+      }
+
+      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      console.log('Company logo uploaded to:', logoUrl);
+      
+      res.json({ logoUrl });
+    } catch (error) {
+      console.error('Company logo upload error:', error);
+      res.status(500).json({ message: 'Failed to upload logo' });
+    }
+  });
+  
   // Registration endpoint
   app.post('/api/register', async (req, res) => {
     try {
