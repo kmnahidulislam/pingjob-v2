@@ -23,7 +23,6 @@ import { insertCompanySchema, insertJobSchema } from "@shared/schema";
 import { z } from "zod";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
-import { getDisplayAddress } from "@/utils/addressUtils";
 // AdBanner temporarily disabled to prevent development error overlay
 import {
   Building,
@@ -532,7 +531,9 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             </div>
             <div>
               <h4 className="font-semibold mb-2">Location</h4>
-              <p className="text-gray-600">{getDisplayAddress(company) || 'Not specified'}</p>
+              <p className="text-gray-600">
+                {[company.city, company.state, company.zipCode, company.country].filter(Boolean).join(', ') || company.location || 'Not specified'}
+              </p>
             </div>
             {company.website && (
               <div>
@@ -789,8 +790,8 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // Force JSON path - NEVER use FormData unless explicitly uploading a file
-      const hasNewLogoFile = false; // Temporarily force JSON path only
+      // Check for real file upload
+      const hasNewLogoFile = companyData.logoFile instanceof File && companyData.logoFile.size > 0;
       
       if (hasNewLogoFile) {
         console.log('Using FormData for file upload');
