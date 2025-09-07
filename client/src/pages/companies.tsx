@@ -331,7 +331,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany, onEditCompany 
           <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
             {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
               <img 
-                src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`} 
                 alt={company.name}
                 className="w-full h-full object-contain p-2"
               />
@@ -483,7 +483,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50">
               {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
                 <img 
-                  src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                  src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`} 
                   alt={company.name}
                   className="w-full h-full object-contain p-1"
                 />
@@ -1158,7 +1158,7 @@ export default function CompaniesPage() {
                   {editingCompany.logoUrl && editingCompany.logoUrl !== 'logos/NULL' && editingCompany.logoUrl !== 'NULL' && (
                     <div className="flex items-center space-x-2">
                       <img 
-                        src={`/${editingCompany.logoUrl.replace(/ /g, '%20')}`} 
+                        src={editingCompany.logoUrl.startsWith('/') ? editingCompany.logoUrl.replace(/ /g, '%20') : `/${editingCompany.logoUrl.replace(/ /g, '%20')}`} 
                         alt={`${editingCompany.name} logo`}
                         className="w-12 h-12 object-contain rounded border"
                         onError={(e) => {
