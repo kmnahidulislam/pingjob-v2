@@ -532,31 +532,31 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             <div>
               <h4 className="font-semibold mb-2">Location</h4>
               <p className="text-gray-600">
-                {[company.city, company.state, company.zipCode, company.country].filter(Boolean).join(', ') || company.location || 'Not specified'}
+                {[companyDetails?.city, companyDetails?.state, companyDetails?.zipCode, companyDetails?.country].filter(Boolean).join(', ') || companyDetails?.location || company.location || 'Not specified'}
               </p>
               {/* Debug info - remove this later */}
               <p className="text-xs text-gray-400">
-                Debug: city={company.city}, state={company.state}, zip={company.zipCode}, country={company.country}
+                Debug: city={companyDetails?.city}, state={companyDetails?.state}, zip={companyDetails?.zipCode}, country={companyDetails?.country}
               </p>
             </div>
-            {company.website && (
+            {(companyDetails?.website && companyDetails.website !== 'NULL') && (
               <div>
                 <h4 className="font-semibold mb-2">Website</h4>
                 <a 
-                  href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                  href={companyDetails.website.startsWith('http') ? companyDetails.website : `https://${companyDetails.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-linkedin-blue hover:underline"
                 >
-                  {company.website}
+                  {companyDetails.website}
                 </a>
               </div>
             )}
-            {company.phone && (
+            {(companyDetails?.phone && companyDetails.phone !== 'NULL') && (
               <div>
                 <h4 className="font-semibold mb-2">Phone</h4>
-                <a href={`tel:${company.phone}`} className="text-linkedin-blue hover:underline">
-                  {company.phone}
+                <a href={`tel:${companyDetails.phone}`} className="text-linkedin-blue hover:underline">
+                  {companyDetails.phone}
                 </a>
               </div>
             )}
