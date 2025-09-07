@@ -826,9 +826,9 @@ export default function CompaniesPage() {
         
         // Log FormData contents
         console.log('FormData contents:');
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ': ' + pair[1]);
-        }
+        Array.from(formData.entries()).forEach(([key, value]) => {
+          console.log(key + ': ' + value);
+        });
         
         const response = await fetch(`/api/companies/${companyData.id}`, {
           method: 'PATCH',
@@ -872,8 +872,15 @@ export default function CompaniesPage() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
       queryClient.invalidateQueries({ queryKey: ['/api/search'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/companies/${editingCompany?.id}/details`] });
       setCompanyEditOpen(false);
       setEditingCompany(null);
+      
+      // Refresh the selected company data if it's currently being viewed
+      if (selectedCompany && editingCompany && selectedCompany.id === editingCompany.id) {
+        setSelectedCompany(null);
+        setTimeout(() => setSelectedCompany(editingCompany), 100);
+      }
     },
     onError: (error: any) => {
       toast({
