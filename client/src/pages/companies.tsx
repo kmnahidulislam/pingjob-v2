@@ -790,8 +790,7 @@ export default function CompaniesPage() {
       console.log('Company edit mutation received data:', companyData);
       
       // If there's a logo file, use FormData for file upload  
-      const hasRealFile = companyData.logoFile && 
-        companyData.logoFile instanceof File && 
+      const hasRealFile = companyData.logoFile instanceof File && 
         companyData.logoFile.size > 0;
       
       if (hasRealFile) {
