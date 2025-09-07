@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -707,6 +707,7 @@ export default function CompaniesPage() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [companyEditOpen, setCompanyEditOpen] = useState(false);
+  const logoFileRef = useRef<File | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCountryId, setSelectedCountryId] = useState<string>('');
   const [selectedStateId, setSelectedStateId] = useState<string>('');
@@ -790,35 +791,28 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // ABSOLUTELY FORCE JSON - only use FormData for NEW file uploads from file input
-      // Check if it's actually a fresh File object (not an empty object)
-      const isEmptyObject = typeof companyData.logoFile === 'object' && 
-        Object.keys(companyData.logoFile).length === 0;
-      
-      const hasNewLogoFile = !isEmptyObject && 
-        companyData.logoFile instanceof File && 
-        companyData.logoFile.size > 0 && 
-        companyData.logoFile.name && 
-        companyData.logoFile.type;
+      // Check if we have a file in the ref (from file input)
+      const logoFile = logoFileRef.current;
+      const hasNewLogoFile = logoFile && logoFile instanceof File && logoFile.size > 0;
       
       console.log('File check details:', {
-        hasLogoFile: !!companyData.logoFile,
-        isEmptyObject: isEmptyObject,
-        isInstanceOfFile: companyData.logoFile instanceof File,
-        fileSize: companyData.logoFile?.size,
-        fileName: companyData.logoFile?.name,
-        fileType: companyData.logoFile?.type,
+        hasLogoFileInRef: !!logoFile,
+        hasNewLogoFlag: !!companyData.hasNewLogo,
+        isInstanceOfFile: logoFile instanceof File,
+        fileSize: logoFile?.size,
+        fileName: logoFile?.name,
+        fileType: logoFile?.type,
         finalDecision: hasNewLogoFile
       });
       
       if (hasNewLogoFile) {
         console.log('Using FormData for file upload');
         const formData = new FormData();
-        formData.append('logo', companyData.logoFile);
+        formData.append('logo', logoFile);
         
-        // Add all other company data
+        // Add all other company data  
         Object.keys(companyData).forEach(key => {
-          if (key !== 'logoFile' && companyData[key] !== undefined && companyData[key] !== null && companyData[key] !== '') {
+          if (key !== 'logoFile' && key !== 'hasNewLogo' && companyData[key] !== undefined && companyData[key] !== null && companyData[key] !== '') {
             console.log(`Adding to FormData: ${key} = ${companyData[key]}`);
             formData.append(key, String(companyData[key]));
           }
@@ -846,6 +840,7 @@ export default function CompaniesPage() {
         const cleanData = Object.fromEntries(
           Object.entries(companyData).filter(([key, value]) => 
             key !== 'logoFile' && 
+            key !== 'hasNewLogo' &&
             key !== 'createdAt' && 
             key !== 'approvedBy' && 
             value !== undefined && 
@@ -877,6 +872,9 @@ export default function CompaniesPage() {
       queryClient.removeQueries({ queryKey: [`/api/companies/${editingCompany?.id}/details`] });
       
       setCompanyEditOpen(false);
+      
+      // Clear the logo file ref after successful save
+      logoFileRef.current = null;
       
       // Force refresh the company details if currently viewing
       if (selectedCompany && editingCompany && selectedCompany.id === editingCompany.id) {
@@ -1186,19 +1184,25 @@ export default function CompaniesPage() {
                       } : 'No file');
                       
                       if (file && file instanceof File && file.size > 0) {
-                        console.log('Valid file detected, setting logoFile');
-                        setEditingCompany(prev => ({...prev, logoFile: file}));
+                        console.log('Valid file detected, storing in ref');
+                        logoFileRef.current = file;
+                        // Set a flag in the company data to indicate file selected
+                        setEditingCompany(prev => ({...prev, hasNewLogo: true}));
                       } else {
-                        console.log('Invalid or no file, removing logoFile');
+                        console.log('Invalid or no file, clearing ref');
+                        logoFileRef.current = null;
                         setEditingCompany(prev => {
                           const updated = {...prev};
-                          delete updated.logoFile;
+                          delete updated.hasNewLogo;
                           return updated;
                         });
                       }
                     }}
                   />
                   <p className="text-xs text-gray-500">Upload a new logo (JPG, PNG, GIF)</p>
+                  {editingCompany?.hasNewLogo && (
+                    <p className="text-xs text-green-600 font-medium">✓ New logo selected</p>
+                  )}
                 </div>
               </div>
               
