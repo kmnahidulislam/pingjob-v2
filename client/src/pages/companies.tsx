@@ -850,8 +850,7 @@ export default function CompaniesPage() {
             key !== 'approvedBy' && 
             value !== undefined && 
             value !== null &&
-            !(typeof value === 'object' && Object.keys(value).length === 0) && // Filter out empty objects
-            value !== '' // Allow empty strings for optional fields
+            !(typeof value === 'object' && Object.keys(value).length === 0) // Filter out empty objects but keep empty strings
           )
         );
         console.log('Clean data to send:', cleanData);
