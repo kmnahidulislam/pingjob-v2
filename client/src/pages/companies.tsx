@@ -905,6 +905,20 @@ export default function CompaniesPage() {
       logoFile: undefined // Remove any existing logoFile
     };
     setEditingCompany(cleanCompany);
+    
+    // Set selected IDs if they exist
+    if (company.countryId) {
+      setSelectedCountryId(company.countryId.toString());
+    } else {
+      setSelectedCountryId('');
+    }
+    
+    if (company.stateId) {
+      setSelectedStateId(company.stateId.toString());
+    } else {
+      setSelectedStateId('');
+    }
+    
     setCompanyEditOpen(true);
   };
 
@@ -1184,103 +1198,62 @@ export default function CompaniesPage() {
                 <div>
                   <label className="text-sm font-medium">Country</label>
                   <Select 
-                    value={editingCompany.country || ''} 
-                    onValueChange={(value) => setEditingCompany({
-                      ...editingCompany, 
-                      country: value,
-                      state: '', // Reset state when country changes
-                      city: '',  // Reset city when country changes
-                      zipCode: '' // Reset zip when country changes
-                    })}
+                    value={selectedCountryId || ''} 
+                    onValueChange={(value) => {
+                      const selectedCountry = countries.find((c: any) => c.id.toString() === value);
+                      setSelectedCountryId(value);
+                      setSelectedStateId(''); // Reset state when country changes
+                      setEditingCompany({
+                        ...editingCompany, 
+                        countryId: value,
+                        country: selectedCountry?.name || '',
+                        stateId: '',
+                        state: '',
+                        cityId: '',
+                        city: '',
+                        zipCode: ''
+                      });
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="United States">United States</SelectItem>
-                      <SelectItem value="Canada">Canada</SelectItem>
-                      <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                      <SelectItem value="Australia">Australia</SelectItem>
-                      <SelectItem value="Germany">Germany</SelectItem>
-                      <SelectItem value="France">France</SelectItem>
-                      <SelectItem value="India">India</SelectItem>
-                      <SelectItem value="China">China</SelectItem>
-                      <SelectItem value="Japan">Japan</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      {countries.map((country: any) => (
+                        <SelectItem key={country.id} value={country.id.toString()}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <label className="text-sm font-medium">State/Province</label>
                   <Select 
-                    value={editingCompany.state || ''} 
-                    onValueChange={(value) => setEditingCompany({
-                      ...editingCompany, 
-                      state: value,
-                      city: '',  // Reset city when state changes
-                      zipCode: '' // Reset zip when state changes
-                    })}
-                    disabled={!editingCompany.country}
+                    value={selectedStateId || ''} 
+                    onValueChange={(value) => {
+                      const selectedState = states.find((s: any) => s.id.toString() === value);
+                      setSelectedStateId(value);
+                      setEditingCompany({
+                        ...editingCompany, 
+                        stateId: value,
+                        state: selectedState?.name || '',
+                        cityId: '',
+                        city: '',
+                        zipCode: ''
+                      });
+                    }}
+                    disabled={!selectedCountryId}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select state/province" />
+                      <SelectValue placeholder={selectedCountryId ? "Select state/province" : "Select country first"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {editingCompany.country === 'United States' && (
-                        <>
-                          <SelectItem value="California">California</SelectItem>
-                          <SelectItem value="New York">New York</SelectItem>
-                          <SelectItem value="Texas">Texas</SelectItem>
-                          <SelectItem value="Florida">Florida</SelectItem>
-                          <SelectItem value="Illinois">Illinois</SelectItem>
-                          <SelectItem value="Pennsylvania">Pennsylvania</SelectItem>
-                          <SelectItem value="Ohio">Ohio</SelectItem>
-                          <SelectItem value="Georgia">Georgia</SelectItem>
-                          <SelectItem value="North Carolina">North Carolina</SelectItem>
-                          <SelectItem value="Michigan">Michigan</SelectItem>
-                          <SelectItem value="New Jersey">New Jersey</SelectItem>
-                          <SelectItem value="Virginia">Virginia</SelectItem>
-                          <SelectItem value="Washington">Washington</SelectItem>
-                          <SelectItem value="Arizona">Arizona</SelectItem>
-                          <SelectItem value="Massachusetts">Massachusetts</SelectItem>
-                          <SelectItem value="Tennessee">Tennessee</SelectItem>
-                          <SelectItem value="Indiana">Indiana</SelectItem>
-                          <SelectItem value="Missouri">Missouri</SelectItem>
-                          <SelectItem value="Maryland">Maryland</SelectItem>
-                          <SelectItem value="Wisconsin">Wisconsin</SelectItem>
-                        </>
-                      )}
-                      {editingCompany.country === 'Canada' && (
-                        <>
-                          <SelectItem value="Ontario">Ontario</SelectItem>
-                          <SelectItem value="Quebec">Quebec</SelectItem>
-                          <SelectItem value="British Columbia">British Columbia</SelectItem>
-                          <SelectItem value="Alberta">Alberta</SelectItem>
-                          <SelectItem value="Manitoba">Manitoba</SelectItem>
-                          <SelectItem value="Saskatchewan">Saskatchewan</SelectItem>
-                        </>
-                      )}
-                      {editingCompany.country === 'United Kingdom' && (
-                        <>
-                          <SelectItem value="England">England</SelectItem>
-                          <SelectItem value="Scotland">Scotland</SelectItem>
-                          <SelectItem value="Wales">Wales</SelectItem>
-                          <SelectItem value="Northern Ireland">Northern Ireland</SelectItem>
-                        </>
-                      )}
-                      {editingCompany.country === 'Australia' && (
-                        <>
-                          <SelectItem value="New South Wales">New South Wales</SelectItem>
-                          <SelectItem value="Victoria">Victoria</SelectItem>
-                          <SelectItem value="Queensland">Queensland</SelectItem>
-                          <SelectItem value="Western Australia">Western Australia</SelectItem>
-                          <SelectItem value="South Australia">South Australia</SelectItem>
-                          <SelectItem value="Tasmania">Tasmania</SelectItem>
-                        </>
-                      )}
-                      {editingCompany.country && editingCompany.country !== 'United States' && editingCompany.country !== 'Canada' && editingCompany.country !== 'United Kingdom' && editingCompany.country !== 'Australia' && (
-                        <SelectItem value="Other">Other</SelectItem>
-                      )}
+                      {states.map((state: any) => (
+                        <SelectItem key={state.id} value={state.id.toString()}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1289,13 +1262,29 @@ export default function CompaniesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">City</label>
-                  <input
-                    type="text"
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={editingCompany.city || ''}
-                    onChange={(e) => setEditingCompany({...editingCompany, city: e.target.value})}
-                    placeholder="Enter city name"
-                  />
+                  <Select 
+                    value={editingCompany.cityId || ''} 
+                    onValueChange={(value) => {
+                      const selectedCity = cities.find((c: any) => c.id.toString() === value);
+                      setEditingCompany({
+                        ...editingCompany, 
+                        cityId: value,
+                        city: selectedCity?.name || ''
+                      });
+                    }}
+                    disabled={!selectedStateId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={selectedStateId ? "Select city" : "Select state first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city: any) => (
+                        <SelectItem key={city.id} value={city.id.toString()}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Zip/Postal Code</label>
