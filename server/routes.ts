@@ -51,6 +51,29 @@ const upload = multer({
   }
 });
 
+// Configure multer for logo image uploads
+const logoUpload = multer({
+  dest: 'uploads/logos/',
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for images
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/gif',
+      'image/webp'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'));
+    }
+  }
+});
+
 // Initialize social media poster
 let socialMediaPoster: SocialMediaPoster | null = null;
 
@@ -1434,8 +1457,8 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company update endpoint
-  app.patch('/api/companies/:id', isAuthenticated, async (req: any, res) => {
+  // Company update endpoint with logo upload support
+  app.patch('/api/companies/:id', isAuthenticated, logoUpload.single('logo'), async (req: any, res) => {
     try {
       const companyId = parseInt(req.params.id);
       
@@ -1444,9 +1467,23 @@ export function registerRoutes(app: Express) {
       }
 
       console.log('Company update request body:', req.body);
+      console.log('Company update file:', req.file);
 
-      // Check if body has any fields to update
-      if (!req.body || Object.keys(req.body).length === 0) {
+      // Handle logo upload if present
+      let logoUrl = null;
+      if (req.file) {
+        // Create logos directory if it doesn't exist
+        const logosDir = path.join(process.cwd(), 'uploads', 'logos');
+        if (!fs.existsSync(logosDir)) {
+          fs.mkdirSync(logosDir, { recursive: true });
+        }
+        
+        logoUrl = `/uploads/logos/${req.file.filename}`;
+        console.log('Logo uploaded to:', logoUrl);
+      }
+
+      // Check if body has any fields to update or if we have a logo upload
+      if ((!req.body || Object.keys(req.body).length === 0) && !req.file) {
         return res.status(400).json({ message: 'No update data provided' });
       }
 
@@ -1459,11 +1496,16 @@ export function registerRoutes(app: Express) {
       // Filter out fields that shouldn't be updated and null/undefined/empty values
       const fieldsToExclude = ['id', 'createdAt', 'userId', 'approvedBy'];
       const updateData = Object.fromEntries(
-        Object.entries(req.body).filter(([key, value]) => 
+        Object.entries(req.body || {}).filter(([key, value]) => 
           !fieldsToExclude.includes(key) &&
           value !== null && value !== undefined && value !== ''
         )
       );
+
+      // Add logo URL if uploaded
+      if (logoUrl) {
+        updateData.logoUrl = logoUrl;
+      }
 
       console.log('Filtered update data:', updateData);
 
