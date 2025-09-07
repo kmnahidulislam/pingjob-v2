@@ -936,21 +936,26 @@ export default function CompaniesPage() {
   };
 
   const handleEditCompany = (company: any) => {
-    console.log('Setting editing company:', company);
+    // If we're viewing company details, use the detailed data instead of basic company list data
+    const editCompany = (selectedCompany && selectedCompany.id === company.id && companyDetails) 
+      ? companyDetails 
+      : company;
+    
+    console.log('Setting editing company:', editCompany);
     // Create a clean copy without problematic fields - completely remove logoFile
-    const cleanCompany = { ...company };
+    const cleanCompany = { ...editCompany };
     delete cleanCompany.logoFile; // Completely remove logoFile property
     setEditingCompany(cleanCompany);
     
-    // Set selected IDs if they exist
-    if (company.countryId) {
-      setSelectedCountryId(company.countryId.toString());
+    // Set selected IDs if they exist (use the detailed data)
+    if (editCompany.countryId) {
+      setSelectedCountryId(editCompany.countryId.toString());
     } else {
       setSelectedCountryId('');
     }
     
-    if (company.stateId) {
-      setSelectedStateId(company.stateId.toString());
+    if (editCompany.stateId) {
+      setSelectedStateId(editCompany.stateId.toString());
     } else {
       setSelectedStateId('');
     }
