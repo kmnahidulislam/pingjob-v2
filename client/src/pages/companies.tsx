@@ -534,6 +534,10 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
               <p className="text-gray-600">
                 {[company.city, company.state, company.zipCode, company.country].filter(Boolean).join(', ') || company.location || 'Not specified'}
               </p>
+              {/* Debug info - remove this later */}
+              <p className="text-xs text-gray-400">
+                Debug: city={company.city}, state={company.state}, zip={company.zipCode}, country={company.country}
+              </p>
             </div>
             {company.website && (
               <div>
@@ -878,8 +882,13 @@ export default function CompaniesPage() {
       
       // Force refresh the company details if currently viewing
       if (selectedCompany && editingCompany && selectedCompany.id === editingCompany.id) {
-        // Update with fresh data from the mutation response
-        setSelectedCompany({...selectedCompany, ...editingCompany});
+        // Force refetch fresh data from the server instead of using cached data
+        queryClient.removeQueries({ queryKey: [`/api/companies/${editingCompany.id}/details`] });
+        queryClient.refetchQueries({ queryKey: [`/api/companies/${editingCompany.id}/details`] });
+        // Also clear and refresh the selected company immediately
+        setTimeout(() => {
+          queryClient.refetchQueries({ queryKey: [`/api/companies/${editingCompany.id}/details`] });
+        }, 100);
       }
       
       setEditingCompany(null);
