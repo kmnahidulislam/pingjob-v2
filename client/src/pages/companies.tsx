@@ -789,8 +789,8 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // Force JSON path - only use FormData if there's a real uploaded file
-      const hasNewLogoFile = companyData.logoFile instanceof File && companyData.logoFile.size > 0;
+      // Force JSON path - NEVER use FormData unless explicitly uploading a file
+      const hasNewLogoFile = false; // Temporarily force JSON path only
       
       if (hasNewLogoFile) {
         console.log('Using FormData for file upload');
