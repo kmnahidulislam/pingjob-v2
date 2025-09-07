@@ -790,14 +790,20 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // FORCE CHECK - never use FormData unless there's a REAL file
-      const hasNewLogoFile = companyData.logoFile instanceof File && 
+      // ABSOLUTELY FORCE JSON - only use FormData for NEW file uploads from file input
+      // Check if it's actually a fresh File object (not an empty object)
+      const isEmptyObject = typeof companyData.logoFile === 'object' && 
+        Object.keys(companyData.logoFile).length === 0;
+      
+      const hasNewLogoFile = !isEmptyObject && 
+        companyData.logoFile instanceof File && 
         companyData.logoFile.size > 0 && 
         companyData.logoFile.name && 
         companyData.logoFile.type;
       
       console.log('File check details:', {
         hasLogoFile: !!companyData.logoFile,
+        isEmptyObject: isEmptyObject,
         isInstanceOfFile: companyData.logoFile instanceof File,
         fileSize: companyData.logoFile?.size,
         fileName: companyData.logoFile?.name,
@@ -812,10 +818,17 @@ export default function CompaniesPage() {
         
         // Add all other company data
         Object.keys(companyData).forEach(key => {
-          if (key !== 'logoFile' && companyData[key] !== undefined && companyData[key] !== null) {
-            formData.append(key, companyData[key]);
+          if (key !== 'logoFile' && companyData[key] !== undefined && companyData[key] !== null && companyData[key] !== '') {
+            console.log(`Adding to FormData: ${key} = ${companyData[key]}`);
+            formData.append(key, String(companyData[key]));
           }
         });
+        
+        // Log FormData contents
+        console.log('FormData contents:');
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
         
         const response = await fetch(`/api/companies/${companyData.id}`, {
           method: 'PATCH',
