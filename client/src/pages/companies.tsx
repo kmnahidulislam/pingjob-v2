@@ -790,8 +790,20 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // Check for real file upload
-      const hasNewLogoFile = companyData.logoFile instanceof File && companyData.logoFile.size > 0;
+      // FORCE CHECK - never use FormData unless there's a REAL file
+      const hasNewLogoFile = companyData.logoFile instanceof File && 
+        companyData.logoFile.size > 0 && 
+        companyData.logoFile.name && 
+        companyData.logoFile.type;
+      
+      console.log('File check details:', {
+        hasLogoFile: !!companyData.logoFile,
+        isInstanceOfFile: companyData.logoFile instanceof File,
+        fileSize: companyData.logoFile?.size,
+        fileName: companyData.logoFile?.name,
+        fileType: companyData.logoFile?.type,
+        finalDecision: hasNewLogoFile
+      });
       
       if (hasNewLogoFile) {
         console.log('Using FormData for file upload');
@@ -1142,6 +1154,11 @@ export default function CompaniesPage() {
                       const file = e.target.files?.[0];
                       if (file) {
                         setEditingCompany({...editingCompany, logoFile: file});
+                      } else {
+                        // Remove logoFile property completely if no file
+                        const cleanCompany = {...editingCompany};
+                        delete cleanCompany.logoFile;
+                        setEditingCompany(cleanCompany);
                       }
                     }}
                   />
@@ -1330,7 +1347,13 @@ export default function CompaniesPage() {
                   onClick={() => {
                     console.log('Attempting to save company with data:', editingCompany);
                     if (editingCompany && Object.keys(editingCompany).length > 0) {
-                      companyEditMutation.mutate(editingCompany);
+                      // Clean the data before sending - remove invalid logoFile
+                      const cleanData = {...editingCompany};
+                      if (cleanData.logoFile && !(cleanData.logoFile instanceof File)) {
+                        delete cleanData.logoFile;
+                        console.log('Removed invalid logoFile object, sending clean data:', cleanData);
+                      }
+                      companyEditMutation.mutate(cleanData);
                     } else {
                       console.error('No editing company data to save');
                     }
