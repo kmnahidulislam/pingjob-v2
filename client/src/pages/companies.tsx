@@ -789,21 +789,10 @@ export default function CompaniesPage() {
     mutationFn: async (companyData: any) => {
       console.log('Company edit mutation received data:', companyData);
       
-      // Remove logoFile if it's not a real file
-      if (!(companyData.logoFile instanceof File) || !companyData.logoFile.size) {
-        const cleanedData = { ...companyData };
-        delete cleanedData.logoFile;
-        companyData = cleanedData;
-        console.log('Removed invalid logoFile, cleaned data:', companyData);
-      }
+      // Force JSON path - only use FormData if there's a real uploaded file
+      const hasNewLogoFile = companyData.logoFile instanceof File && companyData.logoFile.size > 0;
       
-      // If there's a logo file, use FormData for file upload  
-      const hasRealFile = companyData.logoFile instanceof File && 
-        companyData.logoFile.size > 0 &&
-        companyData.logoFile.name &&
-        companyData.logoFile.type; // Ensure it has a MIME type
-      
-      if (hasRealFile) {
+      if (hasNewLogoFile) {
         console.log('Using FormData for file upload');
         const formData = new FormData();
         formData.append('logo', companyData.logoFile);
