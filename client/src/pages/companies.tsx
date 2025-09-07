@@ -1175,16 +1175,26 @@ export default function CompaniesPage() {
                     accept="image/*"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onChange={(e) => {
+                      e.preventDefault();
                       const file = e.target.files?.[0];
-                      console.log('File selected:', file);
-                      if (file) {
-                        console.log('Setting logoFile to:', file);
-                        setEditingCompany({...editingCompany, logoFile: file});
+                      console.log('Raw file from input:', file);
+                      console.log('File properties:', file ? {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        instanceof: file instanceof File
+                      } : 'No file');
+                      
+                      if (file && file instanceof File && file.size > 0) {
+                        console.log('Valid file detected, setting logoFile');
+                        setEditingCompany(prev => ({...prev, logoFile: file}));
                       } else {
-                        console.log('No file selected, removing logoFile');
-                        const cleanCompany = {...editingCompany};
-                        delete cleanCompany.logoFile;
-                        setEditingCompany(cleanCompany);
+                        console.log('Invalid or no file, removing logoFile');
+                        setEditingCompany(prev => {
+                          const updated = {...prev};
+                          delete updated.logoFile;
+                          return updated;
+                        });
                       }
                     }}
                   />
