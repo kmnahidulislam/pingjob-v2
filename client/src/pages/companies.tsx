@@ -790,8 +790,17 @@ export default function CompaniesPage() {
       console.log('Company edit mutation received data:', companyData);
       
       // If there's a logo file, use FormData for file upload  
-      const hasRealFile = companyData.logoFile instanceof File && 
-        companyData.logoFile.size > 0;
+      console.log('logoFile check:', {
+        logoFile: companyData.logoFile,
+        isFile: companyData.logoFile instanceof File,
+        hasSize: companyData.logoFile?.size > 0,
+        hasName: !!companyData.logoFile?.name
+      });
+      
+      const hasRealFile = companyData.logoFile && 
+        companyData.logoFile instanceof File && 
+        companyData.logoFile.size > 0 &&
+        companyData.logoFile.name; // Ensure it has a name property
       
       if (hasRealFile) {
         console.log('Using FormData for file upload');
@@ -898,11 +907,9 @@ export default function CompaniesPage() {
 
   const handleEditCompany = (company: any) => {
     console.log('Setting editing company:', company);
-    // Create a clean copy without problematic fields
-    const cleanCompany = {
-      ...company,
-      logoFile: undefined // Remove any existing logoFile
-    };
+    // Create a clean copy without problematic fields - completely remove logoFile
+    const cleanCompany = { ...company };
+    delete cleanCompany.logoFile; // Completely remove logoFile property
     setEditingCompany(cleanCompany);
     
     // Set selected IDs if they exist
