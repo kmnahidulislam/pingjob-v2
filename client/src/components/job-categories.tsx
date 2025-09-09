@@ -28,7 +28,7 @@ export function JobCategories({
   isMobile = false 
 }: JobCategoriesProps) {
   const { data: categories, isLoading, error } = useQuery<CategoryWithJobCount[]>({
-    queryKey: ['/api/categories/with-counts'],
+    queryKey: ['/api/categories'],
     enabled: true,
   });
 
