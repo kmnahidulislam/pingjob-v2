@@ -464,8 +464,8 @@ export function setupAuth(app: Express) {
         userType: req.user.user_type
       };
       
-      // Redirect to home page after successful login
-      res.redirect('/');
+      // Redirect to client-side callback handler to check for postAuthRedirect
+      res.redirect('/auth/callback');
     }
   );
 

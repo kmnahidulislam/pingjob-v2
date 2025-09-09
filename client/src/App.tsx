@@ -44,6 +44,7 @@ import Checkout from "@/pages/checkout";
 import VisitStats from "@/pages/visit-stats";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
+import AuthCallback from "@/pages/auth-callback";
 
 import RecruiterDashboard from "@/pages/recruiter-dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
@@ -101,6 +102,7 @@ function Router() {
                        location.startsWith('/reset-password?') || 
                        location === '/forgot-password' ||
                        location === '/auth' ||
+                       location === '/auth/callback' ||
                        location === '/checkout' ||
                        location === '/about' ||
                        location === '/privacy' ||
@@ -132,6 +134,14 @@ function Router() {
         </div>
       );
     }
+
+    if (location === '/auth/callback') {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <AuthCallback />
+        </div>
+      );
+    }
   }
 
   // Special handling for invitation routes - they should work regardless of auth status
@@ -158,6 +168,7 @@ function Router() {
           <Route path="/jobs/:id" component={JobDetailsSimple} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
+          <Route path="/auth/callback" component={AuthCallback} />
           <Route path="/auth" component={Auth} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/about" component={About} />
@@ -195,6 +206,7 @@ function Router() {
         <Switch>
           <Route path="/jobs/:id" component={JobDetailsSimple} />
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
+          <Route path="/auth/callback" component={AuthCallback} />
           <Route path="/job-create" component={JobCreate} />
           <Route path="/jobs" component={JobsOriginal} />
           <Route path="/company-create" component={CompanyCreate} />
