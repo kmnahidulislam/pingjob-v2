@@ -431,8 +431,12 @@ export default function PingJobHome() {
       {/* Mobile Header */}
       <div className="mobile-nav mobile-only">
         <div className="mobile-nav-content">
-          <Link href="/" className="font-bold text-xl text-blue-600">
-            PingJob
+          <Link href="/" className="flex items-center">
+            <img 
+              src={logoPath} 
+              alt="Logo" 
+              className="h-8 w-auto" 
+            />
           </Link>
           
           {user ? (
