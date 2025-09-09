@@ -125,7 +125,7 @@ export default function Auth() {
       
       toast({
         title: "Account created!",
-        description: "Welcome to PingJob! Your free account is ready to use.",
+        description: "Welcome! Your free account is ready to use.",
       });
       
       // Redirect to payment if it's a paid plan
@@ -221,8 +221,7 @@ export default function Auth() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/">
           <div className="flex justify-center items-center space-x-2 cursor-pointer">
-            <img src={logo} alt="PingJob" className="h-8 w-auto" />
-            <span className="text-2xl font-bold text-gray-900">PingJob</span>
+            <img src={logo} alt="Logo" className="h-8 w-auto" />
           </div>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -254,7 +253,7 @@ export default function Auth() {
               <TabsContent value="register">
                 <CardTitle>Create account</CardTitle>
                 <CardDescription>
-                  Join thousands of professionals using PingJob
+                  Join thousands of professionals
                 </CardDescription>
               </TabsContent>
             </Tabs>
