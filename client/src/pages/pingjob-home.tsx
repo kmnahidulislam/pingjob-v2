@@ -698,7 +698,7 @@ export default function PingJobHome() {
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
                               <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
                                 <img 
-                                  src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                                  src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
                                   alt={job.company.name}
                                   className="w-full h-full object-contain p-1"
                                   onError={(e) => {
@@ -777,7 +777,7 @@ export default function PingJobHome() {
                             {company.logoUrl && company.logoUrl !== "NULL" && (
                               <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
                                 <img 
-                                  src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                                  src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
                                   alt={company.name}
                                   className="w-full h-full object-contain p-1"
                                   onError={(e) => {
@@ -873,7 +873,7 @@ export default function PingJobHome() {
                       <div className="flex-shrink-0 w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-white">
                         {company.logoUrl && company.logoUrl !== "NULL" ? (
                           <img 
-                            src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                            src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
                             alt={company.name}
                             className="w-full h-full object-contain p-2"
                             onError={(e) => {
@@ -957,7 +957,7 @@ export default function PingJobHome() {
                         {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                           <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
                             <img 
-                              src={`/${job.company.logoUrl.replace(/ /g, '%20')}`} 
+                              src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
                               alt={job.company.name}
                               className="w-full h-full object-contain p-2"
                               onError={(e) => {
@@ -1166,7 +1166,7 @@ export default function PingJobHome() {
                         <div className="flex items-center space-x-3">
                           {company.logoUrl && (
                             <img 
-                              src={`/${company.logoUrl}`} 
+                              src={company.logoUrl.startsWith('/') ? company.logoUrl : `/${company.logoUrl}`}
                               alt={company.name}
                               className="mobile-company-logo"
                               onError={(e) => e.currentTarget.style.display = 'none'}
@@ -1253,7 +1253,7 @@ export default function PingJobHome() {
                     <div className="flex items-start space-x-3">
                       {job.company?.logoUrl && (
                         <img 
-                          src={`/${job.company.logoUrl}`} 
+                          src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl : `/${job.company.logoUrl}`}
                           alt={job.company.name}
                           className="mobile-company-logo"
                           onError={(e) => e.currentTarget.style.display = 'none'}
