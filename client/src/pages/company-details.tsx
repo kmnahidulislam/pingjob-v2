@@ -44,9 +44,13 @@ export default function CompanyDetails() {
     queryKey: [`/api/companies/${id}/details`],
     queryFn: async () => {
       const response = await apiRequest('GET', `/api/companies/${id}/details`);
-      return response.json();
+      const data = await response.json();
+      console.log('🚀 Fresh API Response:', data);
+      console.log('🚀 totalJobCount in response:', data.totalJobCount);
+      return data;
     },
-    enabled: !!id
+    enabled: !!id,
+    staleTime: 0 // Force fresh fetch
   });
 
   if (isLoading) {
@@ -83,13 +87,22 @@ export default function CompanyDetails() {
     );
   }
 
-  const company = companyDetails;
-  const openJobs = companyDetails.openJobs || [];
-  const vendors = companyDetails.vendors || [];
-  // Ensure totalJobCount is properly handled - use explicit check instead of || operator
-  const totalJobCount = companyDetails.totalJobCount !== undefined && companyDetails.totalJobCount !== null 
+  const company = companyDetails || {};
+  const openJobs = companyDetails?.openJobs || [];
+  const vendors = companyDetails?.vendors || [];
+  // Ensure totalJobCount is properly handled - use explicit check instead of || operator  
+  const totalJobCount = companyDetails?.totalJobCount !== undefined && companyDetails?.totalJobCount !== null 
     ? Number(companyDetails.totalJobCount) 
     : openJobs.length;
+  
+  // Debug logging - let's see what we're getting
+  console.log('🔍 Frontend Debug:', {
+    'API totalJobCount': companyDetails?.totalJobCount,
+    'openJobs length': openJobs.length,
+    'final totalJobCount': totalJobCount,
+    'typeof API totalJobCount': typeof companyDetails?.totalJobCount,
+    'raw companyDetails keys': Object.keys(companyDetails || {})
+  });
   
   
   const getDisplayAddress = (company: any) => {
