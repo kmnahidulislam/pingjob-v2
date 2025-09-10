@@ -1351,11 +1351,12 @@ export const storage = {
           services: row.services,
           status: row.status,
           companyId: row.company_id,
-          city: (row.vendor_city && row.vendor_city !== 'NULL' && row.vendor_city.trim() !== '') ? row.vendor_city : row.company_city,
-          state: (row.vendor_state && row.vendor_state !== 'NULL' && row.vendor_state.trim() !== '') ? row.vendor_state : row.company_state,
-          zipCode: (row.vendor_zip_code && row.vendor_zip_code !== 'NULL' && row.vendor_zip_code.trim() !== '') ? row.vendor_zip_code : row.company_zip_code,
-          address: (row.vendor_address && row.vendor_address !== 'NULL' && row.vendor_address.trim() !== '') ? row.vendor_address : row.company_address,
-          website: row.website
+          city: row.company_city,
+          state: row.company_state,
+          zipCode: row.company_zip_code,
+          address: row.company_address,
+          website: row.website,
+          country: row.company_country
         }));
       }
 
@@ -1396,11 +1397,12 @@ export const storage = {
         status: vendor.status,
         companyId: vendor.companyId,
         createdAt: vendor.createdAt,
-        city: (vendor.vendorCity && vendor.vendorCity !== 'NULL' && vendor.vendorCity.trim() !== '') ? vendor.vendorCity : vendor.companyCity,
-        state: (vendor.vendorState && vendor.vendorState !== 'NULL' && vendor.vendorState.trim() !== '') ? vendor.vendorState : vendor.companyState,
-        zipCode: (vendor.vendorZipCode && vendor.vendorZipCode !== 'NULL' && vendor.vendorZipCode.trim() !== '') ? vendor.vendorZipCode : vendor.companyZipCode,
-        address: (vendor.vendorAddress && vendor.vendorAddress !== 'NULL' && vendor.vendorAddress.trim() !== '') ? vendor.vendorAddress : vendor.companyAddress,
-        website: vendor.website
+        city: vendor.companyCity,
+        state: vendor.companyState,
+        zipCode: vendor.companyZipCode,
+        address: vendor.companyAddress,
+        website: vendor.website,
+        country: vendor.companyCountry
       }));
     } catch (error) {
       console.error('Error fetching job vendors:', error);
@@ -1469,9 +1471,10 @@ export const storage = {
         services: row.vendor_services,
         status: row.vendor_status,
         created_at: row.vendor_created_at,
-        city: (row.vendor_city && row.vendor_city !== 'NULL' && row.vendor_city.trim() !== '') ? row.vendor_city : row.company_city,
-        state: (row.vendor_state && row.vendor_state !== 'NULL' && row.vendor_state.trim() !== '') ? row.vendor_state : row.company_state,
-        zip_code: (row.vendor_zip_code && row.vendor_zip_code !== 'NULL' && row.vendor_zip_code.trim() !== '') ? row.vendor_zip_code : row.company_zip_code,
+        city: row.company_city,
+        state: row.company_state,
+        zip_code: row.company_zip_code,
+        address: row.company_address,
         country: row.company_country,
         website: row.company_website
       }));
