@@ -1197,11 +1197,11 @@ export default function CompaniesPage() {
                         console.log('Valid file detected, storing in ref');
                         logoFileRef.current = file;
                         // Set a flag in the company data to indicate file selected
-                        setEditingCompany(prev => ({...prev, hasNewLogo: true}));
+                        setEditingCompany((prev: any) => ({...prev, hasNewLogo: true}));
                       } else {
                         console.log('Invalid or no file, clearing ref');
                         logoFileRef.current = null;
-                        setEditingCompany(prev => {
+                        setEditingCompany((prev: any) => {
                           const updated = {...prev};
                           delete updated.hasNewLogo;
                           return updated;
