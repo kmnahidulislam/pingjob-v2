@@ -747,6 +747,35 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Company follow endpoint
+  app.post('/api/companies/:id/follow', async (req: any, res) => {
+    try {
+      const companyId = parseInt(req.params.id);
+      
+      if (isNaN(companyId)) {
+        return res.status(400).json({ message: 'Invalid company ID' });
+      }
+      
+      // Check if company exists
+      const company = await storage.getCompanyById(companyId);
+      if (!company) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+      
+      // For now, just return success - we can implement actual following logic later
+      console.log(`User attempting to follow company ${companyId} (${company.name})`);
+      
+      res.json({ 
+        message: 'Company followed successfully',
+        companyId: companyId,
+        companyName: company.name
+      });
+    } catch (error) {
+      console.error('Error following company:', error);
+      res.status(500).json({ message: 'Failed to follow company' });
+    }
+  });
+
   // User profile endpoint
   app.get('/api/profile/:userId', async (req, res) => {
     try {

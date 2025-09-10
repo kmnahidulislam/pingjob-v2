@@ -937,8 +937,8 @@ export default function CompaniesPage() {
 
   const handleEditCompany = (company: any) => {
     // If we're viewing company details, use the detailed data instead of basic company list data
-    const editCompany = (selectedCompany && selectedCompany.id === company.id && companyDetails) 
-      ? companyDetails 
+    const editCompany = (selectedCompany && selectedCompany.id === company.id) 
+      ? selectedCompany 
       : company;
     
     console.log('Setting editing company:', editCompany);
