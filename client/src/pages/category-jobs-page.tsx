@@ -205,7 +205,7 @@ export default function CategoryJobsPage() {
                           <div className="flex items-center gap-4 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                               <Building2 className="h-4 w-4" />
-                              <span>{job.company?.name || "Unknown Company"}</span>
+                              <span>{(job as any).companyName || job.company?.name || "Unknown Company"}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <MapPin className="h-4 w-4" />

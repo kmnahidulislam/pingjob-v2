@@ -219,7 +219,7 @@ export default function JobDetailsSimple() {
               {job.title || 'No Title'}
             </h1>
             <p className="text-lg text-gray-700 font-medium mb-2">
-              {job.company?.name || 'Unknown Company'}
+              {(job as any).companyName || job.company?.name || 'Unknown Company'}
             </p>
             <p className="text-gray-600 mb-4">
               {job.location || 'Location not specified'}

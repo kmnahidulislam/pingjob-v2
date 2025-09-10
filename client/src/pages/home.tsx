@@ -305,7 +305,7 @@ export default function Home() {
                     <div key={job.id} className="border-l-4 border-linkedin-blue pl-4">
                       <h4 className="font-medium text-sm">{job.title}</h4>
                       <p className="text-xs text-gray-600">
-                        {job.company?.name || 'Unknown Company'} • {
+                        {job.companyName || job.company?.name || 'Unknown Company'} • {
                           (() => {
                             if (job.company?.location) {
                               const cleaned = job.company.location

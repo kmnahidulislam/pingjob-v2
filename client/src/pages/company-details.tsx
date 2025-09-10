@@ -88,6 +88,7 @@ export default function CompanyDetails() {
   const vendors = companyDetails.vendors || [];
   const totalJobCount = companyDetails.totalJobCount || openJobs.length;
   
+  
   const getDisplayAddress = (company: any) => {
     const parts = [];
     if (company.city) parts.push(company.city);

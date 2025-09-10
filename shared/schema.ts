@@ -622,6 +622,11 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type JobCandidateAssignment = typeof jobCandidateAssignments.$inferSelect;
 export type InsertJobCandidateAssignment = z.infer<typeof insertJobCandidateAssignmentSchema>;
 
+// Extended Job type with computed fields from API responses
+export type JobWithCompanyName = Job & {
+  companyName?: string;
+};
+
 // Visit tracking
 export const insertVisitSchema = createInsertSchema(visits).omit({
   id: true,

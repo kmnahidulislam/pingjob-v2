@@ -207,7 +207,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
             {showCompany && (
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-600">{job.company?.name || 'Unknown Company'}</p>
+                <p className="text-xs text-gray-600">{job.companyName || job.company?.name || 'Unknown Company'}</p>
                 <div className="flex items-center gap-2">
                   {/* Admin Resume Count Badge - Clickable */}
                   {((user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && job.resumeCount !== undefined && Number(job.resumeCount) > 0) && (
@@ -277,7 +277,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 </h3>
                 {showCompany && (
                   <p className="text-gray-600 font-medium">
-                    {job.company?.name || 'Unknown Company'}
+                    {job.companyName || job.company?.name || 'Unknown Company'}
                   </p>
                 )}
                 <div className="flex items-center text-sm text-gray-500 mt-1">

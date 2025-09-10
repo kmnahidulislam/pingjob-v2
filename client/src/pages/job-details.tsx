@@ -370,7 +370,7 @@ export default function JobDetails() {
                     {job.title}
                   </h1>
                   <p className="text-lg text-gray-700 font-medium mb-2">
-                    {job.company?.name || 'Unknown Company'}
+                    {(job as any).companyName || job.company?.name || 'Unknown Company'}
                   </p>
                   <div className="flex items-center text-gray-600">
                     <MapPin className="h-4 w-4 mr-1" />
