@@ -49,10 +49,10 @@ export default function JobsOriginal() {
 
   // Fetch jobs using fast endpoint with category filtering and search
   const { data: jobs = [], isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/jobs', selectedCategory, filters.search, filters.location],
+    queryKey: ['/api/jobs', selectedCategory, filters.search, filters.location, user?.id],
     staleTime: 0, // Force fresh data fetch
     queryFn: async () => {
-      // If we have search terms, use the search API
+      // If we have search terms, use the search API (no limit for search results)
       if (filters.search.trim() || filters.location.trim()) {
         let searchUrl = '/api/search?';
         if (filters.search.trim()) {
@@ -77,8 +77,10 @@ export default function JobsOriginal() {
           return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
         });
       } else {
-        // Default behavior: fetch jobs normally
-        let url = '/api/jobs?limit=50';
+        // Default behavior: limit jobs based on authentication status
+        const limit = user ? 10 : 5; // 10 for logged-in users, 5 for non-logged users
+        let url = `/api/jobs?limit=${limit}`;
+        
         if (selectedCategory) {
           url += `&categoryId=${selectedCategory}`;
         } else {
@@ -90,6 +92,8 @@ export default function JobsOriginal() {
         
         console.log('🚀 FETCHING FROM URL:', url);
         console.log('🎯 SELECTED CATEGORY:', selectedCategory);
+        console.log('👤 USER STATUS:', user ? 'Logged In' : 'Not Logged In');
+        console.log('📊 LIMIT:', limit, 'jobs');
         console.log('🏢 TOP COMPANIES MODE:', !selectedCategory);
         
         const response = await fetch(url);
@@ -249,6 +253,45 @@ export default function JobsOriginal() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">Latest Job Opportunities</h2>
             </div>
+
+            {/* Info message about job limits */}
+            {!filters.search.trim() && !filters.location.trim() && !user && (
+              <Card className="bg-blue-50 border-blue-200 mb-6">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-100 p-2 rounded-full">
+                      <Users className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-800">
+                        <strong>Showing 5 most recent jobs.</strong> 
+                        <Link href="/auth" className="text-blue-600 hover:text-blue-700 font-medium underline ml-1">
+                          Sign up for free
+                        </Link> to see 10 latest jobs, or use search to find specific opportunities.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Info message for logged-in users */}
+            {!filters.search.trim() && !filters.location.trim() && user && (
+              <Card className="bg-green-50 border-green-200 mb-6">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-green-100 p-2 rounded-full">
+                      <Briefcase className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-800">
+                        <strong>Showing 10 latest jobs.</strong> Use the search above to find more specific job opportunities.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="space-y-4">
               {jobsLoading && (
