@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +8,26 @@ import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 import { useAuth } from "@/hooks/use-auth";
 import JobApplicationModal from "@/components/modals/job-application-modal";
+import { generateJobUrl, parseSlugUrl } from "../../../shared/slug-utils";
 
 export default function JobDetailsSimple() {
-  const { id } = useParams();
-  const [, navigate] = useLocation();
+  const { id, idSlug } = useParams();
+  const [location, navigate] = useLocation();
   const { user } = useAuth();
   const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
+  
+  // Extract ID from either the old format (:id) or new format (:idSlug)  
+  const getJobId = () => {
+    if (idSlug) {
+      // New format: /jobs/123-software-engineer-position
+      const parsed = parseSlugUrl(location);
+      return parsed ? parsed.id : parseInt(idSlug.split('-')[0]);
+    }
+    // Legacy format: /jobs/123
+    return parseInt(id || '');
+  };
+  
+  const jobId = getJobId();
 
   // Handle apply button click
   const handleApply = () => {
@@ -21,8 +35,9 @@ export default function JobDetailsSimple() {
     
     if (!user) {
       console.log('Redirecting to auth with job redirect...');
-      localStorage.setItem('postAuthRedirect', `/jobs/${id}`);
-      console.log('Stored postAuthRedirect:', `/jobs/${id}`);
+      // Store the current canonical URL for post-auth redirect
+      localStorage.setItem('postAuthRedirect', location);
+      console.log('Stored postAuthRedirect:', location);
       console.log('Current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
       navigate('/auth');
       return;
@@ -33,10 +48,10 @@ export default function JobDetailsSimple() {
   };
 
   const { data: job, isLoading, error } = useQuery({
-    queryKey: ['/api/jobs', id],
+    queryKey: ['/api/jobs', jobId],
     queryFn: async () => {
-      console.log('Fetching job details for ID:', id);
-      const response = await fetch(`/api/jobs/${id}`, {
+      console.log('Fetching job details for ID:', jobId);
+      const response = await fetch(`/api/jobs/${jobId}`, {
         credentials: 'include'
       });
       if (!response.ok) {
@@ -46,16 +61,28 @@ export default function JobDetailsSimple() {
       console.log('Job data received:', data);
       return data;
     },
-    enabled: !!id,
+    enabled: !!jobId && !isNaN(jobId),
     retry: false
   });
 
+  // Redirect to canonical URL if needed
+  useEffect(() => {
+    if (job && job.title && jobId) {
+      const canonicalPath = generateJobUrl(jobId, job.title);
+      if (location !== canonicalPath && !isLoading) {
+        console.log('Redirecting to canonical URL:', canonicalPath);
+        // Use replace to avoid creating history entries for redirects
+        navigate(canonicalPath, { replace: true });
+      }
+    }
+  }, [job, jobId, location, navigate, isLoading]);
+
   // Fetch vendors for this job
   const { data: vendorData } = useQuery({
-    queryKey: ['/api/jobs', id, 'vendors'],
+    queryKey: ['/api/jobs', jobId, 'vendors'],
     queryFn: async () => {
-      console.log('Fetching vendors for job ID:', id);
-      const response = await fetch(`/api/jobs/${id}/vendors`, {
+      console.log('Fetching vendors for job ID:', jobId);
+      const response = await fetch(`/api/jobs/${jobId}/vendors`, {
         credentials: 'include'
       });
       if (!response.ok) {
@@ -70,7 +97,7 @@ export default function JobDetailsSimple() {
       }
       return data || { vendors: [], isLimited: false, totalCount: 0 };
     },
-    enabled: !!id,
+    enabled: !!jobId && !isNaN(jobId),
     retry: false
   });
 

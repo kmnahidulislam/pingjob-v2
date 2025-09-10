@@ -625,6 +625,47 @@ export type InsertJobCandidateAssignment = z.infer<typeof insertJobCandidateAssi
 // Extended Job type with computed fields from API responses
 export type JobWithCompanyName = Job & {
   companyName?: string;
+  company?: {
+    id: number | null;
+    name: string;
+    logoUrl: string | null;
+    website: string | null;
+    description: string | null;
+  };
+  category?: {
+    id: number | null;
+    name: string;
+  };
+  applicationCount?: number;
+};
+
+// Specific type for job data returned by getJobById storage method
+export type JobSEOData = {
+  id: number;
+  title: string;
+  description: string;
+  location: string | null;
+  salary: string | null;
+  employmentType: "full_time" | "part_time" | "contract" | "remote";
+  requirements: string | null;
+  benefits: string | null;
+  isActive: boolean | null;
+  createdAt: Date | null;
+  companyId: number | null;
+  categoryId: number | null;
+  recruiterId: string | null;
+  company: {
+    id: number | null;
+    name: string;
+    logoUrl: string | null;
+    website: string | null;
+    description: string | null;
+  };
+  category: {
+    id: number | null;
+    name: string;
+  };
+  applicationCount: number;
 };
 
 // Visit tracking

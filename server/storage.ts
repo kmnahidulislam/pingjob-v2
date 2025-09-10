@@ -17,10 +17,41 @@ import {
   type InsertCompany,
   type InsertJobApplication
 } from "../shared/schema";
+import { generateJobUrl, generateCompanyUrl } from "../shared/slug-utils";
 import fs from "fs";
 import path from "path";
 
 export const storage = {
+  // Utility functions for generating canonical URLs
+  generateJobCanonicalUrl(jobId: number, jobTitle: string): string {
+    return generateJobUrl(jobId, jobTitle);
+  },
+
+  generateCompanyCanonicalUrl(companyId: number, companyName: string): string {
+    return generateCompanyUrl(companyId, companyName);
+  },
+
+  // Helper to add canonical URLs to job objects
+  addJobCanonicalUrl(job: any): any {
+    if (job && job.id && job.title) {
+      return {
+        ...job,
+        canonicalUrl: this.generateJobCanonicalUrl(job.id, job.title)
+      };
+    }
+    return job;
+  },
+
+  // Helper to add canonical URLs to company objects  
+  addCompanyCanonicalUrl(company: any): any {
+    if (company && company.id && company.name) {
+      return {
+        ...company,
+        canonicalUrl: this.generateCompanyCanonicalUrl(company.id, company.name)
+      };
+    }
+    return company;
+  },
   // Job applications - SIMPLIFIED: No auto-assignment
   async createJobApplication(data: any) {
     // ABSOLUTE BLOCK FOR AUTO-APPLICATIONS

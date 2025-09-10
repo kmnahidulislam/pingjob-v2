@@ -111,6 +111,7 @@ function Router() {
                        location === '/contact-sales' ||
                        location === '/pricing' ||
                        location.startsWith('/jobs/') ||
+                       location.startsWith('/companies/') ||
                        location.startsWith('/categories/') ||
                        location.startsWith('/invite/') ||
                        location === '/companies' ||
@@ -165,7 +166,10 @@ function Router() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Switch>
-          <Route path="/jobs/:id" component={JobDetailsSimple} />
+          {/* New slug-based routes - must come before legacy routes */}
+          <Route path="/jobs/:idSlug" component={JobDetailsSimple} />
+          <Route path="/companies/:idSlug" component={CompanyDetails} />
+          
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/invite/:token" component={InvitationAccept} />
           <Route path="/auth/callback" component={AuthCallback} />
@@ -179,7 +183,6 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
-          <Route path="/companies/:id" component={CompanyDetails} />
           <Route path="/companies" component={Companies} />
           <Route path="/jobs" component={JobsOriginal} />
           <Route path="/test-minimal" component={TestMinimal} />
@@ -204,7 +207,10 @@ function Router() {
     <div className="min-h-screen bg-gray-50">
       <ProtectedLayout>
         <Switch>
-          <Route path="/jobs/:id" component={JobDetailsSimple} />
+          {/* New slug-based routes - must come before legacy routes */}
+          <Route path="/jobs/:idSlug" component={JobDetailsSimple} />
+          <Route path="/companies/:idSlug" component={CompanyDetails} />
+          
           <Route path="/categories/:categoryId/jobs" component={CategoryJobsPage} />
           <Route path="/auth/callback" component={AuthCallback} />
           <Route path="/job-create" component={JobCreate} />
@@ -212,7 +218,6 @@ function Router() {
           <Route path="/company-create" component={CompanyCreate} />
           <Route path="/company/create" component={CompanyCreate} />
           <Route path="/companies/create" component={CompanyCreate} />
-          <Route path="/companies/:id" component={CompanyDetails} />
           <Route path="/companies" component={Companies} />
           <Route path="/profile/:id?" component={Profile} />
           <Route path="/applications" component={Applications} />

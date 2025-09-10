@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { generateCompanyUrl, generateJobUrl, parseSlugUrl } from "../../../shared/slug-utils";
 // Format job location helper function
 const formatJobLocation = (job: any) => {
   const parts = [];
@@ -21,16 +22,29 @@ const formatJobLocation = (job: any) => {
 };
 
 export default function CompanyDetails() {
-  const { id } = useParams();
+  const { id, idSlug } = useParams();
   const { user } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const { toast } = useToast();
+  
+  // Extract ID from either the old format (:id) or new format (:idSlug)
+  const getCompanyId = () => {
+    if (idSlug) {
+      // New format: /companies/123-acme-corporation
+      const parsed = parseSlugUrl(location);
+      return parsed ? parsed.id : parseInt(idSlug.split('-')[0]);
+    }
+    // Legacy format: /companies/123
+    return parseInt(id || '');
+  };
+  
+  const companyId = getCompanyId();
 
-  const handleApplyNow = (jobId: number) => {
+  const handleApplyNow = (jobId: number, jobTitle?: string) => {
     console.log('Company page Apply Now clicked, user:', user, 'jobId:', jobId);
     if (!user) {
-      // Store the job application intent and redirect to login
-      const redirectPath = `/jobs/${jobId}`;
+      // Store the job application intent and redirect to login using canonical URL
+      const redirectPath = jobTitle ? generateJobUrl(jobId, jobTitle) : `/jobs/${jobId}`;
       localStorage.setItem('postAuthRedirect', redirectPath);
       console.log('Company page stored postAuthRedirect:', redirectPath);
       console.log('Company page current localStorage postAuthRedirect:', localStorage.getItem('postAuthRedirect'));
@@ -38,22 +52,22 @@ export default function CompanyDetails() {
       return;
     }
     
-    // Navigate to job details page where they can apply
-    navigate(`/jobs/${jobId}`);
+    // Navigate to job details page where they can apply using canonical URL
+    const jobPath = jobTitle ? generateJobUrl(jobId, jobTitle) : `/jobs/${jobId}`;
+    navigate(jobPath);
   };
 
   const handleFollow = async () => {
     // Check if user is authenticated first
     if (!user) {
       // Store the current page as redirect destination and go to login
-      const redirectPath = `/companies/${id}`;
-      localStorage.setItem('postAuthRedirect', redirectPath);
+      localStorage.setItem('postAuthRedirect', location);
       navigate('/auth');
       return;
     }
 
     try {
-      const response = await fetch(`/api/companies/${id}/follow`, {
+      const response = await fetch(`/api/companies/${companyId}/follow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,8 +84,7 @@ export default function CompanyDetails() {
         });
       } else if (response.status === 401) {
         // Handle session expiry - redirect to login
-        const redirectPath = `/companies/${id}`;
-        localStorage.setItem('postAuthRedirect', redirectPath);
+        localStorage.setItem('postAuthRedirect', location);
         navigate('/auth');
       } else {
         toast({
@@ -90,13 +103,25 @@ export default function CompanyDetails() {
   };
   
   const { data: companyDetails, isLoading } = useQuery({
-    queryKey: [`/api/companies/${id}/details`],
+    queryKey: [`/api/companies/${companyId}/details`],
     queryFn: async () => {
-      const response = await apiRequest('GET', `/api/companies/${id}/details`);
+      const response = await apiRequest('GET', `/api/companies/${companyId}/details`);
       return response.json();
     },
-    enabled: !!id
+    enabled: !!companyId && !isNaN(companyId)
   });
+
+  // Redirect to canonical URL if needed
+  useEffect(() => {
+    if (companyDetails && companyDetails.name && companyId) {
+      const canonicalPath = generateCompanyUrl(companyId, companyDetails.name);
+      if (location !== canonicalPath && !isLoading) {
+        console.log('Redirecting to canonical URL:', canonicalPath);
+        // Use replace to avoid creating history entries for redirects
+        navigate(canonicalPath, { replace: true });
+      }
+    }
+  }, [companyDetails, companyId, location, navigate, isLoading]);
 
   if (isLoading) {
     return (
