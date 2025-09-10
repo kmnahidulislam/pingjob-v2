@@ -41,14 +41,27 @@ export default function CompanyDetails() {
   };
   
   const { data: companyDetails, isLoading } = useQuery({
-    queryKey: [`/api/companies/${id}/details`],
+    queryKey: [`/api/companies/${id}/details`, Date.now()], // Force unique key every time
     queryFn: async () => {
-      const response = await apiRequest('GET', `/api/companies/${id}/details`);
-      return response.json();
+      const response = await fetch(`/api/companies/${id}/details`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+      });
+      const data = await response.json();
+      console.log('🔥 RAW API Data:', data);
+      console.log('🔥 totalJobCount:', data.totalJobCount, typeof data.totalJobCount);
+      return data;
     },
     enabled: !!id,
-    staleTime: 0, // Force fresh fetch
-    gcTime: 0 // React Query v5 uses gcTime instead of cacheTime
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   if (isLoading) {
