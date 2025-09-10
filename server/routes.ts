@@ -969,7 +969,11 @@ export function registerRoutes(app: Express) {
       }
 
       // Get active jobs for this company
-      const openJobs = await storage.getCompanyJobs(companyId);
+      const allOpenJobs = await storage.getCompanyJobs(companyId);
+      
+      // Limit jobs based on authentication status
+      const jobLimit = isUserAuthenticated ? 10 : 5;
+      const openJobs = allOpenJobs.slice(0, jobLimit);
       
       // Get vendors for this company  
       const allVendors = await storage.getCompanyVendors(companyId);
@@ -993,7 +997,7 @@ export function registerRoutes(app: Express) {
         totalVendorCount
       };
       
-      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
+      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs${allOpenJobs.length > openJobs.length ? ` of ${allOpenJobs.length}` : ''}, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
       res.json(result);
       
     } catch (error) {

@@ -84,12 +84,8 @@ export default function CompanyDetails() {
   }
 
   const company = companyDetails;
-  const allOpenJobs = companyDetails.openJobs || [];
+  const openJobs = companyDetails.openJobs || [];
   const vendors = companyDetails.vendors || [];
-  
-  // Limit jobs based on authentication status
-  const jobLimit = user ? 10 : 5;
-  const openJobs = allOpenJobs.slice(0, jobLimit);
   
   const getDisplayAddress = (company: any) => {
     const parts = [];
@@ -200,9 +196,7 @@ export default function CompanyDetails() {
         {/* Tabs Content */}
         <Tabs defaultValue="jobs" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="jobs">
-              Open Jobs ({allOpenJobs.length > jobLimit ? `${openJobs.length} of ${allOpenJobs.length}` : openJobs.length})
-            </TabsTrigger>
+            <TabsTrigger value="jobs">Open Jobs ({openJobs.length})</TabsTrigger>
             {vendors.length > 0 && (
               <TabsTrigger value="vendors">Vendors ({vendors.length})</TabsTrigger>
             )}
@@ -210,45 +204,6 @@ export default function CompanyDetails() {
 
           {/* Jobs Tab */}
           <TabsContent value="jobs" className="space-y-4">
-            {/* Info message about job limits */}
-            {allOpenJobs.length > jobLimit && !user && (
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-blue-100 p-2 rounded-full">
-                      <Users className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-blue-800">
-                        <strong>Showing 5 of {allOpenJobs.length} jobs.</strong> 
-                        <Link href="/auth" className="text-blue-600 hover:text-blue-700 font-medium underline ml-1">
-                          Sign up for free
-                        </Link> to see up to 10 jobs per company.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Info message for logged-in users */}
-            {allOpenJobs.length > jobLimit && user && (
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-green-100 p-2 rounded-full">
-                      <Briefcase className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-green-800">
-                        <strong>Showing 10 of {allOpenJobs.length} jobs.</strong> Use search to find more specific opportunities from this company.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
             {openJobs.length > 0 ? (
               <div className="grid gap-4">
                 {openJobs.map((job: any) => (
