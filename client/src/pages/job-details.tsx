@@ -50,13 +50,13 @@ function getServiceNames(services: string): string {
 }
 
 // Vendor Info Card Component
-function VendorInfoCard({ companyId }: { companyId: number }) {
+function VendorInfoCard({ jobId }: { jobId: number }) {
   const { user } = useAuth();
   
   const { data: vendorResponse, isLoading } = useQuery({
-    queryKey: [`/api/companies/${companyId}/vendors`],
+    queryKey: [`/api/jobs/${jobId}/vendors`],
     queryFn: async () => {
-      const response = await fetch(`/api/companies/${companyId}/vendors`, {
+      const response = await fetch(`/api/jobs/${jobId}/vendors`, {
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch vendors');
@@ -510,8 +510,8 @@ export default function JobDetails() {
         </Card>
 
         {/* Vendors Card */}
-        {job.company && (
-          <VendorInfoCard companyId={job.company.id} />
+        {job.id && (
+          <VendorInfoCard jobId={job.id} />
         )}
 
         {/* Company Info Card */}

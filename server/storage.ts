@@ -1435,20 +1435,46 @@ export const storage = {
     try {
       const result = await db
         .select({
-          id: vendors.id,
-          name: vendors.name,
-          email: vendors.email,
-          phone: vendors.phone,
-          services: vendors.services,
-          status: vendors.status,
-          createdAt: vendors.createdAt
+          vendor_id: vendors.id,
+          vendor_name: vendors.name,
+          vendor_email: vendors.email,
+          vendor_phone: vendors.phone,
+          vendor_services: vendors.services,
+          vendor_status: vendors.status,
+          vendor_created_at: vendors.createdAt,
+          vendor_city: vendors.vendorCity,
+          vendor_state: vendors.vendorState,
+          vendor_zip_code: vendors.vendorZipCode,
+          vendor_address: vendors.vendorAddress,
+          company_city: companies.city,
+          company_state: companies.state,
+          company_zip_code: companies.zipCode,
+          company_location: companies.location,
+          company_country: companies.country,
+          company_website: companies.website
         })
         .from(vendors)
+        .innerJoin(companies, eq(vendors.companyId, companies.id))
         .where(eq(vendors.companyId, companyId))
         .orderBy(vendors.createdAt);
 
       console.log(`✅ Found ${result.length} vendors for company ${companyId}`);
-      return result;
+      
+      // Map to expected format with vendor address priority
+      return result.map((row: any) => ({
+        vendor_id: row.vendor_id,
+        vendor_name: row.vendor_name,
+        email: row.vendor_email,
+        phone: row.vendor_phone,
+        services: row.vendor_services,
+        status: row.vendor_status,
+        created_at: row.vendor_created_at,
+        city: (row.vendor_city && row.vendor_city !== 'NULL' && row.vendor_city.trim() !== '') ? row.vendor_city : row.company_city,
+        state: (row.vendor_state && row.vendor_state !== 'NULL' && row.vendor_state.trim() !== '') ? row.vendor_state : row.company_state,
+        zip_code: (row.vendor_zip_code && row.vendor_zip_code !== 'NULL' && row.vendor_zip_code.trim() !== '') ? row.vendor_zip_code : row.company_zip_code,
+        country: row.company_country,
+        website: row.company_website
+      }));
     } catch (error) {
       console.error('Error fetching company vendors:', error);
       return [];
