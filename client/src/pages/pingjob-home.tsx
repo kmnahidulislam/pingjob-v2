@@ -595,48 +595,6 @@ export default function PingJobHome() {
             </div>
           </div>
 
-          {/* Real-time Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            <Card className="p-6 bg-white/90 backdrop-blur-md border border-blue-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
-                  <Briefcase className="h-8 w-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-blue-600 mb-1">{jobStats.totalJobs}</div>
-                <div className="text-xs font-medium text-gray-600">Active Jobs</div>
-              </div>
-            </Card>
-            
-            <Card className="p-6 bg-white/90 backdrop-blur-md border border-green-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-green-600 group-hover:to-green-700 transition-all duration-300">
-                  <Building2 className="h-8 w-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-green-600 mb-1">{jobStats.activeCompanies}</div>
-                <div className="text-xs font-medium text-gray-600">Companies</div>
-              </div>
-            </Card>
-            
-            <Card className="p-6 bg-white/90 backdrop-blur-md border border-purple-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-purple-600 group-hover:to-purple-700 transition-all duration-300">
-                  <TrendingUp className="h-8 w-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-purple-600 mb-1">{jobStats.totalCategories}</div>
-                <div className="text-xs font-medium text-gray-600">Categories</div>
-              </div>
-            </Card>
-            
-            <Card className="p-6 bg-white/90 backdrop-blur-md border border-orange-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 group">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:from-orange-600 group-hover:to-orange-700 transition-all duration-300">
-                  <Clock className="h-8 w-8 text-white" />
-                </div>
-                <div className="text-3xl font-bold text-orange-600 mb-1">{jobStats.todayJobs}</div>
-                <div className="text-xs font-medium text-gray-600">Posted Today</div>
-              </div>
-            </Card>
-          </div>
         </div>
       </section>
 
@@ -830,6 +788,46 @@ export default function PingJobHome() {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             
+            {/* Platform Statistics */}
+            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-t-lg">
+                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
+                  <BarChart3 className="h-5 w-5 text-gray-600 mr-2" />
+                  Platform Statistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 p-6">
+                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center">
+                    <Briefcase className="h-4 w-4 text-blue-600 mr-2" />
+                    <span className="text-sm font-medium text-gray-700">Active Jobs</span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-600">{jobStats.totalJobs}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center">
+                    <Building2 className="h-4 w-4 text-green-600 mr-2" />
+                    <span className="text-sm font-medium text-gray-700">Companies</span>
+                  </div>
+                  <span className="text-lg font-bold text-green-600">{jobStats.activeCompanies}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                  <div className="flex items-center">
+                    <TrendingUp className="h-4 w-4 text-purple-600 mr-2" />
+                    <span className="text-sm font-medium text-gray-700">Categories</span>
+                  </div>
+                  <span className="text-lg font-bold text-purple-600">{jobStats.totalCategories}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 text-orange-600 mr-2" />
+                    <span className="text-sm font-medium text-gray-700">Posted Today</span>
+                  </div>
+                  <span className="text-lg font-bold text-orange-600">{jobStats.todayJobs}</span>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Top Job Categories */}
             <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
