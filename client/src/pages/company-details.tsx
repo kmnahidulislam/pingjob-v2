@@ -10,6 +10,7 @@ import { MapPin, Briefcase, Users, Globe, Calendar, Heart, ArrowLeft, ExternalLi
 import { apiRequest } from '@/lib/queryClient';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 // Format job location helper function
 const formatJobLocation = (job: any) => {
   const parts = [];
@@ -23,6 +24,7 @@ export default function CompanyDetails() {
   const { id } = useParams();
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { toast } = useToast();
 
   const handleApplyNow = (jobId: number) => {
     console.log('Company page Apply Now clicked, user:', user, 'jobId:', jobId);
@@ -38,6 +40,45 @@ export default function CompanyDetails() {
     
     // Navigate to job details page where they can apply
     navigate(`/jobs/${jobId}`);
+  };
+
+  const handleFollow = async () => {
+    try {
+      const response = await fetch(`/api/companies/${id}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Success!",
+          description: data.message || "You are now following this company.",
+        });
+      } else if (response.status === 401) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to follow companies.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to follow company. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to follow company. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
   const { data: companyDetails, isLoading } = useQuery({
@@ -167,20 +208,34 @@ export default function CompanyDetails() {
                 </div>
 
                 {/* Company Stats */}
-                <div className="flex items-center space-x-4">
-                  {openJobs.length > 0 && (
-                    <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-                      <Briefcase className="h-4 w-4 mr-1" />
-                      {openJobs.length} Open Job{openJobs.length !== 1 ? 's' : ''}
-                    </Badge>
-                  )}
-                  
-                  {vendors.length > 0 && (
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
-                      <Users className="h-4 w-4 mr-1" />
-                      {vendors.length} Vendor{vendors.length !== 1 ? 's' : ''}
-                    </Badge>
-                  )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    {openJobs.length > 0 && (
+                      <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                        <Briefcase className="h-4 w-4 mr-1" />
+                        {openJobs.length} Open Job{openJobs.length !== 1 ? 's' : ''}
+                      </Badge>
+                    )}
+                    
+                    {vendors.length > 0 && (
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">
+                        <Users className="h-4 w-4 mr-1" />
+                        {vendors.length} Vendor{vendors.length !== 1 ? 's' : ''}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Follow Button */}
+                  <Button 
+                    onClick={handleFollow}
+                    variant="outline"
+                    size="sm"
+                    className="ml-4"
+                    data-testid="button-follow-company"
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Follow
+                  </Button>
                 </div>
               </div>
             </div>
@@ -287,7 +342,7 @@ export default function CompanyDetails() {
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
-                          {vendor.name.charAt(0)}
+                          {vendor.name ? vendor.name.charAt(0) : '?'}
                         </div>
                         <div>
                           <h4 className="font-semibold">{vendor.name}</h4>

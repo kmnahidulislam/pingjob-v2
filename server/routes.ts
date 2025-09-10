@@ -747,8 +747,8 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Company follow endpoint
-  app.post('/api/companies/:id/follow', async (req: any, res) => {
+  // Company follow endpoint - requires authentication
+  app.post('/api/companies/:id/follow', isAuthenticated, async (req: any, res) => {
     try {
       const companyId = parseInt(req.params.id);
       
