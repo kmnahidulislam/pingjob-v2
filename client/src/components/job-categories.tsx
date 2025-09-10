@@ -83,15 +83,6 @@ export function JobCategories({
           </button>
         ))}
         
-        {!showAll && categories.length > limit && (
-          <div className="pt-2">
-            <Link href="/categories">
-              <button className="w-full text-blue-600 hover:text-blue-800 text-sm font-medium py-2">
-                View All Categories
-              </button>
-            </Link>
-          </div>
-        )}
       </div>
     );
   }
