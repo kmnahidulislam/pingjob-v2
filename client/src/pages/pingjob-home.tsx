@@ -796,34 +796,28 @@ export default function PingJobHome() {
                   Platform Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 p-6">
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Briefcase className="h-4 w-4 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-gray-700">Active Jobs</span>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-2 bg-blue-50 rounded-lg">
+                    <Briefcase className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                    <div className="text-lg font-bold text-blue-600">{jobStats.totalJobs}</div>
+                    <div className="text-xs text-gray-600">Active Jobs</div>
                   </div>
-                  <span className="text-lg font-bold text-blue-600">{jobStats.totalJobs}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Building2 className="h-4 w-4 text-green-600 mr-2" />
-                    <span className="text-sm font-medium text-gray-700">Companies</span>
+                  <div className="text-center p-2 bg-green-50 rounded-lg">
+                    <Building2 className="h-4 w-4 text-green-600 mx-auto mb-1" />
+                    <div className="text-lg font-bold text-green-600">{jobStats.activeCompanies}</div>
+                    <div className="text-xs text-gray-600">Companies</div>
                   </div>
-                  <span className="text-lg font-bold text-green-600">{jobStats.activeCompanies}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                  <div className="flex items-center">
-                    <TrendingUp className="h-4 w-4 text-purple-600 mr-2" />
-                    <span className="text-sm font-medium text-gray-700">Categories</span>
+                  <div className="text-center p-2 bg-purple-50 rounded-lg">
+                    <TrendingUp className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+                    <div className="text-lg font-bold text-purple-600">{jobStats.totalCategories}</div>
+                    <div className="text-xs text-gray-600">Categories</div>
                   </div>
-                  <span className="text-lg font-bold text-purple-600">{jobStats.totalCategories}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 text-orange-600 mr-2" />
-                    <span className="text-sm font-medium text-gray-700">Posted Today</span>
+                  <div className="text-center p-2 bg-orange-50 rounded-lg">
+                    <Clock className="h-4 w-4 text-orange-600 mx-auto mb-1" />
+                    <div className="text-lg font-bold text-orange-600">{jobStats.todayJobs}</div>
+                    <div className="text-xs text-gray-600">Posted Today</div>
                   </div>
-                  <span className="text-lg font-bold text-orange-600">{jobStats.todayJobs}</span>
                 </div>
               </CardContent>
             </Card>
