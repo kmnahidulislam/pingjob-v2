@@ -86,7 +86,10 @@ export default function CompanyDetails() {
   const company = companyDetails;
   const openJobs = companyDetails.openJobs || [];
   const vendors = companyDetails.vendors || [];
-  const totalJobCount = companyDetails.totalJobCount || openJobs.length;
+  // Ensure totalJobCount is properly handled - use explicit check instead of || operator
+  const totalJobCount = companyDetails.totalJobCount !== undefined && companyDetails.totalJobCount !== null 
+    ? Number(companyDetails.totalJobCount) 
+    : openJobs.length;
   
   
   const getDisplayAddress = (company: any) => {
