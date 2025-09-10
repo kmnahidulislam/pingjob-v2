@@ -971,9 +971,18 @@ export function registerRoutes(app: Express) {
       // Get active jobs for this company
       const allOpenJobs = await storage.getCompanyJobs(companyId);
       
+      // Sort by creation date (most recent first)
+      const sortedJobs = allOpenJobs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      
       // Limit jobs based on authentication status
       const jobLimit = isUserAuthenticated ? 10 : 5;
-      const openJobs = allOpenJobs.slice(0, jobLimit);
+      const openJobs = sortedJobs.slice(0, jobLimit);
+      
+      // Add company name to each job
+      const jobsWithCompany = openJobs.map(job => ({
+        ...job,
+        companyName: company.name
+      }));
       
       // Get vendors for this company  
       const allVendors = await storage.getCompanyVendors(companyId);
@@ -992,12 +1001,13 @@ export function registerRoutes(app: Express) {
       
       const result = {
         ...company,
-        openJobs,
+        openJobs: jobsWithCompany,
+        totalJobCount: allOpenJobs.length,
         vendors,
         totalVendorCount
       };
       
-      console.log(`✅ Company details for ${companyId}: ${openJobs.length} jobs${allOpenJobs.length > openJobs.length ? ` of ${allOpenJobs.length}` : ''}, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
+      console.log(`✅ Company details for ${companyId}: ${jobsWithCompany.length} jobs${allOpenJobs.length > jobsWithCompany.length ? ` of ${allOpenJobs.length}` : ''}, ${vendors.length} vendors${!isUserAuthenticated ? ' (limited for unauthenticated user)' : ''}`);
       res.json(result);
       
     } catch (error) {

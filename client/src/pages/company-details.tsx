@@ -86,6 +86,7 @@ export default function CompanyDetails() {
   const company = companyDetails;
   const openJobs = companyDetails.openJobs || [];
   const vendors = companyDetails.vendors || [];
+  const totalJobCount = companyDetails.totalJobCount || openJobs.length;
   
   const getDisplayAddress = (company: any) => {
     const parts = [];
@@ -196,7 +197,7 @@ export default function CompanyDetails() {
         {/* Tabs Content */}
         <Tabs defaultValue="jobs" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="jobs">Open Jobs ({openJobs.length})</TabsTrigger>
+            <TabsTrigger value="jobs">Open Jobs ({totalJobCount})</TabsTrigger>
             {vendors.length > 0 && (
               <TabsTrigger value="vendors">Vendors ({vendors.length})</TabsTrigger>
             )}
