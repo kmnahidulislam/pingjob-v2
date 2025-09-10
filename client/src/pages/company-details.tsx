@@ -43,6 +43,15 @@ export default function CompanyDetails() {
   };
 
   const handleFollow = async () => {
+    // Check if user is authenticated first
+    if (!user) {
+      // Store the current page as redirect destination and go to login
+      const redirectPath = `/companies/${id}`;
+      localStorage.setItem('postAuthRedirect', redirectPath);
+      navigate('/auth');
+      return;
+    }
+
     try {
       const response = await fetch(`/api/companies/${id}/follow`, {
         method: 'POST',
@@ -60,11 +69,10 @@ export default function CompanyDetails() {
           description: data.message || "You are now following this company.",
         });
       } else if (response.status === 401) {
-        toast({
-          title: "Authentication Required",
-          description: "Please log in to follow companies.",
-          variant: "destructive",
-        });
+        // Handle session expiry - redirect to login
+        const redirectPath = `/companies/${id}`;
+        localStorage.setItem('postAuthRedirect', redirectPath);
+        navigate('/auth');
       } else {
         toast({
           title: "Error",
