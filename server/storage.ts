@@ -1344,20 +1344,47 @@ export const storage = {
 
       if (jobVendorResult.rows && jobVendorResult.rows.length > 0) {
         console.log(`✅ Found ${jobVendorResult.rows.length} vendors via job_vendors for job ${jobId}`);
-        return jobVendorResult.rows.map((row: any) => ({
-          id: row.id,
-          name: row.name,
-          phone: row.phone,
-          services: row.services,
-          status: row.status,
-          companyId: row.company_id,
-          city: row.company_city,
-          state: row.company_state,
-          zipCode: row.company_zip_code,
-          address: row.company_address,
-          website: row.website,
-          country: row.company_country
-        }));
+        // Map vendor data and check for company name matches for addresses
+        const vendorPromises = jobVendorResult.rows.map(async (row: any) => {
+          // Check if there's a company with the same name as the vendor
+          const matchingCompany = await db
+            .select({
+              city: companies.city,
+              state: companies.state,
+              zipCode: companies.zipCode,
+              address: companies.location,
+              country: companies.country
+            })
+            .from(companies)
+            .where(eq(companies.name, row.name))
+            .limit(1);
+
+          // Use matching company address if found, otherwise use assigned company address
+          const addressInfo = matchingCompany.length > 0 ? matchingCompany[0] : {
+            city: row.company_city,
+            state: row.company_state,
+            zipCode: row.company_zip_code,
+            address: row.company_address,
+            country: row.company_country
+          };
+
+          return {
+            id: row.id,
+            name: row.name,
+            phone: row.phone,
+            services: row.services,
+            status: row.status,
+            companyId: row.company_id,
+            city: addressInfo.city,
+            state: addressInfo.state,
+            zipCode: addressInfo.zipCode,
+            address: addressInfo.address,
+            website: row.website,
+            country: addressInfo.country
+          };
+        });
+
+        return Promise.all(vendorPromises);
       }
 
       // Fallback to old method if no job_vendors associations exist
@@ -1389,21 +1416,62 @@ export const storage = {
         ));
 
       console.log(`✅ Found ${result.length} vendors via fallback for job ${jobId}`);
-      return result.map((vendor: any) => ({
-        id: vendor.id,
-        name: vendor.name,
-        phone: vendor.phone,
-        services: vendor.services,
-        status: vendor.status,
-        companyId: vendor.companyId,
-        createdAt: vendor.createdAt,
-        city: vendor.companyCity,
-        state: vendor.companyState,
-        zipCode: vendor.companyZipCode,
-        address: vendor.companyAddress,
-        website: vendor.website,
-        country: vendor.companyCountry
-      }));
+      
+      // Apply same address logic to fallback vendors
+      const fallbackPromises = result.map(async (vendor: any) => {
+        const vendorNameNormalized = vendor.name?.trim().toLowerCase();
+        console.log(`🔍 Looking for company matching vendor: "${vendor.name}"`);
+        
+        // Check if there's a company with the same name as the vendor (case insensitive)
+        const matchingCompany = await db
+          .select({
+            city: companies.city,
+            state: companies.state,
+            zipCode: companies.zipCode,
+            address: companies.location,
+            country: companies.country,
+            name: companies.name
+          })
+          .from(companies)
+          .where(eq(companies.name, vendor.name))
+          .limit(1);
+
+        // Use matching company address if found and not null, otherwise use assigned company address
+        const hasMatch = matchingCompany.length > 0 && matchingCompany[0];
+        const useMatchedAddress = hasMatch && (matchingCompany[0].address || matchingCompany[0].city || matchingCompany[0].state || matchingCompany[0].zipCode);
+        
+        if (useMatchedAddress) {
+          console.log(`✅ Found matching company for "${vendor.name}": ${matchingCompany[0].address || 'No address'}`);
+        } else {
+          console.log(`❌ No matching company for "${vendor.name}", using assigned company address`);
+        }
+
+        const addressInfo = useMatchedAddress ? matchingCompany[0] : {
+          city: vendor.companyCity,
+          state: vendor.companyState,
+          zipCode: vendor.companyZipCode,
+          address: vendor.companyAddress,
+          country: vendor.companyCountry
+        };
+
+        return {
+          id: vendor.id,
+          name: vendor.name,
+          phone: vendor.phone,
+          services: vendor.services,
+          status: vendor.status,
+          companyId: vendor.companyId,
+          createdAt: vendor.createdAt,
+          city: addressInfo.city,
+          state: addressInfo.state,
+          zipCode: addressInfo.zipCode,
+          address: addressInfo.address,
+          website: vendor.website,
+          country: addressInfo.country
+        };
+      });
+
+      return await Promise.all(fallbackPromises);
     } catch (error) {
       console.error('Error fetching job vendors:', error);
       return [];
