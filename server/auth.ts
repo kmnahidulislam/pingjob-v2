@@ -452,22 +452,54 @@ export function setupAuth(app: Express) {
     })(req, res, next);
   });
 
-  app.get('/api/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/auth' }),
-    (req: any, res) => {
-      // Set session user data
-      req.session.user = {
-        id: req.user.id,
-        email: req.user.email,
-        firstName: req.user.first_name,
-        lastName: req.user.last_name,
-        userType: req.user.user_type
-      };
+  app.get('/api/auth/google/callback', (req, res, next) => {
+    console.log('🔐 Google callback route hit');
+    passport.authenticate('google', { session: true, failureRedirect: '/auth?error=oauth_failed' }, (err, user) => {
+      if (err) {
+        console.error('🔐 OAuth authentication error:', err);
+        return res.redirect('/auth?error=oauth_error');
+      }
       
-      // Redirect to client-side callback handler to check for postAuthRedirect
-      res.redirect('/auth/callback');
-    }
-  );
+      if (!user) {
+        console.error('🔐 No user returned from Google OAuth');
+        return res.redirect('/auth?error=oauth_no_user');
+      }
+      
+      console.log('🔐 OAuth user authenticated:', user.email);
+      
+      // Use req.logIn to properly establish the session
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error('🔐 Login error:', loginErr);
+          return next(loginErr);
+        }
+        
+        console.log('🔐 User logged in successfully, setting session data');
+        
+        // Set session user data for consistency with regular login
+        req.session.user = {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          userType: user.user_type
+        };
+        
+        console.log('🔐 Session data set, saving session before redirect');
+        
+        // Explicitly save session before redirecting
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error('🔐 Session save error:', saveErr);
+            return next(saveErr);
+          }
+          
+          console.log('🔐 Session saved successfully, redirecting to /auth/callback');
+          res.redirect('/auth/callback');
+        });
+      });
+    })(req, res, next);
+  });
 
   // Handle both GET and POST requests for logout
   app.post('/api/logout', logoutHandler);
