@@ -122,10 +122,10 @@ function VendorInfoCard({ jobId }: { jobId: number }) {
       <CardContent>
         <div className="space-y-4">
           {vendorsToShow.map((vendor: any) => (
-            <div key={vendor.vendor_id} className="border rounded-lg p-4 bg-gray-50">
+            <div key={vendor.id} className="border rounded-lg p-4 bg-gray-50">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="font-semibold text-lg">{vendor.vendor_name}</h4>
+                  <h4 className="font-semibold text-lg">{vendor.name}</h4>
                   <p className="text-blue-600 text-sm font-medium mb-2">
                     {getServiceNames(vendor.services)}
                   </p>
@@ -134,7 +134,7 @@ function VendorInfoCard({ jobId }: { jobId: number }) {
                   <div className="flex items-center gap-1 text-gray-600 text-sm mb-2">
                     <MapPin className="h-4 w-4" />
                     <span>
-                      {[vendor.city, vendor.state, vendor.zip_code, vendor.country]
+                      {[vendor.city, vendor.state, vendor.zipCode, vendor.country]
                         .filter(Boolean)
                         .join(', ')}
                     </span>
