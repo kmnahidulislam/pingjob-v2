@@ -41,27 +41,12 @@ export default function CompanyDetails() {
   };
   
   const { data: companyDetails, isLoading } = useQuery({
-    queryKey: [`/api/companies/${id}/details`, Date.now()], // Force unique key every time
+    queryKey: [`/api/companies/${id}/details`],
     queryFn: async () => {
-      const response = await fetch(`/api/companies/${id}/details`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
-      });
-      const data = await response.json();
-      console.log('🔥 RAW API Data:', data);
-      console.log('🔥 totalJobCount:', data.totalJobCount, typeof data.totalJobCount);
-      return data;
+      const response = await apiRequest('GET', `/api/companies/${id}/details`);
+      return response.json();
     },
-    enabled: !!id,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true
+    enabled: !!id
   });
 
   if (isLoading) {

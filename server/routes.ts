@@ -971,8 +971,12 @@ export function registerRoutes(app: Express) {
       // Get active jobs for this company
       const allOpenJobs = await storage.getCompanyJobs(companyId);
       
-      // Sort by creation date (most recent first)
-      const sortedJobs = allOpenJobs.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      // Sort by updated date first, then creation date (most recent first)
+      const sortedJobs = allOpenJobs.sort((a, b) => {
+        const aDate = new Date(a.updatedAt || a.createdAt || 0).getTime();
+        const bDate = new Date(b.updatedAt || b.createdAt || 0).getTime();
+        return bDate - aDate;
+      });
       
       // Limit jobs based on authentication status
       const jobLimit = isUserAuthenticated ? 10 : 5;
