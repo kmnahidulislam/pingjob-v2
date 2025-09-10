@@ -43,14 +43,21 @@ export default function CompanyDetails() {
   };
 
   const handleFollow = async () => {
+    console.log('🔄 Follow clicked - User state:', user);
+    console.log('🔄 Follow clicked - User is null:', !user);
+    console.log('🔄 Follow clicked - User object:', JSON.stringify(user));
+    
     // Check if user is authenticated first
     if (!user) {
+      console.log('🔄 REDIRECTING TO LOGIN - User not authenticated');
       // Store the current page as redirect destination and go to login
       const redirectPath = `/companies/${id}`;
       localStorage.setItem('postAuthRedirect', redirectPath);
       navigate('/auth');
       return;
     }
+    
+    console.log('🔄 MAKING API CALL - User is authenticated');
 
     try {
       const response = await fetch(`/api/companies/${id}/follow`, {
