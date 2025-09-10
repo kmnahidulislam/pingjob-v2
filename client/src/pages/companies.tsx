@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
 import { insertCompanySchema, insertJobSchema } from "@shared/schema";
 import { z } from "zod";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
 // AdBanner temporarily disabled to prevent development error overlay
 import {
@@ -704,6 +704,7 @@ export default function CompaniesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [companyEditOpen, setCompanyEditOpen] = useState(false);
@@ -912,6 +913,15 @@ export default function CompaniesPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/companies/top'] });
     },
     onError: (error: any) => {
+      // Check if it's an authentication error (401)
+      if (error.message?.includes('Authentication required') || error.message?.includes('401')) {
+        // Session expired while user appeared logged in - redirect to login
+        const redirectPath = `/companies${window.location.search}`;
+        localStorage.setItem('postAuthRedirect', redirectPath);
+        navigate('/auth');
+        return;
+      }
+      
       toast({
         title: "Error",
         description: error.message || "Failed to follow company",
@@ -964,6 +974,15 @@ export default function CompaniesPage() {
   };
 
   const handleFollowCompany = (companyId: number) => {
+    // Check if user is authenticated first
+    if (!user) {
+      // Store the current page as redirect destination and go to login
+      const redirectPath = '/companies';
+      localStorage.setItem('postAuthRedirect', redirectPath);
+      navigate('/auth');
+      return;
+    }
+    
     followMutation.mutate(companyId);
   };
 
