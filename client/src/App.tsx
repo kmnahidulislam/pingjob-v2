@@ -61,9 +61,9 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
       {user && <Navigation />}
-      <main className={user ? "pt-16" : ""}>
+      <main className={user ? "pt-16 mobile-main" : "mobile-main"}>
         {children}
       </main>
     </div>
@@ -122,7 +122,7 @@ function Router() {
     // Handle specific public routes
     if (location === '/reset-password' || location.startsWith('/reset-password?')) {
       return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
           <ResetPassword />
         </div>
       );
@@ -130,7 +130,7 @@ function Router() {
     
     if (location === '/forgot-password') {
       return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
           <ForgotPassword />
         </div>
       );
@@ -138,7 +138,7 @@ function Router() {
 
     if (location === '/auth/callback') {
       return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
           <AuthCallback />
         </div>
       );
@@ -148,7 +148,7 @@ function Router() {
   // Special handling for invitation routes - they should work regardless of auth status
   if (location.startsWith('/invite/')) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
         <InvitationAccept />
       </div>
     );
@@ -164,7 +164,7 @@ function Router() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
         <Switch>
           {/* New slug-based routes - must come before legacy routes */}
           <Route path="/jobs/:idSlug" component={JobDetailsSimple} />
@@ -204,7 +204,7 @@ function Router() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 safe-area-top safe-area-bottom">
       <ProtectedLayout>
         <Switch>
           {/* New slug-based routes - must come before legacy routes */}
