@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["openjdk17", "openjdk", "unzip", "android-tools", "openjdk8"]
+packages = ["openjdk17", "openjdk", "unzip", "android-tools", "openjdk8", "jq"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -51,6 +51,10 @@ externalPort = 3003
 [[ports]]
 localPort = 34959
 externalPort = 3001
+
+[[ports]]
+localPort = 42445
+externalPort = 5173
 
 [[ports]]
 localPort = 44001
