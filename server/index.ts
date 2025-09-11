@@ -4,6 +4,7 @@ import fs from "fs";
 import session from "express-session";
 import { registerRoutes } from "./routes";
 import { registerJobSEORoutes } from "./job-seo-routes";
+import { registerCompanySEORoutes } from "./company-seo-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeCleanDatabase, cleanPool } from "./clean-neon";
 
@@ -157,6 +158,7 @@ app.use((req, res, next) => {
   // IMPORTANT: Register SEO routes BEFORE Vite middleware setup
   // This ensures SEO routes are handled before the catch-all route
   registerJobSEORoutes(app);
+  registerCompanySEORoutes(app);
   console.log("✅ SEO routes registered before Vite setup");
 
   // importantly only setup vite in development and after

@@ -29,14 +29,67 @@ export function generateJobSEOHTML(data: JobSEOTemplateData): string {
   const jobType = sanitize(job.employmentType || 'Full-time');
   const experienceLevel = sanitize('Not specified'); // experienceLevel not available in current data structure
   
-  // Create structured description for meta tags
-  const metaDescription = job.description 
-    ? `${jobTitle} at ${companyName} in ${jobLocation}. ${job.description.slice(0, 120)}...`
-    : `${jobTitle} position at ${companyName} in ${jobLocation}. Apply now on PingJob.`;
+  // Create compelling descriptions optimized for social sharing
+  const createSocialDescription = (maxLength: number) => {
+    if (job.description) {
+      // Clean up description and extract key points
+      const cleanDesc = job.description.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+      const jobPrefix = `${jobTitle} at ${companyName}`;
+      const locationSuffix = jobLocation ? ` in ${jobLocation}` : '';
+      const salaryInfo = job.salary ? ` | ${job.salary}` : '';
+      
+      const baseInfo = `${jobPrefix}${locationSuffix}${salaryInfo}`;
+      const remainingLength = maxLength - baseInfo.length - 3; // -3 for "..."
+      
+      if (remainingLength > 20) {
+        const descPreview = cleanDesc.slice(0, remainingLength);
+        return `${baseInfo}. ${descPreview}...`;
+      }
+      return baseInfo;
+    }
+    
+    const fallback = `${jobTitle} position at ${companyName}`;
+    return jobLocation ? `${fallback} in ${jobLocation}. Apply now on PingJob!` : `${fallback}. Apply now on PingJob!`;
+  };
+  
+  const metaDescription = createSocialDescription(160); // Standard meta description
+  const twitterDescription = createSocialDescription(200); // Twitter allows more
+  const linkedInDescription = createSocialDescription(150); // LinkedIn prefers shorter
   
   const pageTitle = `${jobTitle} - ${companyName} | PingJob`;
   const finalCanonicalUrl = canonicalUrl || `${baseUrl}/jobs/${job.id}`;
-  const logoUrl = job.company?.logoUrl ? `${baseUrl}${job.company.logoUrl}` : `${baseUrl}/default-company-logo.png`;
+  // Enhanced image fallback system for social sharing
+  const getShareImage = () => {
+    // Primary: Company logo
+    if (job.company?.logoUrl) {
+      return `${baseUrl}${job.company.logoUrl}`;
+    }
+    
+    // Secondary: Category or industry-specific default
+    const category = job.category?.name?.toLowerCase() || '';
+    const industryDefaults = {
+      'technology': `${baseUrl}/share-images/tech-job-default.png`,
+      'engineering': `${baseUrl}/share-images/engineering-job-default.png`,
+      'marketing': `${baseUrl}/share-images/marketing-job-default.png`,
+      'sales': `${baseUrl}/share-images/sales-job-default.png`,
+      'finance': `${baseUrl}/share-images/finance-job-default.png`,
+      'healthcare': `${baseUrl}/share-images/healthcare-job-default.png`,
+      'education': `${baseUrl}/share-images/education-job-default.png`
+    };
+    
+    // Check if category matches any industry defaults
+    for (const [industry, imagePath] of Object.entries(industryDefaults)) {
+      if (category.includes(industry)) {
+        return imagePath;
+      }
+    }
+    
+    // Tertiary: Generic job posting image
+    return `${baseUrl}/share-images/default-job-posting.png`;
+  };
+  
+  const shareImageUrl = getShareImage();
+  const logoUrl = shareImageUrl; // Maintain backward compatibility
   
   // Format salary for structured data
   const formatSalaryForStructuredData = () => {
@@ -125,24 +178,48 @@ export function generateJobSEOHTML(data: JobSEOTemplateData): string {
     <meta name="keywords" content="${sanitize(`${job.title}, ${companyName}, ${job.location}, jobs, careers`)}" />
     <link rel="canonical" href="${sanitize(finalCanonicalUrl)}" />
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:type" content="website" />
+    <!-- Enhanced Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:type" content="article" />
     <meta property="og:url" content="${sanitize(finalCanonicalUrl)}" />
     <meta property="og:title" content="${sanitize(pageTitle)}" />
     <meta property="og:description" content="${sanitize(metaDescription)}" />
-    <meta property="og:image" content="${sanitize(logoUrl)}" />
+    <meta property="og:image" content="${sanitize(shareImageUrl)}" />
+    <meta property="og:image:secure_url" content="${sanitize(shareImageUrl)}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="${sanitize(companyName)} logo" />
+    <meta property="og:image:alt" content="${sanitize(`${jobTitle} at ${companyName} - Job Opportunity`)}" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:site_name" content="PingJob" />
+    <meta property="og:locale" content="en_US" />
+    <!-- Job-specific Open Graph tags -->
+    <meta property="article:author" content="${sanitize(companyName)}" />
+    <meta property="article:section" content="Jobs" />
+    ${job.createdAt ? `<meta property="article:published_time" content="${new Date(job.createdAt).toISOString()}" />` : ''}
     
-    <!-- Twitter Card Meta Tags -->
+    <!-- Enhanced Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@pingjob" />
     <meta name="twitter:url" content="${sanitize(finalCanonicalUrl)}" />
     <meta name="twitter:title" content="${sanitize(pageTitle)}" />
-    <meta name="twitter:description" content="${sanitize(metaDescription)}" />
-    <meta name="twitter:image" content="${sanitize(logoUrl)}" />
-    <meta name="twitter:image:alt" content="${sanitize(companyName)} logo" />
+    <meta name="twitter:description" content="${sanitize(twitterDescription)}" />
+    <meta name="twitter:image" content="${sanitize(shareImageUrl)}" />
+    <meta name="twitter:image:alt" content="${sanitize(`${jobTitle} at ${companyName} - Apply now on PingJob`)}" />
+    <!-- Twitter Creator tag if company has Twitter -->
+    <!-- Note: twitterUrl not available in JobSEOData company type -->
+    
+    <!-- LinkedIn-Specific Optimization Tags -->
+    <meta property="linkedin:owner" content="${sanitize(companyName)}" />
+    <meta name="linkedin:title" content="${sanitize(pageTitle)}" />
+    <meta name="linkedin:description" content="${sanitize(linkedInDescription)}" />
+    <meta name="linkedin:image" content="${sanitize(shareImageUrl)}" />
+    
+    <!-- Additional Social Media Optimization -->
+    <meta name="pinterest:title" content="${sanitize(pageTitle)}" />
+    <meta name="pinterest:description" content="${sanitize(metaDescription)}" />
+    <meta name="pinterest:image" content="${sanitize(shareImageUrl)}" />
+    
+    <!-- Facebook-specific tags -->
+    <meta property="fb:app_id" content="pingjob" />
     
     <!-- Additional SEO Meta Tags -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />

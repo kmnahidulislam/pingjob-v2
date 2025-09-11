@@ -668,6 +668,37 @@ export type JobSEOData = {
   applicationCount: number;
 };
 
+// Specific type for company data returned by getCompanyById storage method
+export type CompanySEOData = {
+  id: number;
+  name: string;
+  industry: string | null;
+  size: string | null;
+  website: string | null;
+  description: string | null;
+  logoUrl: string | null;
+  location: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  phone: string | null;
+  status: "pending" | "approved" | "rejected" | null;
+  followers: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  facebookUrl?: string | null;
+  twitterUrl?: string | null;
+  instagramUrl?: string | null;
+  jobs?: {
+    id: number;
+    title: string;
+    employmentType: string;
+    location: string | null;
+    salary: string | null;
+    isActive: boolean | null;
+  }[];
+};
+
 // Visit tracking
 export const insertVisitSchema = createInsertSchema(visits).omit({
   id: true,

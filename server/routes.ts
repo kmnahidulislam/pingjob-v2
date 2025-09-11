@@ -9,6 +9,15 @@ import { cleanPool as pool } from "./clean-neon";
 import { initializeSocialMediaPoster, SocialMediaPoster } from "./social-media";
 import Stripe from "stripe";
 import { visitTracker } from "./visit-tracker";
+import { 
+  generateSitemapIndex,
+  generateJobsSitemap,
+  generateCompaniesSitemap,
+  generateStaticPagesSitemap,
+  generateCategoriesSitemap,
+  generateRobotsTxt,
+  getBaseUrl
+} from "./sitemap-service";
 // Enhanced authentication middleware with debugging
 const isAuthenticated = (req: any, res: any, next: any) => {
   if (req.user || req.session?.user) {
@@ -376,7 +385,7 @@ export function registerRoutes(app: Express) {
 
       console.log(`🔍 Starting REAL resume scoring for application ${applicationId}`);
       console.log(`📄 Resume URL: ${application.resumeUrl}`);
-      console.log(`💼 Job: ${application.jobTitle} at ${application.companyName}`);
+      console.log(`💼 Job: ${application.job?.title || 'Unknown Job'} at ${application.job?.company?.name || 'Unknown Company'}`);
 
       // Import resume parser functions
       const { parseResumeContent, extractJobRequirements, calculateMatchingScore } = await import('./resume-parser');
@@ -422,10 +431,10 @@ export function registerRoutes(app: Express) {
 
       // Get job data for requirements extraction  
       const jobData = {
-        title: application.jobTitle || 'SharePoint Engineer',
+        title: application.job?.title || 'SharePoint Engineer',
         description: 'SharePoint development role requiring strong technical skills',
         requirements: 'SharePoint, JavaScript, C#, .NET, SQL Server experience required',
-        companyName: application.companyName || 'Bank of America Corporation'
+        companyName: application.job?.company?.name || 'Bank of America Corporation'
       };
 
       // Parse resume and extract job requirements
@@ -528,7 +537,8 @@ export function registerRoutes(app: Express) {
         console.log(`🚀 Auto-triggering resume scoring for application ${application.id}`);
         
         // Get application details for scoring
-        const fullApplication = await storage.getJobApplicationDetails(application.id);
+        const applications = await storage.getUserApplications(userId);
+        const fullApplication = applications.find(app => app.id === application.id);
         if (!fullApplication) {
           throw new Error('Application not found after creation');
         }
@@ -544,7 +554,7 @@ export function registerRoutes(app: Express) {
             if (fs.existsSync(resumePath)) {
               // Create sample resume content for scoring (you can enhance this to parse actual PDFs)
               resumeText = `
-                RESUME - ${fullApplication.firstName} ${fullApplication.lastName}
+                RESUME - ${req.user.firstName || 'Applicant'} ${req.user.lastName || ''}
                 
                 EXPERIENCE:
                 Software Engineer at Previous Company (2020-2024)
@@ -566,10 +576,10 @@ export function registerRoutes(app: Express) {
 
         // Get job data for requirements extraction  
         const jobData = {
-          title: fullApplication.jobTitle || 'Software Engineer',
+          title: fullApplication.job?.title || 'Software Engineer',
           description: 'Technical role requiring relevant skills and experience',
           requirements: 'Programming skills and technical experience required',
-          companyName: fullApplication.companyName || 'Company'
+          companyName: fullApplication.job?.company?.name || 'Company'
         };
 
         // Parse resume and calculate score
@@ -2113,7 +2123,7 @@ export function registerRoutes(app: Express) {
         ip,
         userAgent,
         userId,
-        sessionId
+        sessionId: sessionId || undefined
       });
 
       res.json({ success: true });
@@ -2180,7 +2190,7 @@ export function registerRoutes(app: Express) {
         return res.status(400).json({ message: 'Invalid status. Must be approved or rejected.' });
       }
 
-      const updatedVendor = await storage.updateVendorStatus(vendorId, status, req.user.id);
+      const updatedVendor = await storage.updateVendorStatus(vendorId, status, (req.user as any)?.id || 'unknown');
       res.json(updatedVendor);
     } catch (error) {
       console.error('Error updating vendor status:', error);
@@ -2188,6 +2198,138 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // ============================================================================
+  // SITEMAP ROUTES - SEO Optimization
+  // ============================================================================
+  
+  // Cache duration for sitemaps (1 hour)
+  const SITEMAP_CACHE_DURATION = 3600; // 1 hour in seconds
+  
+  /**
+   * Set common headers for XML sitemaps
+   */
+  function setSitemapHeaders(res: any) {
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', `public, max-age=${SITEMAP_CACHE_DURATION}`);
+    res.setHeader('X-Robots-Tag', 'noindex'); // Don't index sitemaps themselves
+  }
+  
+  /**
+   * Main sitemap index - references all sub-sitemaps
+   * Location: /sitemap.xml
+   */
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      console.log('📋 Generating sitemap index...');
+      const baseUrl = getBaseUrl(req);
+      const sitemapXml = await generateSitemapIndex(baseUrl);
+      
+      setSitemapHeaders(res);
+      res.send(sitemapXml);
+      console.log('✅ Sitemap index served successfully');
+    } catch (error) {
+      console.error('❌ Error generating sitemap index:', error);
+      res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Internal Server Error</error>');
+    }
+  });
+  
+  /**
+   * Jobs sitemap - all active job listings
+   * Location: /sitemap-jobs.xml
+   */
+  app.get('/sitemap-jobs.xml', async (req, res) => {
+    try {
+      console.log('🔨 Generating jobs sitemap...');
+      const baseUrl = getBaseUrl(req);
+      const sitemapXml = await generateJobsSitemap(baseUrl);
+      
+      setSitemapHeaders(res);
+      res.send(sitemapXml);
+      console.log('✅ Jobs sitemap served successfully');
+    } catch (error) {
+      console.error('❌ Error generating jobs sitemap:', error);
+      res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Internal Server Error</error>');
+    }
+  });
+  
+  /**
+   * Companies sitemap - all approved company pages
+   * Location: /sitemap-companies.xml
+   */
+  app.get('/sitemap-companies.xml', async (req, res) => {
+    try {
+      console.log('🏢 Generating companies sitemap...');
+      const baseUrl = getBaseUrl(req);
+      const sitemapXml = await generateCompaniesSitemap(baseUrl);
+      
+      setSitemapHeaders(res);
+      res.send(sitemapXml);
+      console.log('✅ Companies sitemap served successfully');
+    } catch (error) {
+      console.error('❌ Error generating companies sitemap:', error);
+      res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Internal Server Error</error>');
+    }
+  });
+  
+  /**
+   * Static pages sitemap - core website pages
+   * Location: /sitemap-static.xml
+   */
+  app.get('/sitemap-static.xml', async (req, res) => {
+    try {
+      console.log('📄 Generating static pages sitemap...');
+      const baseUrl = getBaseUrl(req);
+      const sitemapXml = await generateStaticPagesSitemap(baseUrl);
+      
+      setSitemapHeaders(res);
+      res.send(sitemapXml);
+      console.log('✅ Static pages sitemap served successfully');
+    } catch (error) {
+      console.error('❌ Error generating static pages sitemap:', error);
+      res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Internal Server Error</error>');
+    }
+  });
+  
+  /**
+   * Categories sitemap - job categories with active jobs
+   * Location: /sitemap-categories.xml
+   */
+  app.get('/sitemap-categories.xml', async (req, res) => {
+    try {
+      console.log('📂 Generating categories sitemap...');
+      const baseUrl = getBaseUrl(req);
+      const sitemapXml = await generateCategoriesSitemap(baseUrl);
+      
+      setSitemapHeaders(res);
+      res.send(sitemapXml);
+      console.log('✅ Categories sitemap served successfully');
+    } catch (error) {
+      console.error('❌ Error generating categories sitemap:', error);
+      res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Internal Server Error</error>');
+    }
+  });
+  
+  /**
+   * Robots.txt - tells search engines about sitemaps and crawling rules
+   * Location: /robots.txt
+   */
+  app.get('/robots.txt', async (req, res) => {
+    try {
+      console.log('🤖 Generating robots.txt...');
+      const baseUrl = getBaseUrl(req);
+      const robotsTxt = generateRobotsTxt(baseUrl);
+      
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Cache-Control', `public, max-age=${SITEMAP_CACHE_DURATION * 24}`); // Cache for 24 hours
+      res.send(robotsTxt);
+      console.log('✅ Robots.txt served successfully');
+    } catch (error) {
+      console.error('❌ Error generating robots.txt:', error);
+      res.status(500).send('User-agent: *\nDisallow: /api/\nDisallow: /admin/');
+    }
+  });
+
   console.log('✅ Routes registered successfully - auto-application system disabled');
+  console.log('🗺️ Sitemap routes registered: /sitemap.xml, /sitemap-jobs.xml, /sitemap-companies.xml, /sitemap-static.xml, /sitemap-categories.xml, /robots.txt');
   return app;
 }
