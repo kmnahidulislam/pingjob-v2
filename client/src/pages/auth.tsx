@@ -12,6 +12,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { Browser } from "@capacitor/browser";
+import { CapacitorService } from "../capacitor";
 import logo from "@assets/logo_1749581218265.png";
 
 interface AuthFormData {
@@ -30,6 +32,45 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
+
+  // Handle mobile OAuth
+  const handleGoogleAuth = async (plan?: string) => {
+    if (CapacitorService.isNative()) {
+      // Mobile OAuth flow using Browser plugin with custom callback
+      const baseUrl = window.location.origin; // Use current origin instead of hard-coding
+      const params = new URLSearchParams({
+        mobile: 'true',
+        redirect_uri: 'pingjob://auth-callback'
+      });
+      if (plan) params.append('plan', plan);
+      
+      const url = `${baseUrl}/api/auth/google?${params}`;
+      
+      try {
+        await Browser.open({
+          url,
+          windowName: '_system',
+          presentationStyle: 'fullscreen'
+        });
+        
+        toast({
+          title: "Opening Google Login",
+          description: "Please complete login in your browser.",
+        });
+      } catch (error) {
+        console.error('Mobile OAuth error:', error);
+        toast({
+          title: "Login Error",
+          description: "Unable to open Google login. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Web OAuth flow
+      const url = plan ? `/api/auth/google?plan=${plan}` : '/api/auth/google';
+      window.location.href = url;
+    }
+  };
 
   // Get query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -268,7 +309,7 @@ export default function Auth() {
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => window.location.href = '/api/auth/google'}
+                    onClick={() => handleGoogleAuth()}
                   >
                     <FcGoogle className="mr-2 h-4 w-4" />
                     Continue with Google
@@ -352,7 +393,7 @@ export default function Auth() {
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => window.location.href = `/api/auth/google?plan=${plan}`}
+                    onClick={() => handleGoogleAuth(plan)}
                   >
                     <FcGoogle className="mr-2 h-4 w-4" />
                     Continue with Google

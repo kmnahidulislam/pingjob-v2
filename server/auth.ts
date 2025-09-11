@@ -9,7 +9,46 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import rateLimit from 'express-rate-limit';
 import validator from 'validator';
 
+// Extend session data type for mobile OAuth
+declare module 'express-session' {
+  interface SessionData {
+    mobileOAuth?: {
+      isMobile: boolean;
+      redirectUri?: string;
+      plan?: string;
+    };
+    mobileTokens?: {
+      [token: string]: {
+        userId: string;
+        email: string;
+        timestamp: number;
+        used: boolean;
+      };
+    };
+  }
+}
+
 const scryptAsync = promisify(scrypt);
+
+// Global token store for mobile OAuth session handoff
+interface MobileToken {
+  userId: string;
+  email: string;
+  timestamp: number;
+  used: boolean;
+}
+
+const mobileTokenStore = new Map<string, MobileToken>();
+
+// Clean up expired tokens every 5 minutes
+setInterval(() => {
+  const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+  for (const [token, data] of mobileTokenStore.entries()) {
+    if (data.timestamp < fiveMinutesAgo || data.used) {
+      mobileTokenStore.delete(token);
+    }
+  }
+}, 5 * 60 * 1000);
 
 export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
@@ -442,6 +481,16 @@ export function setupAuth(app: Express) {
       return res.status(200).end();
     }
     
+    // Store mobile parameters in session for callback
+    if (req.query.mobile === 'true') {
+      console.log('Mobile OAuth request detected, storing parameters');
+      req.session.mobileOAuth = {
+        isMobile: true,
+        redirectUri: req.query.redirect_uri as string,
+        plan: req.query.plan as string
+      };
+    }
+    
     console.log('Proceeding with Google OAuth authentication...');
     next();
   }, (req, res, next) => {
@@ -494,11 +543,122 @@ export function setupAuth(app: Express) {
             return next(saveErr);
           }
           
-          console.log('🔐 Session saved successfully, redirecting to /auth/callback');
-          res.redirect('/auth/callback');
+          // Check if this is a mobile OAuth request (from session)
+          const mobileOAuth = req.session.mobileOAuth;
+          const isMobile = mobileOAuth?.isMobile || false;
+          const customRedirect = mobileOAuth?.redirectUri;
+          
+          // Validate mobile redirect URI more strictly
+          if (isMobile && customRedirect === 'pingjob://auth-callback') {
+            console.log('🔐 Mobile OAuth success, generating one-time token for session handoff');
+            
+            // Generate secure one-time token for mobile session handoff
+            const crypto = require('crypto');
+            const oneTimeToken = crypto.randomBytes(32).toString('hex');
+            
+            // Store token in global store (not session - different contexts)
+            const tokenData: MobileToken = {
+              userId: user.id,
+              email: user.email,
+              timestamp: Date.now(),
+              used: false
+            };
+            
+            mobileTokenStore.set(oneTimeToken, tokenData);
+            console.log('🔐 One-time token stored globally for mobile handoff');
+            
+            const redirectUrl = `${customRedirect}?token=${oneTimeToken}`;
+            console.log('🔐 Redirecting to mobile app with one-time token');
+            res.redirect(redirectUrl);
+          } else {
+            console.log('🔐 Web OAuth success, redirecting to /auth/callback');
+            res.redirect('/auth/callback');
+          }
         });
       });
     })(req, res, next);
+  });
+
+  // Mobile session handoff endpoint
+  app.post('/api/auth/mobile-complete', async (req, res) => {
+    try {
+      const { token } = req.body;
+      
+      if (!token || typeof token !== 'string') {
+        return res.status(400).json({ error: 'Token required' });
+      }
+      
+      // Get token data from global store (not session - different contexts)
+      const tokenData = mobileTokenStore.get(token);
+      
+      if (!tokenData) {
+        console.error('Mobile token not found or expired:', token);
+        return res.status(401).json({ error: 'Invalid or expired token' });
+      }
+      
+      if (tokenData.used) {
+        console.error('Mobile token already used:', token);
+        mobileTokenStore.delete(token);
+        return res.status(401).json({ error: 'Token already used' });
+      }
+      
+      // Check token expiry (5 minutes)
+      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+      if (tokenData.timestamp < fiveMinutesAgo) {
+        console.error('Mobile token expired:', token);
+        mobileTokenStore.delete(token);
+        return res.status(401).json({ error: 'Token expired' });
+      }
+      
+      // Mark token as used
+      tokenData.used = true;
+      mobileTokenStore.set(token, tokenData);
+      
+      // Get user data and establish session
+      const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [tokenData.userId]);
+      
+      if (userResult.rows.length === 0) {
+        console.error('User not found for mobile token:', tokenData.userId);
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      const user = userResult.rows[0];
+      
+      // Set session data
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        userType: user.user_type
+      };
+      
+      // Save session and respond
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error('Mobile session save error:', saveErr);
+          return res.status(500).json({ error: 'Failed to save session' });
+        }
+        
+        console.log('🔐 Mobile session established for:', user.email);
+        res.json({
+          success: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            userType: user.user_type
+          }
+        });
+        
+        // Clean up used token from global store
+        mobileTokenStore.delete(token);
+      });
+    } catch (error) {
+      console.error('Mobile complete error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   });
 
   // Handle both GET and POST requests for logout
