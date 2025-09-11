@@ -20,10 +20,10 @@ const config: CapacitorConfig = {
       androidSpinnerStyle: "large",
       iosSpinnerStyle: "small",
       spinnerColor: "#ffffff",
-      splashFullScreen: true,
-      splashImmersive: true,
+      splashFullScreen: false,
+      splashImmersive: false,
       layoutName: "launch_screen",
-      useDialog: true,
+      useDialog: false,
     },
     StatusBar: {
       style: 'DARK',

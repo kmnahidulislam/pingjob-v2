@@ -8,9 +8,11 @@ import { Browser } from '@capacitor/browser';
 export class CapacitorService {
   static async initialize() {
     if (Capacitor.isNativePlatform()) {
-      // Configure status bar
+      // Configure status bar to be visible and not overlapping content
       await StatusBar.setStyle({ style: Style.Dark });
       await StatusBar.setBackgroundColor({ color: '#1e40af' });
+      await StatusBar.show(); // Ensure status bar is visible
+      await StatusBar.setOverlaysWebView({ overlay: false }); // Don't overlay the WebView
 
       // Hide splash screen
       await SplashScreen.hide();
