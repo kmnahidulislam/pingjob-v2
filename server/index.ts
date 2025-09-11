@@ -6,7 +6,7 @@ import { registerRoutes } from "./routes";
 import { registerJobSEORoutes } from "./job-seo-routes";
 import { registerCompanySEORoutes } from "./company-seo-routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeCleanDatabase, cleanPool } from "./clean-neon";
+import { pool, db } from "./db";
 
 // Production environment setup - use environment variables as-is
 console.log("Production mode - using environment DATABASE_URL");
@@ -102,14 +102,48 @@ app.use((req, res, next) => {
 // Use IIFE to handle async operations properly
 (async () => {
   try {
-    // Initialize database before starting server
+    // Test database connection and show diagnostic info
     console.log("Initializing database...");
-    const dbInitialized = await initializeCleanDatabase();
-    if (!dbInitialized) {
-      console.error("Failed to initialize database - exiting");
+    try {
+      const result = await pool.query('SELECT 1 as test');
+      console.log("✅ DATABASE CONNECTION VERIFIED:", result.rows[0]);
+      
+      // Show connection details (safely masked)
+      const dbUrl = process.env.DATABASE_URL || '';
+      const url = new URL(dbUrl);
+      console.log("📊 DATABASE DIAGNOSTICS:");
+      console.log("   Host:", url.hostname);
+      console.log("   Database:", url.pathname.substring(1));
+      
+      // Show schema and table info
+      const schemaInfo = await pool.query('SHOW search_path');
+      console.log("   Search Path:", schemaInfo.rows[0].search_path);
+      
+      // Show table statistics 
+      const tableStats = await pool.query(`
+        SELECT schemaname, relname, n_live_tup as rows 
+        FROM pg_stat_user_tables 
+        ORDER BY n_live_tup DESC LIMIT 10
+      `);
+      console.log("   Top Tables by Row Count:");
+      tableStats.rows.forEach(row => {
+        console.log(`     ${row.schemaname}.${row.relname}: ${row.rows} rows`);
+      });
+      
+      // Show actual counts from main tables
+      const companiesCount = await pool.query('SELECT COUNT(*) as count FROM companies');
+      const jobsCount = await pool.query('SELECT COUNT(*) as count FROM jobs');  
+      const usersCount = await pool.query('SELECT COUNT(*) as count FROM users');
+      console.log("   Actual Counts:");
+      console.log(`     Companies: ${companiesCount.rows[0].count}`);
+      console.log(`     Jobs: ${jobsCount.rows[0].count}`);
+      console.log(`     Users: ${usersCount.rows[0].count}`);
+      
+      console.log("Database initialized successfully");
+    } catch (error) {
+      console.error("Failed to connect to database - exiting:", error);
       process.exit(1);
     }
-    console.log("Database initialized successfully");
 
     registerRoutes(app);
 
@@ -148,7 +182,7 @@ app.use((req, res, next) => {
     console.log('🛑 SIGTERM received, shutting down gracefully');
     server.close(() => {
       console.log('✅ Server closed');
-      cleanPool.end(() => {
+      pool.end(() => {
         console.log('✅ Database pool closed');
         process.exit(0);
       });
