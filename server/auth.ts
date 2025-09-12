@@ -89,10 +89,10 @@ export function setupAuth(app: Express) {
       checkPeriod: 86400000,
     }),
     cookie: {
-      secure: false, // Always false for development and Replit
+      secure: process.env.NODE_ENV === 'production', // True for production, false for dev
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
-      sameSite: 'lax', // Keep lax for cross-origin compatibility
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for production cross-origin
       domain: undefined // No domain restriction
     }
   }));
