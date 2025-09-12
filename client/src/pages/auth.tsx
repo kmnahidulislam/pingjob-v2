@@ -14,6 +14,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Browser } from "@capacitor/browser";
 import { CapacitorService } from "../capacitor";
+import { getApiBaseUrl } from "@/lib/apiConfig";
 import logo from "@assets/logo_1749581218265.png";
 
 interface AuthFormData {
@@ -37,7 +38,7 @@ export default function Auth() {
   const handleGoogleAuth = async (plan?: string) => {
     if (CapacitorService.isNative()) {
       // Mobile OAuth flow using Browser plugin with custom callback
-      const baseUrl = window.location.origin; // Use current origin instead of hard-coding
+      const baseUrl = getApiBaseUrl(); // Use production server URL
       const params = new URLSearchParams({
         mobile: 'true',
         redirect_uri: 'pingjob://auth-callback'

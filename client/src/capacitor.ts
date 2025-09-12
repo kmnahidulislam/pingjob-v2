@@ -4,6 +4,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { App } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
 import { Browser } from '@capacitor/browser';
+import { resolveApiUrl } from './lib/apiConfig';
 
 export class CapacitorService {
   static async initialize() {
@@ -47,7 +48,8 @@ export class CapacitorService {
           if (token) {
             try {
               // Exchange token for session in WebView
-              const response = await fetch('/api/auth/mobile-complete', {
+              const url = resolveApiUrl('/api/auth/mobile-complete');
+              const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
