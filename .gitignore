@@ -26,3 +26,11 @@ cmdtools.zip
 *.tmp
 *.temp
 .env.local
+
+# Keystore files - NEVER COMMIT THESE (Security Critical)
+*.jks
+*.keystore
+key.properties
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
