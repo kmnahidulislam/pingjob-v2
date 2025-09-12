@@ -53,7 +53,10 @@ export default function Home() {
   // Also fetch admin jobs for the Latest Job Opportunities section
   const { data: adminJobs, isLoading: adminJobsLoading, error: adminJobsError } = useQuery({
     queryKey: ['/api/admin-jobs'],
-    enabled: true
+    queryFn: async () => {
+      const res = await fetch('/api/admin-jobs?limit=6');
+      return res.json();
+    }
   });
 
   // Debug logging only in development
