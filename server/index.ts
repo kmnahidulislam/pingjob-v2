@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
 import session from "express-session";
@@ -21,6 +22,26 @@ if (process.env.GOOGLE_CLIENT_ID) {
 console.log('==================');
 
 const app = express();
+
+// CORS configuration for mobile app support
+app.use(cors({
+  origin: [
+    'capacitor://localhost',
+    'ionic://localhost', 
+    'http://localhost',
+    'http://localhost:5000',
+    'https://localhost',
+    'https://localhost:5000',
+    'https://pingjob.com',
+    'https://www.pingjob.com',
+    /^https:\/\/.*\.replit\.dev$/,
+    /^https:\/\/.*\.repl\.co$/
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+}));
 
 // Essential middleware must come BEFORE authentication
 app.use(express.json());

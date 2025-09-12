@@ -43,7 +43,7 @@ const mobileTokenStore = new Map<string, MobileToken>();
 // Clean up expired tokens every 5 minutes
 setInterval(() => {
   const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-  for (const [token, data] of mobileTokenStore.entries()) {
+  for (const [token, data] of Array.from(mobileTokenStore.entries())) {
     if (data.timestamp < fiveMinutesAgo || data.used) {
       mobileTokenStore.delete(token);
     }
@@ -92,7 +92,7 @@ export function setupAuth(app: Express) {
       secure: false, // Always false for development and Replit
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 24 hours
-      sameSite: 'lax', // Always lax for Replit
+      sameSite: 'lax', // Keep lax for cross-origin compatibility
       domain: undefined // No domain restriction
     }
   }));
