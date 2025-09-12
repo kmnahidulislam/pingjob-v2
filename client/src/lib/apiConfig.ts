@@ -4,8 +4,14 @@ import { Capacitor } from '@capacitor/core';
  * Get the correct API base URL based on environment
  */
 export function getApiBaseUrl(): string {
+  // Check multiple ways to detect mobile/native environment
+  const isNative = Capacitor.isNativePlatform() || 
+                   (window as any).Capacitor?.isNativePlatform() ||
+                   document.URL.startsWith('capacitor://') ||
+                   document.URL.startsWith('ionic://');
+  
   // In mobile environment, always use production server
-  if (Capacitor.isNativePlatform()) {
+  if (isNative) {
     console.log('🔧 Mobile environment detected - using https://pingjob.com');
     return 'https://pingjob.com';
   }

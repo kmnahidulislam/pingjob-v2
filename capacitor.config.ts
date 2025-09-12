@@ -5,7 +5,11 @@ const config: CapacitorConfig = {
   appName: 'PingJob',
   webDir: 'dist/public',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    allowNavigation: [
+      'https://pingjob.com',
+      'https://www.pingjob.com'
+    ]
   },
   plugins: {
     SplashScreen: {

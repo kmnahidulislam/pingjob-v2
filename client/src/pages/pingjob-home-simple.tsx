@@ -2,14 +2,9 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 
 export default function PingJobHomeSimple() {
-  // Test with minimal data fetching
-  const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['/api/admin-jobs'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin-jobs?limit=5');
-      if (!response.ok) throw new Error('Failed to fetch jobs');
-      return response.json();
-    }
+  // Test with minimal data fetching - using API config system
+  const { data: jobs = [], isLoading } = useQuery<any[]>({
+    queryKey: ['/api/admin-jobs?limit=5']
   });
 
   return (
