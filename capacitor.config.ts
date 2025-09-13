@@ -7,7 +7,6 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     allowNavigation: [
-      'https://pingjob.com',
       'https://www.pingjob.com'
     ]
   },

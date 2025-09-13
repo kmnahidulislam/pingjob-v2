@@ -32,7 +32,6 @@ app.use(cors({
     'http://localhost:5000',
     'https://localhost',
     'https://localhost:5000',
-    'https://pingjob.com',
     'https://www.pingjob.com',
     /^https:\/\/.*\.replit\.dev$/,
     /^https:\/\/.*\.repl\.co$/
@@ -55,11 +54,11 @@ setupAuth(app);
 app.get('/ads.txt', (req, res) => {
   // Only serve ads.txt on production domain
   const host = req.get('host') || '';
-  const isProduction = host === 'pingjob.com' || host === 'www.pingjob.com';
+  const isProduction = host === 'www.pingjob.com';
   
   if (!isProduction) {
     console.log(`ads.txt blocked for host: ${host}`);
-    return res.status(404).send('Not Found - ads.txt only available on pingjob.com');
+    return res.status(404).send('Not Found - ads.txt only available on www.pingjob.com');
   }
   
   console.log(`ads.txt served for production host: ${host}`);
