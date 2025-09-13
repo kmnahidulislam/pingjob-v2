@@ -185,20 +185,9 @@ export default function PingJobHome() {
     retry: false
   });
 
-  // Fetch platform statistics with error handling  
-  const { data: platformStats } = useQuery({
+  // Fetch platform statistics with error handling (using global fetcher for mobile)
+  const { data: platformStats } = useQuery<{totalUsers: number, totalCompanies: number, activeJobs: number, totalJobs: number, todayJobs: number}>({
     queryKey: ['/api/platform/stats'],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/platform/stats');
-        if (response.status === 429 || !response.ok) {
-          return { totalUsers: 901, totalCompanies: 76811, activeJobs: 14478 };
-        }
-        return response.json();
-      } catch (error) {
-        return { totalUsers: 901, totalCompanies: 76811, activeJobs: 14478 };
-      }
-    },
     staleTime: 60 * 60 * 1000, // 1 hour
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
     refetchOnWindowFocus: false,
