@@ -47,20 +47,8 @@ export default function JobDetailsSimple() {
     setIsApplicationModalOpen(true);
   };
 
-  const { data: job, isLoading, error } = useQuery({
+  const { data: job, isLoading, error } = useQuery<any>({
     queryKey: ['/api/jobs', jobId],
-    queryFn: async () => {
-      console.log('Fetching job details for ID:', jobId);
-      const response = await fetch(`/api/jobs/${jobId}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch job details: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log('Job data received:', data);
-      return data;
-    },
     enabled: !!jobId && !isNaN(jobId),
     retry: false
   });
@@ -78,25 +66,8 @@ export default function JobDetailsSimple() {
   }, [job, jobId, location, navigate, isLoading]);
 
   // Fetch vendors for this job
-  const { data: vendorData } = useQuery({
+  const { data: vendorData } = useQuery<any>({
     queryKey: ['/api/jobs', jobId, 'vendors'],
-    queryFn: async () => {
-      console.log('Fetching vendors for job ID:', jobId);
-      const response = await fetch(`/api/jobs/${jobId}/vendors`, {
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        console.error('Failed to fetch vendors:', response.status);
-        return { vendors: [], isLimited: false, totalCount: 0 };
-      }
-      const data = await response.json();
-      console.log('Vendors data received:', data);
-      // Handle both old format (array) and new format (object)
-      if (Array.isArray(data)) {
-        return { vendors: data, isLimited: false, totalCount: data.length };
-      }
-      return data || { vendors: [], isLimited: false, totalCount: 0 };
-    },
     enabled: !!jobId && !isNaN(jobId),
     retry: false
   });

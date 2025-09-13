@@ -67,14 +67,7 @@ export default function CompanyDetails() {
     }
 
     try {
-      const response = await fetch(`/api/companies/${companyId}/follow`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        credentials: 'include'
-      });
+      const response = await apiRequest('POST', `/api/companies/${companyId}/follow`);
 
       if (response.ok) {
         const data = await response.json();

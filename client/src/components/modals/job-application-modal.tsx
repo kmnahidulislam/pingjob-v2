@@ -16,6 +16,7 @@ import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
 import { Loader2, Upload, FileText, X } from "lucide-react";
 import type { JobWithCompany } from "@/lib/types";
 
@@ -84,10 +85,11 @@ export default function JobApplicationModal({
       console.log('Making POST request to /api/apply...');
       
       try {
-        const response = await fetch('/api/apply', {
+        // For FormData uploads, we need to use fetch with mobile URL resolution
+        const resolvedUrl = import.meta.env.DEV ? '/api/apply' : 'https://www.pingjob.com/api/apply';
+        const response = await fetch(resolvedUrl, {
           method: 'POST',
-          body: formData,
-          credentials: 'include'
+          body: formData
         });
 
         console.log('Response received - status:', response.status);

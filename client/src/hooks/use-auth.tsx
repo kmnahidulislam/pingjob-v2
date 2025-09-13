@@ -100,16 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('🔐 PREMIUM ACCOUNT DETECTED - expecting 402 response');
       }
       
-      // Use direct fetch to handle 402 responses before apiRequest processes them
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify(credentials),
-        credentials: "include",
-      });
+      // Use direct apiRequest to handle 402 responses properly in mobile
+      const res = await apiRequest("POST", "/api/register", credentials);
       
       if (import.meta.env.DEV) console.log('🔐 Registration response status:', res.status);
       
