@@ -4,11 +4,35 @@ import { Capacitor } from '@capacitor/core';
  * Get the correct API base URL based on environment
  */
 export function getApiBaseUrl(): string {
-  // Check multiple ways to detect mobile/native environment
-  const isNative = Capacitor.isNativePlatform() || 
-                   (window as any).Capacitor?.isNativePlatform() ||
-                   document.URL.startsWith('capacitor://') ||
-                   document.URL.startsWith('ionic://');
+  // Enhanced mobile detection for Android WebView
+  const isAndroidWebView = /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+  const isCapacitorApp = document.URL.startsWith('capacitor://') || 
+                         document.URL.startsWith('ionic://') ||
+                         (window as any).Capacitor !== undefined ||
+                         (window as any).cordova !== undefined;
+  const isLocalhost = document.URL.includes('localhost');
+  const isFileProtocol = document.URL.startsWith('file://');
+  
+  // Try Capacitor detection
+  let isCapacitorNative = false;
+  try {
+    isCapacitorNative = Capacitor.isNativePlatform();
+  } catch (e) {
+    console.log('Capacitor not available, using alternative detection');
+  }
+  
+  const isNative = isCapacitorNative || isAndroidWebView || isCapacitorApp || isFileProtocol;
+  
+  console.log('🔍 Mobile detection debug:', {
+    isAndroidWebView,
+    isCapacitorApp,
+    isLocalhost,
+    isFileProtocol,
+    isCapacitorNative,
+    userAgent: navigator.userAgent,
+    documentURL: document.URL,
+    isNative
+  });
   
   // In mobile environment, always use production server
   if (isNative) {
@@ -45,5 +69,14 @@ export function resolveApiUrl(path: string): string {
  * Check if we're in mobile environment
  */
 export function isMobileEnvironment(): boolean {
-  return Capacitor.isNativePlatform();
+  try {
+    return Capacitor.isNativePlatform();
+  } catch (e) {
+    // Fallback detection if Capacitor is not available
+    const isAndroidWebView = /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+    const isCapacitorApp = document.URL.startsWith('capacitor://') || 
+                           document.URL.startsWith('ionic://') ||
+                           (window as any).Capacitor !== undefined;
+    return isAndroidWebView || isCapacitorApp;
+  }
 }
