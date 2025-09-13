@@ -7,8 +7,11 @@
         </shape>
     </item>
     
-    <!-- PingJob logo centered with proper sizing -->
-    <item android:gravity="center">
+    <!-- PingJob logo centered -->
+    <item 
+        android:width="200dp"
+        android:height="60dp"
+        android:gravity="center">
         <bitmap 
             android:src="@drawable/splash_logo"
             android:gravity="center" 
