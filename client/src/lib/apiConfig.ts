@@ -80,3 +80,29 @@ export function isMobileEnvironment(): boolean {
     return isAndroidWebView || isCapacitorApp;
   }
 }
+
+/**
+ * Resolve logo URL to work correctly in both web and mobile environments
+ */
+export function resolveLogoUrl(logoUrl: string | null | undefined): string | undefined {
+  // Handle null, undefined, or invalid logo URLs
+  if (!logoUrl || logoUrl === 'NULL' || logoUrl === 'logos/NULL' || !logoUrl.trim()) {
+    return undefined;
+  }
+  
+  // If logo URL is already absolute (includes protocol), return as-is
+  if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+    console.log(`🖼️ Logo URL already absolute: ${logoUrl}`);
+    return logoUrl;
+  }
+  
+  // Remove leading slashes and whitespace, encode spaces
+  const cleanLogoUrl = logoUrl.replace(/^\/+/, '').trim().replace(/ /g, '%20');
+  
+  // Use the existing API resolution logic
+  const baseUrl = getApiBaseUrl();
+  const resolvedUrl = baseUrl ? `${baseUrl}/${cleanLogoUrl}` : `/${cleanLogoUrl}`;
+  
+  console.log(`🖼️ Resolved logo URL: ${logoUrl} -> ${resolvedUrl}`);
+  return resolvedUrl;
+}

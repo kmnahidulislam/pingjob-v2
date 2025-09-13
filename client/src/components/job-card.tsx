@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { resolveLogoUrl } from "@/lib/apiConfig";
 import { useLocation, Link } from "wouter";
 import JobApplicationModal from "@/components/modals/job-application-modal";
 import JobEditModal from "@/components/modals/job-edit-modal";
@@ -256,13 +257,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               {showCompany && (
                 <Avatar className="h-12 w-12">
                   <AvatarImage 
-                    src={
-                      job?.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
-                        ? (job.company.logoUrl.startsWith('http') 
-                            ? job.company.logoUrl 
-                            : `https://www.pingjob.com/${job.company.logoUrl.replace(/^\/+/, '')}`)
-                        : undefined
-                    }
+                    src={resolveLogoUrl(job?.company?.logoUrl)}
                     onError={(e: any) => {
                       e.target.style.display = 'none';
                     }}

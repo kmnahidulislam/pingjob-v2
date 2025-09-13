@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
+import { resolveLogoUrl } from "@/lib/apiConfig";
 import { JobCategories } from "@/components/job-categories";
 import Footer from "../components/footer";
 // import GoogleAdsense from "@/components/ads/GoogleAdsense";
@@ -694,7 +695,7 @@ export default function PingJobHome() {
                           {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
                             <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
                               <img 
-                                src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
+                                src={resolveLogoUrl(job.company.logoUrl)}
                                 alt={job.company.name}
                                 className="w-full h-full object-contain p-2"
                                 onError={(e) => {
@@ -895,7 +896,7 @@ export default function PingJobHome() {
                               {company.logoUrl && company.logoUrl !== "NULL" ? (
                                 <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-white">
                                   <img 
-                                    src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
+                                    src={resolveLogoUrl(company.logoUrl)}
                                     alt={company.name}
                                     className="w-full h-full object-contain p-1"
                                     onError={(e) => {
@@ -1025,7 +1026,7 @@ export default function PingJobHome() {
                             {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
                               <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
                                 <img 
-                                  src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
+                                  src={resolveLogoUrl(job.company.logoUrl)}
                                   alt={job.company.name}
                                   className="w-full h-full object-contain p-1"
                                   onError={(e) => {
@@ -1215,7 +1216,7 @@ export default function PingJobHome() {
                   >
                     {job.company?.logoUrl && job.company.logoUrl !== 'NULL' && (
                       <img 
-                        src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl : `/${job.company.logoUrl}`}
+                        src={resolveLogoUrl(job.company.logoUrl)}
                         alt={job.company.name}
                         className="w-12 h-12 object-contain rounded border border-gray-200 flex-shrink-0"
                         onError={(e) => e.currentTarget.style.display = 'none'}

@@ -15,6 +15,7 @@ import {
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import logoPath from "@assets/logo_1749581218265.png";
+import { resolveLogoUrl } from "@/lib/apiConfig";
 
 export default function PublicHome() {
   const { user } = useAuth();
@@ -279,7 +280,7 @@ export default function PublicHome() {
                     <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-gray-50 flex-shrink-0">
                       {company.logoUrl && company.logoUrl !== "NULL" && company.logoUrl !== "logos/NULL" ? (
                         <img 
-                          src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                          src={resolveLogoUrl(company.logoUrl)} 
                           alt={company.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
@@ -347,7 +348,7 @@ export default function PublicHome() {
                           <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0 self-start mr-4">
                             {job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL' ? (
                               <img 
-                                src={job.company.logoUrl.startsWith('http') ? job.company.logoUrl : `/${job.company.logoUrl}`} 
+                                src={resolveLogoUrl(job.company.logoUrl)} 
                                 alt={job.company?.name}
                                 className="w-full h-full object-contain p-1"
                                 onError={(e) => {

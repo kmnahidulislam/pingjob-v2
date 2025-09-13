@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiRequest } from "@/lib/queryClient";
 import { insertCompanySchema, insertJobSchema } from "@shared/schema";
+import { resolveLogoUrl } from "@/lib/apiConfig";
 import { z } from "zod";
 import { Link } from "wouter";
 import logoPath from "@assets/logo_1749581218265.png";
@@ -67,7 +68,7 @@ function CompanyCard({ company, onSelectCompany, onFollowCompany }: {
           <div className="w-16 h-12 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
             {company.logoUrl && company.logoUrl !== "NULL" ? (
               <img 
-                src={company.logoUrl} 
+                src={resolveLogoUrl(company.logoUrl)} 
                 alt={company.name}
                 className="w-full h-full object-contain p-1"
               />
@@ -160,7 +161,7 @@ function SearchResults({ companies, onSelectCompany, onFollowCompany }: {
               <div className="w-20 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
                 {company.logoUrl && company.logoUrl !== "NULL" ? (
                   <img 
-                    src={company.logoUrl} 
+                    src={resolveLogoUrl(company.logoUrl)} 
                     alt={company.name}
                     className="w-full h-full object-contain p-1"
                   />
@@ -236,7 +237,7 @@ function CompanyDetailsModal({ company, isOpen, onClose }: {
             <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-gray-50">
               {company.logoUrl && company.logoUrl !== "NULL" ? (
                 <img 
-                  src={company.logoUrl} 
+                  src={resolveLogoUrl(company.logoUrl)} 
                   alt={company.name}
                   className="w-full h-full object-contain p-1"
                 />

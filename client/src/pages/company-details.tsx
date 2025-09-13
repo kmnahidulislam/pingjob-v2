@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Briefcase, Users, Globe, Calendar, Heart, ArrowLeft, ExternalLink } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { Link } from 'wouter';
+import { resolveLogoUrl } from "@/lib/apiConfig";
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { generateCompanyUrl, generateJobUrl, parseSlugUrl } from "../../../shared/slug-utils";
@@ -185,7 +186,7 @@ export default function CompanyDetails() {
               <div className="w-24 h-24 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
                 {company.logoUrl && company.logoUrl !== "NULL" ? (
                   <img 
-                    src={`/${company.logoUrl.replace(/ /g, '%20')}`} 
+                    src={resolveLogoUrl(company.logoUrl)} 
                     alt={company.name}
                     className="w-full h-full object-contain p-2"
                     onError={(e) => {
