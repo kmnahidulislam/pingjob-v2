@@ -42,21 +42,13 @@ export default function Home() {
     queryKey: ['/api/companies/top']
   });
 
-  const { data: recentJobs, isLoading: jobsLoading, error: jobsError } = useQuery({
-    queryKey: ['/api/jobs'],
-    queryFn: async () => {
-      const res = await fetch('/api/jobs?limit=6');
-      return res.json();
-    }
+  const { data: recentJobs, isLoading: jobsLoading, error: jobsError } = useQuery<any[]>({
+    queryKey: ['/api/jobs', { limit: 6 }]
   });
 
   // Also fetch admin jobs for the Latest Job Opportunities section
   const { data: adminJobs, isLoading: adminJobsLoading, error: adminJobsError } = useQuery({
-    queryKey: ['/api/admin-jobs'],
-    queryFn: async () => {
-      const res = await fetch('/api/admin-jobs?limit=6');
-      return res.json();
-    }
+    queryKey: ['/api/admin-jobs', { limit: 6 }]
   });
 
   // Debug logging only in development
@@ -85,14 +77,6 @@ export default function Home() {
 
   const { data: jobApplications = [] } = useQuery({
     queryKey: ['/api/applications', { limit: 3 }],
-    queryFn: async () => {
-      const response = await fetch('/api/applications?limit=3', {
-        credentials: 'include'
-      });
-      if (!response.ok) return [];
-      const data = await response.json();
-      return Array.isArray(data) ? data.slice(0, 3) : []; // Max 3 applications for dashboard
-    },
     enabled: !!user && user.userType === 'job_seeker'
   });
 

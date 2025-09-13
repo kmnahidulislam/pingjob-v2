@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Card, 
   CardContent, 
@@ -109,22 +110,8 @@ export default function PingJobHome() {
   };
 
   // Fetch admin jobs only for homepage display (100 jobs total for pagination)
-  const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery({
+  const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery<any[]>({
     queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
-    queryFn: async () => {
-      try {
-        const response = await fetch(`/api/admin-jobs?limit=${totalJobsToShow}`);
-        if (response.status === 429) {
-          // Rate limited - return empty array to prevent blank screen
-          return [];
-        }
-        if (!response.ok) return [];
-        return response.json();
-      } catch (error) {
-        // Return empty array on any error to prevent blank screen
-        return [];
-      }
-    },
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 60 * 60 * 1000, // 1 hour  
     refetchOnWindowFocus: false,
@@ -148,17 +135,8 @@ export default function PingJobHome() {
   }, [queryClient, refetchJobs]);
 
   // Fetch categories with error handling
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [] } = useQuery<any[]>({
     queryKey: ['/api/categories'],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/categories');
-        if (response.status === 429 || !response.ok) return [];
-        return response.json();
-      } catch (error) {
-        return [];
-      }
-    },
     staleTime: 60 * 60 * 1000, // 1 hour
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
     refetchOnWindowFocus: false,
@@ -167,17 +145,8 @@ export default function PingJobHome() {
   });
 
   // Fetch top companies with error handling
-  const { data: topCompanies = [] } = useQuery({
+  const { data: topCompanies = [] } = useQuery<any[]>({
     queryKey: ['/api/companies/top'],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/companies/top');
-        if (response.status === 429 || !response.ok) return [];
-        return response.json();
-      } catch (error) {
-        return [];
-      }
-    },
     staleTime: 60 * 60 * 1000, // 1 hour
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
     refetchOnWindowFocus: false,
@@ -285,14 +254,14 @@ export default function PingJobHome() {
       setShowSearchResults(true);
       
       try {
-        // Search both jobs and companies
+        // Search both jobs and companies using mobile-aware fetcher
         const [jobsResponse, companiesResponse] = await Promise.all([
-          fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&limit=20`),
-          fetch(`/api/companies/search?query=${encodeURIComponent(searchQuery)}&limit=20`)
+          apiRequest('GET', `/api/search?q=${encodeURIComponent(searchQuery)}&limit=20`),
+          apiRequest('GET', `/api/companies/search?query=${encodeURIComponent(searchQuery)}&limit=20`)
         ]);
         
-        const jobsData = jobsResponse.ok ? await jobsResponse.json() : [];
-        const companiesData = companiesResponse.ok ? await companiesResponse.json() : [];
+        const jobsData = await jobsResponse.json();
+        const companiesData = await companiesResponse.json();
         
         // Handle different response structures
         const jobs = jobsData?.jobs || jobsData || [];

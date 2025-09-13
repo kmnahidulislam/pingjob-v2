@@ -130,11 +130,12 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
     bookmarkMutation.mutate();
   };
 
-  const skillsArray = formatSkills(job.skills);
+  const skillsArray = formatSkills(job?.skills || null);
 
 
   // Format location - ALWAYS returns a location string
   const formatLocation = (job: any) => {
+    if (!job) return 'Remote';
     // Handle explicit remote jobs
     if (job.city === "Remote") {
       return 'Remote';
@@ -203,33 +204,33 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
       <Card className="job-card hover:shadow-md transition-all duration-200">
         <CardContent className="p-4">
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm line-clamp-2">{job.title}</h3>
+            <h3 className="font-semibold text-sm line-clamp-2">{job?.title || 'Untitled Job'}</h3>
 
             {showCompany && (
               <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-600">{job.companyName || job.company?.name || 'Unknown Company'}</p>
+                <p className="text-xs text-gray-600">{job?.company?.name || 'Unknown Company'}</p>
                 <div className="flex items-center gap-2">
                   {/* Admin Resume Count Badge - Clickable */}
-                  {((user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && job.resumeCount !== undefined && Number(job.resumeCount) > 0) && (
+                  {((user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && job?.resumeCount !== undefined && Number(job.resumeCount) > 0) && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         console.log('Resume badge clicked for job:', job.id);
                         // Open resume applications modal/view
-                        setSelectedJob(job);
+                        setSelectedJob(job || null);
                         setIsResumeModalOpen(true);
                         console.log('Modal state set to open');
                       }}
                       className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
                     >
                       <FileText className="h-3 w-3" />
-                      <span>{job.resumeCount} resume{job.resumeCount !== 1 ? 's' : ''}</span>
+                      <span>{job?.resumeCount} resume{job?.resumeCount !== 1 ? 's' : ''}</span>
                     </button>
                   )}
-                  {((job.company as any)?.vendorCount || 0) > 0 && (
+                  {((job?.company as any)?.vendorCount || 0) > 0 && (
                     <div className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50 border border-blue-200 px-2 py-1 rounded">
                       <Users className="h-3 w-3" />
-                      <span>{(job.company as any)?.vendorCount} vendor{((job.company as any)?.vendorCount || 0) !== 1 ? 's' : ''}</span>
+                      <span>{(job?.company as any)?.vendorCount} vendor{((job?.company as any)?.vendorCount || 0) !== 1 ? 's' : ''}</span>
                     </div>
                   )}
                 </div>
@@ -256,10 +257,10 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 <Avatar className="h-12 w-12">
                   <AvatarImage 
                     src={
-                      job.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
+                      job?.company?.logoUrl && job.company.logoUrl !== 'NULL' && job.company.logoUrl !== 'logos/NULL'
                         ? (job.company.logoUrl.startsWith('http') 
                             ? job.company.logoUrl 
-                            : `/${job.company.logoUrl}`)
+                            : `https://www.pingjob.com/${job.company.logoUrl.replace(/^\/+/, '')}`)
                         : undefined
                     }
                     onError={(e: any) => {
@@ -273,11 +274,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
               )}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
-                  {job.title}
+                  {job?.title || 'Untitled Job'}
                 </h3>
                 {showCompany && (
                   <p className="text-gray-600 font-medium">
-                    {job.companyName || job.company?.name || 'Unknown Company'}
+                    {job?.companyName || job?.company?.name || 'Unknown Company'}
                   </p>
                 )}
                 <div className="flex items-center text-sm text-gray-500 mt-1">
@@ -304,11 +305,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
           {/* Job Details */}
           <div className="space-y-3 mb-4">
             {/* Salary Only */}
-            {job.salary && (
+            {job?.salary && (
               <div className="flex items-center text-sm text-gray-600">
                 <span className="flex items-center">
                   <DollarSign className="h-4 w-4 mr-1" />
-                  {job.salary}
+                  {job?.salary}
                 </span>
               </div>
             )}
@@ -335,7 +336,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
 
             {/* Description */}
             <p className="text-gray-600 text-sm line-clamp-3">
-              {formatDescription(job.description)}
+              {formatDescription(job?.description)}
             </p>
           </div>
 
@@ -344,11 +345,11 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <span className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
-                {formatTimeAgo(job.createdAt)}
+                {formatTimeAgo(job?.createdAt)}
               </span>
               <span className="flex items-center">
                 <Users className="h-4 w-4 mr-1" />
-                {job.applicationCount || 0} applicants
+                {job?.applicationCount || 0} applicants
               </span>
               {/* Admin Resume Count for Full JobCard - Clickable */}
               {/* Debug: Show for specific user emails and admin types */}
@@ -370,7 +371,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
             </div>
             
             <div className="flex space-x-2">
-              <Link href={`/jobs/${job.id}`}>
+              <Link href={`/jobs/${job?.id || ''}`}>
                 <Button
                   variant="outline"
                   size="sm"
