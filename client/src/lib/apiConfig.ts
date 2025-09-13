@@ -12,8 +12,8 @@ export function getApiBaseUrl(): string {
   
   // In mobile environment, always use production server
   if (isNative) {
-    console.log('🔧 Mobile environment detected - using https://pingjob.com');
-    return 'https://pingjob.com';
+    console.log('🔧 Mobile environment detected - using https://www.pingjob.com');
+    return 'https://www.pingjob.com';
   }
   
   // In web environment, use relative URLs (they work fine)
