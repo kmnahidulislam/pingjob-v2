@@ -16,8 +16,8 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:windowDisablePreview">false</item>
-        <item name="android:statusBarColor">#FFFFFF</item>
-        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:statusBarColor">#10C623</item>
+        <item name="android:navigationBarColor">#10C623</item>
     </style>
 
     <!-- Main app theme -->

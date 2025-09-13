@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Force white background -->
-    <item android:drawable="@android:color/white" />
-    
-    <!-- PingJob logo centered -->
-    <item android:gravity="center">
-        <bitmap 
-            android:src="@drawable/splash_logo"
-            android:gravity="center" />
+    <!-- Green background matching PingJob logo color -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#10C623" />
+        </shape>
     </item>
 </layer-list>
