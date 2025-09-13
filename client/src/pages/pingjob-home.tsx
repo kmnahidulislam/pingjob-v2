@@ -86,6 +86,7 @@ export default function PingJobHome() {
   const [searchResults, setSearchResults] = useState<{jobs: any[], companies: any[]}>({jobs: [], companies: []});
   const [searchLoading, setSearchLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
 
@@ -98,6 +99,15 @@ export default function PingJobHome() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -224,8 +234,6 @@ export default function PingJobHome() {
   const totalJobs = Math.min(jobs.length, totalJobsToShow);
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
-
-
   // Calculate real-time statistics
   const jobStats = {
     totalJobs: platformStats?.totalJobs || jobs.length,
@@ -301,20 +309,32 @@ export default function PingJobHome() {
     const value = e.target.value;
     setSearchQuery(value);
     
-    // On mobile, show main search results instead of dropdown for better UX
-    if (isMobile) {
-      if (value.length >= 2) {
-        performLiveSearch(value);
-      } else {
-        setShowMainSearchResults(false);
-        setSearchResults({jobs: [], companies: []});
-      }
-    } else {
-      setShowSearchDropdown(value.length >= 2);
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
     
-    // If user clears the search, also hide main search results
+    // If user clears the search, immediately hide results
     if (value.trim() === '') {
+      setShowMainSearchResults(false);
+      setShowSearchDropdown(false);
+      setSearchResults({jobs: [], companies: []});
+      return;
+    }
+    
+    // Debounced search for both mobile and desktop
+    if (value.length >= 2) {
+      const timeout = setTimeout(() => {
+        if (isMobile) {
+          performLiveSearch(value);
+        } else {
+          setShowSearchDropdown(true);
+          performLiveSearch(value); // Also enable live search on desktop dropdown
+        }
+      }, 300); // 300ms debounce
+      
+      setSearchTimeout(timeout);
+    } else {
       setShowMainSearchResults(false);
       setShowSearchDropdown(false);
       setSearchResults({jobs: [], companies: []});
@@ -357,8 +377,6 @@ export default function PingJobHome() {
       setSearchQuery("");
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-gray-50 mobile-container">
@@ -572,61 +590,357 @@ export default function PingJobHome() {
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          
-          {/* Hero Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            
+            {/* Hero Features */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">100% Client-Only Jobs</h3>
+                <p className="text-sm text-gray-600">Direct opportunities from hiring companies</p>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">100% Client-Only Jobs</h3>
-              <p className="text-sm text-gray-600">Direct opportunities from hiring companies</p>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Rocket className="h-4 w-4 text-blue-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">10X Recruiter Engagement</h3>
+                <p className="text-sm text-gray-600">Higher response rates than traditional job boards</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Target className="h-4 w-4 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">One Clear Goal</h3>
+                <p className="text-sm text-gray-600">Presenting Qualified Talent Directly.</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Bot className="h-4 w-4 text-indigo-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">AI-Powered Matching</h3>
+                <p className="text-sm text-gray-600">Smart algorithms match you with relevant jobs</p>
+              </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Rocket className="h-4 w-4 text-blue-600" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-2xl mx-auto">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="h-4 w-4 text-orange-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Real-Time Analytics</h3>
+                <p className="text-sm text-gray-600">Track your application progress and market trends</p>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">10X Recruiter Engagement</h3>
-              <p className="text-sm text-gray-600">Higher response rates than traditional job boards</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Target className="h-4 w-4 text-purple-600" />
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Star className="h-4 w-4 text-red-600" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Resume Score™</h3>
+                <p className="text-sm text-gray-600">Get instant feedback on your resume quality</p>
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">One Clear Goal</h3>
-              <p className="text-sm text-gray-600">Presenting Qualified Talent Directly.</p>
-            </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Bot className="h-4 w-4 text-indigo-600" />
-              </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">AI-Powered Matching</h3>
-              <p className="text-sm text-gray-600">Smart algorithms match you with relevant jobs</p>
             </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-2xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-4 w-4 text-orange-600" />
+        {/* Desktop Main Content - Jobs Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div id="jobs-section" className="lg:col-span-3">
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center mb-6">
+                  <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Latest Job Opportunities</h2>
+                </div>
+                {jobsLoading && (
+                  <div className="flex justify-center items-center mt-4">
+                    <span className="text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+                      <Clock className="h-4 w-4 inline mr-1 animate-spin" />
+                      Updating...
+                    </span>
+                  </div>
+                )}
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Real-Time Analytics</h3>
-              <p className="text-sm text-gray-600">Track your application progress and market trends</p>
+              
+              {currentJobs.length > 0 ? (
+                <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {currentJobs.map((job: any, index: number) => (
+                    <Card key={`${job.id}-page-${currentJobPage}`} className="border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] bg-white/80 backdrop-blur-sm">
+                      <CardHeader className="pb-6 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-t-lg">
+                        
+                        {/* Company Logo and Name */}
+                        <div className="flex items-start space-x-4 mb-4">
+                          {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
+                            <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
+                              <img 
+                                src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
+                                alt={job.company.name}
+                                className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div 
+                                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl"
+                                style={{display: 'none'}}
+                              >
+                                {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
+                              {(job.company?.name || 'C').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-lg text-gray-800 truncate">
+                              {job.company?.name || 'Company Name'}
+                            </h3>
+                            <div className="text-xs text-gray-600 mb-1">
+                              {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || 'Location not specified'}
+                            </div>
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {job.company?.vendorCount || 0} vendors
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Job Title */}
+                        <CardTitle className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
+                          {job.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        {/* Job Description */}
+                        <p className="text-sm text-gray-700 line-clamp-3 mb-6 leading-relaxed">
+                          {job.description}
+                        </p>
+                        
+                        {/* Job Stats */}
+                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center">
+                              <Users className="h-3 w-3 mr-1" />
+                              <span>{job.applicationCount || job.categoryMatchedApplicants || 0} applicants</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              <span>{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : new Date().toLocaleDateString())}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                          {/* Admin Edit Button */}
+                          {(user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && (
+                            <Button 
+                              variant="outline" 
+                              className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.location.href = `/admin/edit-job/${job.id}`;
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                          )}
+                          <Link href={`/jobs/${job.id}`} className="flex-1">
+                            <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg" size="sm">
+                              View Details
+                            </Button>
+                          </Link>
+                          <Button 
+                            className="w-full flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 shadow-md hover:shadow-lg" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleApplyNow(job.id);
+                            }}
+                          >
+                            Apply Now
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
+                  <div className="w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Briefcase className="h-12 w-12 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No Jobs Available</h3>
+                  <p className="text-gray-600 mb-8 text-lg">Check back soon for new opportunities</p>
+                  <Button className="px-10 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                    Post a Job
+                    <Plus className="h-5 w-5 ml-2" />
+                  </Button>
+                </div>
+              )}
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-12 space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleJobPageChange(currentJobPage - 1)}
+                    disabled={currentJobPage === 1}
+                    className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentJobPage === page ? "default" : "outline"}
+                      onClick={() => handleJobPageChange(page)}
+                      className={currentJobPage === page 
+                        ? "px-4 py-2 min-w-[2.5rem] bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" 
+                        : "px-4 py-2 min-w-[2.5rem] border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
+                      }
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => handleJobPageChange(currentJobPage + 1)}
+                    disabled={currentJobPage === totalPages}
+                    className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              )}
+              
+              <div className="text-center mt-8">
+                <Link href="/jobs">
+                  <Button size="lg" className="px-8">
+                    View All Jobs
+                    <Briefcase className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Star className="h-4 w-4 text-red-600" />
-              </div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Resume Score™</h3>
-              <p className="text-sm text-gray-600">Get instant feedback on your resume quality</p>
+
+            {/* Sidebar - Categories & Companies */}
+            <div className="lg:col-span-1 space-y-8">
+              {/* Job Categories */}
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <Target className="h-5 w-5 mr-2 text-blue-600" />
+                    Job Categories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {categories.length > 0 ? (
+                    <JobCategories selectedCategory={selectedCategory} onCategorySelect={(categoryId) => {
+                      window.location.href = `/jobs?categoryId=${categoryId}`;
+                    }} />
+                  ) : (
+                    <div className="text-sm text-gray-500">Loading categories...</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Top Companies */}
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
+                    Top Companies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {topCompanies.length > 0 ? (
+                    <div className="space-y-3">
+                      {topCompanies.slice(0, 8).map((company: any) => (
+                        <Link 
+                          key={company.id} 
+                          href={`/companies/${company.id}`}
+                          className="block group"
+                        >
+                          <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors duration-300 border border-gray-100 hover:border-gray-200">
+                            <div className="flex items-center space-x-3">
+                              {company.logoUrl && company.logoUrl !== "NULL" ? (
+                                <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-white">
+                                  <img 
+                                    src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
+                                    alt={company.name}
+                                    className="w-full h-full object-contain p-1"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                                  {(company.name || 'C').charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
+                                  {company.name}
+                                </div>
+                                <div className="text-xs text-gray-500">{company.industry}</div>
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {company.vendor_count} vendors
+                            </Badge>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500">Loading companies...</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Platform Stats */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
+                    Platform Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Total Jobs</span>
+                      <span className="font-bold text-blue-600">{jobStats.totalJobs}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Active Companies</span>
+                      <span className="font-bold text-green-600">{jobStats.activeCompanies.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Categories</span>
+                      <span className="font-bold text-purple-600">{jobStats.totalCategories}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Today's Jobs</span>
+                      <span className="font-bold text-orange-600">{jobStats.todayJobs}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-
         </div>
-      </section>
+      </main>
 
-      {/* Search Results Section */}
+      {/* Universal Search Results Section - Visible on both mobile and desktop */}
       {showMainSearchResults && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -667,7 +981,7 @@ export default function PingJobHome() {
                   {searchResults.jobs.length > 0 ? (
                     <div className="space-y-4">
                       {searchResults.jobs.slice(0, 10).map((job: any) => (
-                        <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
@@ -700,16 +1014,17 @@ export default function PingJobHome() {
                             )}
                           </div>
                           <div className="flex gap-2 mt-3">
-                            <Link href={`/jobs/${job.id}`} className="flex-1">
-                              <Button variant="outline" size="sm" className="w-full">
-                                View Details
-                              </Button>
-                            </Link>
+                            <Button variant="outline" size="sm" className="flex-1" onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/jobs/${job.id}`);
+                            }}>
+                              View Details
+                            </Button>
                             <Button 
                               size="sm" 
-                              className="w-full flex-1" 
+                              className="flex-1" 
                               onClick={(e) => {
-                                e.preventDefault();
+                                e.stopPropagation();
                                 handleApplyNow(job.id);
                               }}
                             >
@@ -720,11 +1035,9 @@ export default function PingJobHome() {
                       ))}
                       {searchResults.jobs.length > 10 && (
                         <div className="text-center pt-4">
-                          <Link href={`/jobs?search=${encodeURIComponent(searchQuery)}`}>
-                            <Button variant="outline">
-                              View All {searchResults.jobs.length} Jobs
-                            </Button>
-                          </Link>
+                          <Button variant="outline" onClick={() => navigate(`/jobs?search=${encodeURIComponent(searchQuery)}`)}>
+                            View All {searchResults.jobs.length} Jobs
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -745,7 +1058,7 @@ export default function PingJobHome() {
                   {searchResults.companies.length > 0 ? (
                     <div className="space-y-4">
                       {searchResults.companies.slice(0, 10).map((company: any) => (
-                        <div key={company.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div key={company.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/companies/${company.id}`)}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-medium text-gray-900 mb-1">{company.name}</h4>
@@ -779,21 +1092,20 @@ export default function PingJobHome() {
                             )}
                           </div>
                           <div className="mt-3">
-                            <Link href={`/companies?search=${encodeURIComponent(company.name)}`}>
-                              <Button variant="outline" size="sm" className="w-full">
-                                View Company Details
-                              </Button>
-                            </Link>
+                            <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/companies?search=${encodeURIComponent(company.name)}`);
+                            }}>
+                              View Company Details
+                            </Button>
                           </div>
                         </div>
                       ))}
                       {searchResults.companies.length > 10 && (
                         <div className="text-center pt-4">
-                          <Link href={`/companies?search=${encodeURIComponent(searchQuery)}`}>
-                            <Button variant="outline">
-                              View All {searchResults.companies.length} Companies
-                            </Button>
-                          </Link>
+                          <Button variant="outline" onClick={() => navigate(`/companies?search=${encodeURIComponent(searchQuery)}`)}>
+                            View All {searchResults.companies.length} Companies
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -810,407 +1122,8 @@ export default function PingJobHome() {
         </div>
       )}
 
-      {/* Main Content Area with Sidebar and Jobs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50/50">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-          
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            
-            {/* Platform Statistics */}
-            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-t-lg">
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-                  <BarChart3 className="h-5 w-5 text-gray-600 mr-2" />
-                  Platform Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-2 bg-blue-50 rounded-lg">
-                    <Briefcase className="h-4 w-4 text-blue-600 mx-auto mb-1" />
-                    <div className="text-lg font-bold text-blue-600">{jobStats.totalJobs}</div>
-                    <div className="text-xs text-gray-600">Active Jobs</div>
-                  </div>
-                  <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <Building2 className="h-4 w-4 text-green-600 mx-auto mb-1" />
-                    <div className="text-lg font-bold text-green-600">{jobStats.activeCompanies}</div>
-                    <div className="text-xs text-gray-600">Companies</div>
-                  </div>
-                  <div className="text-center p-2 bg-purple-50 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-purple-600 mx-auto mb-1" />
-                    <div className="text-lg font-bold text-purple-600">{jobStats.totalCategories}</div>
-                    <div className="text-xs text-gray-600">Categories</div>
-                  </div>
-                  <div className="text-center p-2 bg-orange-50 rounded-lg">
-                    <Clock className="h-4 w-4 text-orange-600 mx-auto mb-1" />
-                    <div className="text-lg font-bold text-orange-600">{jobStats.todayJobs}</div>
-                    <div className="text-xs text-gray-600">Posted Today</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Top Job Categories */}
-            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-                  <Briefcase className="h-5 w-5 text-blue-600 mr-2" />
-                  Top Job Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 p-6">
-                {Array.isArray(categories) && categories.length > 0 ? (
-                  categories.slice(0, 20).map((category: any) => (
-                    <div key={category.id} className="flex justify-between items-center">
-                      <Link 
-                        href={`/jobs?categoryId=${category.id}`}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        {category.name}
-                      </Link>
-                      <span className="text-gray-500 text-xs">
-                        {category.jobCount || '0'} jobs
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 text-gray-500 text-sm">
-                    Unable to load job categories
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Top Companies */}
-            <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center">
-                  <Building2 className="h-5 w-5 text-green-600 mr-2" />
-                  Top Companies
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 p-6">
-                {topCompanies.slice(0, 20).map((company: any, index: number) => (
-                  <div key={company.id} className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-start space-x-4">
-                      {/* Logo */}
-                      <div className="flex-shrink-0 w-12 h-12 border border-gray-200 rounded-lg overflow-hidden bg-white">
-                        {company.logoUrl && company.logoUrl !== "NULL" ? (
-                          <img 
-                            src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
-                            alt={company.name}
-                            className="w-full h-full object-contain p-2"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm">${company.name.charAt(0)}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-sm">
-                            {company.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Company Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded">
-                            #{index + 1}
-                          </span>
-                          <h3 className="font-semibold text-gray-900 text-sm">
-                            {company.name}
-                          </h3>
-                        </div>
-                        
-                        <div className="flex items-center space-x-3 mt-2">
-                          {(company.jobCount || 0) > 0 && (
-                            <div className="flex items-center space-x-1 text-green-700">
-                              <Briefcase className="h-3 w-3" />
-                              <span className="text-xs font-medium">{company.jobCount}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center space-x-1 text-blue-700">
-                            <Users className="h-3 w-3" />
-                            <span className="text-xs font-medium">{company.vendor_count || 0}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {/* AdSense Sidebar Ad - Temporarily commented for testing */}
-                {/* <div className="mt-6">
-                  <GoogleAdsense 
-                    style={{ display: 'block' }}
-                  />
-                </div> */}
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Latest Job Opportunities Section */}
-          <div id="jobs-section" className="lg:col-span-3">
-            <div className="text-center mb-12">
-              <div className="flex items-center justify-center mb-6">
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Latest Job Opportunities</h2>
-              </div>
-              {jobsLoading && (
-                <div className="flex justify-center items-center mt-4">
-                  <span className="text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
-                    <Clock className="h-4 w-4 inline mr-1 animate-spin" />
-                    Updating...
-                  </span>
-                </div>
-              )}
-            </div>
-            
-            {currentJobs.length > 0 ? (
-              <div key={`jobs-page-${currentJobPage}`} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {currentJobs.map((job: any, index: number) => (
-                  <Card key={`${job.id}-page-${currentJobPage}`} className="border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] bg-white/80 backdrop-blur-sm">
-                    <CardHeader className="pb-6 bg-gradient-to-r from-gray-50 to-blue-50/50 rounded-t-lg">
-                      
-                      {/* Company Logo and Name */}
-                      <div className="flex items-start space-x-4 mb-4">
-                        {job.company?.logoUrl && job.company.logoUrl !== "NULL" ? (
-                          <div className="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0">
-                            <img 
-                              src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl.replace(/ /g, '%20') : `/${job.company.logoUrl.replace(/ /g, '%20')}`}
-                              alt={job.company.name}
-                              className="w-full h-full object-contain p-2"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }}
-                            />
-                            <div 
-                              className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl"
-                              style={{display: 'none'}}
-                            >
-                              {(job.company?.name || 'C').charAt(0).toUpperCase()}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-16 h-16 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xl rounded-lg shadow-sm flex-shrink-0">
-                            {(job.company?.name || 'C').charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                        
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-lg text-gray-800 truncate">
-                            {job.company?.name || 'Company Name'}
-                          </h3>
-                          <div className="text-xs text-gray-600 mb-1">
-                            {[job.company?.city, job.company?.state, job.company?.zipCode].filter(Boolean).join(', ') || 'Location not specified'}
-                          </div>
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {job.company?.vendorCount || 0} vendors
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Job Title */}
-                      <CardTitle className="text-xl font-bold text-gray-900 mb-4 line-clamp-2 hover:text-blue-600 transition-colors duration-300">
-                        {job.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      {/* Job Description */}
-                      <p className="text-sm text-gray-700 line-clamp-3 mb-6 leading-relaxed">
-                        {job.description}
-                      </p>
-                      
-
-                      
-                      {/* Job Stats */}
-                      <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center">
-                            <Users className="h-3 w-3 mr-1" />
-                            <span>{job.applicationCount || job.categoryMatchedApplicants || 0} applicants</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            <span>{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : new Date().toLocaleDateString())}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-3 mt-6">
-                        {/* Admin Edit Button */}
-                        {(user?.email === 'krupas@vedsoft.com' || user?.email === 'krupashankar@gmail.com' || user?.userType === 'admin') && (
-                          <Button 
-                            variant="outline" 
-                            className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg" 
-                            size="sm"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              window.location.href = `/admin/edit-job/${job.id}`;
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
-                        )}
-                        <Link href={`/jobs/${job.id}`} className="flex-1">
-                          <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg" size="sm">
-                            View Details
-                          </Button>
-                        </Link>
-                        <Button 
-                          className="w-full flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all duration-300 shadow-md hover:shadow-lg" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleApplyNow(job.id);
-                          }}
-                        >
-                          Apply Now
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-lg">
-                <div className="w-24 h-24 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Briefcase className="h-12 w-12 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">No Jobs Available</h3>
-                <p className="text-gray-600 mb-8 text-lg">Check back soon for new opportunities</p>
-                <Button className="px-10 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                  Post a Job
-                  <Plus className="h-5 w-5 ml-2" />
-                </Button>
-              </div>
-            )}
-            
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center mt-12 space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => handleJobPageChange(currentJobPage - 1)}
-                  disabled={currentJobPage === 1}
-                  className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentJobPage === page ? "default" : "outline"}
-                    onClick={() => handleJobPageChange(page)}
-                    className={currentJobPage === page 
-                      ? "px-4 py-2 min-w-[2.5rem] bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg" 
-                      : "px-4 py-2 min-w-[2.5rem] border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
-                    }
-                  >
-                    {page}
-                  </Button>
-                ))}
-                
-                <Button
-                  variant="outline"
-                  onClick={() => handleJobPageChange(currentJobPage + 1)}
-                  disabled={currentJobPage === totalPages}
-                  className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            )}
-            
-            <div className="text-center mt-8">
-              <Link href="/jobs">
-                <Button size="lg" className="px-8">
-                  View All Jobs
-                  <Briefcase className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-      </main>
-
       {/* Mobile Main Content */}
       <main className="mobile-only" style={{ marginTop: showMainSearchResults ? '0' : '20px' }}>
-        {/* Mobile Search Results */}
-        {showMainSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
-          <div className="bg-white m-4 p-4 rounded-lg shadow-sm border">
-            <h2 className="mobile-title mb-4">Search Results for "{searchQuery}"</h2>
-            
-            {searchResults.jobs.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3 flex items-center">
-                  <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
-                  Jobs ({searchResults.jobs.length})
-                </h3>
-                <div className="mobile-job-grid">
-                  {searchResults.jobs.slice(0, 10).map((job: any) => (
-                    <Link key={job.id} href={`/jobs/${job.id}`} onClick={handleResultClick}>
-                      <div className="mobile-job-card">
-                        <h4 className="font-medium mb-2">{job.title}</h4>
-                        <p className="mobile-subtitle text-gray-600">{job.company?.name}</p>
-                        <div className="flex items-center justify-between mt-3">
-                          <div className="flex items-center text-sm text-blue-600 font-medium">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            <span>{formatJobLocation(job)}</span>
-                          </div>
-                          <Button size="sm" className="px-3">Apply</Button>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {searchResults.companies.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center">
-                  <Building2 className="h-4 w-4 mr-2 text-green-600" />
-                  Companies ({searchResults.companies.length})
-                </h3>
-                <div className="space-y-3">
-                  {searchResults.companies.slice(0, 5).map((company: any) => (
-                    <Link key={company.id} href={`/companies/${company.id}`} onClick={handleResultClick}>
-                      <div className="mobile-job-card">
-                        <div className="flex items-center space-x-3">
-                          {company.logoUrl && (
-                            <img 
-                              src={company.logoUrl.startsWith('/') ? company.logoUrl : `/${company.logoUrl}`}
-                              alt={company.name}
-                              className="mobile-company-logo"
-                              onError={(e) => e.currentTarget.style.display = 'none'}
-                            />
-                          )}
-                          <div>
-                            <h4 className="font-medium">{company.name}</h4>
-                            <p className="text-sm text-gray-600">{company.industry}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Mobile Hero Stats */}
         <div className="bg-gradient-to-br from-green-50 to-blue-50 m-4 p-6 rounded-lg">
           <div className="text-center mb-6">
@@ -1298,114 +1211,67 @@ export default function PingJobHome() {
                           </div>
                         )}
                         
-                        {(job.applicantCount || job.applicationCount) > 0 && (
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Users className="h-3 w-3 mr-1" />
-                            <span>{job.applicantCount || job.applicationCount} applicants</span>
-                          </div>
-                        )}
+                        <span className="text-xs text-gray-500">
+                          {job.applicantCount || 0} applicants
+                        </span>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1 text-xs py-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/jobs/${job.id}`);
+                          }}
+                        >
+                          View
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="flex-1 text-xs py-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApplyNow(job.id);
+                          }}
+                        >
+                          Apply
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Apply button positioned outside of clickable area */}
-                  <div className="mt-3 flex gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm" 
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/jobs/${job.id}`);
-                      }}
-                    >
-                      View Details
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleApplyNow(job.id);
-                      }}
-                    >
-                      Apply Now
-                    </Button>
                   </div>
                 </div>
               ))}
             </div>
           )}
           
-          {/* Mobile Pagination */}
+          {/* Mobile pagination */}
           {totalPages > 1 && (
-            <div className="mobile-pagination">
+            <div className="flex justify-center items-center mt-6 space-x-2">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => handleJobPageChange(currentJobPage - 1)}
                 disabled={currentJobPage === 1}
-                size="sm"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               
-              <span className="text-sm text-gray-600">
-                Page {currentJobPage} of {totalPages}
+              <span className="text-sm text-gray-600 px-3">
+                {currentJobPage} of {totalPages}
               </span>
               
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => handleJobPageChange(currentJobPage + 1)}
                 disabled={currentJobPage === totalPages}
-                size="sm"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           )}
-          
-          <div className="text-center mt-6">
-            <Link href="/jobs">
-              <Button className="mobile-btn">
-                View All Jobs
-                <Briefcase className="h-4 w-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Mobile Quick Links */}
-        <div className="mobile-card bg-white m-4 p-4">
-          <h2 className="mobile-title mb-4">Quick Links</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/companies">
-              <Button variant="outline" className="mobile-btn">
-                <Building2 className="h-4 w-4 mr-2" />
-                Companies
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="outline" className="mobile-btn">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Pricing
-              </Button>
-            </Link>
-            {!user && (
-              <>
-                <Link href="/auth">
-                  <Button className="mobile-btn">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Sign Up
-                  </Button>
-                </Link>
-                <Link href="/auth">
-                  <Button variant="outline" className="mobile-btn">
-                    Login
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
         </div>
       </main>
 
