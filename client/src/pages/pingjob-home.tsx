@@ -81,7 +81,8 @@ export default function PingJobHome() {
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [featuredJobId, setFeaturedJobId] = useState<number | null>(null);
   const [showCompanies, setShowCompanies] = useState(false);
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [showMainSearchResults, setShowMainSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState<{jobs: any[], companies: any[]}>({jobs: [], companies: []});
   const [searchLoading, setSearchLoading] = useState(false);
   const jobsPerPage = 20;
@@ -258,7 +259,8 @@ export default function PingJobHome() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setSearchLoading(true);
-      setShowSearchResults(true);
+      setShowSearchDropdown(false); // Hide dropdown when doing main search
+      setShowMainSearchResults(true); // Show main search results
       
       try {
         // Search both jobs and companies using mobile-aware fetcher
@@ -287,11 +289,17 @@ export default function PingJobHome() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    setShowSearchResults(value.length >= 2);
+    setShowSearchDropdown(value.length >= 2);
+    
+    // If user clears the search, also hide main search results
+    if (value.trim() === '') {
+      setShowMainSearchResults(false);
+      setSearchResults({jobs: [], companies: []});
+    }
   };
 
   const handleResultClick = () => {
-    setShowSearchResults(false);
+    setShowSearchDropdown(false);
     setSearchQuery("");
   };
 
@@ -461,12 +469,12 @@ export default function PingJobHome() {
         </form>
       </div>
 
-      {/* Search Results Overlay */}
-      {showSearchResults && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowSearchResults(false)} />
+      {/* Search Results Overlay - Only for dropdown */}
+      {showSearchDropdown && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowSearchDropdown(false)} />
       )}
       
-      {showSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+      {showSearchDropdown && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           {searchResults.jobs.length > 0 && (
             <div className="p-4">
@@ -564,7 +572,7 @@ export default function PingJobHome() {
       </section>
 
       {/* Search Results Section */}
-      {showSearchResults && (
+      {showMainSearchResults && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center justify-between mb-6">
@@ -579,7 +587,8 @@ export default function PingJobHome() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setShowSearchResults(false);
+                  setShowMainSearchResults(false);
+                  setShowSearchDropdown(false);
                   setSearchQuery("");
                   setSearchResults({jobs: [], companies: []});
                 }}
@@ -1082,9 +1091,9 @@ export default function PingJobHome() {
       </main>
 
       {/* Mobile Main Content */}
-      <main className="mobile-only" style={{ marginTop: showSearchResults ? '0' : '20px' }}>
+      <main className="mobile-only" style={{ marginTop: showMainSearchResults ? '0' : '20px' }}>
         {/* Mobile Search Results */}
-        {showSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+        {showMainSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
           <div className="bg-white m-4 p-4 rounded-lg shadow-sm border">
             <h2 className="mobile-title mb-4">Search Results for "{searchQuery}"</h2>
             
