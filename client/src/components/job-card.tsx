@@ -278,7 +278,7 @@ export default function JobCard({ job, compact = false, showCompany = true }: Jo
                 </h3>
                 {showCompany && (
                   <p className="text-gray-600 font-medium">
-                    {job?.companyName || job?.company?.name || 'Unknown Company'}
+                    {job?.company?.name || 'Unknown Company'}
                   </p>
                 )}
                 <div className="flex items-center text-sm text-gray-500 mt-1">
