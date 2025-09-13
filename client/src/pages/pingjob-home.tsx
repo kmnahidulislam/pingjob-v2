@@ -90,10 +90,23 @@ export default function PingJobHome() {
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
 
-  // Detect mobile device
+  // Detect mobile device with more robust detection
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const isMobileDevice = (
+        window.innerWidth <= 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0)
+      );
+      setIsMobile(isMobileDevice);
+      // Debug log for troubleshooting
+      console.log('Mobile detection:', {
+        isMobileDevice,
+        innerWidth: window.innerWidth,
+        userAgent: navigator.userAgent,
+        touchSupport: 'ontouchstart' in window
+      });
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -326,10 +339,13 @@ export default function PingJobHome() {
     if (value.length >= 2) {
       const timeout = setTimeout(() => {
         if (isMobile) {
+          // Mobile: Never show dropdown overlay, only show main search results
+          setShowSearchDropdown(false);
           performLiveSearch(value);
         } else {
+          // Desktop: Show dropdown overlay with search results
           setShowSearchDropdown(true);
-          performLiveSearch(value); // Also enable live search on desktop dropdown
+          performLiveSearch(value);
         }
       }, 300); // 300ms debounce
       
@@ -369,12 +385,17 @@ export default function PingJobHome() {
   };
 
   const handleResultClick = () => {
+    // Always close desktop dropdown
     setShowSearchDropdown(false);
     if (isMobile) {
-      // On mobile, don't clear search query to maintain context
+      // On mobile, clear search results but keep query for context
       setShowMainSearchResults(false);
+      // Optional: Clear search query on mobile too for clean UX
+      // setSearchQuery("");
     } else {
+      // On desktop, clear everything
       setSearchQuery("");
+      setShowMainSearchResults(false);
     }
   };
 
@@ -542,12 +563,13 @@ export default function PingJobHome() {
         </form>
       </div>
 
-      {/* Desktop Search Results Overlay - Only for desktop dropdown */}
-      {!isMobile && showSearchDropdown && (
+      {/* Desktop Search Results Overlay - STRICTLY desktop only */}
+      {!isMobile && showSearchDropdown && !showMainSearchResults && (
         <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={() => setShowSearchDropdown(false)} />
       )}
       
-      {!isMobile && showSearchDropdown && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+      {/* Desktop Search Dropdown - STRICTLY desktop only, positioned relative to search box */}
+      {!isMobile && showSearchDropdown && !showMainSearchResults && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           {searchResults.jobs.length > 0 && (
             <div className="p-4">
