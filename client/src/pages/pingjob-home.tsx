@@ -85,8 +85,19 @@ export default function PingJobHome() {
   const [showMainSearchResults, setShowMainSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState<{jobs: any[], companies: any[]}>({jobs: [], companies: []});
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -289,18 +300,62 @@ export default function PingJobHome() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    setShowSearchDropdown(value.length >= 2);
+    
+    // On mobile, show main search results instead of dropdown for better UX
+    if (isMobile) {
+      if (value.length >= 2) {
+        performLiveSearch(value);
+      } else {
+        setShowMainSearchResults(false);
+        setSearchResults({jobs: [], companies: []});
+      }
+    } else {
+      setShowSearchDropdown(value.length >= 2);
+    }
     
     // If user clears the search, also hide main search results
     if (value.trim() === '') {
       setShowMainSearchResults(false);
+      setShowSearchDropdown(false);
       setSearchResults({jobs: [], companies: []});
+    }
+  };
+
+  // Mobile live search function
+  const performLiveSearch = async (query: string) => {
+    if (!query.trim()) return;
+    
+    setSearchLoading(true);
+    setShowMainSearchResults(true);
+    
+    try {
+      const [jobsResponse, companiesResponse] = await Promise.all([
+        apiRequest('GET', `/api/search?q=${encodeURIComponent(query)}&limit=10`),
+        apiRequest('GET', `/api/companies/search?query=${encodeURIComponent(query)}&limit=5`)
+      ]);
+      
+      const jobsData = await jobsResponse.json();
+      const companiesData = await companiesResponse.json();
+      
+      const jobs = jobsData?.jobs || jobsData || [];
+      const companies = companiesData || [];
+      
+      setSearchResults({ jobs, companies });
+    } catch (error) {
+      setSearchResults({ jobs: [], companies: [] });
+    } finally {
+      setSearchLoading(false);
     }
   };
 
   const handleResultClick = () => {
     setShowSearchDropdown(false);
-    setSearchQuery("");
+    if (isMobile) {
+      // On mobile, don't clear search query to maintain context
+      setShowMainSearchResults(false);
+    } else {
+      setSearchQuery("");
+    }
   };
 
 
@@ -469,12 +524,12 @@ export default function PingJobHome() {
         </form>
       </div>
 
-      {/* Search Results Overlay - Only for dropdown */}
-      {showSearchDropdown && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowSearchDropdown(false)} />
+      {/* Desktop Search Results Overlay - Only for desktop dropdown */}
+      {!isMobile && showSearchDropdown && (
+        <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={() => setShowSearchDropdown(false)} />
       )}
       
-      {showSearchDropdown && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
+      {!isMobile && showSearchDropdown && (searchResults.jobs.length > 0 || searchResults.companies.length > 0) && (
         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           {searchResults.jobs.length > 0 && (
             <div className="p-4">
@@ -1218,54 +1273,66 @@ export default function PingJobHome() {
           ) : (
             <div className="mobile-job-grid">
               {currentJobs.map((job: any) => (
-                <Link key={job.id} href={`/jobs/${job.id}`}>
-                  <div className="mobile-job-card">
-                    <div className="flex items-start space-x-3">
-                      {job.company?.logoUrl && (
-                        <img 
-                          src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl : `/${job.company.logoUrl}`}
-                          alt={job.company.name}
-                          className="mobile-company-logo"
-                          onError={(e) => e.currentTarget.style.display = 'none'}
-                        />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 mb-1 line-clamp-2">{job.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
+                <div key={job.id} className="mobile-job-card" style={{ cursor: 'pointer', position: 'relative' }}>
+                  <div 
+                    className="flex items-start space-x-3"
+                    onClick={() => navigate(`/jobs/${job.id}`)}
+                  >
+                    {job.company?.logoUrl && job.company.logoUrl !== 'NULL' && (
+                      <img 
+                        src={job.company.logoUrl.startsWith('/') ? job.company.logoUrl : `/${job.company.logoUrl}`}
+                        alt={job.company.name}
+                        className="w-12 h-12 object-contain rounded border border-gray-200 flex-shrink-0"
+                        onError={(e) => e.currentTarget.style.display = 'none'}
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 mb-1 line-clamp-2">{job.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{job.company?.name}</p>
+                      
+                      <div className="flex items-center justify-between mb-3">
+                        {formatJobLocation(job) && (
+                          <div className="flex items-center text-sm text-blue-600 font-medium">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            <span>{formatJobLocation(job)}</span>
+                          </div>
+                        )}
                         
-                        <div className="flex items-center justify-between">
-                          {formatJobLocation(job) && (
-                            <div className="flex items-center text-sm text-blue-600 font-medium">
-                              <MapPin className="h-4 w-4 mr-1" />
-                              <span>{formatJobLocation(job)}</span>
-                            </div>
-                          )}
-                          
-                          {job.applicantCount > 0 && (
-                            <div className="flex items-center text-xs text-gray-500">
-                              <Users className="h-3 w-3 mr-1" />
-                              <span>{job.applicantCount} applicants</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="mt-3">
-                          <Button 
-                            size="sm" 
-                            className="mobile-btn"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleApplyNow(job.id);
-                            }}
-                          >
-                            Apply Now
-                          </Button>
-                        </div>
+                        {(job.applicantCount || job.applicationCount) > 0 && (
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Users className="h-3 w-3 mr-1" />
+                            <span>{job.applicantCount || job.applicationCount} applicants</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                </Link>
+                  
+                  {/* Apply button positioned outside of clickable area */}
+                  <div className="mt-3 flex gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm" 
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/jobs/${job.id}`);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApplyNow(job.id);
+                      }}
+                    >
+                      Apply Now
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
