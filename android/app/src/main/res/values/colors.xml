@@ -7,7 +7,7 @@
     
     <!-- Status bar and splash screen -->
     <color name="ic_launcher_background">#10C623</color>
-    <color name="splash_screen_background">#10C623</color>
+    <color name="splash_screen_background">#FFFFFF</color>
     
     <!-- Additional colors -->
     <color name="white">#FFFFFF</color>
