@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Force white background -->
+    <!-- White background -->
     <item>
-        <color android:color="#FFFFFF" />
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
     </item>
     
-    <!-- PingJob logo centered -->
+    <!-- PingJob logo centered with proper sizing -->
     <item android:gravity="center">
         <bitmap 
             android:src="@drawable/splash_logo"
-            android:gravity="center" />
+            android:gravity="center" 
+            android:tileMode="disabled"
+            android:antialias="true"
+            android:filter="true" />
     </item>
 </layer-list>
