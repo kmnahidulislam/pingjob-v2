@@ -109,9 +109,9 @@ export default function PingJobHome() {
     }
   };
 
-  // Fetch admin jobs only for homepage display (100 jobs total for pagination)
+  // Fetch public jobs for homepage display (100 jobs total for pagination)
   const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery<any[]>({
-    queryKey: ['/api/admin-jobs', { limit: totalJobsToShow }],
+    queryKey: ['/api/jobs', { limit: totalJobsToShow }],
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 60 * 60 * 1000, // 1 hour  
     refetchOnWindowFocus: false,
@@ -119,10 +119,17 @@ export default function PingJobHome() {
     retry: false // Don't retry on failure
   });
 
+  // Debug log to confirm the fix
+  useEffect(() => {
+    if (jobsData) {
+      console.log('🎯 PingJobHome jobs loaded successfully:', jobsData.length, 'jobs');
+    }
+  }, [jobsData]);
+
   // Listen for job application events to refresh applicant counts
   useEffect(() => {
     const handleJobApplicationSubmitted = (event: any) => {
-      queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
+      queryClient.removeQueries({ queryKey: ['/api/jobs'] });
       
       // Single refresh with delay to prevent rate limiting
       setTimeout(() => {
@@ -234,8 +241,8 @@ export default function PingJobHome() {
     const handleJobUpdated = () => {
       clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => {
-        queryClient.removeQueries({ queryKey: ['/api/admin-jobs'] });
-        queryClient.refetchQueries({ queryKey: ['/api/admin-jobs'] });
+        queryClient.removeQueries({ queryKey: ['/api/jobs'] });
+        queryClient.refetchQueries({ queryKey: ['/api/jobs'] });
       }, 2000); // Throttle to 2 seconds
     };
 
