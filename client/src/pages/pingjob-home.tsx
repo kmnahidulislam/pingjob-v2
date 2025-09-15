@@ -148,10 +148,10 @@ export default function PingJobHome() {
   // Fetch public jobs for homepage display (100 jobs total for pagination)
   const { data: jobsData, isLoading: jobsLoading, refetch: refetchJobs } = useQuery<any[]>({
     queryKey: ['/api/jobs', { limit: totalJobsToShow }],
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    gcTime: 60 * 60 * 1000, // 1 hour  
-    refetchOnWindowFocus: false,
-    refetchOnMount: false, // Prevent automatic refetch
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: true, // Always refetch when component mounts
     retry: false // Don't retry on failure
   });
 
