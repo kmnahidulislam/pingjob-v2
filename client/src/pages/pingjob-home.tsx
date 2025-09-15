@@ -228,8 +228,8 @@ export default function PingJobHome() {
   const jobs = jobsData || [];
   const jobDisplayLimit = getJobDisplayLimit();
   
-  // Apply user-based job limit to available jobs
-  const limitedJobs = jobs.slice(0, jobDisplayLimit);
+  // Apply user-based job limit to available jobs (show all 100 for proper pagination)
+  const limitedJobs = jobs.slice(0, totalJobsToShow);
   
   // Calculate pagination for jobs based on limited jobs
   const startIndex = (currentJobPage - 1) * jobsPerPage;
@@ -254,7 +254,7 @@ export default function PingJobHome() {
     // The dependency on currentJobPage ensures jobs display updates
   }, [currentJobPage]);
   
-  const totalJobs = Math.min(limitedJobs.length, totalJobsToShow);
+  const totalJobs = limitedJobs.length;
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
   // Calculate real-time statistics
