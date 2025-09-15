@@ -363,7 +363,10 @@ export default function PingJobHome() {
     if (!query.trim()) return;
     
     setSearchLoading(true);
-    setShowMainSearchResults(true);
+    // Only show main results on mobile, desktop should use dropdown overlay
+    if (isMobile) {
+      setShowMainSearchResults(true);
+    }
     
     try {
       const [jobsResponse, companiesResponse] = await Promise.all([
