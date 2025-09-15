@@ -196,28 +196,6 @@ export function setupAuth(app: Express) {
     console.log('⚠️ Google OAuth credentials not found - OAuth will not be available');
   }
 
-  // Passport serialization (already initialized above)
-  passport.serializeUser((user: any, done) => {
-    console.log('🔐 Serializing user:', user.id);
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id: string, done) => {
-    try {
-      console.log('🔐 Deserializing user ID:', id);
-      const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-      if (result.rows.length > 0) {
-        console.log('🔐 User found in deserialization:', result.rows[0].email);
-        done(null, result.rows[0]);
-      } else {
-        console.log('🔐 User not found in deserialization for ID:', id);
-        done(null, false);
-      }
-    } catch (error) {
-      console.error('🔐 Deserialization error:', error);
-      done(error, null);
-    }
-  });
 
   app.get('/api/user', (req: any, res) => {
     // Check both session.user and req.user (Passport)  
