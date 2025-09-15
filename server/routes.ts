@@ -694,10 +694,10 @@ export function registerRoutes(app: Express) {
         // Get recent jobs from top companies (1 job per company)
         jobs = await storage.getJobsFromTopCompanies(limit || 50);
       } else {
-        // Original feature: Show companies with most jobs first (latest job from each company)
-        console.log('🎯 Fetching jobs from top companies (companies with most jobs first)');
-        jobs = await storage.getJobsFromTopCompanies(limit || 50);
-        console.log(`✅ Found ${jobs.length} jobs from top companies`);
+        // Show latest jobs by posted/updated date (original behavior)
+        console.log('🎯 Fetching latest jobs by posted/updated date');
+        jobs = await storage.getFastJobs(limit || 50);
+        console.log(`✅ Found ${jobs.length} latest jobs`);
       }
       
       res.json(jobs);
