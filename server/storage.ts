@@ -522,12 +522,20 @@ export const storage = {
           companyLogoUrl: companies.logoUrl,
           companyWebsite: companies.website,
           companyDescription: companies.description,
+          companyCity: companies.city,
+          companyState: companies.state,
+          companyZipCode: companies.zipCode,
           categoryName: categories.name,
           applicationCount: sql<number>`(
             SELECT COUNT(*) 
             FROM ${users} 
             WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
-          )`.as('applicationCount')
+          )`.as('applicationCount'),
+          vendorCount: sql<number>`(
+            SELECT COUNT(*) 
+            FROM ${vendors} 
+            WHERE ${vendors.companyId} = ${companies.id} AND ${vendors.status} = 'approved'
+          )`.as('vendorCount')
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
@@ -567,7 +575,11 @@ export const storage = {
           name: job.companyName || "Unknown Company",
           logoUrl: job.companyLogoUrl,
           website: job.companyWebsite,
-          description: job.companyDescription
+          description: job.companyDescription,
+          city: job.companyCity,
+          state: job.companyState,
+          zipCode: job.companyZipCode,
+          vendorCount: job.vendorCount || 0
         },
         category: {
           id: job.categoryId,
@@ -1004,11 +1016,18 @@ export const storage = {
           companyLogoUrl: companies.logoUrl,
           companyWebsite: companies.website,
           companyDescription: companies.description,
+          companyCity: companies.city,
+          companyState: companies.state,
+          companyZipCode: companies.zipCode,
           categoryName: categories.name,
           applicationCount: sql<number>`(
             SELECT COUNT(*) FROM ${users} 
             WHERE ${users.userType} = 'job_seeker' AND ${users.categoryId} = ${jobs.categoryId}
-          )`.as('applicationCount')
+          )`.as('applicationCount'),
+          vendorCount: sql<number>`(
+            SELECT COUNT(*) FROM ${vendors} 
+            WHERE ${vendors.companyId} = ${companies.id} AND ${vendors.status} = 'approved'
+          )`.as('vendorCount')
         })
         .from(jobs)
         .leftJoin(companies, eq(jobs.companyId, companies.id))
@@ -1040,7 +1059,11 @@ export const storage = {
           name: job.companyName || "Unknown Company",
           logoUrl: job.companyLogoUrl,
           website: job.companyWebsite,
-          description: job.companyDescription
+          description: job.companyDescription,
+          city: job.companyCity,
+          state: job.companyState,
+          zipCode: job.companyZipCode,
+          vendorCount: job.vendorCount || 0
         },
         category: {
           id: job.categoryId,
