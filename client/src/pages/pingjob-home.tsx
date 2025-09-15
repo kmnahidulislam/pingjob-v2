@@ -567,6 +567,141 @@ export default function PingJobHome() {
         </form>
       </div>
 
+      {/* Universal Search Results Section - Visible on both mobile and desktop */}
+      {showMainSearchResults && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Search Results for "{searchQuery}"
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {searchLoading ? "Searching..." : `Found ${searchResults.jobs.length} jobs and ${searchResults.companies.length} companies`}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowMainSearchResults(false);
+                  setShowSearchDropdown(false);
+                  setSearchQuery("");
+                  setSearchResults({jobs: [], companies: []});
+                }}
+              >
+                Clear Search
+              </Button>
+            </div>
+
+            {searchLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Jobs Results */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
+                    Jobs ({searchResults.jobs.length})
+                  </h3>
+                  {searchResults.jobs.length > 0 ? (
+                    <div className="space-y-4">
+                      {searchResults.jobs.slice(0, 10).map((job: any) => (
+                        <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
+                              <p className="text-sm text-gray-600 mb-1">{job.company?.name}</p>
+                              <div className="flex items-center space-x-4 text-sm mb-2">
+                                {formatJobLocation(job) && (
+                                  <div className="flex items-center text-blue-600 font-medium">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    <span>{formatJobLocation(job)}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center">
+                                  <Users className="h-3 w-3 mr-1" />
+                                  <span>{job.applicationCount || 0} applicants</span>
+                                </div>
+                                {job.salary && (
+                                  <div className="flex items-center">
+                                    <DollarSign className="h-3 w-3 mr-1" />
+                                    <span>{job.salary}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 line-clamp-2">{job.description}</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0 ml-2" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">No jobs found matching your search.</p>
+                  )}
+                </div>
+
+                {/* Companies Results */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
+                    Companies ({searchResults.companies.length})
+                  </h3>
+                  {searchResults.companies.length > 0 ? (
+                    <div className="space-y-4">
+                      {searchResults.companies.slice(0, 10).map((company: any) => (
+                        <div key={company.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/companies/${company.id}`)}>
+                          <div className="flex items-center space-x-3">
+                            {company.logoUrl && company.logoUrl !== "NULL" ? (
+                              <div className="w-12 h-12 border border-gray-200 rounded overflow-hidden bg-white flex-shrink-0">
+                                <img 
+                                  src={resolveLogoUrl(company.logoUrl)} 
+                                  alt={company.name}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                                <Building2 className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-gray-900 mb-1">{company.name}</h4>
+                              <p className="text-sm text-gray-600 mb-1">{company.industry || 'Technology'}</p>
+                              <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                {company.location && (
+                                  <div className="flex items-center">
+                                    <MapPin className="h-3 w-3 mr-1" />
+                                    <span>{company.location}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center">
+                                  <Briefcase className="h-3 w-3 mr-1" />
+                                  <span>{company.jobCount || 0} jobs</span>
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm">No companies found matching your search.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Desktop Search Results Overlay - STRICTLY desktop only */}
       {!isMobile && showSearchDropdown && !showMainSearchResults && (
         <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={() => setShowSearchDropdown(false)} />
@@ -966,37 +1101,7 @@ export default function PingJobHome() {
         </div>
       </main>
 
-      {/* Universal Search Results Section - Visible on both mobile and desktop */}
-      {showMainSearchResults && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Search Results for "{searchQuery}"
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {searchLoading ? "Searching..." : `Found ${searchResults.jobs.length} jobs and ${searchResults.companies.length} companies`}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowMainSearchResults(false);
-                  setShowSearchDropdown(false);
-                  setSearchQuery("");
-                  setSearchResults({jobs: [], companies: []});
-                }}
-              >
-                Clear Search
-              </Button>
-            </div>
-
-            {searchLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : (
+      {/* Mobile Main Content */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Jobs Results */}
                 <div>
