@@ -815,8 +815,98 @@ export default function PingJobHome() {
 
         {/* Desktop Main Content - Jobs Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div id="jobs-section" className="lg:col-span-3">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Sidebar - Platform Stats & Top Companies */}
+            <div className="lg:col-span-3 space-y-8">
+              {/* Platform Stats */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
+                    Platform Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Total Jobs</span>
+                      <span className="font-bold text-blue-600">{jobStats.totalJobs}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Active Companies</span>
+                      <span className="font-bold text-green-600">{jobStats.activeCompanies.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Categories</span>
+                      <span className="font-bold text-purple-600">{jobStats.totalCategories}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Today's Jobs</span>
+                      <span className="font-bold text-orange-600">{jobStats.todayJobs}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Companies */}
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
+                    Top Companies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {topCompanies.length > 0 ? (
+                    <div className="space-y-3">
+                      {topCompanies.slice(0, 8).map((company: any) => (
+                        <Link 
+                          key={company.id} 
+                          href={`/companies/${company.id}`}
+                          className="block group"
+                        >
+                          <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors duration-300 border border-gray-100 hover:border-gray-200">
+                            <div className="flex items-center space-x-3">
+                              {company.logoUrl && company.logoUrl !== "NULL" ? (
+                                <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-white">
+                                  <img 
+                                    src={resolveLogoUrl(company.logoUrl)}
+                                    alt={company.name}
+                                    className="w-full h-full object-contain p-1"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                                  {(company.name || 'C').charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
+                                  {company.name}
+                                </div>
+                                <div className="text-xs text-gray-500">{company.industry}</div>
+                              </div>
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {company.vendor_count} vendors
+                            </Badge>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500">Loading companies...</div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Center - Job Opportunities */}
+            <div id="jobs-section" className="lg:col-span-6">
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center mb-6">
                   <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Latest Job Opportunities</h2>
@@ -1000,8 +1090,8 @@ export default function PingJobHome() {
               </div>
             </div>
 
-            {/* Sidebar - Categories & Companies */}
-            <div className="lg:col-span-1 space-y-8">
+            {/* Right Sidebar - Job Categories */}
+            <div className="lg:col-span-3 space-y-8">
               {/* Job Categories */}
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
@@ -1018,91 +1108,6 @@ export default function PingJobHome() {
                   ) : (
                     <div className="text-sm text-gray-500">Loading categories...</div>
                   )}
-                </CardContent>
-              </Card>
-
-              {/* Top Companies */}
-              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
-                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
-                    Top Companies
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {topCompanies.length > 0 ? (
-                    <div className="space-y-3">
-                      {topCompanies.slice(0, 8).map((company: any) => (
-                        <Link 
-                          key={company.id} 
-                          href={`/companies/${company.id}`}
-                          className="block group"
-                        >
-                          <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors duration-300 border border-gray-100 hover:border-gray-200">
-                            <div className="flex items-center space-x-3">
-                              {company.logoUrl && company.logoUrl !== "NULL" ? (
-                                <div className="w-8 h-8 border border-gray-200 rounded overflow-hidden bg-white">
-                                  <img 
-                                    src={resolveLogoUrl(company.logoUrl)}
-                                    alt={company.name}
-                                    className="w-full h-full object-contain p-1"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                    }}
-                                  />
-                                </div>
-                              ) : (
-                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">
-                                  {(company.name || 'C').charAt(0).toUpperCase()}
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
-                                  {company.name}
-                                </div>
-                                <div className="text-xs text-gray-500">{company.industry}</div>
-                              </div>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {company.vendor_count} vendors
-                            </Badge>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-500">Loading companies...</div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Platform Stats */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
-                    Platform Stats
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Total Jobs</span>
-                      <span className="font-bold text-blue-600">{jobStats.totalJobs}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Active Companies</span>
-                      <span className="font-bold text-green-600">{jobStats.activeCompanies.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Categories</span>
-                      <span className="font-bold text-purple-600">{jobStats.totalCategories}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Today's Jobs</span>
-                      <span className="font-bold text-orange-600">{jobStats.todayJobs}</span>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
