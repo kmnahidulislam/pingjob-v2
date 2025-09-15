@@ -903,11 +903,11 @@ export default function PingJobHome() {
                                   {(company.name || 'C').charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
+                              <div className="flex-1 min-w-0 pr-2">
+                                <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300 break-words">
                                   {company.name}
                                 </div>
-                                <div className="text-xs text-gray-500">{company.industry}</div>
+                                <div className="text-xs text-gray-500 break-words">{company.industry}</div>
                               </div>
                             </div>
                             <Badge variant="secondary" className="text-xs">
@@ -1099,14 +1099,6 @@ export default function PingJobHome() {
                 </div>
               )}
               
-              <div className="text-center mt-8">
-                <Link href="/jobs">
-                  <Button size="lg" className="px-8">
-                    View All Jobs
-                    <Briefcase className="h-5 w-5 ml-2" />
-                  </Button>
-                </Link>
-              </div>
             </div>
 
           </div>
