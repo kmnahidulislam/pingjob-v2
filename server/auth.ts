@@ -135,7 +135,8 @@ export function setupAuth(app: Express) {
     
     // Determine the correct callback URL based on environment
     let callbackURL;
-    const host = process.env.NODE_ENV === 'production' ? 'www.pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
+    // Use pingjob.com (without www) for production to match Google Console configuration
+    const host = process.env.NODE_ENV === 'production' ? 'pingjob.com' : (process.env.REPLIT_DOMAINS || 'localhost:5000');
     const protocol = host.includes('localhost') ? 'http' : 'https';
     callbackURL = `${protocol}://${host}/api/auth/google/callback`;
     
