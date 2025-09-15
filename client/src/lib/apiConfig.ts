@@ -8,7 +8,6 @@ export function getApiBaseUrl(): string {
   const isAndroidWebView = /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
   const isCapacitorApp = document.URL.startsWith('capacitor://') || 
                          document.URL.startsWith('ionic://') ||
-                         (window as any).Capacitor !== undefined ||
                          (window as any).cordova !== undefined;
   const isLocalhost = document.URL.includes('localhost');
   const isFileProtocol = document.URL.startsWith('file://');
