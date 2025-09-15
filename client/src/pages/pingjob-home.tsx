@@ -91,6 +91,11 @@ export default function PingJobHome() {
   const jobsPerPage = 20;
   const totalJobsToShow = 100;
 
+  // Determine job display limit based on user authentication status
+  const getJobDisplayLimit = () => {
+    return user ? 25 : 10; // 25 jobs for logged-in users, 10 for non-logged-in users
+  };
+
   // Detect mobile device with more robust detection
   useEffect(() => {
     const checkMobile = () => {
@@ -221,11 +226,15 @@ export default function PingJobHome() {
   };
 
   const jobs = jobsData || [];
+  const jobDisplayLimit = getJobDisplayLimit();
   
-  // Calculate pagination for jobs
+  // Apply user-based job limit to available jobs
+  const limitedJobs = jobs.slice(0, jobDisplayLimit);
+  
+  // Calculate pagination for jobs based on limited jobs
   const startIndex = (currentJobPage - 1) * jobsPerPage;
   const endIndex = startIndex + jobsPerPage;
-  const currentJobs = jobs.slice(startIndex, endIndex);
+  const currentJobs = limitedJobs.slice(startIndex, endIndex);
 
   // Removed debug logging to prevent production issues
   
@@ -245,7 +254,7 @@ export default function PingJobHome() {
     // The dependency on currentJobPage ensures jobs display updates
   }, [currentJobPage]);
   
-  const totalJobs = Math.min(jobs.length, totalJobsToShow);
+  const totalJobs = Math.min(limitedJobs.length, totalJobsToShow);
   const totalPages = Math.ceil(totalJobs / jobsPerPage);
 
   // Calculate real-time statistics
@@ -1100,158 +1109,6 @@ export default function PingJobHome() {
           </div>
         </div>
       </main>
-
-      {/* Mobile Main Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Jobs Results */}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
-                    Jobs ({searchResults.jobs.length})
-                  </h3>
-                  {searchResults.jobs.length > 0 ? (
-                    <div className="space-y-4">
-                      {searchResults.jobs.slice(0, 10).map((job: any) => (
-                        <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-medium text-gray-900 mb-1">{job.title}</h4>
-                              <p className="text-sm text-gray-600 mb-1">{job.company?.name}</p>
-                              <div className="flex items-center space-x-4 text-sm mb-2">
-                                {formatJobLocation(job) && (
-                                  <div className="flex items-center text-blue-600 font-medium">
-                                    <MapPin className="h-4 w-4 mr-1" />
-                                    <span>{formatJobLocation(job)}</span>
-                                  </div>
-                                )}
-                                <div className="flex items-center">
-                                  <Users className="h-3 w-3 mr-1" />
-                                  <span>{job.applicantCount || 0} applicants</span>
-                                </div>
-                              </div>
-                              <p className="text-sm text-gray-700 line-clamp-2">{job.description}</p>
-                            </div>
-                            {job.company?.logoUrl && job.company.logoUrl !== "NULL" && (
-                              <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
-                                <img 
-                                  src={resolveLogoUrl(job.company.logoUrl)}
-                                  alt={job.company.name}
-                                  className="w-full h-full object-contain p-1"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex gap-2 mt-3">
-                            <Button variant="outline" size="sm" className="flex-1" onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/jobs/${job.id}`);
-                            }}>
-                              View Details
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              className="flex-1" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleApplyNow(job.id);
-                              }}
-                            >
-                              Apply Now
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      {searchResults.jobs.length > 10 && (
-                        <div className="text-center pt-4">
-                          <Button variant="outline" onClick={() => navigate(`/jobs?search=${encodeURIComponent(searchQuery)}`)}>
-                            View All {searchResults.jobs.length} Jobs
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Briefcase className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                      <p>No jobs found for "{searchQuery}"</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Companies Results */}
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                    <Building2 className="h-5 w-5 mr-2 text-green-600" />
-                    Companies ({searchResults.companies.length})
-                  </h3>
-                  {searchResults.companies.length > 0 ? (
-                    <div className="space-y-4">
-                      {searchResults.companies.slice(0, 10).map((company: any) => (
-                        <div key={company.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/companies/${company.id}`)}>
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-medium text-gray-900 mb-1">{company.name}</h4>
-                              <p className="text-sm text-gray-600 mb-2">{company.industry}</p>
-                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                                <div className="flex items-center">
-                                  <MapPin className="h-3 w-3 mr-1" />
-                                  <span>{company.city}, {company.state}</span>
-                                </div>
-                                {company.vendor_count > 0 && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {company.vendor_count} vendors
-                                  </Badge>
-                                )}
-                              </div>
-                              {company.description && (
-                                <p className="text-sm text-gray-700 line-clamp-2">{company.description}</p>
-                              )}
-                            </div>
-                            {company.logoUrl && company.logoUrl !== "NULL" && (
-                              <div className="w-12 h-10 border border-gray-200 rounded overflow-hidden bg-white ml-4">
-                                <img 
-                                  src={company.logoUrl.startsWith('/') ? company.logoUrl.replace(/ /g, '%20') : `/${company.logoUrl.replace(/ /g, '%20')}`}
-                                  alt={company.name}
-                                  className="w-full h-full object-contain p-1"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-3">
-                            <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/companies?search=${encodeURIComponent(company.name)}`);
-                            }}>
-                              View Company Details
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      {searchResults.companies.length > 10 && (
-                        <div className="text-center pt-4">
-                          <Button variant="outline" onClick={() => navigate(`/companies?search=${encodeURIComponent(searchQuery)}`)}>
-                            View All {searchResults.companies.length} Companies
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Building2 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                      <p>No companies found for "{searchQuery}"</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Mobile Main Content */}
       <main className="mobile-only" style={{ marginTop: showMainSearchResults ? '0' : '20px' }}>
