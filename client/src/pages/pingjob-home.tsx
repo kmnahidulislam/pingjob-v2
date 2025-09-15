@@ -815,10 +815,29 @@ export default function PingJobHome() {
 
         {/* Desktop Main Content - Jobs Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
-            {/* Left Sidebar - Platform Stats & Top Companies */}
-            <div className="lg:col-span-3 space-y-8">
+            {/* Left Sidebar - Job Categories, Platform Stats, Top Companies */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Job Categories */}
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
+                    <Target className="h-5 w-5 mr-2 text-blue-600" />
+                    Job Categories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {categories.length > 0 ? (
+                    <JobCategories selectedCategory={selectedCategory} onCategorySelect={(categoryId) => {
+                      window.location.href = `/jobs?categoryId=${categoryId}`;
+                    }} />
+                  ) : (
+                    <div className="text-sm text-gray-500">Loading categories...</div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Platform Stats */}
               <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
                 <CardHeader className="pb-4">
@@ -905,8 +924,8 @@ export default function PingJobHome() {
               </Card>
             </div>
             
-            {/* Center - Job Opportunities */}
-            <div id="jobs-section" className="lg:col-span-6">
+            {/* Right - Job Opportunities (10 rows × 2 jobs = 20 jobs per page) */}
+            <div id="jobs-section" className="lg:col-span-3">
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center mb-6">
                   <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Latest Job Opportunities</h2>
@@ -1090,27 +1109,6 @@ export default function PingJobHome() {
               </div>
             </div>
 
-            {/* Right Sidebar - Job Categories */}
-            <div className="lg:col-span-3 space-y-8">
-              {/* Job Categories */}
-              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-bold text-gray-900 flex items-center">
-                    <Target className="h-5 w-5 mr-2 text-blue-600" />
-                    Job Categories
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {categories.length > 0 ? (
-                    <JobCategories selectedCategory={selectedCategory} onCategorySelect={(categoryId) => {
-                      window.location.href = `/jobs?categoryId=${categoryId}`;
-                    }} />
-                  ) : (
-                    <div className="text-sm text-gray-500">Loading categories...</div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </main>
